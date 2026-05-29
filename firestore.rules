@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isResourceOwner(ownerUid) {
+      return signedIn() && ownerUid == request.auth.uid;
+    }
+
+    function isActiveMember(spotId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/spots/$(spotId)/members/$(request.auth.uid))
+        && get(/databases/$(database)/documents/spots/$(spotId)/members/$(request.auth.uid)).data.status == "active";
+    }
+
+    match /spots/{spotId} {
+      allow read: if resource.data.isPublished == true || isResourceOwner(resource.data.ownerUid);
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isResourceOwner(resource.data.ownerUid);
+
+      match /members/{uid} {
+        allow read: if signedIn() && (request.auth.uid == uid || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid));
+        allow create, update: if signedIn() && request.auth.uid == uid;
+      }
+
+      match /posts/{postId} {
+        allow read: if isActiveMember(spotId) || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        allow create, update, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+      }
+
+      match /events/{eventId} {
+        allow read: if isActiveMember(spotId) || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        allow create, update, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+
+        match /participants/{uid} {
+          allow read: if isActiveMember(spotId) || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+          allow create, update, delete: if signedIn() && request.auth.uid == uid && isActiveMember(spotId);
+        }
+      }
+    }
+
+    match /users/{uid}/memberships/{spotId} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+  }
+}
