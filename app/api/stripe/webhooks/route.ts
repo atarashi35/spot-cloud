@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getMembershipBySubscriptionId, upsertMembership } from "@/lib/server/memberships";
 import { stripe } from "@/lib/stripe/config";
-import { MembershipStatus, PlanAmount } from "@/lib/types";
+import { MembershipStatus, PlanAmount, SocioAgeRange, SocioGender } from "@/lib/types";
 
 function mapSubscriptionStatusToMembershipStatus(
   status: Stripe.Subscription.Status
@@ -88,8 +88,24 @@ export async function POST(request: Request) {
         return NextResponse.json({ received: true, skipped: "missing_metadata" });
       }
 
+      let buyerName = session.customer_details?.name ?? metadata.displayName ?? "";
+      let buyerEmail = session.customer_details?.email ?? metadata.email ?? "";
+
+      if ((!buyerName || !buyerEmail) && typeof session.customer === "string") {
+        const customer = await stripe.customers.retrieve(session.customer);
+
+        if (!("deleted" in customer)) {
+          buyerName ||= customer.name ?? "";
+          buyerEmail ||= customer.email ?? "";
+        }
+      }
+
       await upsertMembership({
         uid: metadata.uid,
+        displayName: buyerName,
+        email: buyerEmail,
+        ageRange: (metadata.ageRange ?? "") as SocioAgeRange,
+        gender: (metadata.gender ?? "") as SocioGender,
         spotId: metadata.spotId,
         spotName: metadata.spotName,
         planAmount: Number(metadata.planAmount) as PlanAmount,

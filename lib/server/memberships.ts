@@ -1,9 +1,13 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebase/admin";
-import { MembershipStatus, PlanAmount } from "@/lib/types";
+import { MembershipStatus, PlanAmount, SocioAgeRange, SocioGender } from "@/lib/types";
 
 type MembershipPayload = {
   uid: string;
+  displayName?: string;
+  email?: string;
+  ageRange?: SocioAgeRange;
+  gender?: SocioGender;
   spotId: string;
   spotName: string;
   planAmount: PlanAmount;
@@ -15,7 +19,8 @@ type MembershipPayload = {
 export async function upsertMembership(payload: MembershipPayload) {
   const db = getAdminDb();
   const memberRef = db.doc(`spots/${payload.spotId}/members/${payload.uid}`);
-  const membershipRef = db.doc(`users/${payload.uid}/memberships/${payload.spotId}`);
+  const isGuest = payload.uid.startsWith("guest_");
+  const membershipRef = isGuest ? null : db.doc(`users/${payload.uid}/memberships/${payload.spotId}`);
 
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(memberRef);
@@ -27,6 +32,11 @@ export async function upsertMembership(payload: MembershipPayload) {
       memberRef,
       {
         uid: payload.uid,
+        isGuest,
+        displayName: payload.displayName ?? "",
+        email: payload.email ?? "",
+        ageRange: payload.ageRange ?? "",
+        gender: payload.gender ?? "",
         planAmount: payload.planAmount,
         stripeCustomerId: payload.stripeCustomerId,
         stripeSubscriptionId: payload.stripeSubscriptionId,
@@ -37,18 +47,20 @@ export async function upsertMembership(payload: MembershipPayload) {
       { merge: true }
     );
 
-    transaction.set(
-      membershipRef,
-      {
-        spotId: payload.spotId,
-        spotName: payload.spotName,
-        planAmount: payload.planAmount,
-        status: payload.status,
-        joinedAt: snapshot.exists ? snapshot.data()?.joinedAt ?? FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
-      },
-      { merge: true }
-    );
+    if (membershipRef) {
+      transaction.set(
+        membershipRef,
+        {
+          spotId: payload.spotId,
+          spotName: payload.spotName,
+          planAmount: payload.planAmount,
+          status: payload.status,
+          joinedAt: snapshot.exists ? snapshot.data()?.joinedAt ?? FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp()
+        },
+        { merge: true }
+      );
+    }
 
     if (becameActive) {
       transaction.update(db.doc(`spots/${payload.spotId}`), {
@@ -91,6 +103,10 @@ export async function getMembershipBySubscriptionId(subscriptionId: string) {
 
   return {
     uid: String(member.uid ?? ""),
+    displayName: String(member.displayName ?? ""),
+    email: String(member.email ?? ""),
+    ageRange: String(member.ageRange ?? "") as SocioAgeRange,
+    gender: String(member.gender ?? "") as SocioGender,
     spotId,
     spotName,
     planAmount: Number(member.planAmount ?? 500) as PlanAmount,

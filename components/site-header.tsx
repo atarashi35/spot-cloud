@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, LayoutGrid, LogIn, LogOut, Search, Settings2, Shield, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Bell, LogIn, LogOut, Search, Settings2, Shield, Sparkles, UserCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { listOwnerSpotsFromFirestore } from "@/lib/firestore/spots";
 import { isAdminEmail } from "@/lib/auth/admin";
@@ -24,23 +24,53 @@ function getInitials(name: string | null | undefined) {
 export function SiteHeader() {
   const { authReady, user, signInWithGoogle, signOutUser } = useAuth();
   const [showManageLink, setShowManageLink] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const showAdminLink = authReady && isAdminEmail(user?.email);
   const showOperatorMenu = showAdminLink || showManageLink;
+  const visibleUser = user && !user.isAnonymous ? user : null;
 
   useEffect(() => {
-    if (!user) {
+    if (!visibleUser) {
       setShowManageLink(false);
+      setMenuOpen(false);
       return;
     }
 
-    void listOwnerSpotsFromFirestore(user.uid)
+    void listOwnerSpotsFromFirestore(visibleUser.uid)
       .then((spots) => {
         setShowManageLink(spots.length > 0);
       })
       .catch(() => {
         setShowManageLink(false);
       });
-  }, [user]);
+  }, [visibleUser]);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
 
   return (
     <header className="shell sticky top-0 z-[80] py-5">
@@ -63,46 +93,61 @@ export function SiteHeader() {
           <button type="button" className="icon-button text-ink/45" aria-label="通知">
             <Bell className="h-4 w-4" />
           </button>
-          {user ? (
-            <details className="group relative z-[90]">
-              <summary className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full border border-ink/10 bg-white text-sm font-bold text-ink transition hover:border-moss hover:text-moss">
-                {getInitials(user.displayName)}
-              </summary>
-              <div className="menu-surface absolute right-0 top-[calc(100%+10px)] z-[100] w-64 p-2">
-                <div className="border-b border-ink/8 px-3 py-3">
-                  <div className="text-sm font-semibold text-ink">{user.displayName ?? "ログイン中"}</div>
-                  <div className="mt-1 text-xs text-ink/55">{user.email}</div>
-                </div>
-                <div className="py-2">
-                  <Link href="/account" className="menu-link">
-                    <LayoutGrid className="h-4 w-4" />
-                    所属中のSPOT
-                  </Link>
-                  {showOperatorMenu ? (
-                    <Link href="/manage" className="menu-link">
+          {visibleUser ? (
+            <div ref={menuRef} className="relative z-[90]">
+              <button
+                type="button"
+                aria-label="プロフィール"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((current) => !current)}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 bg-white text-sm font-bold text-ink transition hover:border-moss hover:text-moss"
+              >
+                {getInitials(visibleUser.displayName)}
+              </button>
+              {menuOpen ? (
+                <div className="menu-surface absolute right-0 top-[calc(100%+10px)] z-[100] w-64 p-2">
+                  <div className="border-b border-ink/8 px-3 py-3">
+                    <div className="text-sm font-semibold text-ink">{visibleUser.displayName ?? "ログイン中"}</div>
+                    <div className="mt-1 text-xs text-ink/55">{visibleUser.email}</div>
+                  </div>
+                  <div className="py-2">
+                    <Link href="/account" className="menu-link" onClick={() => setMenuOpen(false)}>
+                      <UserCircle className="h-4 w-4" />
+                      マイアカウント
+                    </Link>
+                    {showOperatorMenu ? (
+                      <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
+                        <Settings2 className="h-4 w-4" />
+                        運営するSPOT
+                      </Link>
+                    ) : null}
+                    {showAdminLink ? (
+                      <Link href="/admin" className="menu-link" onClick={() => setMenuOpen(false)}>
+                        <Shield className="h-4 w-4" />
+                        管理
+                      </Link>
+                    ) : null}
+                    <Link href="/settings" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <Settings2 className="h-4 w-4" />
-                      運営するSPOT
+                      設定
                     </Link>
-                  ) : null}
-                  {showAdminLink ? (
-                    <Link href="/admin" className="menu-link">
-                      <Shield className="h-4 w-4" />
-                      管理
-                    </Link>
-                  ) : null}
-                  <Link href="/settings" className="menu-link">
-                    <Settings2 className="h-4 w-4" />
-                    設定
-                  </Link>
+                  </div>
+                  <div className="border-t border-ink/8 px-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        void signOutUser();
+                      }}
+                      className="menu-link w-full"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      ログアウト
+                    </button>
+                  </div>
                 </div>
-                <div className="border-t border-ink/8 px-2 pt-2">
-                  <button type="button" onClick={signOutUser} className="menu-link w-full">
-                    <LogOut className="h-4 w-4" />
-                    ログアウト
-                  </button>
-                </div>
-              </div>
-            </details>
+              ) : null}
+            </div>
           ) : (
             <button
               type="button"

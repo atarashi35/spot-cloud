@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Spot } from "@/lib/types";
 
 export function AdminConsoleClient() {
@@ -130,16 +131,15 @@ export function AdminConsoleClient() {
           className="rounded-[28px] border border-ink/10 bg-mist p-5 sm:flex sm:items-center sm:justify-between"
         >
           <div>
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold tracking-[0.18em] text-ink/55">
-              <span>{spot.category}</span>
-              {spot.isSuspended ? <span>停止中</span> : null}
-              <span>{spot.isPublished ? "公開中" : "非公開"}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="chip">{spot.category}</span>
+              <StatusBadge tone={spot.isPublished ? "success" : "neutral"}>
+                {spot.isPublished ? "公開中" : "非公開"}
+              </StatusBadge>
+              {spot.isSuspended ? <StatusBadge tone="danger">停止中</StatusBadge> : null}
             </div>
             <h2 className="mt-2 text-xl font-bold text-ink">{spot.name}</h2>
-            <p className="mt-2 text-sm leading-7 text-ink/68">
-              ownerUid: {spot.ownerUid} / socio: {spot.socioCount} / 更新日: {spot.updatedAt.slice(0, 10)}
-            </p>
-            <p className="mt-2 text-sm text-ink/60">{spot.shortDescription}</p>
+            <p className="mt-3 text-sm text-ink/68">ソシオ {spot.socioCount}人 / 更新 {spot.updatedAt.slice(0, 10)}</p>
           </div>
           <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
             <Link href={`/spots/${spot.id}`} className="cta-secondary">

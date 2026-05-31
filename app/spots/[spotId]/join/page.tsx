@@ -1,5 +1,4 @@
 import { JoinPageClient } from "@/components/spots/join-page-client";
-import { JoinFlowClient } from "@/components/spots/join-flow-client";
 import { planOptions } from "@/lib/types";
 
 export default async function JoinPage({

@@ -16,6 +16,16 @@ export type SpotCategory =
 
 export type MembershipStatus = "active" | "canceled" | "past_due";
 
+export type SocioAgeRange =
+  | "10代以下"
+  | "20代"
+  | "30代"
+  | "40代"
+  | "50代"
+  | "60代以上";
+
+export type SocioGender = "女性" | "男性" | "その他" | "回答しない";
+
 export interface Spot {
   id: string;
   name: string;
@@ -38,6 +48,10 @@ export interface Spot {
 
 export interface SpotMembership {
   uid: string;
+  displayName?: string;
+  email?: string;
+  ageRange?: SocioAgeRange;
+  gender?: SocioGender;
   planAmount: PlanAmount;
   stripeCustomerId: string;
   stripeSubscriptionId: string;

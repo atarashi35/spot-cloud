@@ -4,7 +4,10 @@ import { Spot } from "@/lib/types";
 
 export function SpotCard({ spot }: { spot: Spot }) {
   return (
-    <article className="panel overflow-hidden">
+    <Link
+      href={`/spots/${spot.id}`}
+      className="panel block overflow-hidden transition hover:-translate-y-0.5 hover:border-ink/15 hover:shadow-[0_18px_50px_rgba(19,35,28,0.08)] focus:outline-none focus:ring-2 focus:ring-moss/25"
+    >
       {spot.coverImageUrl ? (
         <img
           alt={spot.name}
@@ -33,10 +36,7 @@ export function SpotCard({ spot }: { spot: Spot }) {
             <span>{spot.socioCount} 人のソシオ</span>
           </div>
         </div>
-        <Link href={`/spots/${spot.id}`} className="cta-secondary w-full">
-          詳細を見る
-        </Link>
       </div>
-    </article>
+    </Link>
   );
 }

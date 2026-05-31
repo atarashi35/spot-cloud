@@ -62,7 +62,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
     return (
       <EmptyState
         title="このページはログイン後に利用できます"
-        description="Google ログイン後に、加入済み SPOT の限定情報を確認できます。"
+        description="Google ログイン後に、加入済み SPOT のソシオ限定の内容を確認できます。"
       />
     );
   }
@@ -178,17 +178,13 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
           </section>
 
           <section className="panel px-6 py-6">
-            <h2 className="text-2xl font-bold text-ink">ソシオ情報</h2>
-            <div className="mt-5 space-y-3 text-sm text-ink/68">
+            <div className="flex flex-wrap gap-3 text-sm text-ink/68">
               <div className="rounded-[20px] bg-mist px-4 py-3">
                 加入ステータス: {membership?.status ?? "active"}
               </div>
               <div className="rounded-[20px] bg-mist px-4 py-3">
                 加入日: {(membership?.joinedAt ?? new Date().toISOString()).slice(0, 10)}
               </div>
-              <Link href="/account" className="cta-secondary w-full">
-                解約導線を確認する
-              </Link>
             </div>
           </section>
         </div>

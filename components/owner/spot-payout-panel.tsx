@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { ConnectOnboardingButton } from "@/components/owner/connect-onboarding-button";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { Spot } from "@/lib/types";
 
@@ -169,15 +170,11 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-ink">{spot.name}</h2>
-            <p className="mt-3 text-sm leading-7 text-ink/68">
-              加入金をこの SPOT の運営者へ分配するための設定です。未設定のまま本番公開すると、受取先が確定しません。
-            </p>
           </div>
-          <div className="rounded-[20px] bg-white px-4 py-4 text-sm text-ink/70">
-            受取状況:{" "}
-            <span className="font-bold text-ink">
+          <div className="flex flex-wrap gap-3">
+            <StatusBadge tone={ready ? "success" : connected ? "warning" : "neutral"}>
               {ready ? "設定完了" : connected ? "設定途中" : "未設定"}
-            </span>
+            </StatusBadge>
           </div>
         </div>
         {notice ? (
@@ -191,27 +188,18 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
         <article className="rounded-[28px] border border-ink/10 bg-white px-5 py-5">
           <div className="text-sm text-ink/55">本人確認</div>
           <div className="mt-2 text-2xl font-bold text-ink">{onboardingComplete ? "完了" : "未完了"}</div>
-          <p className="mt-3 text-sm leading-7 text-ink/68">
-            Stripe 側で事業者情報の入力が完了しているかを表します。
-          </p>
         </article>
 
         <article className="rounded-[28px] border border-ink/10 bg-white px-5 py-5">
           <div className="text-sm text-ink/55">課金受付</div>
           <div className="mt-2 text-2xl font-bold text-ink">{chargesEnabled ? "有効" : "未有効"}</div>
-          <p className="mt-3 text-sm leading-7 text-ink/68">
-            ソシオ加入の決済を受け付けられる状態かを表します。
-          </p>
         </article>
 
         <article className="rounded-[28px] border border-ink/10 bg-white px-5 py-5">
           <div className="text-sm text-ink/55">振込受取</div>
           <div className="mt-2 text-2xl font-bold text-ink">{payoutsEnabled ? "有効" : "未有効"}</div>
-          <p className="mt-3 text-sm leading-7 text-ink/68">
-            Stripe から運営者口座へ売上を送れる状態かを表します。
-          </p>
           {!payoutsEnabled ? (
-            <div className="mt-4 rounded-[20px] bg-mist px-4 py-3 text-sm leading-7 text-ink/68">
+            <div className="mt-4 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/68">
               {!connectStatus?.hasExternalAccount
                 ? "受取口座がまだ Stripe に登録されていない可能性があります。"
                 : disabledReasonLabel ?? "Stripe 側の確認や口座設定がまだ完了していない可能性があります。"}
@@ -221,25 +209,17 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
       </section>
 
       <section className="rounded-[28px] border border-ink/10 bg-white px-5 py-5">
-        <h3 className="text-xl font-bold text-ink">この画面の役割</h3>
-        <div className="mt-4 space-y-3 text-sm leading-7 text-ink/68">
-          <p>この画面は、受取設定が完了したかを確認するための画面です。</p>
-          <p>運営画面から直接 Stripe 設定を始めて、完了後にここへ戻って状態を確認する使い方を想定しています。</p>
-        </div>
-      </section>
-
-      <section className="rounded-[28px] border border-ink/10 bg-white px-5 py-5">
-        <h3 className="text-xl font-bold text-ink">次にやること</h3>
+        <h3 className="text-xl font-bold text-ink">次の対応</h3>
         {ready ? (
-          <div className="mt-4 space-y-3 text-sm leading-7 text-ink/68">
-            <p>受取設定は完了しています。この SPOT は加入受付を始められる状態です。</p>
+          <div className="mt-4 space-y-3 text-sm text-ink/68">
+            <p>受取設定は完了しています。</p>
             <p className="rounded-[20px] bg-mist px-4 py-3 break-all">
               account id: {connectStatus?.accountId ?? spot.stripeConnectedAccountId}
             </p>
           </div>
         ) : (
-          <div className="mt-4 space-y-3 text-sm leading-7 text-ink/68">
-            <p>まだ設定が完了していません。Stripe 側の入力を再開して、3つの状態がすべて有効になるまで進めてください。</p>
+          <div className="mt-4 space-y-3 text-sm text-ink/68">
+            <p>Stripe 側の入力を再開して、3つの状態がすべて有効になるまで進めてください。</p>
             {!connectStatus?.hasExternalAccount ? (
               <div className="rounded-[20px] bg-mist px-4 py-3">
                 受取口座が未登録の可能性があります。Stripe Connect の設定画面で銀行口座の登録まで完了してください。

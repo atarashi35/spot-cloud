@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { ConnectOnboardingButton } from "@/components/owner/connect-onboarding-button";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
+import { MetricPill } from "@/components/ui/metric-pill";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { listOwnerSpotsFromFirestore } from "@/lib/firestore/spots";
 import { Spot } from "@/lib/types";
 
@@ -36,7 +38,7 @@ export function OwnerConsoleClient() {
     return (
       <EmptyState
         title="運営画面はログイン後に利用できます"
-        description="Google ログインを行うと、自分の場を登録・編集できるようになります。"
+        description="Google ログインを行うと、自分のSPOTを登録・編集できるようになります。"
       />
     );
   }
@@ -44,21 +46,21 @@ export function OwnerConsoleClient() {
   if (error) {
     return (
       <EmptyState
-        title="運営中の場を取得できませんでした"
+        title="運営中のSPOTを取得できませんでした"
         description={`Firestore 接続でエラーが出ています: ${error}`}
       />
     );
   }
 
   if (!spots) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">運営中の場を読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/60">運営中のSPOTを読み込み中です。</div>;
   }
 
   if (spots.length === 0) {
     return (
       <EmptyState
-        title="まだ運営中の場がありません"
-        description="最初の場を登録すると、この画面に自分の運営対象が表示されます。"
+        title="まだ運営中のSPOTがありません"
+        description="最初のSPOTを登録すると、この画面に自分の運営対象が表示されます。"
       />
     );
   }
@@ -72,41 +74,23 @@ export function OwnerConsoleClient() {
               <div className="chip">{spot.category}</div>
               <h2 className="mt-3 text-2xl font-bold text-ink">{spot.name}</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-ink/68">{spot.shortDescription}</p>
-              <div className="mt-4 rounded-[20px] bg-mist px-4 py-4 text-sm text-ink/68">
-                <div className="font-semibold text-ink">受取設定</div>
-                <p className="mt-2 leading-7">
-                  {spot.stripeConnectedAccountId
-                    ? "設定済みです。この場は Stripe Connect の分配対象として接続できます。"
-                    : "未設定です。本番運用では、加入受付を始める前に必ず Stripe Connect の受取設定を完了してください。"}
-                </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <StatusBadge tone={spot.isPublished ? "success" : "neutral"}>
+                  {spot.isPublished ? "公開中" : "非公開"}
+                </StatusBadge>
+                <StatusBadge tone={spot.stripeConnectedAccountId ? "success" : "warning"}>
+                  {spot.stripeConnectedAccountId ? "受取設定済み" : "受取設定中"}
+                </StatusBadge>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-[20px] bg-mist px-4 py-3 text-sm">
-                <div className="text-ink/55">ソシオ人数</div>
-                <div className="mt-1 text-xl font-bold text-ink">{spot.socioCount}</div>
-              </div>
-              <div className="rounded-[20px] bg-mist px-4 py-3 text-sm">
-                <div className="text-ink/55">月額見込み</div>
-                <div className="mt-1 text-xl font-bold text-ink">¥{spot.socioCount * 100}</div>
-              </div>
-              <div className="rounded-[20px] bg-mist px-4 py-3 text-sm">
-                <div className="text-ink/55">公開状態</div>
-                <div className="mt-1 text-xl font-bold text-ink">
-                  {spot.isPublished ? "公開中" : "非公開"}
-                </div>
-              </div>
-              <div className="rounded-[20px] bg-mist px-4 py-3 text-sm">
-                <div className="text-ink/55">受取状況</div>
-                <div className="mt-1 text-xl font-bold text-ink">
-                  {spot.stripeConnectedAccountId ? "設定済み" : "未設定"}
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <MetricPill label="ソシオ" value={`${spot.socioCount}人`} />
+              <MetricPill label="見込み" value={`¥${spot.socioCount * 100}`} />
             </div>
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">
-              場の情報を編集
+              SPOT情報を編集
             </Link>
             <ConnectOnboardingButton
               spotId={spot.id}

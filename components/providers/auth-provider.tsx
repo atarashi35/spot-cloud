@@ -3,6 +3,7 @@
 import {
   GoogleAuthProvider,
   User,
+  linkWithPopup,
   onAuthStateChanged,
   signInWithPopup,
   signOut
@@ -45,7 +46,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authReady,
     user,
     async signInWithGoogle() {
-      await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+      const auth = getFirebaseAuth();
+      const provider = new GoogleAuthProvider();
+
+      if (auth.currentUser?.isAnonymous) {
+        await linkWithPopup(auth.currentUser, provider);
+        return;
+      }
+
+      await signInWithPopup(auth, provider);
     },
     async signOutUser() {
       await signOut(getFirebaseAuth());

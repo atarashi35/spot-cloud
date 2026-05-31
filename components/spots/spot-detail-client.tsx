@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CalendarDays, MapPin, ShieldCheck, Users } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import { PlanSelector } from "@/components/plan-selector";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EventJoinButton } from "@/components/spots/event-join-button";
 import { EventParticipantsList } from "@/components/spots/event-participants-list";
+import { SocioSignupModal } from "@/components/spots/socio-signup-modal";
+import { MetricPill } from "@/components/ui/metric-pill";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { listSpotEventsFromFirestore } from "@/lib/firestore/events";
 import { getUserMembership } from "@/lib/firestore/memberships";
 import { listSpotPostsFromFirestore } from "@/lib/firestore/posts";
@@ -27,6 +29,19 @@ function getMembershipStatusLabel(status: UserMembership["status"]) {
   }
 }
 
+function getMembershipTone(status: UserMembership["status"]) {
+  switch (status) {
+    case "active":
+      return "success";
+    case "past_due":
+      return "warning";
+    case "canceled":
+      return "neutral";
+    default:
+      return "neutral";
+  }
+}
+
 export function SpotDetailClient({ spotId }: { spotId: string }) {
   const { authReady, user } = useAuth();
   const [spot, setSpot] = useState<Spot | null>(null);
@@ -34,6 +49,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [events, setEvents] = useState<SpotEvent[]>([]);
   const [membership, setMembership] = useState<UserMembership | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
+  const [signupModalOpen, setSignupModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authReady) {
@@ -112,6 +128,12 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
   return (
     <div className="space-y-8">
+      <SocioSignupModal
+        spot={spot}
+        open={signupModalOpen}
+        onClose={() => setSignupModalOpen(false)}
+        defaultPlan={membership?.planAmount ?? 100}
+      />
       <section className="panel overflow-hidden">
         {spot.coverImageUrl ? (
           <img
@@ -126,56 +148,40 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           <div>
             <span className="chip">{spot.category}</span>
             <h1 className="mt-4 text-3xl font-bold text-ink sm:text-4xl">{spot.name}</h1>
-            <p className="mt-5 text-sm leading-8 text-ink/72 sm:text-base">{spot.description}</p>
-            <div className="mt-6 grid gap-3 text-sm text-ink/68 sm:grid-cols-2">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                {spot.address}
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                {spot.socioCount} 人のソシオ
-              </div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4" />
-                限定イベント・お知らせあり
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
-                高額支援なし / 固定プランのみ
-              </div>
+            <p className="mt-5 max-w-3xl text-sm leading-8 text-ink/72 sm:text-base">{spot.description}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <MetricPill label="ソシオ" value={`${spot.socioCount}人`} />
+              <MetricPill label="エリア" value={`${spot.prefecture}${spot.city ? ` / ${spot.city}` : ""}`} />
+            </div>
+            <div className="mt-6 flex items-center gap-2 text-sm text-ink/62">
+              <MapPin className="h-4 w-4 shrink-0" />
+              <span>{spot.address}</span>
             </div>
           </div>
           <aside className="rounded-[28px] bg-mist p-5">
             <div className="text-xs font-semibold tracking-[0.18em] text-ink/55">JOIN AS SOCIO</div>
             {isOwner ? (
               <>
-                <h2 className="mt-3 text-2xl font-bold text-ink">運営者として閲覧中</h2>
-                <p className="mt-3 text-sm leading-7 text-ink/65">
-                  あなたはこの SPOT の管理者です。限定情報はこのページ内に表示されます。
-                </p>
-                <div className="mt-5 rounded-[24px] bg-white px-4 py-4 text-sm text-ink/70">
-                  運営者 UID: <span className="font-bold text-ink">{spot.ownerUid}</span>
+                <h2 className="mt-3 text-2xl font-bold text-ink">運営中</h2>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <StatusBadge tone="success">ソシオ限定を表示中</StatusBadge>
+                  <StatusBadge>運営者</StatusBadge>
                 </div>
               </>
             ) : membershipStatus === "active" ? (
               <>
                 <h2 className="mt-3 text-2xl font-bold text-ink">ソシオ加入済み</h2>
-                <p className="mt-3 text-sm leading-7 text-ink/65">
-                  このページ内で、お知らせ本文とイベント詳細まで閲覧できます。
-                </p>
-                <div className="mt-5 rounded-[24px] bg-white px-4 py-4 text-sm text-ink/70">
-                  加入プラン: <span className="font-bold text-ink">¥{membership?.planAmount ?? 500}</span>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <StatusBadge tone="success">利用中</StatusBadge>
+                  <MetricPill label="プラン" value={`¥${membership?.planAmount ?? 500}`} />
                 </div>
               </>
             ) : membershipStatus === "past_due" ? (
               <>
                 <h2 className="mt-3 text-2xl font-bold text-ink">支払い確認が必要です</h2>
-                <p className="mt-3 text-sm leading-7 text-ink/65">
-                  加入情報は残っていますが、現在は限定情報を表示していません。所属中のSPOTから支払い方法を更新してください。
-                </p>
-                <div className="mt-5 rounded-[24px] bg-white px-4 py-4 text-sm text-ink/70">
-                  現在の状態: <span className="font-bold text-ink">{getMembershipStatusLabel(membershipStatus)}</span>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <StatusBadge tone="warning">{getMembershipStatusLabel(membershipStatus)}</StatusBadge>
+                  <MetricPill label="プラン" value={`¥${membership?.planAmount ?? 500}`} />
                 </div>
                 <Link href="/account" className="cta-primary mt-5 w-full">
                   支払い状況を確認する
@@ -184,41 +190,38 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             ) : membershipStatus === "canceled" ? (
               <>
                 <h2 className="mt-3 text-2xl font-bold text-ink">加入は停止中です</h2>
-                <p className="mt-3 text-sm leading-7 text-ink/65">
-                  以前の加入履歴があります。再加入すると、このページ内で限定情報を再び閲覧できます。
-                </p>
-                <div className="mt-5 rounded-[24px] bg-white px-4 py-4 text-sm text-ink/70">
-                  前回プラン: <span className="font-bold text-ink">¥{membership?.planAmount ?? 500}</span>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <StatusBadge>{getMembershipStatusLabel(membershipStatus)}</StatusBadge>
+                  <MetricPill label="前回" value={`¥${membership?.planAmount ?? 500}`} />
                 </div>
                 {canAcceptMembership ? (
-                  <div className="mt-5">
-                    <PlanSelector spotId={spot.id} />
-                  </div>
+                  <button type="button" className="cta-primary mt-5 w-full" onClick={() => setSignupModalOpen(true)}>
+                    ソシオ登録
+                  </button>
                 ) : (
-                  <div className="mt-5 rounded-[24px] bg-white px-4 py-4 text-sm leading-7 text-ink/65">
-                    この SPOT は運営者の受取設定がまだ完了していないため、再加入を受け付けていません。
+                  <div className="mt-5 rounded-[24px] bg-white px-4 py-4 text-sm text-ink/65">
+                    受取設定の完了後に再加入できます。
                   </div>
                 )}
               </>
             ) : !canAcceptMembership ? (
               <>
                 <h2 className="mt-3 text-2xl font-bold text-ink">加入受付は準備中です</h2>
-                <p className="mt-3 text-sm leading-7 text-ink/65">
-                  この SPOT は運営者の受取設定がまだ完了していないため、現在は加入を開始していません。
-                </p>
-                <div className="mt-5 rounded-[24px] bg-white px-4 py-4 text-sm text-ink/70">
-                  受取設定が完了すると、ここに加入プランが表示されます。
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <StatusBadge>受取設定中</StatusBadge>
                 </div>
               </>
             ) : (
               <>
-                <h2 className="mt-3 text-2xl font-bold text-ink">所属プランを選ぶ</h2>
-                <p className="mt-3 text-sm leading-7 text-ink/65">
-                  公開ページではソシオ限定投稿の本文は見せません。加入後はこのページ内でお知らせとイベントを閲覧できます。
-                </p>
-                <div className="mt-5">
-                  <PlanSelector spotId={spot.id} />
+                <h2 className="mt-3 text-2xl font-bold text-ink">ソシオになる</h2>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <MetricPill label="月額" value="¥100" />
+                  <MetricPill label="月額" value="¥300" />
+                  <MetricPill label="月額" value="¥500" />
                 </div>
+                <button type="button" className="cta-primary mt-5 w-full" onClick={() => setSignupModalOpen(true)}>
+                  ソシオ登録
+                </button>
               </>
             )}
           </aside>
@@ -229,7 +232,6 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         <div className="flex items-center justify-between gap-4">
           <div>
             <span className="chip">MEMBERS ONLY</span>
-            <h2 className="mt-3 text-2xl font-bold text-ink">限定情報</h2>
           </div>
           {canViewMembersArea ? (
             <Link href="/account" className="cta-secondary">
@@ -241,7 +243,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           {!canViewMembersArea ? (
             <EmptyState
               title="このエリアは加入後に閲覧可能です"
-              description="公開ページでは、お知らせ本文・イベント詳細・参加導線は非表示です。ソシオ加入後はこのページ内で続きが表示されます。"
+              description="ソシオになると、このページ内でお知らせとイベントの続きが表示されます。"
             />
           ) : (
             <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -326,17 +328,14 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </section>
 
                 <section className="rounded-[28px] bg-white/60 p-6">
-                  <h3 className="text-2xl font-bold text-ink">ソシオ情報</h3>
-                  <div className="mt-5 space-y-3 text-sm text-ink/68">
-                    <div className="rounded-[20px] bg-mist px-4 py-3">
-                      加入ステータス: {getMembershipStatusLabel(membership?.status ?? "active")}
-                    </div>
-                    <div className="rounded-[20px] bg-mist px-4 py-3">
-                      加入日: {(membership?.joinedAt ?? new Date().toISOString()).slice(0, 10)}
-                    </div>
-                    <Link href="/account" className="cta-secondary w-full">
-                      解約導線を確認する
-                    </Link>
+                  <div className="flex flex-wrap gap-3 text-sm text-ink/68">
+                    <StatusBadge tone={getMembershipTone(membership?.status ?? "active")}>
+                      {getMembershipStatusLabel(membership?.status ?? "active")}
+                    </StatusBadge>
+                    <MetricPill
+                      label="加入日"
+                      value={(membership?.joinedAt ?? new Date().toISOString()).slice(0, 10)}
+                    />
                   </div>
                 </section>
               </div>

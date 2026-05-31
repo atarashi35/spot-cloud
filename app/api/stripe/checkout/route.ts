@@ -8,11 +8,18 @@ import {
   stripe
 } from "@/lib/stripe/config";
 import { planOptions } from "@/lib/types";
-import { PlanAmount } from "@/lib/types";
+import { PlanAmount, SocioAgeRange, SocioGender } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as { spotId?: string; planAmount?: number };
+    const body = (await request.json()) as {
+      spotId?: string;
+      planAmount?: number;
+      guestName?: string;
+      guestEmail?: string;
+      ageRange?: SocioAgeRange;
+      gender?: SocioGender;
+    };
     const planAmount = body.planAmount as PlanAmount | undefined;
 
     if (!body.spotId || !planAmount || !planOptions.includes(planAmount)) {
@@ -42,12 +49,37 @@ export async function POST(request: NextRequest) {
     }
 
     const authorization = request.headers.get("authorization");
+    let decodedToken:
+      | {
+          uid: string;
+          email?: string;
+        }
+      | null = null;
 
-    if (!authorization?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "missing_auth" }, { status: 401 });
+    if (authorization?.startsWith("Bearer ")) {
+      const verified = await getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
+      decodedToken = {
+        uid: verified.uid,
+        email: verified.email
+      };
     }
 
-    const decodedToken = await getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
+    const checkoutUid = decodedToken?.uid ?? `guest_${crypto.randomUUID()}`;
+    const checkoutEmail = decodedToken?.email ?? body.guestEmail?.trim() ?? undefined;
+    const checkoutName = body.guestName?.trim() ?? "";
+    const ageRange = body.ageRange ?? "";
+    const gender = body.gender ?? "";
+    const isGuestCheckout = !decodedToken;
+
+    if (!decodedToken && (!checkoutEmail || !checkoutName)) {
+      return NextResponse.json(
+        {
+          error: "guest_identity_required",
+          message: "名前とメールアドレスを入力してください。"
+        },
+        { status: 400 }
+      );
+    }
     const spotSnapshot = await getAdminDb().doc(`spots/${body.spotId}`).get();
 
     if (!spotSnapshot.exists) {
@@ -89,7 +121,7 @@ export async function POST(request: NextRequest) {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${origin}/spots/${body.spotId}?checkout=success`,
       cancel_url: `${origin}/spots/${body.spotId}/join?checkout=cancel`,
-      customer_email: decodedToken.email,
+      ...(checkoutEmail ? { customer_email: checkoutEmail } : {}),
       subscription_data: {
         application_fee_percent: PLATFORM_FEE_PERCENT,
         transfer_data: {
@@ -98,8 +130,13 @@ export async function POST(request: NextRequest) {
         metadata: {
           spotId: body.spotId,
           spotName,
-          uid: decodedToken.uid,
+          uid: checkoutUid,
+          displayName: checkoutName,
+          email: checkoutEmail ?? "",
+          ageRange,
+          gender,
           planAmount: String(planAmount),
+          purchaseMode: isGuestCheckout ? "guest" : "account",
           stripeConnectedAccountId: connectedAccountId,
           ownerSharePercent: String(CONNECT_OWNER_SHARE_PERCENT),
           platformFeePercent: String(PLATFORM_FEE_PERCENT)
@@ -108,8 +145,13 @@ export async function POST(request: NextRequest) {
       metadata: {
         spotId: body.spotId,
         spotName,
-        uid: decodedToken.uid,
+        uid: checkoutUid,
+        displayName: checkoutName,
+        email: checkoutEmail ?? "",
+        ageRange,
+        gender,
         planAmount: String(planAmount),
+        purchaseMode: isGuestCheckout ? "guest" : "account",
         stripeConnectedAccountId: connectedAccountId,
         ownerSharePercent: String(CONNECT_OWNER_SHARE_PERCENT),
         platformFeePercent: String(PLATFORM_FEE_PERCENT)
