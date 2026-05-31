@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebase/admin";
 import { getAdminDb } from "@/lib/firebase/admin";
 import {
-  CONNECT_OWNER_SHARE_PERCENT,
+  BILLING_APPLICATION_FEE_PERCENT,
   PLATFORM_FEE_PERCENT,
+  STRIPE_PROCESSING_FEE_RATE,
   getStripePriceId,
   stripe
 } from "@/lib/stripe/config";
@@ -123,7 +124,9 @@ export async function POST(request: NextRequest) {
       cancel_url: `${origin}/spots/${body.spotId}/join?checkout=cancel`,
       ...(checkoutEmail ? { customer_email: checkoutEmail } : {}),
       subscription_data: {
-        application_fee_percent: PLATFORM_FEE_PERCENT,
+        // SPOT利用料はStripe手数料控除後の純額に対して PLATFORM_FEE_PERCENT% を課金する設計。
+        // これを実現するための application_fee_percent = BILLING_APPLICATION_FEE_PERCENT (≈13.24%)
+        application_fee_percent: BILLING_APPLICATION_FEE_PERCENT,
         transfer_data: {
           destination: connectedAccountId
         },
@@ -138,8 +141,9 @@ export async function POST(request: NextRequest) {
           planAmount: String(planAmount),
           purchaseMode: isGuestCheckout ? "guest" : "account",
           stripeConnectedAccountId: connectedAccountId,
-          ownerSharePercent: String(CONNECT_OWNER_SHARE_PERCENT),
-          platformFeePercent: String(PLATFORM_FEE_PERCENT)
+          platformFeePercent: String(PLATFORM_FEE_PERCENT),
+          stripeFeePercent: String(STRIPE_PROCESSING_FEE_RATE * 100),
+          billingFeePercent: String(BILLING_APPLICATION_FEE_PERCENT)
         }
       },
       metadata: {
@@ -153,8 +157,9 @@ export async function POST(request: NextRequest) {
         planAmount: String(planAmount),
         purchaseMode: isGuestCheckout ? "guest" : "account",
         stripeConnectedAccountId: connectedAccountId,
-        ownerSharePercent: String(CONNECT_OWNER_SHARE_PERCENT),
-        platformFeePercent: String(PLATFORM_FEE_PERCENT)
+        platformFeePercent: String(PLATFORM_FEE_PERCENT),
+        stripeFeePercent: String(STRIPE_PROCESSING_FEE_RATE * 100),
+        billingFeePercent: String(BILLING_APPLICATION_FEE_PERCENT)
       }
     });
 

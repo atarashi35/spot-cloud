@@ -5,17 +5,30 @@
  * Firestore の socioCount は Webhook のズレで不正確になり得るため、
  * 運営者向けのダッシュボードではこのエンドポイントを使用する。
  *
+ * 計算方針:
+ *   Stripe手数料 = 決済総額 × STRIPE_PROCESSING_FEE_RATE
+ *   SPOT利用料   = (決済総額 - Stripe手数料) × PLATFORM_FEE_PERCENT%
+ *   振込予定額   = 決済総額 - Stripe手数料 - SPOT利用料
+ *
  * レスポンス:
- *   socioCount      - アクティブなソシオ数（解約予定を含む）
- *   cancelingCount  - 解約予定のソシオ数（cancel_at_period_end=true）
- *   grossMonthly    - 月額決済総額（ソシオが支払う金額の合計）
- *   netMonthly      - 振込予定額（gross × (1 - PLATFORM_FEE_PERCENT/100)）
- *   platformFeePercent - SPOT利用料率（%）
+ *   socioCount       - アクティブなソシオ数（解約予定含む）
+ *   cancelingCount   - 解約予定のソシオ数
+ *   grossMonthly     - 月額決済総額
+ *   estimatedStripeFee - 推定Stripe手数料（3.6%ベース、実際は変動あり）
+ *   platformFee      - SPOT利用料
+ *   netMonthly       - 振込予定額
+ *   platformFeePercent - SPOT利用料率 (%)
+ *   stripeFeePercent   - Stripe手数料率 (%)
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
-import { PLATFORM_FEE_PERCENT, stripe } from "@/lib/stripe/config";
+import {
+  PLATFORM_FEE_PERCENT,
+  STRIPE_PROCESSING_FEE_RATE,
+  calcRevenue,
+  stripe
+} from "@/lib/stripe/config";
 
 export async function GET(request: NextRequest) {
   const authorization = request.headers.get("authorization");
@@ -50,37 +63,37 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
-    // metadata.spotId で Stripe サブスクリプションを検索
-    // Stripe search API を使うことで Firestore のズレに依存しない
+    // metadata.spotId で Stripe サブスクリプションを検索（Firestore非依存）
     const searchResult = await stripe.subscriptions.search({
       query: `metadata['spotId']:'${spotId}'`,
       limit: 100
     });
 
-    // active と trialing（trial期間中）を「有効なソシオ」として扱う
     const activeSubs = searchResult.data.filter(
       (s) => s.status === "active" || s.status === "trialing"
     );
-
-    // cancel_at_period_end=true のものは期末解約予定ソシオ
     const cancelingSubs = activeSubs.filter((s) => s.cancel_at_period_end);
 
-    // Stripe サブスクリプションの metadata.planAmount を合計
+    // 決済総額の集計
     let grossMonthly = 0;
     for (const sub of activeSubs) {
       grossMonthly += Number(sub.metadata.planAmount ?? 0);
     }
 
-    // 振込予定額 = 決済額 × (1 - SPOT利用料率)
-    // Stripe決済手数料はSPOT Cloud（プラットフォーム）が負担するため差し引かない
-    const netMonthly = Math.floor(grossMonthly * (1 - PLATFORM_FEE_PERCENT / 100));
+    // 費用計算
+    // Stripe手数料を先に控除し、残額に対して PLATFORM_FEE_PERCENT% を課金
+    const { stripeFee: estimatedStripeFee, platformFee, payout: netMonthly } =
+      calcRevenue(grossMonthly);
 
     return NextResponse.json({
       socioCount: activeSubs.length,
       cancelingCount: cancelingSubs.length,
       grossMonthly,
+      estimatedStripeFee,
+      platformFee,
       netMonthly,
-      platformFeePercent: PLATFORM_FEE_PERCENT
+      platformFeePercent: PLATFORM_FEE_PERCENT,
+      stripeFeePercent: STRIPE_PROCESSING_FEE_RATE * 100
     });
   } catch (error) {
     return NextResponse.json(

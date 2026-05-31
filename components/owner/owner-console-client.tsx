@@ -20,8 +20,11 @@ type SpotRevenue = {
   socioCount: number;
   cancelingCount: number;
   grossMonthly: number;
+  estimatedStripeFee: number;
+  platformFee: number;
   netMonthly: number;
   platformFeePercent: number;
+  stripeFeePercent: number;
 };
 
 type SpotContent = {
@@ -247,12 +250,12 @@ export function OwnerConsoleClient() {
             </div>
             <div className="h-10 w-px bg-ink/10" />
             <div>
-              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">MONTHLY PAYOUT</div>
-              <div className="mt-1 text-3xl font-bold text-ink">
+              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">振込予定額</div>
+              <div className="mt-1 text-3xl font-bold text-moss">
                 {revenueLoaded ? `¥${totalNet.toLocaleString()}` : "---"}
               </div>
               <div className="mt-0.5 text-xs text-ink/45">
-                {revenueLoaded ? "振込予定額合計（税抜）" : "Stripe確認中..."}
+                {revenueLoaded ? "全SPOT合計（手数料控除後）" : "Stripe確認中..."}
               </div>
             </div>
             <div className="h-10 w-px bg-ink/10" />
@@ -306,17 +309,16 @@ export function OwnerConsoleClient() {
               {/* 収益パネル */}
               {revenue === undefined ? (
                 /* ローディング */
-                <div className="mt-4 h-20 animate-pulse rounded-[18px] bg-mist" />
+                <div className="mt-4 h-24 animate-pulse rounded-[18px] bg-mist" />
               ) : revenue === null ? (
                 /* Stripe未設定 or エラー */
                 <div className="mt-4 rounded-[18px] bg-mist px-4 py-4 text-sm text-ink/50">
                   収益情報を取得できませんでした（Stripe未設定の可能性があります）
                 </div>
               ) : (
-                /* 収益内訳 */
                 <div className="mt-4 rounded-[18px] bg-mist px-5 py-4">
+                  {/* メイン指標（大きく） */}
                   <div className="flex flex-wrap items-end gap-6">
-                    {/* ソシオ数 */}
                     <div>
                       <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">SOCIO</div>
                       <div className="mt-1 text-2xl font-bold text-ink">
@@ -332,34 +334,46 @@ export function OwnerConsoleClient() {
 
                     <div className="h-10 w-px bg-ink/15" />
 
-                    {/* 振込予定額（メイン表示） */}
+                    <div>
+                      <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">今月売上</div>
+                      <div className="mt-1 text-2xl font-bold text-ink">
+                        ¥{revenue.grossMonthly.toLocaleString()}
+                        <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
+                      </div>
+                    </div>
+
+                    <div className="h-10 w-px bg-ink/15" />
+
                     <div>
                       <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">振込予定額</div>
-                      <div className="mt-1 text-2xl font-bold text-ink">
+                      <div className="mt-1 text-2xl font-bold text-moss">
                         ¥{revenue.netMonthly.toLocaleString()}
                         <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
                       </div>
-                      <div className="mt-0.5 text-xs text-ink/40">Stripe確認済みの実績値</div>
-                    </div>
-
-                    <div className="h-10 w-px bg-ink/15 hidden sm:block" />
-
-                    {/* 内訳 */}
-                    <div className="text-xs text-ink/50 space-y-0.5">
-                      <div className="flex justify-between gap-4">
-                        <span>決済総額</span>
-                        <span className="font-medium text-ink/70">¥{revenue.grossMonthly.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between gap-4 text-amber-600/80">
-                        <span>SPOT利用料 ({revenue.platformFeePercent}%)</span>
-                        <span>−¥{Math.ceil(revenue.grossMonthly * revenue.platformFeePercent / 100).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between gap-4 text-ink/35 text-[10px]">
-                        <span>Stripe決済手数料</span>
-                        <span>SPOT負担</span>
-                      </div>
                     </div>
                   </div>
+
+                  {/* 内訳（小さく） */}
+                  {revenue.grossMonthly > 0 ? (
+                    <div className="mt-3 border-t border-ink/8 pt-3 text-xs text-ink/45 space-y-0.5">
+                      <div className="flex justify-between">
+                        <span>決済総額</span>
+                        <span>¥{revenue.grossMonthly.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Stripe手数料 ({revenue.stripeFeePercent}%)</span>
+                        <span>−¥{revenue.estimatedStripeFee.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>SPOT利用料 ({revenue.platformFeePercent}%)</span>
+                        <span>−¥{revenue.platformFee.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-ink/60 pt-0.5 border-t border-ink/8">
+                        <span>振込予定額</span>
+                        <span>¥{revenue.netMonthly.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               )}
 
