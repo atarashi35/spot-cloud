@@ -6,10 +6,10 @@ export default function AccountPage() {
   return (
     <PageShell className="space-y-8">
       <Card className="px-6 py-8 sm:px-8">
-        <span className="chip">MY ACCOUNT</span>
-        <h1 className="mt-4 text-3xl font-bold text-ink">マイアカウント</h1>
+        <span className="chip">MY SOCIO</span>
+        <h1 className="mt-4 text-3xl font-bold text-ink">マイソシオ</h1>
         <p className="mt-3 text-sm leading-7 text-ink/68">
-          アカウント情報と所属中のSPOTを管理します。
+          所属中のSPOTと限定コンテンツへのポータルです。
         </p>
       </Card>
       <AccountPageClient />

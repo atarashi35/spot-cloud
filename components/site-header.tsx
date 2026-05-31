@@ -113,7 +113,7 @@ export function SiteHeader() {
                   <div className="py-2">
                     <Link href="/account" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <UserCircle className="h-4 w-4" />
-                      マイアカウント
+                      マイソシオ
                     </Link>
                     {showOperatorMenu ? (
                       <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
