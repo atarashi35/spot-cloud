@@ -197,7 +197,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/manage" className="cta-secondary">
-            運営するSPOT
+            マイSPOT
           </Link>
           <Link href={`/spots/${spot.id}`} className="cta-primary">
             公開ページを確認

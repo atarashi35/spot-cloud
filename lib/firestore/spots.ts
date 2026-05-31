@@ -141,3 +141,32 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     updatedAt: serverTimestamp()
   });
 }
+
+export async function setSpotPublished(spotId: string, isPublished: boolean) {
+  await updateDoc(doc(getFirestoreDb(), "spots", spotId), {
+    isPublished,
+    updatedAt: serverTimestamp()
+  });
+}
+
+/** アクティブなメンバーのプラン合計を集計して実績ベースの月額を返す */
+export async function getSpotRevenueSummary(
+  spotId: string
+): Promise<{ total: number; count: number }> {
+  const snapshot = await getDocs(
+    query(
+      collection(getFirestoreDb(), "spots", spotId, "members"),
+      where("status", "==", "active")
+    )
+  );
+
+  let total = 0;
+  let count = 0;
+
+  snapshot.docs.forEach((item) => {
+    total += Number(item.data().planAmount ?? 0);
+    count++;
+  });
+
+  return { total, count };
+}

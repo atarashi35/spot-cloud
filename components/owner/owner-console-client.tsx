@@ -5,14 +5,71 @@ import { useEffect, useState } from "react";
 import { ConnectOnboardingButton } from "@/components/owner/connect-onboarding-button";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
-import { MetricPill } from "@/components/ui/metric-pill";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { listOwnerSpotsFromFirestore } from "@/lib/firestore/spots";
+import { listSpotEventsFromFirestore } from "@/lib/firestore/events";
+import { listSpotPostsFromFirestore } from "@/lib/firestore/posts";
+import {
+  getSpotRevenueSummary,
+  listOwnerSpotsFromFirestore,
+  setSpotPublished
+} from "@/lib/firestore/spots";
 import { Spot } from "@/lib/types";
+
+// ─── 型 ───────────────────────────────────────────────────────────────
+
+type SpotSummary = {
+  revenue: { total: number; count: number } | null;
+  latestPost: { id: string; title: string; publishDate: string } | null;
+  nextEvent: { id: string; title: string; startAt: string; location?: string } | null;
+  postCount: number;
+};
+
+// ─── ユーティリティ ────────────────────────────────────────────────────
+
+function toDateLabel(iso: string) {
+  return iso.slice(0, 10).replace(/-/g, "/");
+}
+
+function toEventLabel(iso: string) {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+async function fetchSpotSummary(spotId: string): Promise<SpotSummary> {
+  const now = new Date();
+
+  const [revenue, posts, events] = await Promise.all([
+    getSpotRevenueSummary(spotId),
+    listSpotPostsFromFirestore(spotId),
+    listSpotEventsFromFirestore(spotId)
+  ]);
+
+  const latestPost = posts[0]
+    ? { id: posts[0].id, title: posts[0].title, publishDate: posts[0].publishDate }
+    : null;
+
+  const nextEvent =
+    events
+      .filter((e) => new Date(e.startAt) > now)
+      .sort((a, b) => a.startAt.localeCompare(b.startAt))[0] ?? null;
+
+  return {
+    revenue,
+    latestPost,
+    nextEvent: nextEvent
+      ? { id: nextEvent.id, title: nextEvent.title, startAt: nextEvent.startAt, location: nextEvent.location }
+      : null,
+    postCount: posts.length
+  };
+}
+
+// ─── コンポーネント ────────────────────────────────────────────────────
 
 export function OwnerConsoleClient() {
   const { authReady, user } = useAuth();
   const [spots, setSpots] = useState<Spot[] | null>(null);
+  const [summaries, setSummaries] = useState<Record<string, SpotSummary>>({});
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,13 +79,53 @@ export function OwnerConsoleClient() {
     }
 
     void listOwnerSpotsFromFirestore(user.uid)
-      .then((nextSpots) => {
-        setSpots(nextSpots);
-      })
+      .then(setSpots)
       .catch((cause: Error) => {
         setError(cause.message);
       });
   }, [user]);
+
+  // SPOT一覧確定後にサマリーを並列取得
+  useEffect(() => {
+    if (!spots || spots.length === 0) {
+      return;
+    }
+
+    void Promise.all(
+      spots.map(async (spot) => ({
+        spotId: spot.id,
+        summary: await fetchSpotSummary(spot.id)
+      }))
+    ).then((results) => {
+      const map: Record<string, SpotSummary> = {};
+      results.forEach(({ spotId, summary }) => {
+        map[spotId] = summary;
+      });
+      setSummaries(map);
+    });
+  }, [spots]);
+
+  async function handleTogglePublished(spot: Spot) {
+    setTogglingId(spot.id);
+
+    // 楽観的更新
+    setSpots((prev) =>
+      prev?.map((s) => (s.id === spot.id ? { ...s, isPublished: !s.isPublished } : s)) ?? null
+    );
+
+    try {
+      await setSpotPublished(spot.id, !spot.isPublished);
+    } catch {
+      // 失敗時は元に戻す
+      setSpots((prev) =>
+        prev?.map((s) => (s.id === spot.id ? { ...s, isPublished: spot.isPublished } : s)) ?? null
+      );
+    } finally {
+      setTogglingId(null);
+    }
+  }
+
+  // ─── ガード ────────────────────────────────────────────────────────
 
   if (!authReady) {
     return <div className="panel px-6 py-8 text-sm text-ink/60">認証状態を確認中です。</div>;
@@ -37,7 +134,7 @@ export function OwnerConsoleClient() {
   if (!user) {
     return (
       <EmptyState
-        title="運営画面はログイン後に利用できます"
+        title="マイSPOTはログイン後に利用できます"
         description="Google ログインを行うと、自分のSPOTを登録・編集できるようになります。"
       />
     );
@@ -53,63 +150,193 @@ export function OwnerConsoleClient() {
   }
 
   if (!spots) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">運営中のSPOTを読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/60">SPOTを読み込み中です。</div>;
   }
 
   if (spots.length === 0) {
     return (
-      <EmptyState
-        title="まだ運営中のSPOTがありません"
-        description="最初のSPOTを登録すると、この画面に自分の運営対象が表示されます。"
-      />
+      <section className="panel px-6 py-8 sm:px-8">
+        <EmptyState
+          title="まだ運営中のSPOTがありません"
+          description="最初のSPOTを登録すると、この画面で運営管理ができるようになります。"
+        />
+        <div className="mt-6">
+          <Link href="/owner/spots/new" className="cta-primary">SPOTを登録する</Link>
+        </div>
+      </section>
     );
   }
 
+  // 全SPOT合計サマリー
+  const totalSocio = spots.reduce((sum, s) => sum + s.socioCount, 0);
+  const totalRevenue = Object.values(summaries).reduce(
+    (sum, s) => sum + (s.revenue?.total ?? 0),
+    0
+  );
+
   return (
-    <section className="grid gap-5">
-      {spots.map((spot) => (
-        <article key={spot.id} className="panel px-6 py-6 sm:px-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+    <div className="space-y-6">
+
+      {/* 全体サマリー（複数SPOT時） */}
+      {spots.length > 1 ? (
+        <section className="panel px-6 py-6 sm:px-8">
+          <div className="flex flex-wrap items-center gap-6">
             <div>
-              <div className="chip">{spot.category}</div>
-              <h2 className="mt-3 text-2xl font-bold text-ink">{spot.name}</h2>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-ink/68">{spot.shortDescription}</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <StatusBadge tone={spot.isPublished ? "success" : "neutral"}>
-                  {spot.isPublished ? "公開中" : "非公開"}
-                </StatusBadge>
-                <StatusBadge tone={spot.stripeConnectedAccountId ? "success" : "warning"}>
-                  {spot.stripeConnectedAccountId ? "受取設定済み" : "受取設定中"}
-                </StatusBadge>
+              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">TOTAL SOCIO</div>
+              <div className="mt-1 text-3xl font-bold text-ink">{totalSocio}<span className="ml-1 text-base font-normal text-ink/50">人</span></div>
+            </div>
+            <div className="h-10 w-px bg-ink/10" />
+            <div>
+              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">MONTHLY</div>
+              <div className="mt-1 text-3xl font-bold text-ink">
+                ¥{totalRevenue > 0 ? totalRevenue.toLocaleString() : "---"}
+              </div>
+              <div className="mt-0.5 text-xs text-ink/45">
+                {totalRevenue > 0 ? "月額合計（実績）" : "データ取得中"}
               </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <MetricPill label="ソシオ" value={`${spot.socioCount}人`} />
-              <MetricPill label="見込み" value={`¥${spot.socioCount * 100}`} />
+            <div className="h-10 w-px bg-ink/10" />
+            <div>
+              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">SPOTS</div>
+              <div className="mt-1 text-3xl font-bold text-ink">{spots.length}</div>
             </div>
           </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">
-              SPOT情報を編集
-            </Link>
-            <ConnectOnboardingButton
-              spotId={spot.id}
-              connected={Boolean(spot.stripeConnectedAccountId)}
-              className={spot.stripeConnectedAccountId ? "cta-secondary" : "cta-primary"}
-              label={spot.stripeConnectedAccountId ? "受取設定を再開" : "受取設定を始める"}
-            />
-            <Link href={`/owner/spots/${spot.id}/payout`} className="cta-secondary">
-              受取状況
-            </Link>
-            <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
-              QR配布
-            </Link>
-            <Link href={`/spots/${spot.id}`} className="cta-primary">
-              公開ページを見る
-            </Link>
-          </div>
-        </article>
-      ))}
-    </section>
+        </section>
+      ) : null}
+
+      {/* SPOTカード一覧 */}
+      <section className="space-y-5">
+        {spots.map((spot) => {
+          const summary = summaries[spot.id];
+          const isAccepting = spot.isPublished && Boolean(spot.stripeConnectedAccountId);
+          const connectReady = Boolean(spot.stripeConnectedAccountId);
+
+          return (
+            <article key={spot.id} className="panel px-6 py-6 sm:px-8">
+
+              {/* ヘッダー行 */}
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="chip">{spot.category}</span>
+                  <StatusBadge tone={isAccepting ? "success" : "warning"}>
+                    {isAccepting ? "加入受付中" : "受付前"}
+                  </StatusBadge>
+                </div>
+                {/* 公開/非公開 クイック切り替え */}
+                <button
+                  type="button"
+                  onClick={() => void handleTogglePublished(spot)}
+                  disabled={togglingId === spot.id}
+                  className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
+                    spot.isPublished
+                      ? "border-moss/30 bg-moss/10 text-moss hover:bg-moss/20"
+                      : "border-ink/15 bg-white text-ink/55 hover:border-ink/30"
+                  }`}
+                >
+                  {togglingId === spot.id ? "..." : spot.isPublished ? "公開中" : "非公開"}
+                </button>
+              </div>
+
+              {/* SPOT名・説明 */}
+              <h2 className="mt-4 text-2xl font-bold text-ink">{spot.name}</h2>
+              <p className="mt-2 text-sm leading-7 text-ink/62">{spot.shortDescription}</p>
+
+              {/* 数値行 */}
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                <div className="text-sm">
+                  <span className="text-ink/50">ソシオ </span>
+                  <span className="font-bold text-ink">{spot.socioCount}人</span>
+                </div>
+                <div className="h-4 w-px bg-ink/15" />
+                <div className="text-sm">
+                  <span className="text-ink/50">月額 </span>
+                  <span className="font-bold text-ink">
+                    {summary?.revenue
+                      ? `¥${summary.revenue.total.toLocaleString()}`
+                      : "---"}
+                  </span>
+                  {summary?.revenue ? (
+                    <span className="ml-1 text-xs text-ink/40">実績</span>
+                  ) : null}
+                </div>
+                {!connectReady ? (
+                  <>
+                    <div className="h-4 w-px bg-ink/15" />
+                    <span className="text-xs text-amber-600">受取設定が必要です</span>
+                  </>
+                ) : null}
+              </div>
+
+              {/* コンテンツプレビュー */}
+              {summary ? (
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <div className="rounded-[18px] bg-mist px-4 py-3 text-xs">
+                    <div className="font-semibold tracking-[0.15em] text-ink/45">
+                      お知らせ {summary.postCount}件
+                    </div>
+                    {summary.latestPost ? (
+                      <>
+                        <div className="mt-1 font-semibold text-ink">{summary.latestPost.title}</div>
+                        <div className="mt-0.5 text-ink/50">{toDateLabel(summary.latestPost.publishDate)}</div>
+                      </>
+                    ) : (
+                      <div className="mt-1 text-ink/40">まだ投稿がありません</div>
+                    )}
+                  </div>
+                  <div className="rounded-[18px] bg-mist px-4 py-3 text-xs">
+                    <div className="font-semibold tracking-[0.15em] text-ink/45">次のイベント</div>
+                    {summary.nextEvent ? (
+                      <>
+                        <div className="mt-1 font-semibold text-ink">{summary.nextEvent.title}</div>
+                        <div className="mt-0.5 text-ink/50">
+                          {toEventLabel(summary.nextEvent.startAt)}
+                          {summary.nextEvent.location ? ` · ${summary.nextEvent.location}` : ""}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="mt-1 text-ink/40">予定されているイベントはありません</div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 h-14 animate-pulse rounded-[18px] bg-mist" />
+              )}
+
+              {/* アクションボタン */}
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  href={`/spots/${spot.id}/posts/new`}
+                  className="cta-primary"
+                >
+                  お知らせを投稿
+                </Link>
+                <Link
+                  href={`/spots/${spot.id}/events/new`}
+                  className="cta-secondary"
+                >
+                  イベントを作成
+                </Link>
+                <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">
+                  SPOT編集
+                </Link>
+                <ConnectOnboardingButton
+                  spotId={spot.id}
+                  connected={connectReady}
+                  className="cta-secondary"
+                  label={connectReady ? "受取設定" : "受取設定を始める"}
+                />
+                <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
+                  QR配布
+                </Link>
+                <Link href={`/spots/${spot.id}`} className="cta-secondary">
+                  公開ページ
+                </Link>
+              </div>
+
+            </article>
+          );
+        })}
+      </section>
+    </div>
   );
 }

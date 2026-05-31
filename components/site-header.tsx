@@ -118,7 +118,7 @@ export function SiteHeader() {
                     {showOperatorMenu ? (
                       <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
                         <Settings2 className="h-4 w-4" />
-                        運営するSPOT
+                        マイSPOT
                       </Link>
                     ) : null}
                     {showAdminLink ? (
