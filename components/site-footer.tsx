@@ -13,7 +13,7 @@ export function SiteFooter() {
             <a href="mailto:spotcloud2026@gmail.com" className="transition hover:text-moss">お問い合わせ</a>
           </nav>
         </div>
-        <p className="mt-4 text-xs text-ink/35">© 2026 Ryohei Atarashi. All rights reserved.</p>
+        <p className="mt-4 text-xs text-ink/35">© 2026 SPOT Cloud. All rights reserved.</p>
       </div>
     </footer>
   );
