@@ -19,8 +19,7 @@ type MembershipPayload = {
 export async function upsertMembership(payload: MembershipPayload) {
   const db = getAdminDb();
   const memberRef = db.doc(`spots/${payload.spotId}/members/${payload.uid}`);
-  const isGuest = payload.uid.startsWith("guest_");
-  const membershipRef = isGuest ? null : db.doc(`users/${payload.uid}/memberships/${payload.spotId}`);
+  const membershipRef = db.doc(`users/${payload.uid}/memberships/${payload.spotId}`);
 
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(memberRef);
@@ -35,7 +34,6 @@ export async function upsertMembership(payload: MembershipPayload) {
       memberRef,
       {
         uid: payload.uid,
-        isGuest,
         displayName: payload.displayName ?? "",
         email: payload.email ?? "",
         ageRange: payload.ageRange ?? "",
@@ -50,20 +48,18 @@ export async function upsertMembership(payload: MembershipPayload) {
       { merge: true }
     );
 
-    if (membershipRef) {
-      transaction.set(
-        membershipRef,
-        {
-          spotId: payload.spotId,
-          spotName: payload.spotName,
-          planAmount: payload.planAmount,
-          status: payload.status,
-          joinedAt: snapshot.exists ? snapshot.data()?.joinedAt ?? FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp()
-        },
-        { merge: true }
-      );
-    }
+    transaction.set(
+      membershipRef,
+      {
+        spotId: payload.spotId,
+        spotName: payload.spotName,
+        planAmount: payload.planAmount,
+        status: payload.status,
+        joinedAt: snapshot.exists ? snapshot.data()?.joinedAt ?? FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
 
     if (becameActive) {
       transaction.update(db.doc(`spots/${payload.spotId}`), {

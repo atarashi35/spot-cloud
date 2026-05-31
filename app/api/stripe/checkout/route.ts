@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminAuth } from "@/lib/firebase/admin";
-import { getAdminDb } from "@/lib/firebase/admin";
+import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import {
   BILLING_APPLICATION_FEE_PERCENT,
   PLATFORM_FEE_PERCENT,
@@ -8,16 +7,29 @@ import {
   getStripePriceId,
   stripe
 } from "@/lib/stripe/config";
-import { planOptions } from "@/lib/types";
-import { PlanAmount, SocioAgeRange, SocioGender } from "@/lib/types";
+import { PlanAmount, SocioAgeRange, SocioGender, planOptions } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
+    // ─── 認証必須（Firebase Auth UID にのみ紐づける） ────────────────
+    const authorization = request.headers.get("authorization");
+
+    if (!authorization?.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { error: "auth_required", message: "ソシオ加入にはログインが必要です。" },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = await getAdminAuth().verifyIdToken(
+      authorization.slice("Bearer ".length)
+    );
+
+    // ─── リクエスト検証 ───────────────────────────────────────────────
     const body = (await request.json()) as {
       spotId?: string;
       planAmount?: number;
-      guestName?: string;
-      guestEmail?: string;
+      name?: string;
       ageRange?: SocioAgeRange;
       gender?: SocioGender;
     };
@@ -49,38 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const authorization = request.headers.get("authorization");
-    let decodedToken:
-      | {
-          uid: string;
-          email?: string;
-        }
-      | null = null;
-
-    if (authorization?.startsWith("Bearer ")) {
-      const verified = await getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
-      decodedToken = {
-        uid: verified.uid,
-        email: verified.email
-      };
-    }
-
-    const checkoutUid = decodedToken?.uid ?? `guest_${crypto.randomUUID()}`;
-    const checkoutEmail = decodedToken?.email ?? body.guestEmail?.trim() ?? undefined;
-    const checkoutName = body.guestName?.trim() ?? "";
-    const ageRange = body.ageRange ?? "";
-    const gender = body.gender ?? "";
-    const isGuestCheckout = !decodedToken;
-
-    if (!decodedToken && (!checkoutEmail || !checkoutName)) {
-      return NextResponse.json(
-        {
-          error: "guest_identity_required",
-          message: "名前とメールアドレスを入力してください。"
-        },
-        { status: 400 }
-      );
-    }
+    // ─── SPOT 確認 ────────────────────────────────────────────────────
     const spotSnapshot = await getAdminDb().doc(`spots/${body.spotId}`).get();
 
     if (!spotSnapshot.exists) {
@@ -101,45 +82,49 @@ export async function POST(request: NextRequest) {
 
     const account = await stripe.accounts.retrieve(connectedAccountId);
     const connectReady =
-      account.details_submitted &&
-      account.charges_enabled &&
-      account.payouts_enabled;
+      account.details_submitted && account.charges_enabled && account.payouts_enabled;
 
     if (!connectReady) {
       return NextResponse.json(
         {
           error: "connect_not_ready",
-          message: "この SPOT の受取設定はまだ完了していません。Stripe Connect の設定完了後に加入受付を開始できます。"
+          message:
+            "この SPOT の受取設定はまだ完了していません。Stripe Connect の設定完了後に加入受付を開始できます。"
         },
         { status: 409 }
       );
     }
 
+    // ─── Checkout セッション作成 ──────────────────────────────────────
     const spotName = String(spotSnapshot.data()?.name ?? "");
+    const checkoutUid = decodedToken.uid;               // 必ず Firebase Auth UID
+    const checkoutEmail = decodedToken.email ?? "";
+    const displayName = body.name?.trim() ?? "";
+    const ageRange = body.ageRange ?? "";
+    const gender = body.gender ?? "";
+
     const origin = request.nextUrl.origin;
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${origin}/spots/${body.spotId}?checkout=success`,
       cancel_url: `${origin}/spots/${body.spotId}/join?checkout=cancel`,
-      ...(checkoutEmail ? { customer_email: checkoutEmail } : {}),
+      customer_email: checkoutEmail || undefined,
       subscription_data: {
         // SPOT利用料はStripe手数料控除後の純額に対して PLATFORM_FEE_PERCENT% を課金する設計。
-        // これを実現するための application_fee_percent = BILLING_APPLICATION_FEE_PERCENT (≈13.24%)
+        // この application_fee_percent = BILLING_APPLICATION_FEE_PERCENT (≈13.24%) で実現。
         application_fee_percent: BILLING_APPLICATION_FEE_PERCENT,
-        transfer_data: {
-          destination: connectedAccountId
-        },
+        transfer_data: { destination: connectedAccountId },
         metadata: {
           spotId: body.spotId,
           spotName,
           uid: checkoutUid,
-          displayName: checkoutName,
-          email: checkoutEmail ?? "",
+          displayName,
+          email: checkoutEmail,
           ageRange,
           gender,
           planAmount: String(planAmount),
-          purchaseMode: isGuestCheckout ? "guest" : "account",
           stripeConnectedAccountId: connectedAccountId,
           platformFeePercent: String(PLATFORM_FEE_PERCENT),
           stripeFeePercent: String(STRIPE_PROCESSING_FEE_RATE * 100),
@@ -150,12 +135,11 @@ export async function POST(request: NextRequest) {
         spotId: body.spotId,
         spotName,
         uid: checkoutUid,
-        displayName: checkoutName,
-        email: checkoutEmail ?? "",
+        displayName,
+        email: checkoutEmail,
         ageRange,
         gender,
         planAmount: String(planAmount),
-        purchaseMode: isGuestCheckout ? "guest" : "account",
         stripeConnectedAccountId: connectedAccountId,
         platformFeePercent: String(PLATFORM_FEE_PERCENT),
         stripeFeePercent: String(STRIPE_PROCESSING_FEE_RATE * 100),

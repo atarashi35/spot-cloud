@@ -20,6 +20,8 @@ function getMembershipStatusLabel(status: UserMembership["status"]) {
   switch (status) {
     case "active":
       return "利用中";
+    case "canceling":
+      return "解約予定";
     case "past_due":
       return "支払い確認待ち";
     case "canceled":
@@ -33,6 +35,8 @@ function getMembershipTone(status: UserMembership["status"]) {
   switch (status) {
     case "active":
       return "success";
+    case "canceling":
+      return "warning";
     case "past_due":
       return "warning";
     case "canceled":
@@ -123,7 +127,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   }
 
   const membershipStatus = membership?.status;
-  const canViewMembersArea = Boolean(isOwner || membershipStatus === "active");
+  // canceling（解約予定）も期末まで有効なためメンバーズエリアに入れる
+  const canViewMembersArea = Boolean(
+    isOwner || membershipStatus === "active" || membershipStatus === "canceling"
+  );
   const canAcceptMembership = Boolean(spot.stripeConnectedAccountId);
 
   return (
