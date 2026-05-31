@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ConnectOnboardingButton } from "@/components/owner/connect-onboarding-button";
 import { EmptyState } from "@/components/empty-state";
@@ -103,6 +104,7 @@ export function OwnerConsoleClient() {
   const [spots, setSpots] = useState<Spot[] | null>(null);
   const [summaries, setSummaries] = useState<Record<string, SpotSummary>>({});
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [openBreakdowns, setOpenBreakdowns] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -353,25 +355,44 @@ export function OwnerConsoleClient() {
                     </div>
                   </div>
 
-                  {/* 内訳（小さく） */}
+                  {/* 内訳（アコーディオン） */}
                   {revenue.grossMonthly > 0 ? (
-                    <div className="mt-3 border-t border-ink/8 pt-3 text-xs text-ink/45 space-y-0.5">
-                      <div className="flex justify-between">
-                        <span>決済総額</span>
-                        <span>¥{revenue.grossMonthly.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Stripe手数料 ({revenue.stripeFeePercent}%)</span>
-                        <span>−¥{revenue.estimatedStripeFee.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>SPOT利用料 ({revenue.platformFeePercent}%)</span>
-                        <span>−¥{revenue.platformFee.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between font-semibold text-ink/60 pt-0.5 border-t border-ink/8">
-                        <span>振込予定額</span>
-                        <span>¥{revenue.netMonthly.toLocaleString()}</span>
-                      </div>
+                    <div className="mt-3 border-t border-ink/8 pt-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenBreakdowns((prev) => ({
+                            ...prev,
+                            [spot.id]: !prev[spot.id]
+                          }))
+                        }
+                        className="flex items-center gap-1 text-xs text-ink/40 hover:text-ink/60 transition"
+                      >
+                        <ChevronDown
+                          className={`h-3 w-3 transition-transform ${openBreakdowns[spot.id] ? "rotate-180" : ""}`}
+                        />
+                        内訳を{openBreakdowns[spot.id] ? "閉じる" : "見る"}
+                      </button>
+                      {openBreakdowns[spot.id] ? (
+                        <div className="mt-2 text-xs text-ink/45 space-y-0.5">
+                          <div className="flex justify-between">
+                            <span>決済総額</span>
+                            <span>¥{revenue.grossMonthly.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Stripe手数料 ({Number(revenue.stripeFeePercent.toFixed(2))}%)</span>
+                            <span>−¥{revenue.estimatedStripeFee.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>SPOT利用料 ({revenue.platformFeePercent}%)</span>
+                            <span>−¥{revenue.platformFee.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between font-semibold text-ink/60 pt-0.5 border-t border-ink/8">
+                            <span>振込予定額</span>
+                            <span>¥{revenue.netMonthly.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
