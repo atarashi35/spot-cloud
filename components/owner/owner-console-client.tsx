@@ -9,7 +9,6 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { listSpotEventsFromFirestore } from "@/lib/firestore/events";
 import { listSpotPostsFromFirestore } from "@/lib/firestore/posts";
 import {
-  getSpotRevenueSummary,
   listOwnerSpotsFromFirestore,
   setSpotPublished
 } from "@/lib/firestore/spots";
@@ -17,11 +16,23 @@ import { Spot } from "@/lib/types";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
-type SpotSummary = {
-  revenue: { total: number; count: number } | null;
+type SpotRevenue = {
+  socioCount: number;
+  cancelingCount: number;
+  grossMonthly: number;
+  netMonthly: number;
+  platformFeePercent: number;
+};
+
+type SpotContent = {
   latestPost: { id: string; title: string; publishDate: string } | null;
   nextEvent: { id: string; title: string; startAt: string; location?: string } | null;
   postCount: number;
+};
+
+type SpotSummary = {
+  revenue: SpotRevenue | null;
+  content: SpotContent | null;
 };
 
 // ─── ユーティリティ ────────────────────────────────────────────────────
@@ -35,11 +46,31 @@ function toEventLabel(iso: string) {
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-async function fetchSpotSummary(spotId: string): Promise<SpotSummary> {
-  const now = new Date();
+// ─── データ取得 ────────────────────────────────────────────────────────
 
-  const [revenue, posts, events] = await Promise.all([
-    getSpotRevenueSummary(spotId),
+async function fetchSpotRevenue(
+  spotId: string,
+  idToken: string
+): Promise<SpotRevenue | null> {
+  try {
+    const response = await fetch(
+      `/api/stripe/spot-revenue?spotId=${encodeURIComponent(spotId)}`,
+      { headers: { Authorization: `Bearer ${idToken}` } }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as SpotRevenue;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchSpotContent(spotId: string): Promise<SpotContent> {
+  const now = new Date();
+  const [posts, events] = await Promise.all([
     listSpotPostsFromFirestore(spotId),
     listSpotEventsFromFirestore(spotId)
   ]);
@@ -54,7 +85,6 @@ async function fetchSpotSummary(spotId: string): Promise<SpotSummary> {
       .sort((a, b) => a.startAt.localeCompare(b.startAt))[0] ?? null;
 
   return {
-    revenue,
     latestPost,
     nextEvent: nextEvent
       ? { id: nextEvent.id, title: nextEvent.title, startAt: nextEvent.startAt, location: nextEvent.location }
@@ -85,25 +115,48 @@ export function OwnerConsoleClient() {
       });
   }, [user]);
 
-  // SPOT一覧確定後にサマリーを並列取得
+  // SPOT一覧確定後にコンテンツ（投稿・イベント）を並列取得
   useEffect(() => {
-    if (!spots || spots.length === 0) {
-      return;
-    }
+    if (!spots || spots.length === 0) return;
 
     void Promise.all(
       spots.map(async (spot) => ({
         spotId: spot.id,
-        summary: await fetchSpotSummary(spot.id)
+        content: await fetchSpotContent(spot.id)
       }))
     ).then((results) => {
-      const map: Record<string, SpotSummary> = {};
-      results.forEach(({ spotId, summary }) => {
-        map[spotId] = summary;
+      setSummaries((prev) => {
+        const next = { ...prev };
+        results.forEach(({ spotId, content }) => {
+          next[spotId] = { ...next[spotId], content };
+        });
+        return next;
       });
-      setSummaries(map);
     });
   }, [spots]);
+
+  // 収益はStripe APIから直接取得（Firestoreとのズレを防ぐ）
+  useEffect(() => {
+    if (!spots || spots.length === 0 || !user) return;
+
+    void (async () => {
+      const idToken = await user.getIdToken();
+      const results = await Promise.all(
+        spots.map(async (spot) => ({
+          spotId: spot.id,
+          revenue: await fetchSpotRevenue(spot.id, idToken)
+        }))
+      );
+
+      setSummaries((prev) => {
+        const next = { ...prev };
+        results.forEach(({ spotId, revenue }) => {
+          next[spotId] = { ...next[spotId], revenue };
+        });
+        return next;
+      });
+    })();
+  }, [spots, user]);
 
   async function handleTogglePublished(spot: Spot) {
     setTogglingId(spot.id);
@@ -167,12 +220,16 @@ export function OwnerConsoleClient() {
     );
   }
 
-  // 全SPOT合計サマリー
-  const totalSocio = spots.reduce((sum, s) => sum + s.socioCount, 0);
-  const totalRevenue = Object.values(summaries).reduce(
-    (sum, s) => sum + (s.revenue?.total ?? 0),
+  // 全SPOT合計サマリー（収益はStripe APIから取得した値を使用）
+  const totalSocio = Object.values(summaries).reduce(
+    (sum, s) => sum + (s.revenue?.socioCount ?? 0),
     0
   );
+  const totalNet = Object.values(summaries).reduce(
+    (sum, s) => sum + (s.revenue?.netMonthly ?? 0),
+    0
+  );
+  const revenueLoaded = Object.values(summaries).some((s) => s.revenue !== undefined);
 
   return (
     <div className="space-y-6">
@@ -183,16 +240,19 @@ export function OwnerConsoleClient() {
           <div className="flex flex-wrap items-center gap-6">
             <div>
               <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">TOTAL SOCIO</div>
-              <div className="mt-1 text-3xl font-bold text-ink">{totalSocio}<span className="ml-1 text-base font-normal text-ink/50">人</span></div>
+              <div className="mt-1 text-3xl font-bold text-ink">
+                {revenueLoaded ? totalSocio : "---"}
+                <span className="ml-1 text-base font-normal text-ink/50">人</span>
+              </div>
             </div>
             <div className="h-10 w-px bg-ink/10" />
             <div>
-              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">MONTHLY</div>
+              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">MONTHLY PAYOUT</div>
               <div className="mt-1 text-3xl font-bold text-ink">
-                ¥{totalRevenue > 0 ? totalRevenue.toLocaleString() : "---"}
+                {revenueLoaded ? `¥${totalNet.toLocaleString()}` : "---"}
               </div>
               <div className="mt-0.5 text-xs text-ink/45">
-                {totalRevenue > 0 ? "月額合計（実績）" : "データ取得中"}
+                {revenueLoaded ? "振込予定額合計（税抜）" : "Stripe確認中..."}
               </div>
             </div>
             <div className="h-10 w-px bg-ink/10" />
@@ -208,6 +268,8 @@ export function OwnerConsoleClient() {
       <section className="space-y-5">
         {spots.map((spot) => {
           const summary = summaries[spot.id];
+          const revenue = summary?.revenue;
+          const content = summary?.content;
           const isAccepting = spot.isPublished && Boolean(spot.stripeConnectedAccountId);
           const connectReady = Boolean(spot.stripeConnectedAccountId);
 
@@ -241,43 +303,81 @@ export function OwnerConsoleClient() {
               <h2 className="mt-4 text-2xl font-bold text-ink">{spot.name}</h2>
               <p className="mt-2 text-sm leading-7 text-ink/62">{spot.shortDescription}</p>
 
-              {/* 数値行 */}
-              <div className="mt-4 flex flex-wrap items-center gap-4">
-                <div className="text-sm">
-                  <span className="text-ink/50">ソシオ </span>
-                  <span className="font-bold text-ink">{spot.socioCount}人</span>
+              {/* 収益パネル */}
+              {revenue === undefined ? (
+                /* ローディング */
+                <div className="mt-4 h-20 animate-pulse rounded-[18px] bg-mist" />
+              ) : revenue === null ? (
+                /* Stripe未設定 or エラー */
+                <div className="mt-4 rounded-[18px] bg-mist px-4 py-4 text-sm text-ink/50">
+                  収益情報を取得できませんでした（Stripe未設定の可能性があります）
                 </div>
-                <div className="h-4 w-px bg-ink/15" />
-                <div className="text-sm">
-                  <span className="text-ink/50">月額 </span>
-                  <span className="font-bold text-ink">
-                    {summary?.revenue
-                      ? `¥${summary.revenue.total.toLocaleString()}`
-                      : "---"}
-                  </span>
-                  {summary?.revenue ? (
-                    <span className="ml-1 text-xs text-ink/40">実績</span>
-                  ) : null}
+              ) : (
+                /* 収益内訳 */
+                <div className="mt-4 rounded-[18px] bg-mist px-5 py-4">
+                  <div className="flex flex-wrap items-end gap-6">
+                    {/* ソシオ数 */}
+                    <div>
+                      <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">SOCIO</div>
+                      <div className="mt-1 text-2xl font-bold text-ink">
+                        {revenue.socioCount}
+                        <span className="ml-1 text-sm font-normal text-ink/50">人</span>
+                      </div>
+                      {revenue.cancelingCount > 0 ? (
+                        <div className="mt-0.5 text-xs text-amber-600">
+                          うち{revenue.cancelingCount}人が解約予定
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="h-10 w-px bg-ink/15" />
+
+                    {/* 振込予定額（メイン表示） */}
+                    <div>
+                      <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">振込予定額</div>
+                      <div className="mt-1 text-2xl font-bold text-ink">
+                        ¥{revenue.netMonthly.toLocaleString()}
+                        <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
+                      </div>
+                      <div className="mt-0.5 text-xs text-ink/40">Stripe確認済みの実績値</div>
+                    </div>
+
+                    <div className="h-10 w-px bg-ink/15 hidden sm:block" />
+
+                    {/* 内訳 */}
+                    <div className="text-xs text-ink/50 space-y-0.5">
+                      <div className="flex justify-between gap-4">
+                        <span>決済総額</span>
+                        <span className="font-medium text-ink/70">¥{revenue.grossMonthly.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between gap-4 text-amber-600/80">
+                        <span>SPOT利用料 ({revenue.platformFeePercent}%)</span>
+                        <span>−¥{Math.ceil(revenue.grossMonthly * revenue.platformFeePercent / 100).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between gap-4 text-ink/35 text-[10px]">
+                        <span>Stripe決済手数料</span>
+                        <span>SPOT負担</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                {!connectReady ? (
-                  <>
-                    <div className="h-4 w-px bg-ink/15" />
-                    <span className="text-xs text-amber-600">受取設定が必要です</span>
-                  </>
-                ) : null}
-              </div>
+              )}
+
+              {!connectReady ? (
+                <div className="mt-2 text-xs text-amber-600">受取設定が必要です</div>
+              ) : null}
 
               {/* コンテンツプレビュー */}
-              {summary ? (
+              {content ? (
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-[18px] bg-mist px-4 py-3 text-xs">
                     <div className="font-semibold tracking-[0.15em] text-ink/45">
-                      お知らせ {summary.postCount}件
+                      お知らせ {content.postCount}件
                     </div>
-                    {summary.latestPost ? (
+                    {content.latestPost ? (
                       <>
-                        <div className="mt-1 font-semibold text-ink">{summary.latestPost.title}</div>
-                        <div className="mt-0.5 text-ink/50">{toDateLabel(summary.latestPost.publishDate)}</div>
+                        <div className="mt-1 font-semibold text-ink">{content.latestPost.title}</div>
+                        <div className="mt-0.5 text-ink/50">{toDateLabel(content.latestPost.publishDate)}</div>
                       </>
                     ) : (
                       <div className="mt-1 text-ink/40">まだ投稿がありません</div>
@@ -285,12 +385,12 @@ export function OwnerConsoleClient() {
                   </div>
                   <div className="rounded-[18px] bg-mist px-4 py-3 text-xs">
                     <div className="font-semibold tracking-[0.15em] text-ink/45">次のイベント</div>
-                    {summary.nextEvent ? (
+                    {content.nextEvent ? (
                       <>
-                        <div className="mt-1 font-semibold text-ink">{summary.nextEvent.title}</div>
+                        <div className="mt-1 font-semibold text-ink">{content.nextEvent.title}</div>
                         <div className="mt-0.5 text-ink/50">
-                          {toEventLabel(summary.nextEvent.startAt)}
-                          {summary.nextEvent.location ? ` · ${summary.nextEvent.location}` : ""}
+                          {toEventLabel(content.nextEvent.startAt)}
+                          {content.nextEvent.location ? ` · ${content.nextEvent.location}` : ""}
                         </div>
                       </>
                     ) : (
@@ -304,16 +404,10 @@ export function OwnerConsoleClient() {
 
               {/* アクションボタン */}
               <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  href={`/spots/${spot.id}/posts/new`}
-                  className="cta-primary"
-                >
+                <Link href={`/spots/${spot.id}/posts/new`} className="cta-primary">
                   お知らせを投稿
                 </Link>
-                <Link
-                  href={`/spots/${spot.id}/events/new`}
-                  className="cta-secondary"
-                >
+                <Link href={`/spots/${spot.id}/events/new`} className="cta-secondary">
                   イベントを作成
                 </Link>
                 <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">

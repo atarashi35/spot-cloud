@@ -149,16 +149,19 @@ export async function setSpotPublished(spotId: string, isPublished: boolean) {
   });
 }
 
-/** アクティブなメンバーのプラン合計を集計して実績ベースの月額を返す */
+/**
+ * Firestoreのメンバー情報からプラン合計を集計する（フォールバック用）。
+ * 運営者向けの正確な収益表示には /api/stripe/spot-revenue を使用すること。
+ * active と canceling（解約予定）の両方を集計対象とする。
+ */
 export async function getSpotRevenueSummary(
   spotId: string
 ): Promise<{ total: number; count: number }> {
-  const snapshot = await getDocs(
-    query(
-      collection(getFirestoreDb(), "spots", spotId, "members"),
-      where("status", "==", "active")
-    )
-  );
+  const [activeSnap, cancelingSnap] = await Promise.all([
+    getDocs(query(collection(getFirestoreDb(), "spots", spotId, "members"), where("status", "==", "active"))),
+    getDocs(query(collection(getFirestoreDb(), "spots", spotId, "members"), where("status", "==", "canceling")))
+  ]);
+  const snapshot = { docs: [...activeSnap.docs, ...cancelingSnap.docs] };
 
   let total = 0;
   let count = 0;

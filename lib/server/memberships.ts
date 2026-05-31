@@ -24,9 +24,12 @@ export async function upsertMembership(payload: MembershipPayload) {
 
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(memberRef);
-    const previousStatus = snapshot.exists ? snapshot.data()?.status : null;
-    const becameActive = previousStatus !== "active" && payload.status === "active";
-    const becameInactive = previousStatus === "active" && payload.status !== "active";
+    const previousStatus = snapshot.exists ? (snapshot.data()?.status as string | null) : null;
+
+    // "active" と "canceling" はどちらも請求中 → socioCount に含める
+    const isPaying = (s: string | null) => s === "active" || s === "canceling";
+    const becameActive = !isPaying(previousStatus) && isPaying(payload.status);
+    const becameInactive = isPaying(previousStatus) && !isPaying(payload.status);
 
     transaction.set(
       memberRef,

@@ -5,10 +5,24 @@ import { getMembershipBySubscriptionId, upsertMembership } from "@/lib/server/me
 import { stripe } from "@/lib/stripe/config";
 import { MembershipStatus, PlanAmount, SocioAgeRange, SocioGender } from "@/lib/types";
 
-function mapSubscriptionStatusToMembershipStatus(
-  status: Stripe.Subscription.Status
+/**
+ * Stripe Subscription → MembershipStatus のマッピング
+ *
+ * cancel_at_period_end = true の場合は "canceling" 扱い。
+ * ソシオはまだ請求中なので socioCount から除外しない。
+ * 期末に subscription.deleted が飛んで "canceled" になる。
+ */
+function mapSubscriptionToMembershipStatus(
+  subscription: Stripe.Subscription
 ): MembershipStatus {
-  switch (status) {
+  if (
+    (subscription.status === "active" || subscription.status === "trialing") &&
+    subscription.cancel_at_period_end
+  ) {
+    return "canceling";
+  }
+
+  switch (subscription.status) {
     case "active":
     case "trialing":
       return "active";
@@ -24,7 +38,7 @@ function mapSubscriptionStatusToMembershipStatus(
   }
 }
 
-function getSubscriptionIdFromInvoice(invoice: Stripe.Invoice) {
+function getSubscriptionIdFromInvoice(invoice: Stripe.Invoice): string {
   const subscription = invoice.parent?.subscription_details?.subscription;
 
   if (typeof subscription === "string") {
@@ -38,26 +52,40 @@ function getSubscriptionIdFromInvoice(invoice: Stripe.Invoice) {
   return "";
 }
 
-async function updateMembershipStatusBySubscriptionId(
+async function syncMembershipFromSubscription(
+  subscription: Stripe.Subscription
+): Promise<{ received: true; skipped?: string }> {
+  const membership = await getMembershipBySubscriptionId(subscription.id);
+
+  if (!membership) {
+    return { received: true, skipped: "membership_not_found" };
+  }
+
+  await upsertMembership({
+    ...membership,
+    status: mapSubscriptionToMembershipStatus(subscription)
+  });
+
+  return { received: true };
+}
+
+async function syncMembershipFromSubscriptionId(
   subscriptionId: string,
   status: MembershipStatus
-) {
+): Promise<{ received: true; skipped?: string }> {
   if (!subscriptionId) {
-    return { received: true, skipped: "missing_subscription_id" } as const;
+    return { received: true, skipped: "missing_subscription_id" };
   }
 
   const membership = await getMembershipBySubscriptionId(subscriptionId);
 
   if (!membership) {
-    return { received: true, skipped: "membership_not_found" } as const;
+    return { received: true, skipped: "membership_not_found" };
   }
 
-  await upsertMembership({
-    ...membership,
-    status
-  });
+  await upsertMembership({ ...membership, status });
 
-  return { received: true } as const;
+  return { received: true };
 }
 
 export async function POST(request: Request) {
@@ -80,6 +108,7 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
+    // ─── チェックアウト完了 ────────────────────────────────────────────
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const metadata = session.metadata ?? {};
@@ -117,47 +146,57 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true, type: event.type });
     }
 
+    // ─── サブスクリプション更新・削除 ─────────────────────────────────
+    //
+    // subscription.updated で cancel_at_period_end=true が来たとき、
+    // Stripe の status は "active" のまま → mapSubscriptionToMembershipStatus が
+    // "canceling" を返す → socioCount は変えず Firestore に canceling を書く。
+    //
+    // subscription.deleted は期末に "canceled" で来る →
+    // upsertMembership が canceling→canceled を検知して socioCount を -1 する。
     if (
       event.type === "customer.subscription.created" ||
       event.type === "customer.subscription.updated" ||
       event.type === "customer.subscription.deleted"
     ) {
       const subscription = event.data.object as Stripe.Subscription;
-      const result = await updateMembershipStatusBySubscriptionId(
-        subscription.id,
-        mapSubscriptionStatusToMembershipStatus(subscription.status)
-      );
-
+      const result = await syncMembershipFromSubscription(subscription);
       return NextResponse.json({ ...result, type: event.type });
     }
 
+    // ─── 請求成功 → active 確認 ────────────────────────────────────────
     if (event.type === "invoice.paid") {
       const invoice = event.data.object as Stripe.Invoice;
-      const result = await updateMembershipStatusBySubscriptionId(
-        getSubscriptionIdFromInvoice(invoice),
-        "active"
-      );
+      const subscriptionId = getSubscriptionIdFromInvoice(invoice);
 
+      if (!subscriptionId) {
+        return NextResponse.json({ received: true, skipped: "missing_subscription_id" });
+      }
+
+      // 請求成功時はサブスクリプションの最新状態を取得して同期
+      // （cancel_at_period_end の考慮が必要なため直接取得）
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const result = await syncMembershipFromSubscription(subscription);
       return NextResponse.json({ ...result, type: event.type });
     }
 
+    // ─── 支払い失敗 ────────────────────────────────────────────────────
     if (event.type === "invoice.payment_failed") {
       const invoice = event.data.object as Stripe.Invoice;
-      const result = await updateMembershipStatusBySubscriptionId(
+      const result = await syncMembershipFromSubscriptionId(
         getSubscriptionIdFromInvoice(invoice),
         "past_due"
       );
-
       return NextResponse.json({ ...result, type: event.type });
     }
 
+    // ─── 請求書無効化 ──────────────────────────────────────────────────
     if (event.type === "invoice.voided" || event.type === "invoice.marked_uncollectible") {
       const invoice = event.data.object as Stripe.Invoice;
-      const result = await updateMembershipStatusBySubscriptionId(
+      const result = await syncMembershipFromSubscriptionId(
         getSubscriptionIdFromInvoice(invoice),
         "canceled"
       );
-
       return NextResponse.json({ ...result, type: event.type });
     }
 

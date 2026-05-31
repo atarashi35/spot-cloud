@@ -14,7 +14,13 @@ export type SpotCategory =
   | "クリエイター"
   | "その他";
 
-export type MembershipStatus = "active" | "canceled" | "past_due";
+/**
+ * active    : 有効なソシオ
+ * canceling : 解約予定（cancel_at_period_end=true）。期末まで請求は続く
+ * past_due  : 支払い失敗・未払い
+ * canceled  : 解約済み
+ */
+export type MembershipStatus = "active" | "canceling" | "past_due" | "canceled";
 
 export type SocioAgeRange =
   | "10代以下"
