@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { SpotPayoutPanel } from "@/components/owner/spot-payout-panel";
 
 export default async function SpotPayoutPage({
@@ -14,13 +13,8 @@ export default async function SpotPayoutPage({
         <span className="chip">PAYOUT SETUP</span>
         <h1 className="mt-4 text-3xl font-bold text-ink">受取設定</h1>
         <p className="mt-3 text-sm leading-7 text-ink/68">
-          この SPOT の加入受付を本番運用する前に、Stripe Connect の受取設定を完了させます。
+          いまの受取状況と、ソシオ募集を本番で開始できる状態かどうかを確認できます。
         </p>
-        <div className="mt-4">
-          <Link href="/manage" className="cta-secondary">
-            運営するSPOT
-          </Link>
-        </div>
         <SpotPayoutPanel spotId={spotId} />
       </section>
     </div>
