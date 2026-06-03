@@ -271,7 +271,7 @@ export function SpotForm(props: SpotFormProps) {
           },
           user.uid
         );
-        router.push(`/owner/spots/${spotId}/edit`);
+        router.push(`/owner/spots/${spotId}/payout`);
         router.refresh();
         return;
       }
