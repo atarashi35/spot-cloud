@@ -1,8 +1,0 @@
-{
-  "/api/stripe/webhooks/route": "app/api/stripe/webhooks/route.js",
-  "/terms/page": "app/terms/page.js",
-  "/privacy/page": "app/privacy/page.js",
-  "/law/page": "app/law/page.js",
-  "/page": "app/page.js",
-  "/owner/page": "app/owner/page.js"
-}
