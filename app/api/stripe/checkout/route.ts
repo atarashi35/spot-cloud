@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     const ageRange = body.ageRange ?? "";
     const gender = body.gender ?? "";
 
-    const origin = request.nextUrl.origin;
+    const origin = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
