@@ -4,8 +4,11 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ConnectOnboardingButton } from "@/components/owner/connect-onboarding-button";
+import { PostForm } from "@/components/owner/post-form";
 import { EmptyState } from "@/components/empty-state";
+import { ModalShell } from "@/components/ui/modal-shell";
 import { useAuth } from "@/components/providers/auth-provider";
+import { SocioRankBadge } from "@/components/ui/socio-rank-badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { listSpotEventsFromFirestore } from "@/lib/firestore/events";
 import { listSpotPostsFromFirestore } from "@/lib/firestore/posts";
@@ -13,6 +16,7 @@ import {
   listOwnerSpotsFromFirestore,
   setSpotPublished
 } from "@/lib/firestore/spots";
+import { getSocioRankProgress } from "@/lib/socio-rank";
 import { Spot } from "@/lib/types";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
@@ -75,8 +79,14 @@ async function fetchSpotRevenue(
 async function fetchSpotContent(spotId: string): Promise<SpotContent> {
   const now = new Date();
   const [posts, events] = await Promise.all([
-    listSpotPostsFromFirestore(spotId),
-    listSpotEventsFromFirestore(spotId)
+    listSpotPostsFromFirestore(spotId).catch((e: unknown) => {
+      console.warn(`[fetchSpotContent] posts failed for ${spotId}:`, e);
+      return [];
+    }),
+    listSpotEventsFromFirestore(spotId).catch((e: unknown) => {
+      console.warn(`[fetchSpotContent] events failed for ${spotId}:`, e);
+      return [];
+    })
   ]);
 
   const latestPost = posts[0]
@@ -106,6 +116,8 @@ export function OwnerConsoleClient() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [openBreakdowns, setOpenBreakdowns] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
+  type PostModal = { spotId: string; mode: "create" } | { spotId: string; mode: "edit"; postId: string } | null;
+  const [postModal, setPostModal] = useState<PostModal>(null);
 
   useEffect(() => {
     if (!user) {
@@ -127,13 +139,13 @@ export function OwnerConsoleClient() {
     void Promise.all(
       spots.map(async (spot) => ({
         spotId: spot.id,
-        content: await fetchSpotContent(spot.id)
+        content: await fetchSpotContent(spot.id).catch(() => null)
       }))
     ).then((results) => {
       setSummaries((prev) => {
         const next = { ...prev };
         results.forEach(({ spotId, content }) => {
-          next[spotId] = { ...next[spotId], content };
+          if (content) next[spotId] = { ...next[spotId], content };
         });
         return next;
       });
@@ -192,7 +204,7 @@ export function OwnerConsoleClient() {
   if (!user) {
     return (
       <EmptyState
-        title="マイSPOTはログイン後に利用できます"
+        title="運営中のSPOTはログイン後に利用できます"
         description="Google ログインを行うと、自分のSPOTを登録・編集できるようになります。"
       />
     );
@@ -236,8 +248,39 @@ export function OwnerConsoleClient() {
   );
   const revenueLoaded = Object.values(summaries).some((s) => s.revenue !== undefined);
 
+  // コンテンツ再読み込み（モーダル保存後）
+  async function reloadContent(spotId: string) {
+    const content = await fetchSpotContent(spotId);
+    setSummaries((prev) => ({ ...prev, [spotId]: { ...prev[spotId], content } }));
+  }
+
   return (
     <div className="space-y-6">
+
+      {/* お知らせモーダル */}
+      <ModalShell
+        open={postModal !== null}
+        onClose={() => setPostModal(null)}
+        title={postModal?.mode === "edit" ? "お知らせを編集" : "お知らせを作成"}
+        size="lg"
+      >
+        {postModal !== null ? (
+          postModal.mode === "create" ? (
+            <PostForm
+              spotId={postModal.spotId}
+              mode="create"
+              onSuccess={() => { setPostModal(null); void reloadContent(postModal.spotId); }}
+            />
+          ) : (
+            <PostForm
+              spotId={postModal.spotId}
+              mode="edit"
+              postId={postModal.postId}
+              onSuccess={() => { setPostModal(null); void reloadContent(postModal.spotId); }}
+            />
+          )
+        ) : null}
+      </ModalShell>
 
       {/* 全体サマリー（複数SPOT時） */}
       {spots.length > 1 ? (
@@ -277,6 +320,8 @@ export function OwnerConsoleClient() {
           const content = summary?.content;
           const isAccepting = spot.isPublished && Boolean(spot.stripeConnectedAccountId);
           const connectReady = Boolean(spot.stripeConnectedAccountId);
+          const socioCount = revenue?.socioCount ?? spot.socioCount;
+          const rankProgress = getSocioRankProgress(socioCount);
 
           return (
             <article key={spot.id} className="panel px-6 py-6 sm:px-8">
@@ -288,6 +333,7 @@ export function OwnerConsoleClient() {
                   <StatusBadge tone={isAccepting ? "success" : "warning"}>
                     {isAccepting ? "加入受付中" : "受付前"}
                   </StatusBadge>
+                  <SocioRankBadge socioCount={socioCount} />
                 </div>
                 {/* 公開/非公開 クイック切り替え */}
                 <button
@@ -305,54 +351,77 @@ export function OwnerConsoleClient() {
               </div>
 
               {/* SPOT名・説明 */}
-              <h2 className="mt-4 text-2xl font-bold text-ink">{spot.name}</h2>
+              <Link href={`/spots/${spot.id}`} className="mt-4 block text-2xl font-bold text-ink hover:text-moss transition-colors">
+                {spot.name}
+              </Link>
               <p className="mt-2 text-sm leading-7 text-ink/62">{spot.shortDescription}</p>
 
               {/* 収益パネル */}
               {revenue === undefined ? (
                 /* ローディング */
-                <div className="mt-4 h-24 animate-pulse rounded-[18px] bg-mist" />
+                <div className="mt-4 h-24 animate-pulse rounded-[16px] bg-mist" />
               ) : revenue === null ? (
                 /* Stripe未設定 or エラー */
-                <div className="mt-4 rounded-[18px] bg-mist px-4 py-4 text-sm text-ink/50">
+                <div className="mt-4 rounded-[16px] bg-mist px-4 py-4 text-sm text-ink/50">
                   収益情報を取得できませんでした（Stripe未設定の可能性があります）
                 </div>
               ) : (
-                <div className="mt-4 rounded-[18px] bg-mist px-5 py-4">
+                <div className="mt-4 rounded-[16px] bg-mist px-5 py-4">
                   {/* メイン指標（大きく） */}
-                  <div className="flex flex-wrap items-end gap-6">
-                    <div>
-                      <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">SOCIO</div>
-                      <div className="mt-1 text-2xl font-bold text-ink">
-                        {revenue.socioCount}
-                        <span className="ml-1 text-sm font-normal text-ink/50">人</span>
-                      </div>
-                      {revenue.cancelingCount > 0 ? (
-                        <div className="mt-0.5 text-xs text-amber-600">
-                          うち{revenue.cancelingCount}人が解約予定
+                  <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex flex-wrap items-end gap-6">
+                      <div>
+                        <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">SOCIO</div>
+                        <div className="mt-1 text-2xl font-bold text-ink">
+                          {revenue.socioCount}
+                          <span className="ml-1 text-sm font-normal text-ink/50">人</span>
                         </div>
-                      ) : null}
-                    </div>
+                        {rankProgress.nextRank ? (
+                          <div className="mt-2 w-full max-w-[260px]">
+                            <div className="flex items-center justify-between text-[11px] text-ink/50">
+                              <span>{rankProgress.nextRank.label} まであと {rankProgress.remainingCount} 人</span>
+                              <span>{rankProgress.nextRank.minCount}人</span>
+                            </div>
+                            <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/75">
+                              <div
+                                className="h-full rounded-full bg-[linear-gradient(90deg,#355746_0%,#d8b067_100%)]"
+                                style={{ width: `${rankProgress.progressPercent}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mt-2 text-xs font-semibold text-cyan-800">
+                            Platinum ランク達成
+                          </div>
+                        )}
+                        {revenue.cancelingCount > 0 ? (
+                          <div className="mt-0.5 text-xs text-amber-600">
+                            うち{revenue.cancelingCount}人が解約予定
+                          </div>
+                        ) : null}
+                      </div>
 
-                    <div className="h-10 w-px bg-ink/15" />
+                      <div className="hidden h-10 w-px bg-ink/15 sm:block" />
 
-                    <div>
-                      <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">今月売上</div>
-                      <div className="mt-1 text-2xl font-bold text-ink">
-                        ¥{revenue.grossMonthly.toLocaleString()}
-                        <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
+                      <div>
+                        <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">今月売上</div>
+                        <div className="mt-1 text-2xl font-bold text-ink">
+                          ¥{revenue.grossMonthly.toLocaleString()}
+                          <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
+                        </div>
+                      </div>
+
+                      <div className="hidden h-10 w-px bg-ink/15 sm:block" />
+
+                      <div>
+                        <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">振込予定額</div>
+                        <div className="mt-1 text-2xl font-bold text-moss">
+                          ¥{revenue.netMonthly.toLocaleString()}
+                          <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="h-10 w-px bg-ink/15" />
-
-                    <div>
-                      <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">振込予定額</div>
-                      <div className="mt-1 text-2xl font-bold text-moss">
-                        ¥{revenue.netMonthly.toLocaleString()}
-                        <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
-                      </div>
-                    </div>
                   </div>
 
                   {/* 内訳（アコーディオン） */}
@@ -405,7 +474,7 @@ export function OwnerConsoleClient() {
               {/* コンテンツプレビュー */}
               {content ? (
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  <div className="rounded-[18px] bg-mist px-4 py-3 text-xs">
+                  <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
                     <div className="font-semibold tracking-[0.15em] text-ink/45">
                       お知らせ {content.postCount}件
                     </div>
@@ -418,7 +487,7 @@ export function OwnerConsoleClient() {
                       <div className="mt-1 text-ink/40">まだ投稿がありません</div>
                     )}
                   </div>
-                  <div className="rounded-[18px] bg-mist px-4 py-3 text-xs">
+                  <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
                     <div className="font-semibold tracking-[0.15em] text-ink/45">次のイベント</div>
                     {content.nextEvent ? (
                       <>
@@ -434,19 +503,42 @@ export function OwnerConsoleClient() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 h-14 animate-pulse rounded-[18px] bg-mist" />
+                <div className="mt-4 h-14 animate-pulse rounded-[16px] bg-mist" />
               )}
+
+              {/* ソシオ・イベント管理へのリンク */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a
+                  href={`/manage/${spot.id}/socios`}
+                  className="flex items-center gap-1.5 rounded-full border border-ink/12 bg-white px-4 py-2 text-xs font-semibold text-ink/65 transition hover:border-ink/25 hover:text-ink"
+                >
+                  ソシオ一覧
+                  {revenue ? (
+                    <span className="rounded-full bg-mist px-2 py-0.5 text-[10px] text-ink/55">{socioCount}人</span>
+                  ) : null}
+                </a>
+                <a
+                  href={`/manage/${spot.id}/events`}
+                  className="flex items-center gap-1.5 rounded-full border border-ink/12 bg-white px-4 py-2 text-xs font-semibold text-ink/65 transition hover:border-ink/25 hover:text-ink"
+                >
+                  イベント管理
+                </a>
+              </div>
 
               {/* アクションボタン */}
               <div className="mt-5 flex flex-wrap gap-3">
-                <Link href={`/spots/${spot.id}/posts/new`} className="cta-primary">
+                <button
+                  type="button"
+                  className="cta-primary"
+                  onClick={() => setPostModal({ spotId: spot.id, mode: "create" })}
+                >
                   お知らせを投稿
-                </Link>
-                <Link href={`/spots/${spot.id}/events/new`} className="cta-secondary">
-                  イベントを作成
-                </Link>
+                </button>
                 <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">
                   SPOT編集
+                </Link>
+                <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
+                  QRコード
                 </Link>
                 <ConnectOnboardingButton
                   spotId={spot.id}
@@ -454,12 +546,6 @@ export function OwnerConsoleClient() {
                   className="cta-secondary"
                   label={connectReady ? "受取設定" : "受取設定を始める"}
                 />
-                <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
-                  QR配布
-                </Link>
-                <Link href={`/spots/${spot.id}`} className="cta-secondary">
-                  公開ページ
-                </Link>
               </div>
 
             </article>

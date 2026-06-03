@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { EmptyState } from "@/components/empty-state";
+import { LoginModal } from "@/components/auth/login-modal";
 import { PostalCodeField } from "@/components/forms/postal-code-field";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -10,6 +10,7 @@ import {
   getSpotFromFirestore,
   updateSpotInFirestore
 } from "@/lib/firestore/spots";
+import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
 import { SpotCategory } from "@/lib/types";
 
@@ -65,16 +66,90 @@ const prefectures = [
 
 const categories: SpotCategory[] = [
   "カフェ",
-  "神社",
-  "アート",
+  "スポーツ",
   "文化施設",
   "市民団体",
-  "スポーツ",
   "商店街",
-  "自治会",
   "クリエイター",
+  "アート",
+  "寺社仏閣",
+  "自治会",
   "その他"
 ];
+
+// ─── SNS ハンドル ↔ URL 変換ヘルパー ──────────────────────────────────────
+
+type SnsPlatform = "instagram" | "twitter" | "line" | "youtube";
+
+/** 保存済み URL からハンドル部分を抽出して入力欄に表示する */
+function extractHandle(url: string, platform: SnsPlatform): string {
+  if (!url) return "";
+  try {
+    const u = new URL(url);
+    switch (platform) {
+      case "instagram":
+        // https://instagram.com/handle → "handle"
+        return u.pathname.replace(/^\//, "").split("/")[0] ?? "";
+      case "twitter":
+        // https://x.com/handle or https://twitter.com/handle → "handle"
+        return u.pathname.replace(/^\//, "").split("/")[0] ?? "";
+      case "line":
+        // https://line.me/R/ti/p/@id → "id"（@ を除去）
+        return u.pathname.split("/").pop()?.replace(/^@/, "") ?? "";
+      case "youtube":
+        // https://youtube.com/@handle → "handle"（@ を除去）
+        return u.pathname.replace(/^\//, "").replace(/^@/, "").split("/")[0] ?? "";
+    }
+  } catch {
+    return "";
+  }
+}
+
+// ─── SNS ハンドル入力コンポーネント ─────────────────────────────────────
+
+function SnsHandleInput({
+  label,
+  prefix,
+  handle,
+  previewUrl,
+  placeholder,
+  onChange
+}: {
+  label: string;
+  prefix: string;
+  handle: string;
+  previewUrl: string;
+  placeholder: string;
+  onChange: (handle: string) => void;
+}) {
+  function handleChange(raw: string) {
+    // @ や空白を除去してハンドルだけ渡す
+    const cleaned = raw.replace(/^[@\s]+/, "").trim();
+    onChange(cleaned);
+  }
+
+  return (
+    <div className="space-y-1">
+      <label className="flex items-center gap-3">
+        <span className="w-36 shrink-0 text-xs font-medium text-ink/55">{label}</span>
+        <div className="flex flex-1 items-center gap-1">
+          <span className="text-sm text-ink/40">{prefix}</span>
+          <input
+            className="field flex-1 text-sm"
+            value={handle}
+            onChange={(e) => handleChange(e.target.value)}
+            placeholder={placeholder}
+          />
+        </div>
+      </label>
+      {previewUrl ? (
+        <p className="ml-[9.5rem] truncate text-[11px] text-ink/35">{previewUrl}</p>
+      ) : null}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 
 type SpotFormProps =
   | {
@@ -96,11 +171,26 @@ export function SpotForm(props: SpotFormProps) {
   const [addressLine, setAddressLine] = useState("");
   const [description, setDescription] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [galleryImageUrls, setGalleryImageUrls] = useState<string[]>([]);
   const [isPublished, setIsPublished] = useState(true);
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [line, setLine] = useState("");
+  const [youtube, setYoutube] = useState("");
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (authReady && !user) {
+      setLoginModalOpen(true);
+    }
+  }, [authReady, user]);
 
   useEffect(() => {
     if (props.mode !== "edit") {
@@ -129,7 +219,15 @@ export function SpotForm(props: SpotFormProps) {
         setAddressLine(addressRest);
         setDescription(spot.description);
         setCoverImageUrl(spot.coverImageUrl ?? "");
+        setGalleryImageUrls(spot.galleryImageUrls ?? []);
         setIsPublished(spot.isPublished);
+        setPhone(spot.phone ?? "");
+        setEmail(spot.email ?? "");
+        setWebsite(spot.socialLinks?.website ?? "");
+        setInstagram(spot.socialLinks?.instagram ?? "");
+        setTwitter(spot.socialLinks?.twitter ?? "");
+        setLine(spot.socialLinks?.line ?? "");
+        setYoutube(spot.socialLinks?.youtube ?? "");
       })
       .catch((cause: Error) => {
         setError(cause.message);
@@ -152,6 +250,8 @@ export function SpotForm(props: SpotFormProps) {
 
     const normalizedCity = city.trim();
     const normalizedAddressLine = addressLine.trim();
+    const normalizedPhone = phone.trim();
+    const normalizedEmail = email.trim();
     const fullAddress = `${prefecture}${normalizedCity}${normalizedAddressLine}`;
 
     if (!normalizedCity || !normalizedAddressLine) {
@@ -164,14 +264,10 @@ export function SpotForm(props: SpotFormProps) {
       if (props.mode === "create") {
         const spotId = await createSpotInFirestore(
           {
-            name,
-            category,
-            address: fullAddress,
-            prefecture,
-            city: normalizedCity,
-            description,
-            coverImageUrl,
-            isPublished
+            name, category, address: fullAddress, prefecture,
+            city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
+            phone: normalizedPhone, email: normalizedEmail,
+            socialLinks: { website, instagram, twitter, line, youtube }
           },
           user.uid
         );
@@ -181,14 +277,10 @@ export function SpotForm(props: SpotFormProps) {
       }
 
       await updateSpotInFirestore(props.spotId, {
-        name,
-        category,
-        address: fullAddress,
-        prefecture,
-        city: normalizedCity,
-        description,
-        coverImageUrl,
-        isPublished
+        name, category, address: fullAddress, prefecture,
+        city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
+        phone: normalizedPhone, email: normalizedEmail,
+        socialLinks: { website, instagram, twitter, line, youtube }
       });
       router.push("/manage");
       router.refresh();
@@ -226,9 +318,12 @@ export function SpotForm(props: SpotFormProps) {
 
   if (!user) {
     return (
-      <EmptyState
-        title="SPOT の保存にはログインが必要です"
-        description="Google ログイン後に、SPOT の作成と編集ができるようになります。"
+      <LoginModal
+        open={loginModalOpen}
+        onClose={() => {
+          setLoginModalOpen(false);
+          router.push("/owner");
+        }}
       />
     );
   }
@@ -245,6 +340,7 @@ export function SpotForm(props: SpotFormProps) {
         onChange={(event) => setName(event.target.value)}
         placeholder="SPOT名"
         required
+        aria-invalid={!!error && !name.trim() ? true : undefined}
       />
       <select
         className="field"
@@ -309,13 +405,23 @@ export function SpotForm(props: SpotFormProps) {
         placeholder="説明"
         required
       />
-      <input
-        className="field"
-        value={coverImageUrl}
-        onChange={(event) => setCoverImageUrl(event.target.value)}
-        placeholder="Storage の画像 URL または公開 URL"
-      />
-      <div className="rounded-[24px] bg-mist p-4">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <input
+          className="field"
+          type="tel"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+          placeholder="電話番号（任意）"
+        />
+        <input
+          className="field"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="メールアドレス（任意）"
+        />
+      </div>
+      <div className="rounded-[20px] bg-mist p-4">
         <label className="block text-sm font-semibold text-ink">カバー画像アップロード</label>
         <input
           className="mt-3 block w-full text-sm text-ink/70"
@@ -325,7 +431,7 @@ export function SpotForm(props: SpotFormProps) {
           disabled={uploadingImage}
         />
         <p className="mt-2 text-sm text-ink/60">
-          {uploadingImage ? "Storage にアップロード中です..." : "画像を選ぶと Storage に保存し、URL を自動入力します。"}
+          {uploadingImage ? "Storage にアップロード中です..." : "画像を選ぶと Storage に保存し、そのままカバー画像に設定します。"}
         </p>
         {coverImageUrl ? (
           <img
@@ -339,6 +445,78 @@ export function SpotForm(props: SpotFormProps) {
           </div>
         )}
       </div>
+      {/* ギャラリー */}
+      <div className="space-y-3 rounded-[20px] bg-mist p-4">
+        <div>
+          <label className="block text-sm font-semibold text-ink">ギャラリー</label>
+          <p className="mt-0.5 text-xs text-ink/50">活動の雰囲気が伝わる写真を最大10枚まで追加できます</p>
+        </div>
+        <GalleryUploader
+          values={galleryImageUrls}
+          onChange={setGalleryImageUrls}
+          storagePath={props.mode === "edit" ? `spots/${props.spotId}/gallery` : "spots/new/gallery"}
+        />
+      </div>
+
+      {/* SNS リンク */}
+      <div className="space-y-4 rounded-[20px] border border-ink/10 p-4">
+        <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">SNS・外部リンク（任意）</p>
+
+        {/* ウェブサイト：URL直打ち */}
+        <div className="space-y-1">
+          <label className="flex items-center gap-3">
+            <span className="w-36 shrink-0 text-xs font-medium text-ink/55">ウェブサイト</span>
+            <input
+              className="field text-sm"
+              type="url"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://example.com"
+            />
+          </label>
+        </div>
+
+        {/* Instagram */}
+        <SnsHandleInput
+          label="Instagram"
+          prefix="@"
+          handle={extractHandle(instagram, "instagram")}
+          previewUrl={instagram}
+          placeholder="ユーザー名"
+          onChange={(h) => setInstagram(h ? `https://instagram.com/${h}` : "")}
+        />
+
+        {/* X (Twitter) */}
+        <SnsHandleInput
+          label="X (Twitter)"
+          prefix="@"
+          handle={extractHandle(twitter, "twitter")}
+          previewUrl={twitter}
+          placeholder="ユーザー名"
+          onChange={(h) => setTwitter(h ? `https://x.com/${h}` : "")}
+        />
+
+        {/* LINE */}
+        <SnsHandleInput
+          label="LINE 公式"
+          prefix="@"
+          handle={extractHandle(line, "line")}
+          previewUrl={line}
+          placeholder="LINE ID（例: abc1234）"
+          onChange={(h) => setLine(h ? `https://line.me/R/ti/p/@${h}` : "")}
+        />
+
+        {/* YouTube */}
+        <SnsHandleInput
+          label="YouTube"
+          prefix="@"
+          handle={extractHandle(youtube, "youtube")}
+          previewUrl={youtube}
+          placeholder="チャンネル名"
+          onChange={(h) => setYoutube(h ? `https://youtube.com/@${h}` : "")}
+        />
+      </div>
+
       <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/68">
         <input
           checked={isPublished}

@@ -105,7 +105,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
               お知らせ、限定イベント、所属情報をここに集約します。
             </p>
           </div>
-          <div className="rounded-[24px] bg-mist px-5 py-4 text-sm text-ink/70">
+          <div className="rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/70">
             加入プラン: <span className="font-bold text-ink">¥{membership?.planAmount ?? 500}</span>
           </div>
         </div>
@@ -129,12 +129,18 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
               />
             ) : (
               posts.map((post) => (
-                <article key={post.id} className="rounded-[24px] bg-mist p-5">
+                <article key={post.id} className="rounded-[20px] bg-mist p-5">
                   <div className="text-xs font-semibold tracking-[0.18em] text-ink/55">
                     {post.publishDate}
                   </div>
                   <h3 className="mt-2 text-lg font-bold text-ink">{post.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-ink/68">{post.body}</p>
+                  <p className="mt-3 text-sm leading-7 text-ink/68 line-clamp-3">{post.body}</p>
+                  <Link
+                    href={`/spots/${spotId}/posts/${post.id}`}
+                    className="mt-3 inline-block text-xs font-semibold text-ink/55 hover:text-ink transition-colors"
+                  >
+                    続きを読む →
+                  </Link>
                 </article>
               ))
             )}
@@ -159,18 +165,24 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
                 />
               ) : (
                 events.map((event) => (
-                  <article key={event.id} className="rounded-[24px] bg-mist p-5">
+                  <article key={event.id} className="rounded-[20px] bg-mist p-5">
                     <div className="text-xs font-semibold tracking-[0.18em] text-ink/55">
                       {new Date(event.startAt).toLocaleString("ja-JP")}
                     </div>
                     <h3 className="mt-2 text-lg font-bold text-ink">{event.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-ink/68">{event.description}</p>
+                    <p className="mt-3 text-sm leading-7 text-ink/68 line-clamp-2">{event.description}</p>
                     {event.location ? (
                       <p className="mt-2 text-sm font-medium text-ink/65">場所: {event.location}</p>
                     ) : null}
                     {event.hasJoinButton && !isOwner ? (
-                      <EventJoinButton spotId={spotId} eventId={event.id} />
+                      <EventJoinButton spotId={spotId} eventId={event.id} participantCount={event.participantCount} />
                     ) : null}
+                    <Link
+                      href={`/spots/${spotId}/events/${event.id}`}
+                      className="mt-3 inline-block text-xs font-semibold text-ink/55 hover:text-ink transition-colors"
+                    >
+                      詳細を見る →
+                    </Link>
                   </article>
                 ))
               )}

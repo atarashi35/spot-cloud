@@ -246,7 +246,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
             SPOT情報編集へ
           </Link>
           <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
-            QR配布へ
+            QR
           </Link>
         </div>
       </section>

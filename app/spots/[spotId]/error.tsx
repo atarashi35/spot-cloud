@@ -1,0 +1,13 @@
+"use client";
+import { useEffect } from "react";
+export default function SpotError({ error, reset }: { error: Error; reset: () => void }) {
+  useEffect(() => { console.error(error); }, [error]);
+  return (
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 px-4 text-center">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/35">Error</p>
+      <h1 className="text-2xl font-bold text-ink">読み込めませんでした</h1>
+      <p className="max-w-sm text-sm leading-7 text-ink/55">SPOTの情報を取得できませんでした。</p>
+      <button type="button" onClick={reset} className="cta-primary">もう一度試す</button>
+    </div>
+  );
+}

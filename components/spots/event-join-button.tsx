@@ -5,19 +5,21 @@ import { useAuth } from "@/components/providers/auth-provider";
 import {
   getEventParticipation,
   joinSpotEventInFirestore,
-  leaveSpotEventInFirestore,
-  listEventParticipantsFromFirestore
+  leaveSpotEventInFirestore
 } from "@/lib/firestore/events";
 
 type EventJoinButtonProps = {
   spotId: string;
   eventId: string;
+  /** イベントドキュメントに保持されている参加人数（他ソシオのデータを取得しないための安全な代替） */
+  participantCount: number;
 };
 
-export function EventJoinButton({ spotId, eventId }: EventJoinButtonProps) {
+export function EventJoinButton({ spotId, eventId, participantCount }: EventJoinButtonProps) {
   const { user } = useAuth();
   const [joined, setJoined] = useState(false);
-  const [count, setCount] = useState(0);
+  // 楽観的更新用のローカルカウント（Firestoreの値をベースに ±1 で管理）
+  const [localCount, setLocalCount] = useState(participantCount);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,13 +30,10 @@ export function EventJoinButton({ spotId, eventId }: EventJoinButtonProps) {
       return;
     }
 
-    void Promise.all([
-      getEventParticipation(spotId, eventId, user.uid),
-      listEventParticipantsFromFirestore(spotId, eventId)
-    ])
-      .then(([participation, participants]) => {
+    // 自分の参加状態のみ取得（他ソシオのデータは取得しない）
+    void getEventParticipation(spotId, eventId, user.uid)
+      .then((participation) => {
         setJoined(Boolean(participation));
-        setCount(participants.length);
       })
       .catch((cause: Error) => {
         setError(cause.message);
@@ -56,7 +55,7 @@ export function EventJoinButton({ spotId, eventId }: EventJoinButtonProps) {
       if (joined) {
         await leaveSpotEventInFirestore(spotId, eventId, user.uid);
         setJoined(false);
-        setCount((current) => Math.max(0, current - 1));
+        setLocalCount((c) => Math.max(0, c - 1));
       } else {
         await joinSpotEventInFirestore(spotId, eventId, {
           uid: user.uid,
@@ -64,7 +63,7 @@ export function EventJoinButton({ spotId, eventId }: EventJoinButtonProps) {
           email: user.email
         });
         setJoined(true);
-        setCount((current) => current + 1);
+        setLocalCount((c) => c + 1);
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "イベント参加の更新に失敗しました。");
@@ -83,7 +82,7 @@ export function EventJoinButton({ spotId, eventId }: EventJoinButtonProps) {
         {loading ? "確認中..." : saving ? "更新中..." : joined ? "参加を取り消す" : "参加する"}
       </button>
       <p className="text-xs text-ink/60">
-        {joined ? "参加予定として登録されています。" : "参加予定者に登録すると、運営者が把握できます。"} 現在 {count} 人
+        {joined ? "参加予定として登録されています。" : "参加予定者に登録すると、運営者が把握できます。"} 現在 {localCount} 人
       </p>
       {error ? <p className="text-xs font-medium text-red-700">{error}</p> : null}
     </div>

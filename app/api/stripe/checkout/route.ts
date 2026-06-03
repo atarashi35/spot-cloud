@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
       spotId?: string;
       planAmount?: number;
       name?: string;
+      affiliation?: string;
       ageRange?: SocioAgeRange;
       gender?: SocioGender;
     };
@@ -100,6 +101,7 @@ export async function POST(request: NextRequest) {
     const checkoutUid = decodedToken.uid;               // 必ず Firebase Auth UID
     const checkoutEmail = decodedToken.email ?? "";
     const displayName = body.name?.trim() ?? "";
+    const affiliation = body.affiliation?.trim() ?? "";
     const ageRange = body.ageRange ?? "";
     const gender = body.gender ?? "";
 
@@ -108,7 +110,8 @@ export async function POST(request: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/spots/${body.spotId}?checkout=success`,
+      // {CHECKOUT_SESSION_ID} は Stripe がリダイレクト時に実際の ID に置換する
+      success_url: `${origin}/spots/${body.spotId}?checkout=success&sid={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/spots/${body.spotId}/join?checkout=cancel`,
       customer_email: checkoutEmail || undefined,
       subscription_data: {
@@ -122,6 +125,7 @@ export async function POST(request: NextRequest) {
           uid: checkoutUid,
           displayName,
           email: checkoutEmail,
+          affiliation,
           ageRange,
           gender,
           planAmount: String(planAmount),
@@ -137,6 +141,7 @@ export async function POST(request: NextRequest) {
         uid: checkoutUid,
         displayName,
         email: checkoutEmail,
+        affiliation,
         ageRange,
         gender,
         planAmount: String(planAmount),

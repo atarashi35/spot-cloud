@@ -60,7 +60,7 @@ export function JoinFlowClient({
                 key={amount}
                 type="button"
                 onClick={() => setPlanAmount(amount)}
-                className={`rounded-[24px] border p-5 text-left transition ${
+                className={`rounded-[20px] border p-5 text-left transition ${
                   active ? "border-ink bg-ink text-white" : "border-ink/10 bg-mist text-ink"
                 }`}
               >

@@ -65,7 +65,7 @@ export function PostalCodeField({
   }
 
   return (
-    <div className="rounded-[24px] bg-mist p-4">
+    <div className="rounded-[20px] bg-mist p-4">
       <div className="text-sm font-semibold text-ink">郵便番号から入力</div>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row">
         <input

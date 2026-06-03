@@ -2,6 +2,15 @@ import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import { getAdminEmails } from "@/lib/auth/admin";
 import { Spot, SpotCategory } from "@/lib/types";
 
+function normalizeSpotCategory(value: unknown): SpotCategory {
+  if (value === "神社") {
+    return "寺社仏閣";
+  }
+
+  const category = String(value ?? "") as SpotCategory;
+  return category || "その他";
+}
+
 function parseTimestamp(value: unknown) {
   if (value && typeof value === "object" && "toDate" in value && typeof value.toDate === "function") {
     return value.toDate().toISOString();
@@ -20,7 +29,7 @@ function mapAdminSpot(id: string, data: Record<string, unknown>): Spot {
     name: String(data.name ?? ""),
     description: String(data.description ?? ""),
     shortDescription: String(data.shortDescription ?? ""),
-    category: (data.category as SpotCategory) ?? "その他",
+    category: normalizeSpotCategory(data.category),
     address: String(data.address ?? ""),
     prefecture: String(data.prefecture ?? ""),
     city: String(data.city ?? ""),

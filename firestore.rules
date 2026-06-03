@@ -12,7 +12,7 @@ service cloud.firestore {
     function isActiveMember(spotId) {
       return signedIn()
         && exists(/databases/$(database)/documents/spots/$(spotId)/members/$(request.auth.uid))
-        && get(/databases/$(database)/documents/spots/$(spotId)/members/$(request.auth.uid)).data.status == "active";
+        && get(/databases/$(database)/documents/spots/$(spotId)/members/$(request.auth.uid)).data.status in ["active", "canceling"];
     }
 
     match /spots/{spotId} {
@@ -26,23 +26,43 @@ service cloud.firestore {
       }
 
       match /posts/{postId} {
-        allow read: if isActiveMember(spotId) || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        // 公開投稿は誰でも、非公開はソシオ/オーナーのみ
+        allow read: if resource.data.isPublic == true
+                    || isActiveMember(spotId)
+                    || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
         allow create, update, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
       }
 
       match /events/{eventId} {
-        allow read: if isActiveMember(spotId) || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
-        allow create, update, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        // 公開イベントは誰でも、非公開はソシオ/オーナーのみ
+        allow read: if resource.data.isPublic == true
+                    || isActiveMember(spotId)
+                    || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        allow create, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        // オーナーはすべて更新可。ソシオは participantCount のみ更新可（参加登録/取り消し時）
+        allow update: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid)
+                      || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["participantCount"]));
 
         match /participants/{uid} {
-          allow read: if isActiveMember(spotId) || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
-          allow create, update, delete: if signedIn() && request.auth.uid == uid && isActiveMember(spotId);
+          // 参加者の名前・メールはオーナーと本人のみ閲覧可。他ソシオには非公開（プライバシー保護）
+          allow read: if (signedIn() && request.auth.uid == uid)
+                      || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+          // 参加登録・更新はアクティブなソシオのみ。退出（delete）は本人なら資格不問
+          allow create, update: if signedIn() && request.auth.uid == uid && isActiveMember(spotId);
+          allow delete: if signedIn() && request.auth.uid == uid;
         }
       }
     }
 
     match /users/{uid}/memberships/{spotId} {
       allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid}/notifications/{notifId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      // 既読フラグの更新のみ許可（isRead フィールドのみ）
+      allow update: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["isRead"]);
     }
   }
 }

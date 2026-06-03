@@ -27,6 +27,7 @@ function mapMembership(spotId: string, data: Record<string, unknown>): UserMembe
   return {
     spotId,
     spotName: String(data.spotName ?? ""),
+    affiliation: String(data.affiliation ?? ""),
     planAmount: Number(data.planAmount ?? 500) as UserMembership["planAmount"],
     status: (data.status as UserMembership["status"]) ?? "active",
     joinedAt: parseTimestamp(data.joinedAt)
@@ -37,6 +38,7 @@ export async function getUserMembership(uid: string, spotId: string) {
   const snapshot = await getDoc(doc(getFirestoreDb(), "users", uid, "memberships", spotId));
   return snapshot.exists() ? mapMembership(spotId, snapshot.data()) : null;
 }
+
 
 export async function listUserMemberships(uid: string) {
   const snapshot = await getDocs(query(collection(getFirestoreDb(), "users", uid, "memberships")));

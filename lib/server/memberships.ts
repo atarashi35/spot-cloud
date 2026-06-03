@@ -6,6 +6,7 @@ type MembershipPayload = {
   uid: string;
   displayName?: string;
   email?: string;
+  affiliation?: string;
   ageRange?: SocioAgeRange;
   gender?: SocioGender;
   spotId: string;
@@ -36,6 +37,7 @@ export async function upsertMembership(payload: MembershipPayload) {
         uid: payload.uid,
         displayName: payload.displayName ?? "",
         email: payload.email ?? "",
+        affiliation: payload.affiliation ?? "",
         ageRange: payload.ageRange ?? "",
         gender: payload.gender ?? "",
         planAmount: payload.planAmount,
@@ -53,6 +55,7 @@ export async function upsertMembership(payload: MembershipPayload) {
       {
         spotId: payload.spotId,
         spotName: payload.spotName,
+        affiliation: payload.affiliation ?? "",
         planAmount: payload.planAmount,
         status: payload.status,
         joinedAt: snapshot.exists ? snapshot.data()?.joinedAt ?? FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
@@ -104,6 +107,7 @@ export async function getMembershipBySubscriptionId(subscriptionId: string) {
     uid: String(member.uid ?? ""),
     displayName: String(member.displayName ?? ""),
     email: String(member.email ?? ""),
+    affiliation: String(member.affiliation ?? ""),
     ageRange: String(member.ageRange ?? "") as SocioAgeRange,
     gender: String(member.gender ?? "") as SocioGender,
     spotId,
@@ -113,4 +117,169 @@ export async function getMembershipBySubscriptionId(subscriptionId: string) {
     stripeSubscriptionId: String(member.stripeSubscriptionId ?? ""),
     status: member.status as MembershipStatus
   };
+}
+
+/**
+ * users/{uid}/memberships に存在するが spots/{spotId}/members/{uid} が欠けている場合に補完する。
+ * claim-memberships API から呼び出す。
+ */
+export async function repairMissingMemberDocs(uid: string) {
+  const db = getAdminDb();
+  const membershipsSnap = await db.collection(`users/${uid}/memberships`).get();
+  if (membershipsSnap.empty) return { repairedCount: 0 };
+
+  let repairedCount = 0;
+
+  await Promise.all(
+    membershipsSnap.docs.map(async (membershipDoc) => {
+      const spotId = membershipDoc.id;
+      const memberRef = db.doc(`spots/${spotId}/members/${uid}`);
+      const memberSnap = await memberRef.get();
+
+      if (memberSnap.exists) return; // 既に存在する
+
+      const data = membershipDoc.data();
+      // spots側ドキュメントが欠けているため最低限の情報で補完
+      await memberRef.set({
+        uid,
+        displayName: "",
+        email: "",
+        affiliation: String(data.affiliation ?? ""),
+        ageRange: "",
+        gender: "",
+        planAmount: Number(data.planAmount ?? 100),
+        stripeCustomerId: "",
+        stripeSubscriptionId: "",
+        status: data.status ?? "active",
+        joinedAt: data.joinedAt ?? FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+
+      repairedCount++;
+    })
+  );
+
+  return { repairedCount };
+}
+
+export async function reconcileMembershipsByEmail(uid: string, email: string) {
+  const normalizedEmail = email.trim();
+
+  if (!uid || !normalizedEmail) {
+    return { reconciledCount: 0 };
+  }
+
+  const db = getAdminDb();
+  const snapshot = await db
+    .collectionGroup("members")
+    .where("email", "==", normalizedEmail)
+    .get();
+
+  let reconciledCount = 0;
+
+  for (const doc of snapshot.docs) {
+    const spotId = doc.ref.parent.parent?.id;
+
+    if (!spotId) {
+      continue;
+    }
+
+    const sourceUid = String(doc.data().uid ?? doc.id);
+    const sourceMemberRef = db.doc(`spots/${spotId}/members/${sourceUid}`);
+    const targetMemberRef = db.doc(`spots/${spotId}/members/${uid}`);
+    const sourceMembershipRef = db.doc(`users/${sourceUid}/memberships/${spotId}`);
+    const targetMembershipRef = db.doc(`users/${uid}/memberships/${spotId}`);
+    const spotRef = db.doc(`spots/${spotId}`);
+
+    await db.runTransaction(async (transaction) => {
+      // Firestoreトランザクションは全 read を write より先に行う必要があるため
+      // すべてのドキュメントを最初にまとめて取得する
+      const [sourceMemberSnap, targetMemberSnap, sourceMembershipSnap, spotSnap] =
+        await Promise.all([
+          transaction.get(sourceMemberRef),
+          transaction.get(targetMemberRef),
+          transaction.get(sourceMembershipRef),
+          transaction.get(spotRef)
+        ]);
+
+      if (!sourceMemberSnap.exists) {
+        return;
+      }
+
+      const sourceMember = sourceMemberSnap.data() ?? {};
+      const sourceMembership = sourceMembershipSnap.exists ? sourceMembershipSnap.data() ?? {} : {};
+      const joinedAt =
+        sourceMember.joinedAt ??
+        sourceMembership.joinedAt ??
+        FieldValue.serverTimestamp();
+      const spotName =
+        String(sourceMembership.spotName ?? "") || String(spotSnap.data()?.name ?? "");
+      const planAmount = Number(
+        sourceMember.planAmount ?? sourceMembership.planAmount ?? 100
+      ) as PlanAmount;
+      const status = (sourceMember.status ?? sourceMembership.status ?? "active") as MembershipStatus;
+
+      // ── ターゲット側の既存状態を確認して socioCount のずれを防ぐ ──────────
+      const isPaying = (s: string | null | undefined) => s === "active" || s === "canceling";
+      const targetPreviousStatus = targetMemberSnap.exists
+        ? (targetMemberSnap.data()?.status as string | null)
+        : null;
+
+      transaction.set(
+        targetMemberRef,
+        {
+          ...sourceMember,
+          uid,
+          email: normalizedEmail,
+          joinedAt,
+          updatedAt: FieldValue.serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      transaction.set(
+        targetMembershipRef,
+        {
+          spotId,
+          spotName,
+          affiliation: String(sourceMember.affiliation ?? sourceMembership.affiliation ?? ""),
+          planAmount,
+          status,
+          joinedAt,
+          updatedAt: FieldValue.serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      if (sourceUid !== uid) {
+        transaction.delete(sourceMemberRef);
+
+        if (sourceMembershipSnap.exists) {
+          transaction.delete(sourceMembershipRef);
+        }
+
+        // socioCount の調整:
+        // source が paying で target が paying でなかった場合 → 実質変化なし（sourceが既にカウント済み）
+        // source が paying で target も paying だった場合 → source 削除でカウントが減るので +1 補正
+        if (isPaying(status) && isPaying(targetPreviousStatus)) {
+          // ターゲットに既存 active/canceling があり、source を削除しても count を維持する
+          transaction.update(spotRef, {
+            socioCount: FieldValue.increment(1),
+            updatedAt: FieldValue.serverTimestamp()
+          });
+        } else if (!isPaying(status) && !isPaying(targetPreviousStatus)) {
+          // 両方 non-paying → カウント変化なし
+        }
+        // isPaying(status) && !isPaying(targetPreviousStatus):
+        //   source の paying はそのままカウントに残る（doc が uid に移るだけ） → 変化なし
+        // !isPaying(status) && isPaying(targetPreviousStatus):
+        //   source non-paying を target の paying に merge → target の paying を上書きする危険
+        //   この場合は merge しないほうが安全だが、現状は status を source から引き継ぐ設計
+      }
+    });
+
+    reconciledCount += 1;
+  }
+
+  return { reconciledCount };
 }

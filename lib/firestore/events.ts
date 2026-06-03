@@ -8,8 +8,12 @@ import {
   doc,
   getDoc,
   getDocs,
+  increment,
+  query,
   serverTimestamp,
-  setDoc
+  setDoc,
+  updateDoc,
+  where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
 import { EventParticipant, SpotEvent } from "@/lib/types";
@@ -19,6 +23,8 @@ type SpotEventInput = {
   description: string;
   startAt: string;
   location?: string;
+  imageUrl?: string;
+  isPublic: boolean;
   hasJoinButton: boolean;
 };
 
@@ -47,15 +53,22 @@ function mapEvent(spotId: string, id: string, data: Record<string, unknown>): Sp
     startAt: String(data.startAt ?? ""),
     endAt: typeof data.endAt === "string" ? data.endAt : undefined,
     location: typeof data.location === "string" ? data.location : undefined,
+    imageUrl: typeof data.imageUrl === "string" && data.imageUrl ? data.imageUrl : undefined,
+    isPublic: Boolean(data.isPublic),
     hasJoinButton: Boolean(data.hasJoinButton),
+    participantCount: Number(data.participantCount ?? 0),
     createdBy: String(data.createdBy ?? ""),
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
   };
 }
 
-export async function listSpotEventsFromFirestore(spotId: string) {
-  const snapshot = await getDocs(collection(getFirestoreDb(), "spots", spotId, "events"));
+export async function listSpotEventsFromFirestore(spotId: string, opts?: { publicOnly?: boolean }) {
+  const col = collection(getFirestoreDb(), "spots", spotId, "events");
+  const q = opts?.publicOnly
+    ? query(col, where("isPublic", "==", true))
+    : col;
+  const snapshot = await getDocs(q);
   return sortEvents(snapshot.docs.map((item) => mapEvent(spotId, item.id, item.data())));
 }
 
@@ -79,7 +92,10 @@ export async function createSpotEventInFirestore(
     description: input.description,
     startAt: input.startAt,
     location: input.location ?? "",
+    imageUrl: input.imageUrl ?? "",
+    isPublic: input.isPublic,
     hasJoinButton: input.hasJoinButton,
+    participantCount: 0,
     createdBy: uid,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -97,6 +113,8 @@ export async function updateSpotEventInFirestore(
     description: input.description,
     startAt: input.startAt,
     location: input.location ?? "",
+    imageUrl: input.imageUrl ?? "",
+    isPublic: input.isPublic,
     hasJoinButton: input.hasJoinButton,
     updatedAt: serverTimestamp()
   });
@@ -135,16 +153,27 @@ export async function joinSpotEventInFirestore(
   eventId: string,
   payload: { uid: string; displayName?: string | null; email?: string | null }
 ) {
-  await setParticipantDoc(spotId, eventId, payload.uid, {
+  const db = getFirestoreDb();
+  const participantRef = doc(db, "spots", spotId, "events", eventId, "participants", payload.uid);
+  const eventRef = doc(db, "spots", spotId, "events", eventId);
+
+  // 参加ドキュメントを作成し、イベントの participantCount を +1
+  await setDoc(participantRef, {
     uid: payload.uid,
     displayName: payload.displayName ?? "",
     email: payload.email ?? "",
     joinedAt: serverTimestamp()
-  });
+  }, { merge: true });
+
+  await updateDoc(eventRef, { participantCount: increment(1) });
 }
 
 export async function leaveSpotEventInFirestore(spotId: string, eventId: string, uid: string) {
-  await deleteDoc(doc(getFirestoreDb(), "spots", spotId, "events", eventId, "participants", uid));
+  const db = getFirestoreDb();
+  await deleteDoc(doc(db, "spots", spotId, "events", eventId, "participants", uid));
+  await updateDoc(doc(db, "spots", spotId, "events", eventId), {
+    participantCount: increment(-1)
+  });
 }
 
 async function setParticipantDoc(

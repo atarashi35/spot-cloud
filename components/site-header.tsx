@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, LogIn, LogOut, Search, Settings2, Shield, Sparkles, UserCircle } from "lucide-react";
+import { LogIn, LogOut, Search, Settings2, Shield, UserCircle } from "lucide-react";
+import { LogoHorizontal } from "@/components/ui/logo";
+import { NotificationDrawer } from "@/components/ui/notification-drawer";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
+import { LoginModal } from "@/components/auth/login-modal";
 import { listOwnerSpotsFromFirestore } from "@/lib/firestore/spots";
 import { isAdminEmail } from "@/lib/auth/admin";
 
@@ -22,12 +25,12 @@ function getInitials(name: string | null | undefined) {
 }
 
 export function SiteHeader() {
-  const { authReady, user, signInWithGoogle, signOutUser } = useAuth();
+  const { authReady, user, signOutUser } = useAuth();
   const [showManageLink, setShowManageLink] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const showAdminLink = authReady && isAdminEmail(user?.email);
-  const showOperatorMenu = showAdminLink || showManageLink;
   const visibleUser = user && !user.isAnonymous ? user : null;
 
   useEffect(() => {
@@ -73,26 +76,25 @@ export function SiteHeader() {
   }, [menuOpen]);
 
   return (
+    <>
     <header className="shell sticky top-0 z-[80] py-5">
       <div className="panel relative z-[80] flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-3 sm:gap-6">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <div>
-              <div className="font-serif text-2xl font-bold tracking-tight text-ink">SPOT</div>
-            </div>
+          <Link href="/" className="flex items-center">
+            <LogoHorizontal className="h-9 w-auto object-contain" />
           </Link>
         </div>
 
         <div className="flex items-center gap-2">
+          {!visibleUser ? (
+            <Link href="/owner" className="cta-secondary hidden sm:inline-flex">
+              SPOTを作る
+            </Link>
+          ) : null}
           <Link href="/" className="icon-button" aria-label="SPOT MAP">
             <Search className="h-4 w-4" />
           </Link>
-          <button type="button" className="icon-button text-ink/45" aria-label="通知">
-            <Bell className="h-4 w-4" />
-          </button>
+          <NotificationDrawer />
           {visibleUser ? (
             <div ref={menuRef} className="relative z-[90]">
               <button
@@ -113,14 +115,12 @@ export function SiteHeader() {
                   <div className="py-2">
                     <Link href="/account" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <UserCircle className="h-4 w-4" />
-                      マイソシオ
+                      応援中のSPOT
                     </Link>
-                    {showOperatorMenu ? (
-                      <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
-                        <Settings2 className="h-4 w-4" />
-                        マイSPOT
-                      </Link>
-                    ) : null}
+                    <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
+                      <Settings2 className="h-4 w-4" />
+                      {showManageLink ? "運営中のSPOT" : "SPOTを作る"}
+                    </Link>
                     {showAdminLink ? (
                       <Link href="/admin" className="menu-link" onClick={() => setMenuOpen(false)}>
                         <Shield className="h-4 w-4" />
@@ -151,15 +151,17 @@ export function SiteHeader() {
           ) : (
             <button
               type="button"
-              onClick={signInWithGoogle}
+              onClick={() => setLoginModalOpen(true)}
               className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss"
             >
               <LogIn className="h-4 w-4" />
-              ログイン
+              はじめる
             </button>
           )}
         </div>
       </div>
     </header>
+    <LoginModal open={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
+    </>
   );
 }

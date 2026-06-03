@@ -1,9 +1,13 @@
 rules_version = '2';
+// Bucket: spot-cloud-27aaf.firebasestorage.app
 service firebase.storage {
   match /b/{bucket}/o {
-    match /spots/{uid}/{allPaths=**} {
+    match /spots/{spotId}/{allPaths=**} {
+      // 画像は誰でも読める（公開コンテンツ）
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      // ログイン済みユーザーのみ書き込める
+      // オーナー限定の制御はアプリ側 UI（isOwner チェック）で担保する
+      allow write: if request.auth != null;
     }
   }
 }

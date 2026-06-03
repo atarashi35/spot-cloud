@@ -21,18 +21,47 @@ export async function POST(request: NextRequest) {
     }
 
     const decodedToken = await getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
-    const membershipSnapshot = await getAdminDb()
-      .doc(`spots/${body.spotId}/members/${decodedToken.uid}`)
-      .get();
+    const db = getAdminDb();
 
-    if (!membershipSnapshot.exists) {
-      return NextResponse.json({ error: "membership_not_found" }, { status: 404 });
+    const membersCol = db.collection(`spots/${body.spotId}/members`);
+
+    // 1. uid をドキュメントIDとして直接引く
+    let memberData: Record<string, unknown> | null = null;
+    const directSnap = await db.doc(`spots/${body.spotId}/members/${decodedToken.uid}`).get();
+    if (directSnap.exists) {
+      memberData = directSnap.data() as Record<string, unknown>;
     }
 
-    const customerId = String(membershipSnapshot.data()?.stripeCustomerId ?? "");
+    // 2. uid フィールドで検索（ドキュメントIDが別UIDになっているケース）
+    if (!memberData) {
+      const byUid = await membersCol.where("uid", "==", decodedToken.uid).limit(1).get();
+      if (!byUid.empty) {
+        memberData = byUid.docs[0].data() as Record<string, unknown>;
+      }
+    }
+
+    // 3. メールアドレスで検索（認証方法が変わったケース）
+    if (!memberData && decodedToken.email) {
+      const byEmail = await membersCol.where("email", "==", decodedToken.email).limit(1).get();
+      if (!byEmail.empty) {
+        memberData = byEmail.docs[0].data() as Record<string, unknown>;
+      }
+    }
+
+    if (!memberData) {
+      return NextResponse.json(
+        { error: "membership_not_found", message: "このSPOTの加入情報が見つかりませんでした。サポートにお問い合わせください。" },
+        { status: 404 }
+      );
+    }
+
+    const customerId = String(memberData.stripeCustomerId ?? "");
 
     if (!customerId) {
-      return NextResponse.json({ error: "missing_customer_id" }, { status: 400 });
+      return NextResponse.json(
+        { error: "missing_customer_id", message: "Stripe顧客情報が見つかりませんでした。" },
+        { status: 400 }
+      );
     }
 
     const portal = await stripe.billingPortal.sessions.create({

@@ -13,7 +13,7 @@ import {
   where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
-import { Spot, SpotCategory } from "@/lib/types";
+import { Spot, SpotCategory, SocialLinks } from "@/lib/types";
 import { prefecturePattern, slugify, splitAddress, toShortDescription } from "@/lib/utils";
 
 type SpotInput = {
@@ -24,15 +24,28 @@ type SpotInput = {
   prefecture: string;
   city: string;
   coverImageUrl?: string;
+  galleryImageUrls?: string[];
   isPublished: boolean;
+  phone?: string;
+  email?: string;
+  socialLinks?: SocialLinks;
 };
 
 const tonePalette = [
-  "from-stone-300 via-sand to-emerald-100",
-  "from-orange-100 via-amber-50 to-stone-100",
-  "from-cyan-100 via-white to-sky-50",
-  "from-lime-100 via-stone-50 to-emerald-50"
+  "from-zinc-200 via-stone-100 to-zinc-50",
+  "from-zinc-300 via-zinc-100 to-stone-50",
+  "from-stone-200 via-zinc-100 to-white",
+  "from-neutral-200 via-stone-100 to-zinc-50"
 ] as const;
+
+function normalizeSpotCategory(value: unknown): SpotCategory {
+  if (value === "神社") {
+    return "寺社仏閣";
+  }
+
+  const category = String(value ?? "") as SpotCategory;
+  return category || "その他";
+}
 
 function parseTimestamp(value: unknown) {
   if (value instanceof Timestamp) {
@@ -62,11 +75,14 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
     name: String(data.name ?? ""),
     description,
     shortDescription: String(data.shortDescription ?? toShortDescription(description)),
-    category: (data.category as SpotCategory) ?? "その他",
+    category: normalizeSpotCategory(data.category),
     address,
     prefecture,
     city,
     coverImageUrl: typeof data.coverImageUrl === "string" ? data.coverImageUrl : undefined,
+    galleryImageUrls: Array.isArray(data.galleryImageUrls)
+      ? (data.galleryImageUrls as string[]).filter((u) => typeof u === "string")
+      : [],
     coverTone:
       typeof data.coverTone === "string" ? data.coverTone : tonePalette[id.length % tonePalette.length],
     ownerUid: String(data.ownerUid ?? ""),
@@ -75,6 +91,11 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
     socioCount: Number(data.socioCount ?? 0),
     isPublished: Boolean(data.isPublished),
     isSuspended: Boolean(data.isSuspended),
+    phone: typeof data.phone === "string" ? data.phone : undefined,
+    email: typeof data.email === "string" ? data.email : undefined,
+    socialLinks: typeof data.socialLinks === "object" && data.socialLinks
+      ? (data.socialLinks as SocialLinks)
+      : undefined,
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
   };
@@ -85,8 +106,14 @@ function sortSpots(list: Spot[]) {
 }
 
 export async function listPublishedSpotsFromFirestore() {
-  const snapshot = await getDocs(query(collection(getFirestoreDb(), "spots"), where("isPublished", "==", true)));
-  return sortSpots(snapshot.docs.map((item) => mapFirestoreSpot(item.id, item.data())).filter((spot) => !spot.isSuspended));
+  const snapshot = await getDocs(
+    query(collection(getFirestoreDb(), "spots"), where("isPublished", "==", true))
+  );
+  return sortSpots(
+    snapshot.docs
+      .map((item) => mapFirestoreSpot(item.id, item.data()))
+      .filter((spot) => !spot.isSuspended)
+  );
 }
 
 export async function listOwnerSpotsFromFirestore(uid: string) {
@@ -116,10 +143,14 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
     city: input.city,
     coverTone,
     coverImageUrl: input.coverImageUrl ?? "",
+    galleryImageUrls: input.galleryImageUrls ?? [],
     ownerUid,
     socioCount: 0,
     isPublished: input.isPublished,
     isSuspended: false,
+    phone: input.phone ?? "",
+    email: input.email ?? "",
+    socialLinks: input.socialLinks ?? {},
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
@@ -137,7 +168,11 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     prefecture: input.prefecture,
     city: input.city,
     coverImageUrl: input.coverImageUrl ?? "",
+    galleryImageUrls: input.galleryImageUrls ?? [],
     isPublished: input.isPublished,
+    phone: input.phone ?? "",
+    email: input.email ?? "",
+    socialLinks: input.socialLinks ?? {},
     updatedAt: serverTimestamp()
   });
 }

@@ -133,6 +133,7 @@ export async function POST(request: Request) {
         uid: metadata.uid,
         displayName: buyerName,
         email: buyerEmail,
+        affiliation: String(metadata.affiliation ?? ""),
         ageRange: (metadata.ageRange ?? "") as SocioAgeRange,
         gender: (metadata.gender ?? "") as SocioGender,
         spotId: metadata.spotId,

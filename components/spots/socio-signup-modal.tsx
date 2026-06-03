@@ -1,19 +1,18 @@
 "use client";
 
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, Mail, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile
-} from "firebase/auth";
+import { sendSignInLinkToEmail } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { useAuth } from "@/components/providers/auth-provider";
+import { EMAIL_LINK_STORAGE_KEY, EmailSignInState } from "@/lib/auth/email-link";
+import { loadUserProfileCache, saveUserProfileCache } from "@/lib/user-profile-cache";
 import {
   PlanAmount,
   SocioAgeRange,
   SocioGender,
   Spot,
+  SpotCategory,
   planOptions
 } from "@/lib/types";
 
@@ -28,53 +27,40 @@ const ageRangeOptions: SocioAgeRange[] = [
 
 const genderOptions: SocioGender[] = ["女性", "男性", "その他", "回答しない"];
 
-// Firebase Auth エラーコードを日本語に変換
-function formatAuthError(error: unknown): string {
-  const code = (error as { code?: string }).code ?? "";
+type Step = "login" | "email_sent" | "profile";
 
-  switch (code) {
-    case "auth/email-already-in-use":
-      return "このメールアドレスはすでに登録されています。パスワードでログインしてください。";
-    case "auth/invalid-email":
-      return "メールアドレスの形式が正しくありません。";
-    case "auth/weak-password":
-      return "パスワードは6文字以上にしてください。";
-    case "auth/user-not-found":
-    case "auth/invalid-credential":
-    case "auth/wrong-password":
-      return "メールアドレスまたはパスワードが正しくありません。";
-    case "auth/too-many-requests":
-      return "ログイン試行が多すぎます。しばらくしてからお試しください。";
-    case "auth/network-request-failed":
-      return "ネットワークエラーが発生しました。接続を確認してください。";
-    default:
-      return "認証エラーが発生しました。もう一度お試しください。";
-  }
-}
-
-type Step = "login" | "password" | "profile";
+const affiliationPlaceholderByCategory: Partial<Record<SpotCategory, string>> = {
+  自治会: "例: 3班",
+  スポーツ: "例: Aチーム / U-12",
+  文化施設: "例: 会員区分A",
+  市民団体: "例: 広報チーム",
+  商店街: "例: 1区",
+  クリエイター: "例: 映像班"
+};
 
 export function SocioSignupModal({
   spot,
   open,
   onClose,
-  defaultPlan = 100
+  defaultPlan = 100,
+  initialStep
 }: {
   spot: Spot;
   open: boolean;
   onClose: () => void;
   defaultPlan?: PlanAmount;
+  /** emailJoin コールバック後に直接 profile ステップへジャンプする用 */
+  initialStep?: Step;
 }) {
   const { user, signInWithGoogle } = useAuth();
 
-  const [step, setStep] = useState<Step>("login");
+  const [step, setStep] = useState<Step>(initialStep ?? "login");
   const [planAmount, setPlanAmount] = useState<PlanAmount>(defaultPlan);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [affiliation, setAffiliation] = useState("");
   const [ageRange, setAgeRange] = useState("");
   const [gender, setGender] = useState("");
-  const [isNewUser, setIsNewUser] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -85,19 +71,24 @@ export function SocioSignupModal({
     if (!open) return;
 
     setPlanAmount(defaultPlan);
-    setPassword("");
-    setIsNewUser(false);
     setError(null);
 
     if (user) {
-      // すでにログイン済み → プロフィール入力へ
-      setName(user.displayName ?? "");
+      // キャッシュがあれば前回入力値を自動入力（2回目以降の加入を楽にする）
+      const cached = loadUserProfileCache();
+      setName(cached?.name || user.displayName || "");
+      setAgeRange(cached?.ageRange ?? "");
+      setGender(cached?.gender ?? "");
+      setAffiliation("");
       setEmail(user.email ?? "");
       setStep("profile");
     } else {
       setEmail("");
       setName("");
-      setStep("login");
+      setAffiliation("");
+      setAgeRange("");
+      setGender("");
+      setStep(initialStep ?? "login");
     }
   }, [open, defaultPlan, user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -105,7 +96,7 @@ export function SocioSignupModal({
   useEffect(() => {
     if (!open || !user) return;
 
-    if (step === "login" || step === "password") {
+    if (step === "login" || step === "email_sent") {
       setName(user.displayName ?? "");
       setEmail(user.email ?? "");
       setStep("profile");
@@ -139,34 +130,17 @@ export function SocioSignupModal({
     }
   }
 
-  // ─── メールで続ける ───────────────────────────────────────────────
-  function handleEmailContinue() {
-    if (!email.trim()) {
+  // ─── メールリンク送信 ─────────────────────────────────────────────
+  async function handleSendEmailLink() {
+    const trimmed = email.trim();
+    if (!trimmed) {
       setError("メールアドレスを入力してください。");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
+    if (!emailRegex.test(trimmed)) {
       setError("メールアドレスの形式が正しくありません。");
-      return;
-    }
-
-    setError(null);
-    setPassword("");
-    setIsNewUser(false);
-    setStep("password");
-  }
-
-  // ─── パスワードでログイン or 新規登録 ────────────────────────────
-  async function handlePasswordSubmit() {
-    if (!password.trim()) {
-      setError("パスワードを入力してください。");
-      return;
-    }
-
-    if (isNewUser && !name.trim()) {
-      setError("お名前を入力してください。");
       return;
     }
 
@@ -174,37 +148,28 @@ export function SocioSignupModal({
     setError(null);
 
     const auth = getFirebaseAuth();
+    const origin = window.location.origin;
+    const callbackUrl = `${origin}/auth/email-callback?spotId=${spot.id}&plan=${planAmount}`;
 
-    if (isNewUser) {
-      // 新規登録モード
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
-        await updateProfile(cred.user, { displayName: name.trim() });
-        // user が更新されたら useEffect が profile ステップへ移動させる
-      } catch (cause) {
-        setError(formatAuthError(cause));
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      // ログインを試みる
-      try {
-        await signInWithEmailAndPassword(auth, email.trim(), password);
-        // user が更新されたら useEffect が profile ステップへ移動させる
-      } catch (cause) {
-        const code = (cause as { code?: string }).code ?? "";
+    // localStorage に加入情報を保存（コールバック後に復元するため）
+    const state: EmailSignInState = { email: trimmed, spotId: spot.id, planAmount };
+    localStorage.setItem(EMAIL_LINK_STORAGE_KEY, JSON.stringify(state));
 
-        if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
-          // 未登録 → 新規登録モードに切り替え
-          setIsNewUser(true);
-          setPassword("");
-          setError("このメールアドレスは未登録です。お名前とパスワードを設定して新規登録してください。");
-        } else {
-          setError(formatAuthError(cause));
-        }
-
-        setLoading(false);
-      }
+    try {
+      await sendSignInLinkToEmail(auth, trimmed, {
+        url: callbackUrl,
+        handleCodeInApp: true
+      });
+      setStep("email_sent");
+    } catch (cause) {
+      localStorage.removeItem(EMAIL_LINK_STORAGE_KEY);
+      const code = (cause as { code?: string }).code ?? "";
+      let msg = "メールの送信に失敗しました。もう一度お試しください。";
+      if (code === "auth/invalid-email") msg = "メールアドレスの形式が正しくありません。";
+      if (code === "auth/too-many-requests") msg = "送信回数が多すぎます。しばらくしてからお試しください。";
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -223,6 +188,9 @@ export function SocioSignupModal({
     setLoading(true);
     setError(null);
 
+    // 次回以降のモーダルで自動入力できるようにキャッシュ保存
+    saveUserProfileCache({ name: name.trim(), ageRange, gender });
+
     try {
       const idToken = await user.getIdToken();
 
@@ -236,6 +204,7 @@ export function SocioSignupModal({
           spotId: spot.id,
           planAmount,
           name: name.trim(),
+          affiliation: affiliation.trim() || undefined,
           ageRange: ageRange || undefined,
           gender: gender || undefined
         })
@@ -255,6 +224,8 @@ export function SocioSignupModal({
   }
 
   if (!open) return null;
+
+  const affiliationPlaceholder = affiliationPlaceholderByCategory[spot.category] ?? "例: チームA / 1班";
 
   return (
     <div className="fixed inset-0 z-[140] flex items-center justify-center bg-ink/35 px-4 py-6 backdrop-blur-sm">
@@ -307,71 +278,61 @@ export function SocioSignupModal({
                       className="field h-14"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleEmailContinue(); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") void handleSendEmailLink(); }}
                       placeholder="you@email.com"
+                      aria-invalid={!!error && !email ? true : undefined}
                     />
                   </label>
-                  <button type="button" className="cta-primary w-full" onClick={handleEmailContinue}>
-                    メールで続ける
+                  <button
+                    type="button"
+                    className="cta-primary w-full"
+                    onClick={() => void handleSendEmailLink()}
+                    disabled={loading}
+                  >
+                    {loading ? "送信中..." : "メールで続ける"}
                   </button>
                 </div>
               </>
             ) : null}
 
-            {/* ─── Step: password ──────────────────────────── */}
-            {step === "password" ? (
+            {/* ─── Step: email_sent ─────────────────────────── */}
+            {step === "email_sent" ? (
               <>
                 <div className="mt-5 flex items-center gap-3">
-                  <button type="button" className="icon-button" onClick={() => { setStep("login"); setError(null); }} aria-label="戻る">
+                  <button
+                    type="button"
+                    className="icon-button"
+                    onClick={() => { setStep("login"); setError(null); }}
+                    aria-label="戻る"
+                  >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
+                  <h2 className="text-3xl font-bold text-ink">メールを確認</h2>
+                </div>
+
+                <div className="mt-8 flex flex-col items-center gap-4 rounded-[20px] bg-mist p-6 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
+                    <Mail className="h-6 w-6 text-ink/70" />
+                  </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-ink">
-                      {isNewUser ? "新規登録" : "ログイン"}
-                    </h2>
-                    <p className="mt-1 text-sm text-ink/55">{email}</p>
+                    <p className="text-sm font-medium text-ink">{email}</p>
+                    <p className="mt-2 text-sm leading-7 text-ink/65">
+                      上記のアドレスに認証リンクを送信しました。<br />
+                      メール内のリンクをクリックするとログインが完了し、加入手続きに進めます。
+                    </p>
                   </div>
                 </div>
 
-                <div className="mt-8 space-y-3">
-                  {/* 新規登録モードのときだけ名前フィールドを表示 */}
-                  {isNewUser ? (
-                    <label className="space-y-2">
-                      <span className="text-sm font-medium text-ink/62">お名前</span>
-                      <input
-                        className="field h-14"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="山田 太郎"
-                      />
-                    </label>
-                  ) : null}
-
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-ink/62">パスワード</span>
-                    <input
-                      type="password"
-                      className="field h-14"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") void handlePasswordSubmit(); }}
-                      placeholder={isNewUser ? "6文字以上" : "パスワード"}
-                    />
-                  </label>
-
+                <p className="mt-4 text-xs leading-6 text-ink/45">
+                  メールが届かない場合は迷惑メールフォルダをご確認ください。
                   <button
                     type="button"
-                    className="cta-primary w-full"
-                    onClick={() => void handlePasswordSubmit()}
-                    disabled={loading}
+                    className="ml-1 underline hover:text-ink"
+                    onClick={() => { setStep("login"); setError(null); }}
                   >
-                    {loading
-                      ? "処理中..."
-                      : isNewUser
-                        ? "登録してソシオになる"
-                        : "ログインして続ける"}
+                    再送信
                   </button>
-                </div>
+                </p>
               </>
             ) : null}
 
@@ -389,6 +350,16 @@ export function SocioSignupModal({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="お名前"
+                      aria-invalid={!!error && !name ? true : undefined}
+                    />
+                  </label>
+                  <label className="space-y-2 sm:col-span-2">
+                    <span className="text-sm font-medium text-ink/62">所属（任意）</span>
+                    <input
+                      className="field h-14"
+                      value={affiliation}
+                      onChange={(e) => setAffiliation(e.target.value)}
+                      placeholder={affiliationPlaceholder}
                     />
                   </label>
                   <label className="space-y-2">
@@ -427,7 +398,7 @@ export function SocioSignupModal({
                         key={amount}
                         type="button"
                         onClick={() => setPlanAmount(amount)}
-                        className={`rounded-[24px] border p-5 text-left transition ${
+                        className={`rounded-[20px] border p-5 text-left transition ${
                           active ? "border-ink bg-ink text-white" : "border-ink/10 bg-mist text-ink"
                         }`}
                       >

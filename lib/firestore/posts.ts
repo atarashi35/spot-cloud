@@ -8,7 +8,9 @@ import {
   doc,
   getDoc,
   getDocs,
-  serverTimestamp
+  query,
+  serverTimestamp,
+  where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
 import { SpotPost } from "@/lib/types";
@@ -18,6 +20,7 @@ type SpotPostInput = {
   body: string;
   imageUrl?: string;
   publishDate: string;
+  isPublic: boolean;
 };
 
 function parseTimestamp(value: unknown) {
@@ -44,14 +47,19 @@ function mapPost(spotId: string, id: string, data: Record<string, unknown>): Spo
     body: String(data.body ?? ""),
     imageUrl: typeof data.imageUrl === "string" ? data.imageUrl : undefined,
     publishDate: String(data.publishDate ?? ""),
+    isPublic: Boolean(data.isPublic),
     createdBy: String(data.createdBy ?? ""),
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
   };
 }
 
-export async function listSpotPostsFromFirestore(spotId: string) {
-  const snapshot = await getDocs(collection(getFirestoreDb(), "spots", spotId, "posts"));
+export async function listSpotPostsFromFirestore(spotId: string, opts?: { publicOnly?: boolean }) {
+  const col = collection(getFirestoreDb(), "spots", spotId, "posts");
+  const q = opts?.publicOnly
+    ? query(col, where("isPublic", "==", true))
+    : col;
+  const snapshot = await getDocs(q);
   return sortPosts(snapshot.docs.map((item) => mapPost(spotId, item.id, item.data())));
 }
 
@@ -75,6 +83,7 @@ export async function createSpotPostInFirestore(
     body: input.body,
     imageUrl: input.imageUrl ?? "",
     publishDate: input.publishDate,
+    isPublic: input.isPublic,
     createdBy: uid,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -92,6 +101,7 @@ export async function updateSpotPostInFirestore(
     body: input.body,
     imageUrl: input.imageUrl ?? "",
     publishDate: input.publishDate,
+    isPublic: input.isPublic,
     updatedAt: serverTimestamp()
   });
 }

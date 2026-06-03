@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ImageUploader } from "@/components/ui/image-uploader";
 import {
   createSpotPostInFirestore,
   deleteSpotPostInFirestore,
@@ -13,8 +14,8 @@ import {
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 
 type PostFormProps =
-  | { spotId: string; mode: "create" }
-  | { spotId: string; mode: "edit"; postId: string };
+  | { spotId: string; mode: "create"; onSuccess?: () => void }
+  | { spotId: string; mode: "edit"; postId: string; onSuccess?: () => void };
 
 export function PostForm(props: PostFormProps) {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function PostForm(props: PostFormProps) {
   const [body, setBody] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [publishDate, setPublishDate] = useState(new Date().toISOString().slice(0, 10));
+  const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -46,6 +48,7 @@ export function PostForm(props: PostFormProps) {
           setBody(post.body);
           setImageUrl(post.imageUrl ?? "");
           setPublishDate(post.publishDate);
+          setIsPublic(post.isPublic);
         }
       })
       .catch((cause: Error) => {
@@ -69,22 +72,38 @@ export function PostForm(props: PostFormProps) {
 
     try {
       if (props.mode === "create") {
-        await createSpotPostInFirestore(props.spotId, user.uid, {
-          title,
-          body,
-          imageUrl,
-          publishDate
+        // Admin SDK経由でサーバー側に作成（クライアントFirestoreのオフライン永続化による
+        // サイレント失敗を回避するため、APIルートを使用する）
+        const token = await user.getIdToken();
+        const res = await fetch(`/api/spots/${props.spotId}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ title, body, imageUrl, publishDate, isPublic })
+        });
+        if (!res.ok) {
+          const data = (await res.json()) as { error?: string };
+          throw new Error(data.error ?? "投稿の保存に失敗しました。");
+        }
+        const { postId } = (await res.json()) as { postId: string };
+        // ソシオへ通知（fire-and-forget）
+        void user.getIdToken().then(async (tok) => {
+          await fetch("/api/notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${tok}` },
+            body: JSON.stringify({ spotId: props.spotId, type: "new_post", title, body: body.slice(0, 80), resourceId: postId })
+          });
         });
       } else {
         await updateSpotPostInFirestore(props.spotId, props.postId, {
-          title,
-          body,
-          imageUrl,
-          publishDate
+          title, body, imageUrl, publishDate, isPublic
         });
       }
-      router.push(`/spots/${props.spotId}`);
-      router.refresh();
+      if (props.onSuccess) {
+        props.onSuccess();
+      } else {
+        router.push(`/spots/${props.spotId}`);
+        router.refresh();
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "投稿保存に失敗しました。");
     } finally {
@@ -102,8 +121,12 @@ export function PostForm(props: PostFormProps) {
 
     try {
       await deleteSpotPostInFirestore(props.spotId, props.postId);
-      router.push(`/spots/${props.spotId}`);
-      router.refresh();
+      if (props.onSuccess) {
+        props.onSuccess();
+      } else {
+        router.push(`/spots/${props.spotId}`);
+        router.refresh();
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "投稿削除に失敗しました。");
     } finally {
@@ -132,8 +155,33 @@ export function PostForm(props: PostFormProps) {
     <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
       <input className="field" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="タイトル" required />
       <textarea className="field min-h-40" value={body} onChange={(event) => setBody(event.target.value)} placeholder="本文" required />
-      <input className="field" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="画像 URL" />
+      <div>
+        <label className="mb-2 block text-sm font-medium text-ink/62">画像（任意）</label>
+        <ImageUploader
+          value={imageUrl}
+          onChange={setImageUrl}
+          storagePath={`spots/${props.spotId}/posts`}
+        />
+      </div>
       <input className="field" value={publishDate} onChange={(event) => setPublishDate(event.target.value)} type="date" required />
+      {/* 公開設定 */}
+      <div className="rounded-[20px] border border-ink/10 p-4">
+        <p className="mb-3 text-xs font-semibold tracking-[0.15em] text-ink/50">公開設定</p>
+        <div className="flex gap-2">
+          {([false, true] as const).map((val) => (
+            <button
+              key={String(val)}
+              type="button"
+              onClick={() => setIsPublic(val)}
+              className={`flex-1 rounded-[16px] px-4 py-3 text-sm font-medium transition ${
+                isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/60 hover:text-ink"
+              }`}
+            >
+              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 ソシオ限定"}
+            </button>
+          ))}
+        </div>
+      </div>
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
       <div className="flex flex-wrap gap-3">
         <button type="submit" className="cta-primary" disabled={saving || deleting}>

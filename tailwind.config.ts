@@ -9,18 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#13231c",
-        moss: "#2f5d50",
-        clay: "#8e6a52",
-        sand: "#f3ebde",
-        mist: "#f7f5ef"
+        ink: "#111111",
+        moss: "#e8261a",
+        clay: "#888888",
+        sand: "#f4f4f4",
+        mist: "#f8f8f8"
       },
       boxShadow: {
-        card: "0 20px 50px rgba(19, 35, 28, 0.08)"
+        card: "0 20px 50px rgba(0, 0, 0, 0.08)"
       },
       fontFamily: {
-        sans: ["'Noto Sans JP'", "sans-serif"],
-        serif: ["'Noto Serif JP'", "serif"]
+        sans: ["'Outfit'", "'Noto Sans JP'", "sans-serif"],
+        serif: ["'Outfit'", "'Noto Sans JP'", "sans-serif"]
       }
     }
   },
