@@ -10,7 +10,7 @@ import { EMAIL_LINK_STORAGE_KEY, EmailSignInState } from "@/lib/auth/email-link"
 
 type Step = "login" | "email_sent";
 
-export function LoginModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function LoginModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess?: () => void }) {
   const { signInWithGoogle } = useAuth();
   const [step, setStep] = useState<Step>("login");
   const [email, setEmail] = useState("");
@@ -31,7 +31,8 @@ export function LoginModal({ open, onClose }: { open: boolean; onClose: () => vo
     setError(null);
     try {
       await signInWithGoogle();
-      onClose();
+      if (onSuccess) onSuccess();
+      else onClose();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Google ログインに失敗しました。");
     } finally {

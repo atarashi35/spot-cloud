@@ -320,6 +320,7 @@ export function SpotForm(props: SpotFormProps) {
     return (
       <LoginModal
         open={loginModalOpen}
+        onSuccess={() => setLoginModalOpen(false)}
         onClose={() => {
           setLoginModalOpen(false);
           router.push("/owner");
