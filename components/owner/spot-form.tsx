@@ -427,12 +427,12 @@ export function SpotForm(props: SpotFormProps) {
         <input
           className="mt-3 block w-full text-sm text-ink/70"
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           onChange={handleImageSelect}
           disabled={uploadingImage}
         />
         <p className="mt-2 text-sm text-ink/60">
-          {uploadingImage ? "Storage にアップロード中です..." : "画像を選ぶと Storage に保存し、そのままカバー画像に設定します。"}
+          {uploadingImage ? "Storage にアップロード中です..." : "PNG / JPEG / WebP を Storage に保存し、そのままカバー画像に設定します。"}
         </p>
         {coverImageUrl ? (
           <img

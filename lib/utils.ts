@@ -11,6 +11,19 @@ export function toShortDescription(value: string) {
   return value.length > 72 ? `${value.slice(0, 72)}...` : value;
 }
 
+export function isSvgAssetUrl(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return false;
+  }
+
+  return normalized.split("?", 1)[0]?.endsWith(".svg") ?? false;
+}
+
+export function isSvgFile(file: Pick<File, "name" | "type">) {
+  return file.type === "image/svg+xml" || file.name.trim().toLowerCase().endsWith(".svg");
+}
+
 export const prefecturePattern =
   /(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/;
 

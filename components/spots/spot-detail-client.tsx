@@ -21,6 +21,7 @@ import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { EMAIL_JOIN_PENDING_KEY, EmailJoinPending } from "@/lib/auth/email-link";
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
 import { PlanAmount, Spot, UserMembership, planOptions } from "@/lib/types";
+import { isSvgAssetUrl } from "@/lib/utils";
 
 type FeedPost = {
   id: string; isPublic: boolean; publishDate: string;
@@ -262,6 +263,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
     isOwner || membershipStatus === "active" || membershipStatus === "canceling"
   );
   const canAcceptMembership = Boolean(spot.stripeConnectedAccountId);
+  const useRawCoverImage = spot.coverImageUrl ? isSvgAssetUrl(spot.coverImageUrl) : false;
 
   return (
     <div className="space-y-8">
@@ -283,6 +285,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               priority
               className="object-cover"
               sizes="(max-width: 1280px) 100vw, 1280px"
+              unoptimized={useRawCoverImage}
             />
           ) : (
             <div className={`h-full w-full bg-gradient-to-br ${spot.coverTone}`} />

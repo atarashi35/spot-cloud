@@ -4,6 +4,7 @@ import { ImagePlus, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { getFirebaseStorage } from "@/lib/firebase/client";
+import { isSvgFile } from "@/lib/utils";
 
 type ImageUploaderProps = {
   /** 現在の画像URL（既存画像の表示用） */
@@ -65,6 +66,10 @@ export function ImageUploader({
     // バリデーション
     if (!file.type.startsWith("image/")) {
       setError("画像ファイルを選択してください（JPEG / PNG / WebP）。");
+      return;
+    }
+    if (isSvgFile(file)) {
+      setError("SVG はアップロードできません（JPEG / PNG / WebP を使用してください）。");
       return;
     }
     // 圧縮前のバリデーション（あまりに大きいファイルはcanvas処理でも重いため上限を設ける）
@@ -172,7 +177,7 @@ export function ImageUploader({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f); e.target.value = ""; }}
       />

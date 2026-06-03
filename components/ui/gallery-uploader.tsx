@@ -4,6 +4,7 @@ import { ImagePlus, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { getFirebaseStorage } from "@/lib/firebase/client";
+import { isSvgFile } from "@/lib/utils";
 
 export const GALLERY_MAX = 10;
 
@@ -50,6 +51,7 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
 
   async function uploadOne(file: File): Promise<string | null> {
     if (!file.type.startsWith("image/")) return null;
+    if (isSvgFile(file)) return null;
     if (file.size > 5 * 1024 * 1024) return null;
     try {
       const compressed = await compressImage(file);
@@ -70,9 +72,9 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
     const targets = Array.from(files).slice(0, remaining);
     if (targets.length === 0) return;
 
-    const invalid = targets.filter((f) => !f.type.startsWith("image/") || f.size > 5 * 1024 * 1024);
+    const invalid = targets.filter((f) => !f.type.startsWith("image/") || isSvgFile(f) || f.size > 5 * 1024 * 1024);
     if (invalid.length > 0) {
-      setError("一部のファイルはスキップされました（5MB超または非画像）。");
+      setError("一部のファイルはスキップされました（SVG、5MB超、または非対応形式）。");
     } else {
       setError(null);
     }
@@ -157,7 +159,7 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         multiple
         className="hidden"
         onChange={(e) => { if (e.target.files?.length) void handleFiles(e.target.files); e.target.value = ""; }}

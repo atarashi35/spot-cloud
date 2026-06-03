@@ -3,8 +3,11 @@ import Link from "next/link";
 import { MapPin, Users } from "lucide-react";
 import { SocioRankBadge } from "@/components/ui/socio-rank-badge";
 import { Spot } from "@/lib/types";
+import { isSvgAssetUrl } from "@/lib/utils";
 
 export function SpotCard({ spot }: { spot: Spot }) {
+  const useRawImage = spot.coverImageUrl ? isSvgAssetUrl(spot.coverImageUrl) : false;
+
   return (
     <Link
       href={`/spots/${spot.id}`}
@@ -19,6 +22,7 @@ export function SpotCard({ spot }: { spot: Spot }) {
             fill
             className="object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            unoptimized={useRawImage}
           />
         ) : (
           <div className={`h-full w-full bg-gradient-to-br ${spot.coverTone}`} />
