@@ -82,8 +82,9 @@ export async function POST(request: NextRequest) {
     }
 
     const account = await stripe.accounts.retrieve(connectedAccountId);
-    const connectReady =
-      account.details_submitted && account.charges_enabled && account.payouts_enabled;
+    const transfersActive =
+      account.capabilities?.transfers === "active" || account.payouts_enabled;
+    const connectReady = account.details_submitted && transfersActive;
 
     if (!connectReady) {
       return NextResponse.json(

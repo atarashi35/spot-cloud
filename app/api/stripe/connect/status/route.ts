@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         connected: false,
         onboardingComplete: false,
-        chargesEnabled: false,
+        transfersEnabled: false,
         payoutsEnabled: false,
         accountId: null,
         requirementsDue: [],
@@ -50,11 +50,14 @@ export async function POST(request: NextRequest) {
     }
 
     const account = await stripe.accounts.retrieve(accountId);
+    const transfersCapability = account.capabilities?.transfers;
+    const transfersEnabled =
+      transfersCapability === "active" || Boolean(account.payouts_enabled);
 
     return NextResponse.json({
       connected: true,
       onboardingComplete: Boolean(account.details_submitted),
-      chargesEnabled: Boolean(account.charges_enabled),
+      transfersEnabled,
       payoutsEnabled: Boolean(account.payouts_enabled),
       accountId: account.id,
       requirementsDue: account.requirements?.currently_due ?? [],

@@ -13,7 +13,7 @@ import { Spot } from "@/lib/types";
 type ConnectStatus = {
   connected: boolean;
   onboardingComplete: boolean;
-  chargesEnabled: boolean;
+  transfersEnabled: boolean;
   payoutsEnabled: boolean;
   accountId: string | null;
   requirementsDue: string[];
@@ -45,7 +45,7 @@ function getDisabledReasonLabel(reason: string | null) {
 function getPayoutSummary(input: {
   connected: boolean;
   onboardingComplete: boolean;
-  chargesEnabled: boolean;
+  transfersEnabled: boolean;
   payoutsEnabled: boolean;
   hasExternalAccount: boolean;
   disabledReasonLabel: string | null;
@@ -53,48 +53,50 @@ function getPayoutSummary(input: {
   const {
     connected,
     onboardingComplete,
-    chargesEnabled,
+    transfersEnabled,
     payoutsEnabled,
     hasExternalAccount,
     disabledReasonLabel
   } = input;
 
-  if (connected && onboardingComplete && chargesEnabled && payoutsEnabled) {
+  if (connected && onboardingComplete && transfersEnabled && payoutsEnabled) {
     return {
       badgeTone: "success" as const,
-      badgeLabel: "利用可能",
-      title: "受取設定は完了しています",
-      description: "ソシオ募集を本番運用できる状態です。会費の受け取りと振込の両方が利用できます。",
+      badgeLabel: "受取準備完了",
+      title: "売上の受け取り設定が完了しています",
+      description: "ソシオ募集を本番運用できる状態です。会費はプラットフォームが決済し、売上は登録口座へ振り込まれます。",
       actionTitle: "現在の状況",
       actionMessage: "追加の操作は不要です。必要なときだけ Stripe 側の設定を見直してください。",
       primaryCta: null
     };
   }
 
-  if (connected && onboardingComplete && !chargesEnabled && payoutsEnabled) {
+  if (connected && onboardingComplete && !transfersEnabled) {
     return {
       badgeTone: "warning" as const,
       badgeLabel: "審査中",
-      title: "会費の受け取りはまだ開始できません",
-      description: "本人確認と振込口座の登録は完了しています。現在は Stripe 側の審査により、会費の受け取りのみ一時停止中です。",
+      title: "振込受取の審査中です",
+      description: "本人確認の情報提出は完了しています。現在は Stripe 側で振込受取の審査が行われています。",
       actionTitle: "次の対応",
-      actionMessage: disabledReasonLabel ?? "Stripe 側の審査完了を待ってください。審査中は新しいソシオ決済を受け付けられません。",
+      actionMessage:
+        disabledReasonLabel
+          ?? "Stripe 側の審査完了を待ってください。通常は 3〜4 営業日が目安です。",
       primaryCta: null
     };
   }
 
-  if (connected && onboardingComplete && chargesEnabled && !payoutsEnabled) {
+  if (connected && onboardingComplete && transfersEnabled && !payoutsEnabled) {
     return {
       badgeTone: "warning" as const,
       badgeLabel: "要確認",
-      title: "振込口座の利用準備がまだ完了していません",
-      description: "会費の受け取りは利用できますが、登録口座への振込はまだ有効になっていません。",
+      title: "振込口座の登録が完了していません",
+      description: "受取先の振込口座がまだ有効になっていません。",
       actionTitle: "次の対応",
       actionMessage:
         !hasExternalAccount
-          ? "Stripe Connect で受取口座の登録まで完了してください。"
-          : disabledReasonLabel ?? "Stripe 側で振込設定の確認が必要です。",
-      primaryCta: "受取設定を再開する"
+          ? "Stripe Connect で振込口座の登録まで完了してください。"
+          : disabledReasonLabel ?? "Stripe 側で口座設定の確認が必要です。",
+      primaryCta: "振込口座を登録する"
     };
   }
 
@@ -102,23 +104,23 @@ function getPayoutSummary(input: {
     return {
       badgeTone: "danger" as const,
       badgeLabel: "未設定",
-      title: "受取設定がまだ始まっていません",
-      description: "ソシオ募集を本番で始めるには、Stripe Connect の設定が必要です。",
+      title: "受取先の登録がまだ始まっていません",
+      description: "ソシオ募集を本番で始めるには、売上の受取先を登録する必要があります。",
       actionTitle: "次の対応",
-      actionMessage: "まずは Stripe で本人確認と受取口座の登録を行ってください。",
-      primaryCta: "受取設定を始める"
+      actionMessage: "まずは Stripe で本人確認と振込口座の登録を行ってください。",
+      primaryCta: "受取先を登録する"
     };
   }
 
   return {
     badgeTone: "warning" as const,
     badgeLabel: "設定中",
-    title: "受取設定はまだ完了していません",
-    description: "まだ本番運用に必要な設定が残っています。現在の不足項目を確認して進めてください。",
+    title: "受取先の登録がまだ完了していません",
+    description: "本番運用に必要な設定が残っています。不足項目を確認して進めてください。",
     actionTitle: "次の対応",
     actionMessage:
       !hasExternalAccount
-        ? "Stripe Connect で本人確認と受取口座の登録を完了してください。"
+        ? "Stripe Connect で本人確認と振込口座の登録を完了してください。"
         : disabledReasonLabel ?? "Stripe Connect で追加情報の入力または確認を完了してください。",
     primaryCta: "受取設定を再開する"
   };
@@ -271,15 +273,15 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
 
   const connected = Boolean(connectStatus?.connected || spot.stripeConnectedAccountId);
   const onboardingComplete = Boolean(connectStatus?.onboardingComplete);
-  const chargesEnabled = Boolean(connectStatus?.chargesEnabled);
+  const transfersEnabled = Boolean(connectStatus?.transfersEnabled);
   const payoutsEnabled = Boolean(connectStatus?.payoutsEnabled);
-  const ready = connected && onboardingComplete && chargesEnabled && payoutsEnabled;
+  const ready = connected && onboardingComplete && transfersEnabled && payoutsEnabled;
   const disabledReasonLabel = getDisabledReasonLabel(connectStatus?.disabledReason ?? null);
   const inReview = connectStatus?.disabledReason === "under_review" || connectStatus?.disabledReason === "requirements.pending_verification";
   const summary = getPayoutSummary({
     connected,
     onboardingComplete,
-    chargesEnabled,
+    transfersEnabled,
     payoutsEnabled,
     hasExternalAccount: Boolean(connectStatus?.hasExternalAccount),
     disabledReasonLabel
@@ -289,9 +291,9 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
     inReview: false,
     done: onboardingComplete
   });
-  const chargeStep = getStepStatus({
-    ready: chargesEnabled,
-    inReview: !chargesEnabled && inReview,
+  const transferStep = getStepStatus({
+    ready: transfersEnabled,
+    inReview: !transfersEnabled && inReview,
     done: false
   });
   const payoutStep = getStepStatus({
@@ -299,6 +301,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
     inReview: !payoutsEnabled && inReview,
     done: false
   });
+  const showReviewTimeline = inReview && !transfersEnabled;
 
   return (
     <div className="mt-8 space-y-6">
@@ -320,6 +323,11 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
             {notice}
           </div>
         ) : null}
+        {showReviewTimeline ? (
+          <div className="mt-4 rounded-[20px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-900">
+            Stripe の案内では、追加情報の確認に通常 3〜4 営業日かかり、その間は会費の受け取りが一時停止します。
+          </div>
+        ) : null}
       </section>
 
       <section className="grid gap-5 lg:grid-cols-3">
@@ -328,13 +336,13 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
           <div className="mt-2 text-2xl font-bold text-ink">{verificationStep.label}</div>
         </article>
 
-        <article className={`rounded-[28px] border px-5 py-5 ${getStepCardClass(chargeStep.tone)}`}>
-          <div className="text-sm text-ink/55">会費の受け取り</div>
-          <div className="mt-2 text-2xl font-bold text-ink">{chargeStep.label}</div>
+        <article className={`rounded-[28px] border px-5 py-5 ${getStepCardClass(transferStep.tone)}`}>
+          <div className="text-sm text-ink/55">売上受取</div>
+          <div className="mt-2 text-2xl font-bold text-ink">{transferStep.label}</div>
           <p className="mt-3 text-sm leading-7 text-ink/62">
-            {chargesEnabled
-              ? "新しいソシオ決済を受け付けられます。"
-              : "新しいソシオ決済はまだ受け付けられません。"}
+            {transfersEnabled
+              ? "プラットフォームからの売上振替を受け取れます。"
+              : "売上の受取はまだ有効になっていません。"}
           </p>
         </article>
 
@@ -376,6 +384,11 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
             {disabledReasonLabel ? (
               <div className="rounded-[20px] bg-mist px-4 py-3">
                 Stripe の状態: {disabledReasonLabel}
+              </div>
+            ) : null}
+            {showReviewTimeline ? (
+              <div className="rounded-[20px] bg-mist px-4 py-3">
+                目安: Stripe の確認完了までは通常 3〜4 営業日です。その間は会費の受け取りを開始できません。
               </div>
             ) : null}
             {connectStatus?.requirementsDue?.length ? (
