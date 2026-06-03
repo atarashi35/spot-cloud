@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
         country: "JP",
         email: decodedToken.email,
         capabilities: {
+          card_payments: { requested: true },
           transfers: { requested: true }
         },
         metadata: {
