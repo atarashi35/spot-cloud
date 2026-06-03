@@ -2,6 +2,7 @@
 
 import {
   GoogleAuthProvider,
+  MultiFactorError,
   User,
   linkWithPopup,
   onAuthStateChanged,
@@ -17,6 +18,7 @@ import {
   useState
 } from "react";
 import { getFirebaseAuth } from "@/lib/firebase/client";
+import { MfaVerificationModal } from "@/components/auth/mfa-verification-modal";
 
 type AuthContextValue = {
   authReady: boolean;
@@ -27,9 +29,14 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function isMfaError(e: unknown): e is MultiFactorError {
+  return (e as { code?: string }).code === "auth/multi-factor-auth-required";
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [mfaError, setMfaError] = useState<MultiFactorError | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(getFirebaseAuth(), (nextUser) => {
@@ -49,19 +56,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const auth = getFirebaseAuth();
       const provider = new GoogleAuthProvider();
 
-      if (auth.currentUser?.isAnonymous) {
-        await linkWithPopup(auth.currentUser, provider);
-        return;
+      try {
+        if (auth.currentUser?.isAnonymous) {
+          await linkWithPopup(auth.currentUser, provider);
+          return;
+        }
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        if (isMfaError(e)) {
+          setMfaError(e);
+          return;
+        }
+        throw e;
       }
-
-      await signInWithPopup(auth, provider);
     },
     async signOutUser() {
       await signOut(getFirebaseAuth());
     }
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      <MfaVerificationModal
+        open={mfaError !== null}
+        error={mfaError}
+        onClose={() => setMfaError(null)}
+        onVerified={() => setMfaError(null)}
+      />
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

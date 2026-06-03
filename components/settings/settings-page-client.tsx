@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { multiFactor } from "firebase/auth";
+import { ShieldCheck, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
+import { MfaEnrollmentModal } from "@/components/auth/mfa-enrollment-modal";
 import { SupportSection } from "@/components/settings/support-section";
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
 import { MetricPill } from "@/components/ui/metric-pill";
@@ -78,6 +81,15 @@ export function SettingsPageClient() {
   const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
   const [loadingPortal, setLoadingPortal] = useState<string | null>(null);
   const [portalError, setPortalError] = useState<string | null>(null);
+  const [mfaEnrollOpen, setMfaEnrollOpen] = useState(false);
+  const [mfaEnrolled, setMfaEnrolled] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      const factors = multiFactor(user).enrolledFactors;
+      setMfaEnrolled(factors.length > 0);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
@@ -169,18 +181,50 @@ export function SettingsPageClient() {
         <span className="chip">ACCOUNT</span>
         <h2 className="mt-4 text-2xl font-bold text-ink">アカウント情報</h2>
         {user ? (
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <MetricPill
-              label="名前"
-              value={user.displayName || loadUserProfileCache()?.name || "未設定"}
-            />
-            <MetricPill label="メール" value={user.email ?? "未設定"} />
-            <MetricPill label="ログイン方法" value={getLoginMethodLabel(user)} />
-          </div>
+          <>
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <MetricPill
+                label="名前"
+                value={user.displayName || loadUserProfileCache()?.name || "未設定"}
+              />
+              <MetricPill label="メール" value={user.email ?? "未設定"} />
+              <MetricPill label="ログイン方法" value={getLoginMethodLabel(user)} />
+            </div>
+            {/* 二段階認証 */}
+            <div className="mt-6 flex items-center justify-between gap-4 rounded-[16px] border border-ink/8 bg-mist px-4 py-4">
+              <div className="flex items-center gap-3">
+                {mfaEnrolled ? (
+                  <ShieldCheck className="h-5 w-5 shrink-0 text-green-600" />
+                ) : (
+                  <ShieldAlert className="h-5 w-5 shrink-0 text-amber-500" />
+                )}
+                <div>
+                  <div className="text-sm font-semibold text-ink">二段階認証</div>
+                  <div className="text-xs text-ink/55">
+                    {mfaEnrolled ? "設定済み — 認証アプリで保護されています" : "未設定 — アカウントをより安全に保護できます"}
+                  </div>
+                </div>
+              </div>
+              {!mfaEnrolled && (
+                <button
+                  type="button"
+                  className="cta-secondary shrink-0 text-sm"
+                  onClick={() => setMfaEnrollOpen(true)}
+                >
+                  設定する
+                </button>
+              )}
+            </div>
+          </>
         ) : (
           <p className="mt-4 text-sm text-ink/55">ログインするとアカウント情報が表示されます。</p>
         )}
       </section>
+      <MfaEnrollmentModal
+        open={mfaEnrollOpen}
+        onClose={() => setMfaEnrollOpen(false)}
+        onEnrolled={() => setMfaEnrolled(true)}
+      />
 
       {/* 通知 */}
       <section className="panel px-6 py-8 sm:px-8">
