@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
-import { ConnectOnboardingButton } from "@/components/owner/connect-onboarding-button";
 import { PostForm } from "@/components/owner/post-form";
 import { EmptyState } from "@/components/empty-state";
 import { ModalShell } from "@/components/ui/modal-shell";
@@ -540,12 +539,9 @@ export function OwnerConsoleClient() {
                 <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
                   QRコード
                 </Link>
-                <ConnectOnboardingButton
-                  spotId={spot.id}
-                  connected={connectReady}
-                  className="cta-secondary"
-                  label={connectReady ? "受取設定" : "受取設定を始める"}
-                />
+                <Link href={`/owner/spots/${spot.id}/payout`} className="cta-secondary">
+                  {connectReady ? "受取設定" : "受取設定を始める"}
+                </Link>
               </div>
 
             </article>
