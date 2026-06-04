@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   TotpMultiFactorGenerator,
   multiFactor,
-  getMultiFactorResolver,
+  GoogleAuthProvider,
+  reauthenticateWithPopup,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from "firebase/auth";
 import QRCode from "qrcode";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 
-type Step = "loading" | "scan" | "verify" | "done" | "error";
+type Step = "loading" | "reauth-google" | "reauth-email" | "scan" | "verify" | "done" | "error";
 
 export function MfaEnrollmentModal({
   open,
@@ -25,6 +28,7 @@ export function MfaEnrollmentModal({
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [secret, setSecret] = useState<Awaited<ReturnType<typeof TotpMultiFactorGenerator.generateSecret>> | null>(null);
   const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -40,13 +44,65 @@ export function MfaEnrollmentModal({
       const totpSecret = await TotpMultiFactorGenerator.generateSecret(session);
       setSecret(totpSecret);
 
-      const otpAuthUrl = totpSecret.generateQrCodeUrl(user.email ?? user.uid, "SPOT Cloud");
+      const otpAuthUrl = totpSecret.generateQrCodeUrl(user.email ?? user.uid, "SPOT");
       const dataUrl = await QRCode.toDataURL(otpAuthUrl);
       setQrDataUrl(dataUrl);
       setStep("scan");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "エラーが発生しました");
-      setStep("error");
+      const errorCode = (e as { code?: string }).code ?? "";
+      if (errorCode === "auth/requires-recent-login") {
+        // ログインプロバイダを確認して適切な再認証画面へ
+        const auth = getFirebaseAuth();
+        const user = auth.currentUser;
+        const isGoogle = user?.providerData.some((p) => p.providerId === "google.com");
+        setStep(isGoogle ? "reauth-google" : "reauth-email");
+      } else if (errorCode === "auth/operation-not-allowed") {
+        setError("TOTP多要素認証が有効化されていません。管理者にお問い合わせください。");
+        setStep("error");
+      } else {
+        setError(e instanceof Error ? e.message : "エラーが発生しました");
+        setStep("error");
+      }
+    }
+  }
+
+  async function reauthWithGoogle() {
+    setLoading(true);
+    setError(null);
+    try {
+      const auth = getFirebaseAuth();
+      const user = auth.currentUser;
+      if (!user) throw new Error("ログインが必要です");
+      await reauthenticateWithPopup(user, new GoogleAuthProvider());
+      await startEnrollment();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "再認証に失敗しました");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function reauthWithEmail() {
+    if (!password) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const auth = getFirebaseAuth();
+      const user = auth.currentUser;
+      if (!user?.email) throw new Error("ログインが必要です");
+      const credential = EmailAuthProvider.credential(user.email, password);
+      await reauthenticateWithCredential(user, credential);
+      setPassword("");
+      await startEnrollment();
+    } catch (e) {
+      const errorCode = (e as { code?: string }).code ?? "";
+      if (errorCode === "auth/wrong-password" || errorCode === "auth/invalid-credential") {
+        setError("パスワードが正しくありません。");
+      } else {
+        setError(e instanceof Error ? e.message : "再認証に失敗しました");
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -63,8 +119,8 @@ export function MfaEnrollmentModal({
       await multiFactor(user).enroll(assertion, "認証アプリ");
       setStep("done");
     } catch (e) {
-      const code_ = (e as { code?: string }).code ?? "";
-      if (code_ === "auth/invalid-verification-code") {
+      const errorCode = (e as { code?: string }).code ?? "";
+      if (errorCode === "auth/invalid-verification-code") {
         setError("コードが正しくありません。認証アプリの現在のコードを入力してください。");
       } else {
         setError(e instanceof Error ? e.message : "登録に失敗しました");
@@ -74,33 +130,91 @@ export function MfaEnrollmentModal({
     }
   }
 
-  function handleOpen(isOpen: boolean) {
-    if (isOpen && step === "loading") {
+  useEffect(() => {
+    if (open) {
       void startEnrollment();
-    }
-    if (!isOpen) {
+    } else {
       setStep("loading");
       setCode("");
+      setPassword("");
       setError(null);
     }
-  }
-
-  // open変化を監視して開始
-  if (open && step === "loading" && !error) {
-    void startEnrollment();
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <ModalShell open={open} onClose={onClose} title="二段階認証の設定" size="sm">
+
+      {/* 準備中 */}
       {step === "loading" && (
         <div className="py-8 text-center text-ink/60">準備中...</div>
       )}
 
+      {/* 再認証 — Google */}
+      {step === "reauth-google" && (
+        <div className="space-y-5 pb-2">
+          <div className="rounded-[16px] bg-mist px-4 py-4">
+            <p className="text-sm font-semibold text-ink">本人確認が必要です</p>
+            <p className="mt-1 text-sm text-ink/60">
+              セキュリティのため、二段階認証の設定にはGoogleアカウントで再度ログインしてください。
+            </p>
+          </div>
+          {error && <p className="text-sm font-medium text-red-700">{error}</p>}
+          <button
+            type="button"
+            className="cta-primary w-full"
+            onClick={() => void reauthWithGoogle()}
+            disabled={loading}
+          >
+            {loading ? "確認中..." : "Googleアカウントで確認する"}
+          </button>
+        </div>
+      )}
+
+      {/* 再認証 — メール */}
+      {step === "reauth-email" && (
+        <div className="space-y-5 pb-2">
+          <div className="rounded-[16px] bg-mist px-4 py-4">
+            <p className="text-sm font-semibold text-ink">本人確認が必要です</p>
+            <p className="mt-1 text-sm text-ink/60">
+              セキュリティのため、パスワードを入力して本人確認を行ってください。
+            </p>
+          </div>
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-ink/62">パスワード</span>
+            <input
+              type="password"
+              className="field h-12"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") void reauthWithEmail(); }}
+              placeholder="パスワードを入力"
+              autoFocus
+            />
+          </label>
+          {error && <p className="text-sm font-medium text-red-700">{error}</p>}
+          <button
+            type="button"
+            className="cta-primary w-full"
+            onClick={() => void reauthWithEmail()}
+            disabled={loading || !password}
+          >
+            {loading ? "確認中..." : "確認して続ける"}
+          </button>
+        </div>
+      )}
+
+      {/* QRスキャン */}
       {step === "scan" && (
         <div className="space-y-5 pb-2">
-          <p className="text-sm text-ink/70">
-            Google Authenticator などの認証アプリで下のQRコードをスキャンしてください。
-          </p>
+          <div className="rounded-[16px] bg-mist px-4 py-4 text-sm leading-6 text-ink/65">
+            以下のいずれかの認証アプリでQRコードをスキャンしてください。
+            <ul className="mt-2 space-y-1">
+              <li>・<span className="font-semibold text-ink/75">iCloudキーチェーン</span>（iPhone / Mac に標準搭載）</li>
+              <li>・Google Authenticator</li>
+              <li>・Microsoft Authenticator</li>
+            </ul>
+          </div>
           {qrDataUrl && (
             <div className="flex justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -117,6 +231,7 @@ export function MfaEnrollmentModal({
         </div>
       )}
 
+      {/* コード確認 */}
       {step === "verify" && (
         <div className="space-y-5 pb-2">
           <p className="text-sm text-ink/70">
@@ -156,6 +271,7 @@ export function MfaEnrollmentModal({
         </div>
       )}
 
+      {/* 完了 */}
       {step === "done" && (
         <div className="space-y-5 pb-2 text-center">
           <div className="py-4">
@@ -175,6 +291,7 @@ export function MfaEnrollmentModal({
         </div>
       )}
 
+      {/* エラー */}
       {step === "error" && (
         <div className="space-y-4 pb-2">
           <p className="text-sm text-red-700">{error}</p>
@@ -183,6 +300,7 @@ export function MfaEnrollmentModal({
           </button>
         </div>
       )}
+
     </ModalShell>
   );
 }

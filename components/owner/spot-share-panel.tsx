@@ -88,7 +88,11 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
     <div className="py-3">
       <div className="grid gap-5 md:grid-cols-2">
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
-          <h2 className="text-lg font-semibold text-ink">SPOTを見る</h2>
+          <h2 className="text-lg font-semibold text-ink">SPOT詳細ページへのリンク</h2>
+          <p className="mt-1.5 text-xs leading-5 text-ink/55">
+            SPOTの紹介ページを見てもらうためのQR。<br />
+            チラシや店頭POPに掲載するのに最適です。
+          </p>
           <div ref={spotQrRef} className="mt-5 inline-flex rounded-[20px] bg-white p-5 shadow-sm">
             <QRCode value={spotUrl} size={210} />
           </div>
@@ -113,7 +117,11 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         </section>
 
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
-          <h2 className="text-lg font-semibold text-ink">ソシオ登録</h2>
+          <h2 className="text-lg font-semibold text-ink">ソシオ登録へのリンク</h2>
+          <p className="mt-1.5 text-xs leading-5 text-ink/55">
+            スキャンするとソシオ加入画面が開くQR。<br />
+            「ソシオ募集中」の告知に直接使えます。
+          </p>
           <div ref={signupQrRef} className="mt-5 inline-flex rounded-[20px] bg-white p-5 shadow-sm">
             <QRCode value={signupUrl} size={210} />
           </div>

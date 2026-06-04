@@ -228,13 +228,14 @@ export function SocioSignupModal({
   const affiliationPlaceholder = affiliationPlaceholderByCategory[spot.category] ?? "例: チームA / 1班";
 
   return (
-    <div className="fixed inset-0 z-[140] flex items-center justify-center bg-ink/35 px-4 py-6 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[140] overflow-y-auto bg-ink/35 backdrop-blur-sm">
       <button
         type="button"
         className="absolute inset-0 cursor-default"
         aria-label="閉じる"
         onClick={onClose}
       />
+      <div className="flex min-h-full items-center justify-center px-4 py-6">
       <section className="menu-surface relative z-[141] w-full max-w-4xl overflow-hidden p-0">
         <div className="grid gap-0 md:grid-cols-[1.15fr_0.85fr]">
           <div className="relative p-6 sm:p-8">
@@ -446,6 +447,7 @@ export function SocioSignupModal({
           </aside>
         </div>
       </section>
+      </div>
     </div>
   );
 }

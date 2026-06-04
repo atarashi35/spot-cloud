@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogIn, LogOut, Settings2, Shield, UserCircle } from "lucide-react";
+import { LogIn, LogOut, MapPin, Settings2, Shield, UserCircle } from "lucide-react";
 import { LogoHorizontal } from "@/components/ui/logo";
 import { NotificationDrawer } from "@/components/ui/notification-drawer";
 import { useEffect, useRef, useState } from "react";
@@ -110,6 +110,10 @@ export function SiteHeader() {
                     <div className="mt-1 text-xs text-ink/55">{visibleUser.email}</div>
                   </div>
                   <div className="py-2">
+                    <Link href="/#spot-list" className="menu-link" onClick={() => setMenuOpen(false)}>
+                      <MapPin className="h-4 w-4" />
+                      SPOTを探す
+                    </Link>
                     <Link href="/account" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <UserCircle className="h-4 w-4" />
                       応援中のSPOT

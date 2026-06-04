@@ -199,9 +199,15 @@ export function SettingsPageClient() {
                   <ShieldAlert className="h-5 w-5 shrink-0 text-amber-500" />
                 )}
                 <div>
-                  <div className="text-sm font-semibold text-ink">二段階認証</div>
-                  <div className="text-xs text-ink/55">
-                    {mfaEnrolled ? "設定済み — 認証アプリで保護されています" : "未設定 — アカウントをより安全に保護できます"}
+                  <div className="text-sm font-semibold text-ink">二段階認証（TOTP）</div>
+                  <div className="text-xs leading-5 text-ink/55">
+                    {mfaEnrolled
+                      ? "設定済み — 認証アプリで保護されています"
+                      : <>
+                          未設定 — Google Authenticator・Microsoft Authenticator・<br />
+                          iCloudキーチェーン（iPhone/Mac）などで設定できます
+                        </>
+                    }
                   </div>
                 </div>
               </div>
@@ -240,15 +246,29 @@ export function SettingsPageClient() {
         </p>
       </section>
 
-      {activeMemberships.length > 0 ? (
-        <section className="panel px-6 py-8 sm:px-8">
-          <span className="chip">MEMBERSHIP</span>
-          <h2 className="mt-4 text-2xl font-bold text-ink">メンバーシップ管理</h2>
-          <p className="mt-4 text-sm leading-7 text-ink/62">
-            プラン、請求日、支払い方法の変更や解約はこちらで管理できます。
-          </p>
-          <div className="mt-6 grid gap-3">
-            {activeMemberships.map((membership) => (
+      <section className="panel px-6 py-8 sm:px-8">
+        <span className="chip">MEMBERSHIP</span>
+        <h2 className="mt-4 text-2xl font-bold text-ink">メンバーシップ管理</h2>
+        <p className="mt-4 text-sm leading-7 text-ink/62">
+          プラン・支払い方法の変更や解約はこちらで管理できます。
+        </p>
+        <div className="mt-6 grid gap-3">
+          {memberships === null ? (
+            /* ローディング */
+            <div className="animate-pulse rounded-[20px] bg-mist px-4 py-5">
+              <div className="h-3 w-1/3 rounded-full bg-ink/10" />
+              <div className="mt-2 h-3 w-1/4 rounded-full bg-ink/10" />
+            </div>
+          ) : activeMemberships.length === 0 ? (
+            /* 参加中のソシオなし */
+            <div className="rounded-[20px] bg-mist px-5 py-5">
+              <p className="text-sm text-ink/55">現在参加中のソシオプランはありません。</p>
+              <Link href="/" className="mt-3 inline-block text-sm font-semibold text-moss hover:underline">
+                SPOTを探す →
+              </Link>
+            </div>
+          ) : (
+            activeMemberships.map((membership) => (
               <div
                 key={membership.spotId}
                 className="flex flex-col gap-4 rounded-[20px] border border-ink/8 bg-mist px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
@@ -280,10 +300,10 @@ export function SettingsPageClient() {
                     : "支払い・解約を管理"}
                 </button>
               </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
+            ))
+          )}
+        </div>
+      </section>
 
       {invoices.length > 0 ? (
         <section className="panel px-6 py-8 sm:px-8">
