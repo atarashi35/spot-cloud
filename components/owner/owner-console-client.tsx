@@ -522,6 +522,12 @@ export function OwnerConsoleClient() {
                 >
                   イベント管理
                 </a>
+                <a
+                  href={`/manage/${spot.id}/voices`}
+                  className="flex items-center gap-1.5 rounded-full border border-ink/12 bg-white px-4 py-2 text-xs font-semibold text-ink/65 transition hover:border-ink/25 hover:text-ink"
+                >
+                  みんなの声
+                </a>
               </div>
 
               {/* アクションボタン */}

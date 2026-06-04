@@ -8,6 +8,7 @@ import { updateProfile } from "firebase/auth";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { GallerySlider } from "@/components/spots/gallery-slider";
+import { VoicesSection } from "@/components/spots/voices-section";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EventJoinButton } from "@/components/spots/event-join-button";
 import { SocioSignupModal } from "@/components/spots/socio-signup-modal";
@@ -578,6 +579,16 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           </section>
         );
       })()}
+      {/* ── みんなの声 ────────────────────────────────────────────────── */}
+      <VoicesSection
+        spotId={spotId}
+        uid={canViewMembersArea && user ? user.uid : undefined}
+        amount={membership?.planAmount}
+        opinionBoxEnabled={spot.opinionBoxEnabled}
+        canParticipate={canViewMembersArea}
+        canAcceptMembership={canAcceptMembership}
+        onSignupClick={() => setSignupModalOpen(true)}
+      />
     </div>
   );
 }

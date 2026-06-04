@@ -67,6 +67,7 @@ export interface Spot {
   phone?: string;
   email?: string;
   socialLinks?: SocialLinks;
+  opinionBoxEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -144,6 +145,48 @@ export interface User {
 }
 
 export type NotificationType = "new_post" | "new_event" | "new_member";
+
+// ─── みんなの声 ────────────────────────────────────────────────────────
+
+export type VoteType = "poll" | "open_question";
+export type VoteStatus = "open" | "closed";
+
+export interface PollOption {
+  id: string;
+  text: string;
+}
+
+export interface SpotVote {
+  id: string;
+  spotId: string;
+  type: VoteType;
+  status: VoteStatus;
+  title: string;
+  body?: string;
+  options?: PollOption[]; // poll のみ
+  deadline?: string;      // ISO, 任意
+  responseCount: number;  // 重複防止用カウンタ（denormalized）
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VoteResponse {
+  uid: string;
+  optionId?: string;  // poll のみ
+  text?: string;      // open_question のみ
+  amount: number;     // planAmount（オーナー集計用）
+  createdAt: string;
+}
+
+export interface OpinionBoxEntry {
+  id: string;
+  text: string;
+  uid: string;
+  amount: number;
+  isRead: boolean;
+  createdAt: string;
+}
 
 export interface AppNotification {
   id: string;
