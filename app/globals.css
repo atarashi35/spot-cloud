@@ -160,3 +160,12 @@ select {
 .search-toolbar {
   @apply relative z-30 grid gap-3 lg:grid-cols-[minmax(0,1fr)_max-content_max-content_max-content];
 }
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

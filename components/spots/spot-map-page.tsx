@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { SpotCard } from "@/components/spot-card";
@@ -9,7 +10,7 @@ import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
 import { Spot, SpotCategory } from "@/lib/types";
 
 const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
-  { value: "all", label: "すべてのカテゴリ" },
+  { value: "all", label: "すべて" },
   { value: "カフェ", label: "カフェ" },
   { value: "スポーツ", label: "スポーツ" },
   { value: "文化施設", label: "文化施設" },
@@ -19,7 +20,7 @@ const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "アート", label: "アート" },
   { value: "寺社仏閣", label: "寺社仏閣" },
   { value: "自治会", label: "自治会" },
-  { value: "その他", label: "その他" }
+  { value: "その他", label: "その他" },
 ];
 
 function normalizeText(value: string) {
@@ -29,31 +30,26 @@ function normalizeText(value: string) {
 function FilterSelect({
   value,
   options,
-  onChange
+  onChange,
+  placeholder,
 }: {
   value: string;
   options: Array<{ value: string; label: string }>;
   onChange: (value: string) => void;
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const active = options.find((option) => option.value === value) ?? options[0];
+  const active = options.find((o) => o.value === value) ?? options[0];
 
   useEffect(() => {
     if (!open) return;
-
-    function handlePointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
+    function handlePointerDown(e: MouseEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
     }
-
     document.addEventListener("mousedown", handlePointerDown);
     document.addEventListener("keydown", handleEscape);
     return () => {
@@ -63,31 +59,30 @@ function FilterSelect({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className="relative flex-1">
       <button
         type="button"
-        className={`filter-select-button ${open ? "filter-select-button-open" : ""}`}
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => setOpen((c) => !c)}
         aria-haspopup="listbox"
         aria-expanded={open}
+        className="flex w-full items-center justify-between gap-2 rounded-2xl border border-ink/12 bg-white px-4 py-3 text-sm font-medium text-ink/60 transition hover:border-ink/20 hover:text-ink/80"
       >
-        <span className="truncate">{active?.label ?? ""}</span>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-ink/45 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className="truncate">{placeholder && value === "all" ? placeholder : (active?.label ?? "")}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-ink/35 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open ? (
-        <div className="filter-dropdown" role="listbox">
+        <div className="absolute left-0 top-[calc(100%+6px)] z-30 min-w-full overflow-hidden rounded-[20px] border border-white/80 bg-white/95 p-1.5 shadow-[0_24px_54px_rgba(19,35,28,0.14)] backdrop-blur" role="listbox">
           {options.map((option) => {
             const selected = option.value === value;
             return (
               <button
                 key={option.value}
                 type="button"
-                className={`filter-dropdown-item ${selected ? "filter-dropdown-item-selected" : ""}`}
-                onClick={() => {
-                  onChange(option.value);
-                  setOpen(false);
-                }}
+                role="option"
+                aria-selected={selected}
+                className={`flex w-full items-center whitespace-nowrap rounded-[14px] px-3 py-2.5 text-left text-sm font-medium transition hover:bg-mist ${selected ? "bg-mist text-ink" : "text-ink/55 hover:text-ink/70"}`}
+                onClick={() => { onChange(option.value); setOpen(false); }}
               >
                 {option.label}
               </button>
@@ -106,189 +101,208 @@ export function SpotMapPage() {
   const [prefecture, setPrefecture] = useState("all");
   const [city, setCity] = useState("all");
   const [category, setCategory] = useState<"all" | SpotCategory>("all");
+  const [showAreaFilter, setShowAreaFilter] = useState(false);
   const deferredKeyword = useDeferredValue(keyword);
 
   useEffect(() => {
     void listPublishedSpotsFromFirestore()
-      .then((nextSpots) => {
-        setSpots(nextSpots);
-      })
-      .catch((cause: Error) => {
-        setError(cause.message);
-      });
+      .then(setSpots)
+      .catch((cause: Error) => setError(cause.message));
   }, []);
 
   const prefectureOptions = useMemo(() => {
-    if (!spots) {
-      return [];
-    }
-
-    return Array.from(new Set(spots.map((spot) => spot.prefecture).filter(Boolean))).sort((a, b) =>
+    if (!spots) return [];
+    return Array.from(new Set(spots.map((s) => s.prefecture).filter(Boolean))).sort((a, b) =>
       a.localeCompare(b, "ja")
     );
   }, [spots]);
 
   const cityOptions = useMemo(() => {
-    if (!spots) {
-      return [];
-    }
-
-    const source = prefecture === "all" ? spots : spots.filter((spot) => spot.prefecture === prefecture);
-    return Array.from(new Set(source.map((spot) => spot.city).filter(Boolean))).sort((a, b) =>
+    if (!spots) return [];
+    const source = prefecture === "all" ? spots : spots.filter((s) => s.prefecture === prefecture);
+    return Array.from(new Set(source.map((s) => s.city).filter(Boolean))).sort((a, b) =>
       a.localeCompare(b, "ja")
     );
   }, [prefecture, spots]);
 
   const prefectureFilterOptions = useMemo(
-    () => [
-      { value: "all", label: "都道府県" },
-      ...prefectureOptions.map((item) => ({ value: item, label: item }))
-    ],
+    () => [{ value: "all", label: "都道府県" }, ...prefectureOptions.map((v) => ({ value: v, label: v }))],
     [prefectureOptions]
   );
 
   const cityFilterOptions = useMemo(
-    () => [
-      { value: "all", label: "市区町村" },
-      ...cityOptions.map((item) => ({ value: item, label: item }))
-    ],
+    () => [{ value: "all", label: "市区町村" }, ...cityOptions.map((v) => ({ value: v, label: v }))],
     [cityOptions]
   );
 
-  const categoryFilterOptions = useMemo(
-    () => categoryOptions.map((item) => ({ value: item.value, label: item.label })),
-    []
-  );
-
   const filteredSpots = useMemo(() => {
-    if (!spots) {
-      return [];
-    }
-
-    const normalizedKeyword = normalizeText(deferredKeyword);
-
+    if (!spots) return [];
+    const normalized = normalizeText(deferredKeyword);
     return spots.filter((spot) => {
       const matchesKeyword =
-        normalizedKeyword.length === 0 ||
-        [
-          spot.name,
-          spot.description,
-          spot.address,
-          spot.city,
-          spot.prefecture
-        ]
+        normalized.length === 0 ||
+        [spot.name, spot.description, spot.address, spot.city, spot.prefecture]
           .join(" ")
           .toLocaleLowerCase("ja-JP")
-          .includes(normalizedKeyword);
-
-      const matchesPrefecture = prefecture === "all" || spot.prefecture === prefecture;
-      const matchesCity = city === "all" || spot.city === city;
-      const matchesCategory = category === "all" || spot.category === category;
-
-      return matchesKeyword && matchesPrefecture && matchesCity && matchesCategory;
+          .includes(normalized);
+      return (
+        matchesKeyword &&
+        (prefecture === "all" || spot.prefecture === prefecture) &&
+        (city === "all" || spot.city === city) &&
+        (category === "all" || spot.category === category)
+      );
     });
   }, [spots, deferredKeyword, prefecture, city, category]);
 
+  const activeFilterCount = [prefecture !== "all", city !== "all"].filter(Boolean).length;
+
   return (
-    <PageShell className="space-y-6">
-      <section className="space-y-5 px-1">
-        <div>
-          <div className="text-[11px] font-semibold tracking-[0.22em] text-ink/42">SPOT MAP</div>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">あなたのSPOTを支える</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-ink/62">
-            SPOTは、あなたの好きな場所やコミュニティを、ソシオとしてゆるく支えられる会員型サービスです。
+    <div className="pb-20">
+      {/* ── Hero ── */}
+      <PageShell className="pt-6 pb-2">
+        <div className="space-y-2 px-1">
+          <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">SPOT MAP</div>
+          <h1 className="text-[26px] font-bold leading-[1.3] tracking-tight text-ink sm:text-4xl">
+            あなたのSPOTを、<br className="sm:hidden" />ここから支えよう。
+          </h1>
+          <p className="max-w-sm text-[13px] leading-[1.75] text-ink/55">
+            カフェ・地域活動・クリエイターなど、好きな場所をソシオとして応援できます。
           </p>
         </div>
+      </PageShell>
 
-        <div className="search-panel">
-          <div className="search-panel-header">
-            <div className="text-[11px] font-semibold tracking-[0.22em] text-ink/40">FILTER SPOTS</div>
-            <div className="search-result-pill">
-              {spots ? `${filteredSpots.length} SPOTS` : "LOADING"}
-            </div>
-          </div>
+      {/* ── Search bar ── */}
+      <PageShell className="mt-5 px-4 sm:px-6 lg:px-8">
+        <label className="flex items-center gap-3 rounded-[22px] border border-ink/10 bg-white px-4 py-3.5 shadow-[0_4px_20px_rgba(19,35,28,0.07)] transition focus-within:border-moss focus-within:shadow-[0_4px_24px_rgba(19,35,28,0.10)]">
+          <Search className="h-5 w-5 shrink-0 text-ink/38" />
+          <input
+            className="w-full border-0 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink/35"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="SPOT名、住所、エリアで探す..."
+          />
+          {keyword ? (
+            <button type="button" onClick={() => setKeyword("")} className="shrink-0 rounded-full p-0.5 text-ink/35 transition hover:text-ink/60">
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
+        </label>
+      </PageShell>
 
-          <div className="search-toolbar">
-            <label className="search-shell search-shell-compact">
-              <span className="search-icon-badge search-icon-badge-compact">
-                <Search className="h-4 w-4" />
+      {/* ── Category chips ── */}
+      <div className="mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:px-6 lg:px-8 hide-scrollbar">
+        {categoryOptions.map((cat) => {
+          const active = category === cat.value;
+          return (
+            <button
+              key={cat.value}
+              type="button"
+              onClick={() => setCategory(cat.value as "all" | SpotCategory)}
+              className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition active:scale-[0.95] ${
+                active
+                  ? "bg-ink text-white shadow-sm"
+                  : "border border-ink/12 bg-white text-ink/58 hover:border-ink/22 hover:text-ink/80"
+              }`}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Filter bar ── */}
+      <PageShell className="mt-3">
+        <div className="flex items-center justify-between gap-3 px-1">
+          <button
+            type="button"
+            onClick={() => setShowAreaFilter((c) => !c)}
+            className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold transition active:scale-[0.96] ${
+              showAreaFilter || activeFilterCount > 0
+                ? "border-moss bg-moss/8 text-moss"
+                : "border-ink/12 bg-white text-ink/50 hover:border-ink/22 hover:text-ink/70"
+            }`}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            エリア
+            {activeFilterCount > 0 ? (
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-moss text-[9px] font-bold text-white">
+                {activeFilterCount}
               </span>
-              <input
-                className="search-input"
-                value={keyword}
-                onChange={(event) => setKeyword(event.target.value)}
-                placeholder="SPOT名、説明、住所で探す"
-              />
-            </label>
+            ) : null}
+          </button>
 
-            <label className="filter-shell filter-shell-compact filter-shell-prefecture">
-              <FilterSelect
-                value={prefecture}
-                options={prefectureFilterOptions}
-                onChange={(nextValue) => {
-                  setPrefecture(nextValue);
-                  setCity("all");
-                }}
-              />
-            </label>
-            <label className="filter-shell filter-shell-compact filter-shell-city">
-              <FilterSelect
-                value={city}
-                options={cityFilterOptions}
-                onChange={setCity}
-              />
-            </label>
-            <label className="filter-shell filter-shell-compact filter-shell-category">
-              <FilterSelect
-                value={category}
-                options={categoryFilterOptions}
-                onChange={(nextValue) => setCategory(nextValue as "all" | SpotCategory)}
-              />
-            </label>
+          <div className="text-[11px] font-semibold tracking-[0.2em] text-ink/38">
+            {spots ? `${filteredSpots.length} SPOTS` : "···"}
           </div>
         </div>
-      </section>
 
-      {error ? (
-        <EmptyState
-          title="SPOT 一覧を取得できませんでした"
-          description={`Firestore 接続でエラーが出ています: ${error}`}
-        />
-      ) : !spots ? (
-        <section className="grid gap-5 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="panel overflow-hidden animate-pulse">
-              <div className="h-44 w-full bg-mist" />
-              <div className="p-5 space-y-3">
-                <div className="h-3 w-16 rounded-full bg-mist" />
-                <div className="h-5 w-3/4 rounded-full bg-mist" />
-                <div className="h-3 w-full rounded-full bg-mist" />
-                <div className="h-3 w-2/3 rounded-full bg-mist" />
+        {/* Area filter (collapsible) */}
+        {showAreaFilter ? (
+          <div className="mt-3 flex gap-3 px-1">
+            <FilterSelect
+              value={prefecture}
+              options={prefectureFilterOptions}
+              onChange={(v) => { setPrefecture(v); setCity("all"); }}
+              placeholder="都道府県"
+            />
+            <FilterSelect
+              value={city}
+              options={cityFilterOptions}
+              onChange={setCity}
+              placeholder="市区町村"
+            />
+          </div>
+        ) : null}
+      </PageShell>
+
+      {/* ── Results ── */}
+      <PageShell className="mt-5">
+        {error ? (
+          <EmptyState
+            title="SPOT 一覧を取得できませんでした"
+            description={`Firestore 接続でエラーが出ています: ${error}`}
+          />
+        ) : !spots ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="panel overflow-hidden animate-pulse">
+                <div className="h-48 w-full bg-mist" />
+                <div className="space-y-3 p-5">
+                  <div className="h-3 w-16 rounded-full bg-mist" />
+                  <div className="h-5 w-3/4 rounded-full bg-mist" />
+                  <div className="h-3 w-full rounded-full bg-mist" />
+                  <div className="h-3 w-2/3 rounded-full bg-mist" />
+                </div>
               </div>
-            </div>
-          ))}
-        </section>
-      ) : filteredSpots.length === 0 ? (
-        <EmptyState
-          title="条件に合うSPOTが見つかりません"
-          description="キーワード、エリア、カテゴリの条件をゆるめてもう一度探してください。"
-        />
-      ) : (
-        <section className="grid gap-5 lg:grid-cols-3">
-          {filteredSpots.map((spot) => (
-            <SpotCard key={spot.id} spot={spot} />
-          ))}
-        </section>
-      )}
+            ))}
+          </div>
+        ) : filteredSpots.length === 0 ? (
+          <EmptyState
+            title="条件に合うSPOTが見つかりません"
+            description="キーワード、カテゴリ、エリアの条件をゆるめてもう一度お試しください。"
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredSpots.map((spot) => (
+              <SpotCard key={spot.id} spot={spot} />
+            ))}
+          </div>
+        )}
+      </PageShell>
 
-      <div className="border-t border-ink/8 pt-6 text-center">
-        <p className="text-sm text-ink/55">
-          カフェ・サークル・地域活動など、あなたのSPOTを作りませんか？
-        </p>
-        <a href="/owner" className="mt-2 inline-block text-sm font-semibold text-moss hover:underline">
-          SPOTを登録する →
-        </a>
-      </div>
-    </PageShell>
+      {/* ── Owner CTA ── */}
+      <PageShell className="mt-10">
+        <div className="rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
+          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR OWNERS</div>
+          <p className="mt-2 text-base font-bold text-ink">あなたのSPOTを登録しませんか？</p>
+          <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/55">
+            カフェ・サークル・地域活動など、ソシオを集める場所として公開できます。
+          </p>
+          <Link href="/owner" className="cta-primary mt-5 inline-flex">
+            SPOTを登録する
+          </Link>
+        </div>
+      </PageShell>
+    </div>
   );
 }

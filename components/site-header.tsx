@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogIn, LogOut, Search, Settings2, Shield, UserCircle } from "lucide-react";
+import { LogIn, LogOut, Settings2, Shield, UserCircle } from "lucide-react";
 import { LogoHorizontal } from "@/components/ui/logo";
 import { NotificationDrawer } from "@/components/ui/notification-drawer";
 import { useEffect, useRef, useState } from "react";
@@ -91,9 +91,6 @@ export function SiteHeader() {
               SPOTを作る
             </Link>
           ) : null}
-          <Link href="/" className="icon-button" aria-label="SPOT MAP">
-            <Search className="h-4 w-4" />
-          </Link>
           <NotificationDrawer />
           {visibleUser ? (
             <div ref={menuRef} className="relative z-[90]">
