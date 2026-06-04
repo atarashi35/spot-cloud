@@ -1,8 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "@/app/globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { AppProviders } from "@/components/providers/app-providers";
 import { SiteHeader } from "@/components/site-header";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export const metadata: Metadata = {
   title: { default: "SPOT", template: "%s | SPOT" },
