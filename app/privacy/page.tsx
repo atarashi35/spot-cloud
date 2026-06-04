@@ -1,15 +1,17 @@
 import { PageShell } from "@/components/ui/page-shell";
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function PrivacyPage() {
   return (
-    <PageShell className="space-y-8">
-      <Card className="px-6 py-8 sm:px-8">
-        <span className="chip">LEGAL</span>
-        <h1 className="mt-4 text-3xl font-bold text-ink">プライバシーポリシー</h1>
-        <p className="mt-3 text-sm leading-7 text-ink/68">最終更新日: 2026年6月1日</p>
-      </Card>
+    <div className="space-y-8 pb-20">
+      <PageHeader
+        eyebrow="LEGAL"
+        title="プライバシーポリシー"
+        subtitle="最終更新日: 2026年6月1日"
+      />
 
+      <PageShell>
       <Card className="px-6 py-8 sm:px-8">
         <div className="space-y-8 text-sm leading-7 text-ink/75">
 
@@ -103,6 +105,7 @@ export default function PrivacyPage() {
 
         </div>
       </Card>
-    </PageShell>
+      </PageShell>
+    </div>
   );
 }

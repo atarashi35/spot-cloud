@@ -1,5 +1,6 @@
 import { PageShell } from "@/components/ui/page-shell";
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 const items: { label: string; value: string }[] = [
   { label: "事業者名", value: "新 諒平" },
@@ -36,22 +37,21 @@ const items: { label: string; value: string }[] = [
 
 export default function LawPage() {
   return (
-    <PageShell className="space-y-8">
-      <Card className="px-6 py-8 sm:px-8">
-        <span className="chip">LEGAL</span>
-        <h1 className="mt-4 text-3xl font-bold text-ink">特定商取引法に基づく表記</h1>
-      </Card>
+    <div className="space-y-8 pb-20">
+      <PageHeader eyebrow="LEGAL" title="特定商取引法に基づく表記" />
 
-      <Card className="px-6 py-8 sm:px-8">
-        <dl className="divide-y divide-ink/8">
-          {items.map((item) => (
-            <div key={item.label} className="grid gap-2 py-5 sm:grid-cols-[200px_1fr]">
-              <dt className="text-sm font-semibold text-ink">{item.label}</dt>
-              <dd className="text-sm leading-7 text-ink/68">{item.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </Card>
-    </PageShell>
+      <PageShell>
+        <Card className="px-6 py-8 sm:px-8">
+          <dl className="divide-y divide-ink/8">
+            {items.map((item) => (
+              <div key={item.label} className="grid gap-2 py-5 sm:grid-cols-[200px_1fr]">
+                <dt className="text-sm font-semibold text-ink">{item.label}</dt>
+                <dd className="text-sm leading-7 text-ink/68">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </Card>
+      </PageShell>
+    </div>
   );
 }
