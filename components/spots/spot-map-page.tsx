@@ -196,7 +196,7 @@ export function SpotMapPage() {
 
               {/* サブコピー */}
               <p className="hero-animate-3 mt-6 text-[15px] leading-relaxed text-white/70 sm:text-base">
-                SPOTは、新しい参加のかたちです。
+                ソシオ = 月額100円から参加できる応援メンバー
               </p>
 
               {/* CTA */}
