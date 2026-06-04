@@ -33,6 +33,36 @@ service cloud.firestore {
         allow create, update, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
       }
 
+      match /votes/{voteId} {
+        // 読み取り: ソシオ・オーナーのみ
+        allow read: if isActiveMember(spotId)
+                    || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        // 作成・更新・削除: オーナーのみ（responseCount の increment も含む）
+        allow create, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        allow update: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid)
+                      || (isActiveMember(spotId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["responseCount", "updatedAt"]));
+
+        match /responses/{uid} {
+          // 本人の回答は本人とオーナーが読める
+          allow read: if (signedIn() && request.auth.uid == uid)
+                      || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+          // オーナーは全回答を読める
+          allow read: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+          // 回答はアクティブなソシオが自分のドキュメントにのみ作成可（更新・削除不可）
+          allow create: if signedIn() && request.auth.uid == uid && isActiveMember(spotId);
+        }
+      }
+
+      match /opinions/{opinionId} {
+        // 読み取り: オーナーのみ
+        allow read: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        // 作成: アクティブなソシオ
+        allow create: if isActiveMember(spotId);
+        // isRead 更新: オーナーのみ
+        allow update: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["isRead"]);
+      }
+
       match /events/{eventId} {
         // 公開イベントは誰でも、非公開はソシオ/オーナーのみ
         allow read: if resource.data.isPublic == true
