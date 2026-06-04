@@ -582,11 +582,12 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       {/* ── みんなの声 ────────────────────────────────────────────────── */}
       <VoicesSection
         spotId={spotId}
-        uid={canViewMembersArea && user ? user.uid : undefined}
+        uid={canViewMembersArea || isOwner ? user?.uid : undefined}
         amount={membership?.planAmount}
         opinionBoxEnabled={spot.opinionBoxEnabled}
         canParticipate={canViewMembersArea}
         canAcceptMembership={canAcceptMembership}
+        isOwner={isOwner}
         onSignupClick={() => setSignupModalOpen(true)}
       />
     </div>

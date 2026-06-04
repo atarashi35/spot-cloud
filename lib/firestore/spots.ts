@@ -96,6 +96,7 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
     socialLinks: typeof data.socialLinks === "object" && data.socialLinks
       ? (data.socialLinks as SocialLinks)
       : undefined,
+    opinionBoxEnabled: Boolean(data.opinionBoxEnabled),
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
   };

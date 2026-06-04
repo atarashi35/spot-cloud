@@ -187,6 +187,41 @@ function OpenQuestionCard({
   );
 }
 
+// ─── Owner read-only preview ──────────────────────────────────────────
+
+function OwnerVotePreview({ vote }: { vote: SpotVote }) {
+  return (
+    <div className="rounded-[20px] bg-mist p-5 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-[10px] font-semibold tracking-[0.22em] text-ink/40">
+          {vote.type === "poll" ? "VOTE" : "OPINION"}
+        </div>
+        <span className="text-[10px] text-ink/35">{vote.responseCount} 件の回答</span>
+      </div>
+      <h4 className="text-base font-bold text-ink">{vote.title}</h4>
+      {vote.body ? <p className="text-sm leading-6 text-ink/60">{vote.body}</p> : null}
+      {vote.type === "poll" && vote.options && (
+        <div className="space-y-2">
+          {vote.options.map((opt) => (
+            <div key={opt.id} className="rounded-[14px] border border-ink/10 bg-white/80 px-4 py-2.5 text-sm text-ink/55">
+              {opt.text}
+            </div>
+          ))}
+        </div>
+      )}
+      {vote.type === "open_question" && (
+        <div className="rounded-[14px] border border-ink/10 bg-white/80 px-4 py-2.5 text-sm text-ink/40 italic">
+          テキスト自由記述
+        </div>
+      )}
+      {vote.deadline ? (
+        <p className="text-[11px] text-ink/38">締切: {new Date(vote.deadline).toLocaleDateString("ja-JP")}</p>
+      ) : null}
+      <p className="text-[11px] text-moss font-semibold">オーナー表示（投票不可）· 結果は管理画面で確認</p>
+    </div>
+  );
+}
+
 // ─── Opinion box ──────────────────────────────────────────────────────
 
 function OpinionBox({
@@ -257,6 +292,7 @@ export function VoicesSection({
   opinionBoxEnabled,
   canParticipate,
   canAcceptMembership,
+  isOwner,
   onSignupClick,
 }: {
   spotId: string;
@@ -265,6 +301,7 @@ export function VoicesSection({
   opinionBoxEnabled?: boolean;
   canParticipate: boolean;
   canAcceptMembership: boolean;
+  isOwner?: boolean;
   onSignupClick: () => void;
 }) {
   const [votes, setVotes] = useState<SpotVote[]>([]);
@@ -284,18 +321,25 @@ export function VoicesSection({
 
       <div className="relative mt-6 space-y-4">
         {/* コンテンツ */}
-        <div className={`space-y-4 ${!canParticipate ? "pointer-events-none select-none blur-[2px]" : ""}`}>
-          {votes.map((vote) =>
-            uid && amount ? (
-              vote.type === "poll" ? (
-                <PollCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} />
-              ) : (
-                <OpenQuestionCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} />
-              )
-            ) : null
-          )}
-          {opinionBoxEnabled && uid && amount ? (
+        <div className={`space-y-4 ${!canParticipate && !isOwner ? "pointer-events-none select-none blur-[2px]" : ""}`}>
+          {votes.map((vote) => {
+            // オーナーはread-only表示
+            if (isOwner) return <OwnerVotePreview key={vote.id} vote={vote} />;
+            if (!uid || !amount) return null;
+            return vote.type === "poll" ? (
+              <PollCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} />
+            ) : (
+              <OpenQuestionCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} />
+            );
+          })}
+          {/* 意見ボックス: ソシオのみ（オーナーは管理画面で見る） */}
+          {opinionBoxEnabled && uid && amount && !isOwner ? (
             <OpinionBox spotId={spotId} uid={uid} amount={amount} />
+          ) : null}
+          {opinionBoxEnabled && isOwner ? (
+            <div className="rounded-[20px] border border-dashed border-ink/15 p-5 text-sm text-ink/45 text-center">
+              ご意見ボックスは有効です。受信内容は管理画面で確認できます。
+            </div>
           ) : null}
 
           {/* ローディング */}
@@ -307,7 +351,7 @@ export function VoicesSection({
         </div>
 
         {/* 非ソシオ向けオーバーレイ */}
-        {!canParticipate && loaded && hasContent && (
+        {!canParticipate && !isOwner && loaded && hasContent && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
             <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">MEMBERS ONLY</p>
             {canAcceptMembership && (

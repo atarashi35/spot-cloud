@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -8,8 +9,6 @@ import {
   orderBy,
   query,
   runTransaction,
-  serverTimestamp,
-  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -70,6 +69,10 @@ export async function listOpenVotes(spotId: string): Promise<SpotVote[]> {
     query(votesCol(spotId), where("status", "==", "open"), orderBy("createdAt", "desc"))
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as SpotVote));
+}
+
+export async function deleteVote(spotId: string, voteId: string): Promise<void> {
+  await deleteDoc(voteDoc(spotId, voteId));
 }
 
 export async function closeVote(spotId: string, voteId: string): Promise<void> {

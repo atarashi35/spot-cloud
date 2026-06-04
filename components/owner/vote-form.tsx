@@ -30,7 +30,7 @@ export function VoteForm({
     { id: uid(), text: "" },
     { id: uid(), text: "" },
   ]);
-  const [deadline, setDeadline] = useState("");
+  const [deadlineDate, setDeadlineDate] = useState(""); // YYYY-MM-DD
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -61,10 +61,10 @@ export function VoteForm({
         title: title.trim(),
         body: body.trim(),
         options: type === "poll" ? options.filter((o) => o.text.trim()) : [],
-        deadline: deadline || undefined,
+        deadline: deadlineDate ? new Date(deadlineDate).toISOString() : undefined,
         createdBy,
       });
-      setTitle(""); setBody(""); setDeadline(""); setOptions([{ id: uid(), text: "" }, { id: uid(), text: "" }]);
+      setTitle(""); setBody(""); setDeadlineDate(""); setOptions([{ id: uid(), text: "" }, { id: uid(), text: "" }]);
       onCreated();
       onClose();
     } catch {
@@ -150,8 +150,8 @@ export function VoteForm({
           <input
             type="date"
             className="field"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value ? new Date(e.target.value).toISOString() : "")}
+            value={deadlineDate}
+            onChange={(e) => setDeadlineDate(e.target.value)}
             min={new Date().toISOString().slice(0, 10)}
           />
         </div>

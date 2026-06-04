@@ -2,12 +2,13 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2, MessageSquare, ToggleLeft, ToggleRight } from "lucide-react";
+import { ArrowLeft, Loader2, MessageSquare, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { PageShell } from "@/components/ui/page-shell";
 import { VoteForm } from "@/components/owner/vote-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   closeVote,
+  deleteVote,
   listOpinions,
   listResponses,
   listVotes,
@@ -99,6 +100,12 @@ export default function VoicesManagePage({ params }: { params: Promise<{ spotId:
     setVotes((prev) => prev.map((v) => v.id === voteId ? { ...v, status: "closed" } : v));
   }
 
+  async function handleDelete(voteId: string) {
+    if (!confirm("この投稿を削除しますか？回答データもすべて削除されます。")) return;
+    await deleteVote(spotId, voteId);
+    setVotes((prev) => prev.filter((v) => v.id !== voteId));
+  }
+
   async function handleToggleOpinionBox() {
     if (!spot) return;
     const next = !spot.opinionBoxEnabled;
@@ -165,6 +172,9 @@ export default function VoicesManagePage({ params }: { params: Promise<{ spotId:
                       )}
                       <button type="button" onClick={() => handleExpand(vote.id)} className="text-xs font-semibold text-moss">
                         {isExpanded ? "閉じる" : "結果を見る"}
+                      </button>
+                      <button type="button" onClick={() => handleDelete(vote.id)} className="rounded-full p-1.5 text-ink/30 transition hover:bg-red-50 hover:text-red-400">
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
