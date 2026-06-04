@@ -81,18 +81,11 @@ export function SiteHeader() {
       <div className="panel relative z-[80] flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-3 sm:gap-6">
           <Link href="/" className="flex items-center">
-            <LogoHorizontal className="h-12 w-auto object-contain sm:h-9" />
+            <LogoHorizontal className="h-11 w-auto min-w-[120px] object-contain" />
           </Link>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* SPOTを作る: デスクトップのみ、未ログイン時 */}
-          {!visibleUser ? (
-            <Link href="/owner" className="cta-secondary hidden sm:inline-flex whitespace-nowrap">
-              SPOTを作る
-            </Link>
-          ) : null}
-          {/* 通知: ログイン済みのみ */}
           {visibleUser ? <NotificationDrawer /> : null}
           {visibleUser ? (
             <div ref={menuRef} className="relative z-[90]">
