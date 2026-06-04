@@ -12,12 +12,18 @@ import { Spot, SpotCategory } from "@/lib/types";
 const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "all", label: "すべて" },
   { value: "カフェ", label: "カフェ" },
+  { value: "飲食・レストラン", label: "飲食・レストラン" },
+  { value: "バー・居酒屋", label: "バー・居酒屋" },
   { value: "スポーツ", label: "スポーツ" },
+  { value: "音楽・ライブ", label: "音楽・ライブ" },
+  { value: "アート", label: "アート" },
+  { value: "クリエイター", label: "クリエイター" },
   { value: "文化施設", label: "文化施設" },
+  { value: "学び・教室", label: "学び・教室" },
+  { value: "ワークスペース", label: "ワークスペース" },
+  { value: "自然・アウトドア", label: "自然・アウトドア" },
   { value: "市民団体", label: "市民団体" },
   { value: "商店街", label: "商店街" },
-  { value: "クリエイター", label: "クリエイター" },
-  { value: "アート", label: "アート" },
   { value: "寺社仏閣", label: "寺社仏閣" },
   { value: "自治会", label: "自治会" },
   { value: "その他", label: "その他" },
@@ -190,7 +196,8 @@ export function SpotMapPage() {
       </PageShell>
 
       {/* ── Category chips ── */}
-      <div className="mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:px-6 lg:px-8 hide-scrollbar">
+      <PageShell className="mt-4 overflow-x-auto pb-1 hide-scrollbar">
+      <div className="flex gap-2 w-max sm:w-auto sm:flex-wrap">
         {categoryOptions.map((cat) => {
           const active = category === cat.value;
           return (
@@ -209,6 +216,7 @@ export function SpotMapPage() {
           );
         })}
       </div>
+      </PageShell>
 
       {/* ── Filter bar ── */}
       <PageShell className="mt-3">

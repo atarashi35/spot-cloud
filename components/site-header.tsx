@@ -81,7 +81,7 @@ export function SiteHeader() {
       <div className="panel relative z-[80] flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-3 sm:gap-6">
           <Link href="/" className="flex items-center">
-            <LogoHorizontal className="h-9 w-auto object-contain" />
+            <LogoHorizontal className="h-10 w-auto object-contain sm:h-9" />
           </Link>
         </div>
 
