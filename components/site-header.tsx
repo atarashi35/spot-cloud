@@ -86,6 +86,11 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          {!visibleUser ? (
+            <Link href="/owner" className="cta-secondary desktop-only whitespace-nowrap">
+              SPOTを作る
+            </Link>
+          ) : null}
           {visibleUser ? <NotificationDrawer /> : null}
           {visibleUser ? (
             <div ref={menuRef} className="relative z-[90]">
