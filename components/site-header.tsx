@@ -87,7 +87,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           {!visibleUser ? (
-            <Link href="/owner" className="cta-secondary hidden sm:inline-flex">
+            <Link href="/owner" className="cta-secondary hidden sm:inline-flex whitespace-nowrap">
               SPOTを作る
             </Link>
           ) : null}
@@ -149,9 +149,9 @@ export function SiteHeader() {
             <button
               type="button"
               onClick={() => setLoginModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss"
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss active:scale-[0.96]"
             >
-              <LogIn className="h-4 w-4" />
+              <LogIn className="h-4 w-4 shrink-0" />
               はじめる
             </button>
           )}
