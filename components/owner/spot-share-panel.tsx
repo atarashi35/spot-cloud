@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import QRCode from "react-qr-code";
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Download } from "lucide-react";
@@ -284,11 +283,6 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         </div>
       </section>
 
-      <div className="mt-5 text-center">
-        <Link href="/manage" className="text-sm text-ink/45 transition hover:text-ink">
-          戻る
-        </Link>
-      </div>
     </div>
   );
 }

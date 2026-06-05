@@ -1,9 +1,9 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, Loader2, MessageSquare, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Loader2, MessageSquare, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { PageShell } from "@/components/ui/page-shell";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { VoteForm } from "@/components/owner/vote-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -122,13 +122,13 @@ export default function VoicesManagePage({ params }: { params: Promise<{ spotId:
 
   return (
     <PageShell className="space-y-6 py-8">
+      <Breadcrumb items={[
+        { label: "管理", href: "/manage" },
+        { label: spot?.name ?? "…", href: "/manage" },
+        { label: "みんなの声" },
+      ]} />
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/manage" className="icon-button">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <h1 className="text-2xl font-bold text-ink">みんなの声</h1>
-        </div>
+        <h1 className="text-2xl font-bold text-ink">みんなの声</h1>
         {user && (
           <button type="button" onClick={() => setFormOpen(true)} className="cta-primary">
             作成する

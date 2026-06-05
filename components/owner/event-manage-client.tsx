@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import { EventListPanel } from "@/components/owner/event-list-panel";
 import { EventForm } from "@/components/owner/event-form";
 import { ModalShell } from "@/components/ui/modal-shell";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 
@@ -27,12 +26,11 @@ export function EventManageClient({ spotId }: { spotId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/manage" className="flex items-center gap-1.5 text-sm text-ink/55 hover:text-ink transition-colors">
-          <ArrowLeft className="h-4 w-4" />
-          運営中のSPOT
-        </Link>
-      </div>
+      <Breadcrumb items={[
+        { label: "管理", href: "/manage" },
+        { label: spotName ?? "…", href: "/manage" },
+        { label: "イベント管理" },
+      ]} />
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-ink">{spotName ?? "…"}</h1>

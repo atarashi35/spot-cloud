@@ -1,4 +1,5 @@
 import { SpotSharePanel } from "@/components/owner/spot-share-panel";
+import { SpotBreadcrumb } from "@/components/owner/spot-breadcrumb";
 
 export default async function SpotSharePage({
   params
@@ -10,7 +11,7 @@ export default async function SpotSharePage({
   return (
     <div className="shell">
       <section className="panel px-6 py-8 sm:px-8">
-        <span className="chip">SHARE</span>
+        <SpotBreadcrumb spotId={spotId} current="QR・シェア" />
         <h1 className="mt-4 text-3xl font-bold text-ink">QRコード・リンク共有</h1>
         <p className="mt-3 text-sm leading-7 text-ink/60">
           チラシやSNSに掲載して、SPOTを知ってもらいましょう。
