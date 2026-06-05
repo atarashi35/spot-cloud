@@ -21,8 +21,6 @@ type ConnectStatus = {
   hasExternalAccount: boolean;
 };
 
-type StatusTone = "success" | "warning" | "danger";
-
 function getDisabledReasonLabel(reason: string | null) {
   switch (reason) {
     case "requirements.past_due":
@@ -42,116 +40,67 @@ function getDisabledReasonLabel(reason: string | null) {
   }
 }
 
-function getPayoutSummary(input: {
-  connected: boolean;
-  onboardingComplete: boolean;
-  transfersEnabled: boolean;
-  payoutsEnabled: boolean;
-  hasExternalAccount: boolean;
-  disabledReasonLabel: string | null;
+type StepState = "done" | "active" | "pending" | "review";
+
+function StepCard({
+  number,
+  label,
+  description,
+  state,
+  note
+}: {
+  number: number;
+  label: string;
+  description: string;
+  state: StepState;
+  note?: string | null;
 }) {
-  const {
-    connected,
-    onboardingComplete,
-    transfersEnabled,
-    payoutsEnabled,
-    hasExternalAccount,
-    disabledReasonLabel
-  } = input;
-
-  if (connected && onboardingComplete && transfersEnabled && payoutsEnabled) {
-    return {
-      badgeTone: "success" as const,
-      badgeLabel: "受取準備完了",
-      title: "売上の受け取り設定が完了しています",
-      description: "ソシオ募集を本番運用できる状態です。会費はプラットフォームが決済し、売上は登録口座へ振り込まれます。",
-      actionTitle: "現在の状況",
-      actionMessage: "追加の操作は不要です。必要なときだけ Stripe 側の設定を見直してください。",
-      primaryCta: null
-    };
-  }
-
-  if (connected && onboardingComplete && !transfersEnabled) {
-    return {
-      badgeTone: "warning" as const,
-      badgeLabel: "審査中",
-      title: "振込受取の審査中です",
-      description: "本人確認の情報提出は完了しています。現在は Stripe 側で振込受取の審査が行われています。",
-      actionTitle: "次の対応",
-      actionMessage:
-        disabledReasonLabel
-          ?? "Stripe 側の審査完了を待ってください。通常は 3〜4 営業日が目安です。",
-      primaryCta: null
-    };
-  }
-
-  if (connected && onboardingComplete && transfersEnabled && !payoutsEnabled) {
-    return {
-      badgeTone: "warning" as const,
-      badgeLabel: "要確認",
-      title: "振込口座の登録が完了していません",
-      description: "受取先の振込口座がまだ有効になっていません。",
-      actionTitle: "次の対応",
-      actionMessage:
-        !hasExternalAccount
-          ? "Stripe Connect で振込口座の登録まで完了してください。"
-          : disabledReasonLabel ?? "Stripe 側で口座設定の確認が必要です。",
-      primaryCta: "振込口座を登録する"
-    };
-  }
-
-  if (!connected) {
-    return {
-      badgeTone: "danger" as const,
-      badgeLabel: "未設定",
-      title: "受取先の登録がまだ始まっていません",
-      description: "ソシオ募集を本番で始めるには、売上の受取先を登録する必要があります。",
-      actionTitle: "次の対応",
-      actionMessage: "まずは Stripe で本人確認と振込口座の登録を行ってください。",
-      primaryCta: "受取先を登録する"
-    };
-  }
-
-  return {
-    badgeTone: "warning" as const,
-    badgeLabel: "設定中",
-    title: "受取先の登録がまだ完了していません",
-    description: "本番運用に必要な設定が残っています。不足項目を確認して進めてください。",
-    actionTitle: "次の対応",
-    actionMessage:
-      !hasExternalAccount
-        ? "Stripe Connect で本人確認と振込口座の登録を完了してください。"
-        : disabledReasonLabel ?? "Stripe Connect で追加情報の入力または確認を完了してください。",
-    primaryCta: "受取設定を再開する"
+  const stateConfig: Record<StepState, { badge: string; badgeClass: string; cardClass: string }> = {
+    done: {
+      badge: "完了",
+      badgeClass: "bg-moss/10 text-moss",
+      cardClass: "border-moss/20 bg-moss/5"
+    },
+    active: {
+      badge: "要対応",
+      badgeClass: "bg-red-50 text-red-700",
+      cardClass: "border-red-200 bg-red-50/50"
+    },
+    review: {
+      badge: "審査中",
+      badgeClass: "bg-amber-50 text-amber-700",
+      cardClass: "border-amber-200 bg-amber-50"
+    },
+    pending: {
+      badge: "未対応",
+      badgeClass: "bg-ink/5 text-ink/40",
+      cardClass: "border-ink/10 bg-white"
+    }
   };
-}
 
-function getStepStatus(input: {
-  ready: boolean;
-  inReview: boolean;
-  done: boolean;
-}): { label: string; tone: StatusTone } {
-  if (input.ready) {
-    return { label: "利用可能", tone: "success" };
-  }
-  if (input.inReview) {
-    return { label: "審査中", tone: "warning" };
-  }
-  if (input.done) {
-    return { label: "完了", tone: "success" };
-  }
-  return { label: "未設定", tone: "danger" };
-}
+  const config = stateConfig[state];
 
-function getStepCardClass(tone: StatusTone) {
-  switch (tone) {
-    case "success":
-      return "border-moss/20 bg-moss/5";
-    case "warning":
-      return "border-amber-200 bg-amber-50";
-    case "danger":
-      return "border-red-200 bg-red-50";
-  }
+  return (
+    <article className={`rounded-[24px] border px-5 py-5 ${config.cardClass}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+            state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/40"
+          }`}>
+            {state === "done" ? "✓" : number}
+          </span>
+          <span className="text-sm font-semibold text-ink">{label}</span>
+        </div>
+        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${config.badgeClass}`}>
+          {config.badge}
+        </span>
+      </div>
+      <p className="mt-3 pl-10 text-sm leading-6 text-ink/60">{description}</p>
+      {note ? (
+        <p className="mt-2 pl-10 text-xs leading-5 text-ink/45">{note}</p>
+      ) : null}
+    </article>
+  );
 }
 
 export function SpotPayoutPanel({ spotId }: { spotId: string }) {
@@ -161,66 +110,44 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [returnedFromStripe, setReturnedFromStripe] = useState(false);
   const [connectStatus, setConnectStatus] = useState<ConnectStatus | null>(null);
 
   useEffect(() => {
-    if (!authReady) {
-      return;
-    }
-
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    if (!authReady) return;
+    if (!user) { setLoading(false); return; }
 
     void getSpotFromFirestore(spotId)
       .then((nextSpot) => {
-        if (!nextSpot) {
-          setError("SPOT が見つかりません。");
-          return;
-        }
-
-        if (nextSpot.ownerUid !== user.uid) {
-          setError("この画面は運営者のみ利用できます。");
-          return;
-        }
-
+        if (!nextSpot) { setError("SPOT が見つかりません。"); return; }
+        if (nextSpot.ownerUid !== user.uid) { setError("この画面は運営者のみ利用できます。"); return; }
         setSpot(nextSpot);
       })
-      .catch((cause: Error) => {
-        setError(cause.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .catch((cause: Error) => { setError(cause.message); })
+      .finally(() => { setLoading(false); });
   }, [authReady, spotId, user]);
 
   useEffect(() => {
     const connectParam = searchParams.get("connect");
-
-    if (connectParam === "return") {
-      setNotice("Stripe Connect から戻りました。設定状況を再確認してください。");
-    }
-
-    if (connectParam === "refresh") {
-      setNotice("入力が完了していないため、受取設定を再開できます。");
+    if (connectParam === "return" || connectParam === "refresh") {
+      setReturnedFromStripe(true);
     }
   }, [searchParams]);
 
   useEffect(() => {
-    if (!user || !spot) {
-      return;
-    }
-
+    if (!user || !spot) return;
     void loadStatus();
   }, [spot, user]);
 
-  async function loadStatus() {
-    if (!user) {
-      return;
+  // Stripe から戻ったときは自動で再取得
+  useEffect(() => {
+    if (returnedFromStripe && user && spot) {
+      void loadStatus();
     }
+  }, [returnedFromStripe, user, spot]);
 
+  async function loadStatus() {
+    if (!user) return;
     setStatusLoading(true);
     setError(null);
 
@@ -228,19 +155,12 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
       const token = await user.getIdToken();
       const response = await fetch("/api/stripe/connect/status", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ spotId })
       });
 
       const data = (await response.json()) as ConnectStatus & { error?: string; message?: string };
-
-      if (!response.ok) {
-        throw new Error(data.message ?? data.error ?? "connect_status_error");
-      }
-
+      if (!response.ok) throw new Error(data.message ?? data.error ?? "connect_status_error");
       setConnectStatus(data);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Connect 状態を取得できませんでした。");
@@ -262,7 +182,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
     );
   }
 
-  if (error || !spot) {
+  if (error && !spot) {
     return (
       <EmptyState
         title="受取設定を開けませんでした"
@@ -271,6 +191,8 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
     );
   }
 
+  if (!spot) return null;
+
   const connected = Boolean(connectStatus?.connected || spot.stripeConnectedAccountId);
   const onboardingComplete = Boolean(connectStatus?.onboardingComplete);
   const transfersEnabled = Boolean(connectStatus?.transfersEnabled);
@@ -278,141 +200,139 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
   const ready = connected && onboardingComplete && transfersEnabled && payoutsEnabled;
   const disabledReasonLabel = getDisabledReasonLabel(connectStatus?.disabledReason ?? null);
   const inReview = connectStatus?.disabledReason === "under_review" || connectStatus?.disabledReason === "requirements.pending_verification";
-  const summary = getPayoutSummary({
-    connected,
-    onboardingComplete,
-    transfersEnabled,
-    payoutsEnabled,
-    hasExternalAccount: Boolean(connectStatus?.hasExternalAccount),
-    disabledReasonLabel
-  });
-  const verificationStep = getStepStatus({
-    ready: onboardingComplete,
-    inReview: false,
-    done: onboardingComplete
-  });
-  const transferStep = getStepStatus({
-    ready: transfersEnabled,
-    inReview: !transfersEnabled && inReview,
-    done: false
-  });
-  const payoutStep = getStepStatus({
-    ready: payoutsEnabled,
-    inReview: !payoutsEnabled && inReview,
-    done: false
-  });
-  const showReviewTimeline = inReview && !transfersEnabled;
+
+  // ステップ1: 本人確認
+  const step1State: StepState = onboardingComplete ? "done" : connected ? "active" : "active";
+
+  // ステップ2: 売上受取
+  const step2State: StepState = transfersEnabled
+    ? "done"
+    : inReview
+    ? "review"
+    : onboardingComplete
+    ? "active"
+    : "pending";
+
+  // ステップ3: 振込口座
+  const step3State: StepState = payoutsEnabled
+    ? "done"
+    : transfersEnabled
+    ? "active"
+    : "pending";
+
+  // CTA ラベル
+  const primaryCta = !connected
+    ? "Stripe で本人確認を始める"
+    : !onboardingComplete
+    ? "本人確認を再開する"
+    : !payoutsEnabled && !connectStatus?.hasExternalAccount
+    ? "振込口座を登録する"
+    : "Stripe 設定を確認する";
+
+  const showCta = !ready && !inReview;
 
   return (
-    <div className="mt-8 space-y-6">
-      <section className="rounded-[28px] border border-ink/10 bg-white px-5 py-5">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+    <div className="mt-8 space-y-5">
+
+      {/* ステータスヘッダー */}
+      <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="text-xs font-semibold tracking-[0.18em] text-ink/42">CURRENT STATUS</div>
-            <h2 className="mt-2 text-3xl font-bold text-ink">{summary.title}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-ink/68">{summary.description}</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <StatusBadge tone={summary.badgeTone}>
-              {summary.badgeLabel}
-            </StatusBadge>
-          </div>
-        </div>
-        {notice ? (
-          <div className="mt-4 rounded-[20px] bg-mist px-4 py-4 text-sm leading-7 text-ink/70">
-            {notice}
-          </div>
-        ) : null}
-        {showReviewTimeline ? (
-          <div className="mt-4 rounded-[20px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-900">
-            Stripe の案内では、追加情報の確認に通常 3〜4 営業日かかり、その間は会費の受け取りが一時停止します。
-          </div>
-        ) : null}
-      </section>
-
-      <section className="grid gap-5 lg:grid-cols-3">
-        <article className={`rounded-[28px] border px-5 py-5 ${getStepCardClass(verificationStep.tone)}`}>
-          <div className="text-sm text-ink/55">本人確認</div>
-          <div className="mt-2 text-2xl font-bold text-ink">{verificationStep.label}</div>
-        </article>
-
-        <article className={`rounded-[28px] border px-5 py-5 ${getStepCardClass(transferStep.tone)}`}>
-          <div className="text-sm text-ink/55">売上受取</div>
-          <div className="mt-2 text-2xl font-bold text-ink">{transferStep.label}</div>
-          <p className="mt-3 text-sm leading-7 text-ink/62">
-            {transfersEnabled
-              ? "プラットフォームからの売上振替を受け取れます。"
-              : "売上の受取はまだ有効になっていません。"}
-          </p>
-        </article>
-
-        <article className={`rounded-[28px] border px-5 py-5 ${getStepCardClass(payoutStep.tone)}`}>
-          <div className="text-sm text-ink/55">振込口座</div>
-          <div className="mt-2 text-2xl font-bold text-ink">{payoutStep.label}</div>
-          <p className="mt-3 text-sm leading-7 text-ink/62">
-            {payoutsEnabled
-              ? "Stripe 残高があれば登録口座へ振り込めます。"
-              : "登録口座への振込はまだ利用できません。"}
-          </p>
-          {!payoutsEnabled ? (
-            <div className="mt-4 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/68">
-              {!connectStatus?.hasExternalAccount
-                ? "受取口座がまだ Stripe に登録されていない可能性があります。"
-                : disabledReasonLabel ?? "Stripe 側の確認や口座設定がまだ完了していない可能性があります。"}
-            </div>
-          ) : null}
-        </article>
-      </section>
-
-      <section className="rounded-[28px] border border-ink/10 bg-white px-5 py-5">
-        <h3 className="text-xl font-bold text-ink">{summary.actionTitle}</h3>
-        {ready ? (
-          <div className="mt-4 space-y-3 text-sm text-ink/68">
-            <p>{summary.actionMessage}</p>
-            <p className="rounded-[20px] bg-mist px-4 py-3 break-all">
-              account id: {connectStatus?.accountId ?? spot.stripeConnectedAccountId}
+            <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">CURRENT STATUS</p>
+            {ready ? (
+              <h2 className="mt-2 text-2xl font-bold text-ink">受取準備が整っています</h2>
+            ) : inReview ? (
+              <h2 className="mt-2 text-2xl font-bold text-ink">Stripe の審査中です</h2>
+            ) : !connected ? (
+              <h2 className="mt-2 text-2xl font-bold text-ink">受取先をまだ登録していません</h2>
+            ) : (
+              <h2 className="mt-2 text-2xl font-bold text-ink">設定の続きがあります</h2>
+            )}
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/60">
+              {ready
+                ? "ソシオ募集を開始できます。会費はプラットフォームが決済し、売上は登録口座へ振り込まれます。"
+                : inReview
+                ? "本人確認の審査が行われています。通常 3〜4 営業日で完了します。"
+                : !connected
+                ? "ソシオ募集を始めるには、Stripe で本人確認と振込口座の登録が必要です。"
+                : "以下のステップを完了してソシオ募集を開始しましょう。"}
             </p>
           </div>
-        ) : (
-          <div className="mt-4 space-y-3 text-sm text-ink/68">
-            <p>{summary.actionMessage}</p>
-            {!connectStatus?.hasExternalAccount ? (
-              <div className="rounded-[20px] bg-mist px-4 py-3">
-                受取口座が未登録の可能性があります。Stripe Connect の設定画面で銀行口座の登録まで完了してください。
-              </div>
-            ) : null}
-            {disabledReasonLabel ? (
-              <div className="rounded-[20px] bg-mist px-4 py-3">
-                Stripe の状態: {disabledReasonLabel}
-              </div>
-            ) : null}
-            {showReviewTimeline ? (
-              <div className="rounded-[20px] bg-mist px-4 py-3">
-                目安: Stripe の確認完了までは通常 3〜4 営業日です。その間は会費の受け取りを開始できません。
-              </div>
-            ) : null}
-            {connectStatus?.requirementsDue?.length ? (
-              <div className="rounded-[20px] bg-mist px-4 py-3">
-                未完了項目: {connectStatus.requirementsDue.join(", ")}
-              </div>
-            ) : null}
+          <StatusBadge tone={ready ? "success" : inReview ? "warning" : "danger"}>
+            {ready ? "受取準備完了" : inReview ? "審査中" : !connected ? "未設定" : "設定中"}
+          </StatusBadge>
+        </div>
+
+        {returnedFromStripe && !ready ? (
+          <div className="mt-4 rounded-[16px] bg-mist px-4 py-3 text-sm text-ink/70">
+            Stripe から戻りました。設定状況を更新しています…
           </div>
-        )}
-        <div className="mt-5 flex flex-wrap gap-3">
-          {summary.primaryCta ? (
-            <ConnectOnboardingButton spotId={spotId} connected={connected} label={summary.primaryCta} />
+        ) : null}
+
+        {error ? (
+          <div className="mt-4 rounded-[16px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        ) : null}
+      </section>
+
+      {/* ステップ一覧 */}
+      <section className="space-y-3">
+        <StepCard
+          number={1}
+          label="本人確認"
+          description="Stripe で氏名・住所・生年月日などを登録します。一度完了すれば再登録は不要です。"
+          state={step1State}
+        />
+        <StepCard
+          number={2}
+          label="売上受取の有効化"
+          description="プラットフォームからの売上振替を受け取るための設定です。本人確認完了後に自動で有効になります。"
+          state={step2State}
+          note={step2State === "review" ? "Stripe の審査完了まで通常 3〜4 営業日かかります。" : null}
+        />
+        <StepCard
+          number={3}
+          label="振込口座の登録"
+          description="売上を受け取る銀行口座を登録します。Stripe Connect の設定画面から登録できます。"
+          state={step3State}
+          note={step3State === "active" && !connectStatus?.hasExternalAccount ? "口座がまだ登録されていません。" : null}
+        />
+      </section>
+
+      {/* アクションエリア */}
+      <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-6">
+        {ready ? (
+          <div className="space-y-3">
+            <p className="text-sm font-semibold text-ink">ソシオ募集を開始できます</p>
+            <p className="text-sm leading-7 text-ink/60">
+              追加の操作は不要です。SPOT の公開設定を確認してソシオを募集しましょう。
+            </p>
+          </div>
+        ) : disabledReasonLabel ? (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-ink">Stripe からの通知</p>
+            <p className="text-sm leading-6 text-ink/60">{disabledReasonLabel}</p>
+          </div>
+        ) : null}
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          {showCta ? (
+            <ConnectOnboardingButton spotId={spotId} connected={connected} label={primaryCta} />
           ) : null}
-          <button type="button" className="cta-secondary" onClick={() => void loadStatus()} disabled={statusLoading}>
-            {statusLoading ? "確認中..." : "状態を再確認"}
+          <button
+            type="button"
+            className="cta-secondary"
+            onClick={() => void loadStatus()}
+            disabled={statusLoading}
+          >
+            {statusLoading ? "確認中…" : "状態を更新"}
           </button>
           <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">
-            SPOT情報編集へ
+            SPOT を編集
           </Link>
-          <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
-            QR
-          </Link>
-          <Link href="/manage" className="cta-secondary">
-            運営するSPOT
+          <Link href="/manage" className="cta-secondary text-ink/50">
+            運営する SPOT へ
           </Link>
         </div>
       </section>
