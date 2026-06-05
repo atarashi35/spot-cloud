@@ -2,50 +2,38 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ExternalLink } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Spot } from "@/lib/types";
+
+type Filter = "all" | "published" | "unpublished" | "suspended" | "no_stripe";
 
 export function AdminConsoleClient() {
   const { authReady, user } = useAuth();
   const [spots, setSpots] = useState<Spot[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingSpotId, setPendingSpotId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if (!authReady) {
-      return;
-    }
-
-    if (!user) {
-      setSpots(null);
-      return;
-    }
-
+    if (!authReady) return;
+    if (!user) { setSpots(null); return; }
     void loadSpots();
-  }, [authReady, user]);
+  }, [authReady, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadSpots() {
-    if (!user) {
-      return;
-    }
-
+    if (!user) return;
     try {
       setError(null);
       const token = await user.getIdToken();
-      const response = await fetch("/api/admin/spots", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const res = await fetch("/api/admin/spots", {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      const data = (await response.json()) as { spots?: Spot[]; error?: string };
-
-      if (!response.ok || !data.spots) {
-        throw new Error(data.error ?? "admin_spots_load_failed");
-      }
-
+      const data = await res.json() as { spots?: Spot[]; error?: string };
+      if (!res.ok || !data.spots) throw new Error(data.error ?? "admin_spots_load_failed");
       setSpots(data.spots);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "admin_spots_load_failed");
@@ -53,132 +41,174 @@ export function AdminConsoleClient() {
   }
 
   async function updateSpotStatus(spotId: string, next: { isPublished?: boolean; isSuspended?: boolean }) {
-    if (!user) {
-      return;
-    }
-
+    if (!user) return;
     try {
       setPendingSpotId(spotId);
-      setError(null);
       const token = await user.getIdToken();
-      const response = await fetch(`/api/admin/spots/${spotId}`, {
+      const res = await fetch(`/api/admin/spots/${spotId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(next)
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(next),
       });
-
-      const data = (await response.json()) as { error?: string };
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "admin_spot_update_failed");
-      }
-
-      setSpots((current) =>
-        current
-          ? current.map((spot) => (spot.id === spotId ? { ...spot, ...next } : spot))
-          : current
+      const data = await res.json() as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? "admin_spot_update_failed");
+      setSpots((cur) =>
+        cur ? cur.map((s) => (s.id === spotId ? { ...s, ...next } : s)) : cur
       );
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "admin_spot_update_failed");
+    } catch {
+      // no-op
     } finally {
       setPendingSpotId(null);
     }
   }
 
-  if (!authReady) {
-    return <div className="text-sm text-ink/60">管理権限を確認中です。</div>;
-  }
+  if (!authReady) return <div className="text-sm text-ink/60">管理権限を確認中です。</div>;
+  if (!user) return <EmptyState title="ログインが必要です" description="管理者メールでログインしてください。" />;
+  if (error === "forbidden") return <EmptyState title="管理権限がありません" description="ADMIN_EMAILS に登録されたメールでログインしてください。" />;
+  if (error) return <EmptyState title="取得できませんでした" description={error} />;
+  if (!spots) return <div className="text-sm text-ink/60">読み込み中です。</div>;
 
-  if (!user) {
-    return (
-      <EmptyState
-        title="管理画面はログイン後に利用できます"
-        description="管理者メールで Google ログインした状態で開いてください。"
-      />
-    );
-  }
+  const filtered = spots.filter((s) => {
+    if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filter === "published") return s.isPublished && !s.isSuspended;
+    if (filter === "unpublished") return !s.isPublished && !s.isSuspended;
+    if (filter === "suspended") return s.isSuspended;
+    if (filter === "no_stripe") return !s.stripeConnectedAccountId;
+    return true;
+  });
 
-  if (error === "forbidden") {
-    return (
-      <EmptyState
-        title="このアカウントには管理権限がありません"
-        description="ADMIN_EMAILS に登録されたメールアドレスでログインしてください。"
-      />
-    );
-  }
-
-  if (error) {
-    return (
-      <EmptyState
-        title="管理データを取得できませんでした"
-        description={`admin API の応答でエラーが出ています: ${error}`}
-      />
-    );
-  }
-
-  if (!spots) {
-    return <div className="text-sm text-ink/60">全 SPOT を読み込み中です。</div>;
-  }
+  const filters: { key: Filter; label: string }[] = [
+    { key: "all", label: `すべて (${spots.length})` },
+    { key: "published", label: `公開中 (${spots.filter((s) => s.isPublished && !s.isSuspended).length})` },
+    { key: "unpublished", label: `非公開 (${spots.filter((s) => !s.isPublished && !s.isSuspended).length})` },
+    { key: "suspended", label: `停止中 (${spots.filter((s) => s.isSuspended).length})` },
+    { key: "no_stripe", label: `Stripe未連携 (${spots.filter((s) => !s.stripeConnectedAccountId).length})` },
+  ];
 
   return (
     <div className="space-y-4">
-      {spots.map((spot) => (
-        <article
-          key={spot.id}
-          className="rounded-[28px] border border-ink/10 bg-mist p-5 sm:flex sm:items-center sm:justify-between"
-        >
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="chip">{spot.category}</span>
-              <StatusBadge tone={spot.isPublished ? "success" : "neutral"}>
-                {spot.isPublished ? "公開中" : "非公開"}
-              </StatusBadge>
-              {spot.isSuspended ? <StatusBadge tone="danger">停止中</StatusBadge> : null}
-            </div>
-            <h2 className="mt-2 text-xl font-bold text-ink">{spot.name}</h2>
-            <p className="mt-3 text-sm text-ink/68">ソシオ {spot.socioCount}人 / 更新 {spot.updatedAt.slice(0, 10)}</p>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
-            <Link href={`/spots/${spot.id}`} className="cta-secondary">
-              詳細確認
-            </Link>
+      {/* フィルタ・検索 */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-1.5">
+          {filters.map((f) => (
             <button
+              key={f.key}
               type="button"
-              className="cta-secondary"
-              disabled={pendingSpotId === spot.id}
-              onClick={() => updateSpotStatus(spot.id, { isPublished: !spot.isPublished })}
+              onClick={() => setFilter(f.key)}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                filter === f.key ? "bg-ink text-white" : "bg-mist text-ink/55 hover:text-ink"
+              }`}
             >
-              {pendingSpotId === spot.id
-                ? "更新中..."
-                : spot.isPublished
-                  ? "非公開にする"
-                  : "公開する"}
+              {f.label}
             </button>
-            {spot.isSuspended ? (
+          ))}
+        </div>
+        <input
+          type="search"
+          placeholder="SPOT名で検索"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-full border border-ink/12 bg-white px-4 py-2 text-sm outline-none focus:border-ink/30 sm:w-56"
+        />
+      </div>
+
+      {/* テーブル */}
+      <div className="overflow-hidden rounded-[24px] border border-ink/8 bg-white">
+        {/* ヘッダー */}
+        <div className="hidden grid-cols-[2fr_1fr_60px_80px_100px_180px] gap-4 border-b border-ink/8 px-5 py-3 text-[11px] font-semibold tracking-wider text-ink/40 sm:grid">
+          <span>SPOT名</span>
+          <span>カテゴリ</span>
+          <span className="text-center">ソシオ</span>
+          <span className="text-center">Stripe</span>
+          <span className="text-center">状態</span>
+          <span className="text-right">操作</span>
+        </div>
+
+        {filtered.length === 0 && (
+          <div className="px-5 py-10 text-center text-sm text-ink/40">該当するSPOTがありません</div>
+        )}
+
+        {filtered.map((spot) => (
+          <div
+            key={spot.id}
+            className="grid grid-cols-1 gap-2 border-b border-ink/6 px-5 py-4 last:border-0 sm:grid-cols-[2fr_1fr_60px_80px_100px_180px] sm:items-center sm:gap-4"
+          >
+            {/* SPOT名 */}
+            <div>
+              <p className="font-semibold text-ink">{spot.name}</p>
+              <p className="text-xs text-ink/40">{spot.createdAt.slice(0, 10)} 登録</p>
+            </div>
+
+            {/* カテゴリ */}
+            <span className="text-sm text-ink/65">{spot.category}</span>
+
+            {/* ソシオ数 */}
+            <div className="text-center">
+              <span className="text-base font-bold text-ink">{spot.socioCount}</span>
+              <span className="text-xs text-ink/40"> 人</span>
+            </div>
+
+            {/* Stripe */}
+            <div className="flex justify-center">
+              {spot.stripeConnectedAccountId ? (
+                <StatusBadge tone="success">連携済</StatusBadge>
+              ) : (
+                <StatusBadge tone="neutral">未連携</StatusBadge>
+              )}
+            </div>
+
+            {/* 公開状態 */}
+            <div className="flex justify-center">
+              {spot.isSuspended ? (
+                <StatusBadge tone="danger">停止中</StatusBadge>
+              ) : spot.isPublished ? (
+                <StatusBadge tone="success">公開中</StatusBadge>
+              ) : (
+                <StatusBadge tone="neutral">非公開</StatusBadge>
+              )}
+            </div>
+
+            {/* 操作 */}
+            <div className="flex flex-wrap justify-end gap-2">
+              <Link
+                href={`/spots/${spot.id}`}
+                target="_blank"
+                className="flex items-center gap-1 rounded-full border border-ink/12 px-3 py-1.5 text-xs font-semibold text-ink/60 transition hover:border-ink/30 hover:text-ink"
+              >
+                <ExternalLink className="h-3 w-3" />
+                確認
+              </Link>
               <button
                 type="button"
-                className="cta-primary"
                 disabled={pendingSpotId === spot.id}
-                onClick={() => updateSpotStatus(spot.id, { isSuspended: false, isPublished: true })}
+                onClick={() => updateSpotStatus(spot.id, { isPublished: !spot.isPublished })}
+                className="rounded-full border border-ink/12 px-3 py-1.5 text-xs font-semibold text-ink/60 transition hover:border-ink/30 hover:text-ink disabled:opacity-40"
               >
-                {pendingSpotId === spot.id ? "再開中..." : "停止解除"}
+                {pendingSpotId === spot.id ? "…" : spot.isPublished ? "非公開" : "公開"}
               </button>
-            ) : (
-              <button
-                type="button"
-                className="cta-primary"
-                disabled={pendingSpotId === spot.id}
-                onClick={() => updateSpotStatus(spot.id, { isSuspended: true, isPublished: false })}
-              >
-                {pendingSpotId === spot.id ? "停止中..." : "公開停止"}
-              </button>
-            )}
+              {spot.isSuspended ? (
+                <button
+                  type="button"
+                  disabled={pendingSpotId === spot.id}
+                  onClick={() => updateSpotStatus(spot.id, { isSuspended: false, isPublished: true })}
+                  className="rounded-full bg-moss px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-80 disabled:opacity-40"
+                >
+                  {pendingSpotId === spot.id ? "…" : "停止解除"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={pendingSpotId === spot.id}
+                  onClick={() => updateSpotStatus(spot.id, { isSuspended: true, isPublished: false })}
+                  className="rounded-full bg-red-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-80 disabled:opacity-40"
+                >
+                  {pendingSpotId === spot.id ? "…" : "停止"}
+                </button>
+              )}
+            </div>
           </div>
-        </article>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
