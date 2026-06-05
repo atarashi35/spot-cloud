@@ -216,10 +216,16 @@ export function SpotMapPage() {
               </div>
             </div>
 
-            {/* 右：ロゴアニメーション（デスクトップのみ） */}
+            {/* 右：ロゴアニメーション（デスクトップ） */}
             <div className="hidden lg:flex lg:items-center lg:justify-center"
               style={{ animation: "hero-fade-up 1s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}>
               <LogoAnimation className="h-[420px] w-[420px] opacity-90" />
+            </div>
+
+            {/* 背景：ロゴアニメーション（モバイルのみ・薄く重ねる） */}
+            <div className="pointer-events-none absolute -right-16 -top-8 lg:hidden"
+              style={{ animation: "hero-fade-up 1s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}>
+              <LogoAnimation className="h-[320px] w-[320px] opacity-20" />
             </div>
 
           </div>
