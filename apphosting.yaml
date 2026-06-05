@@ -7,12 +7,12 @@ env:
   - variable: FIREBASE_ADMIN_PRIVATE_KEY
     secret: FIREBASE_ADMIN_PRIVATE_KEY
   - variable: APPLE_SIGNER_CERT_PEM_BASE64
-    availability: [BUILD, RUNTIME]
+    availability: [RUNTIME]
   - variable: APPLE_SIGNER_KEY_PEM_BASE64
-    availability: [BUILD, RUNTIME]
+    availability: [RUNTIME]
   - variable: APPLE_WWDR_PEM_BASE64
-    availability: [BUILD, RUNTIME]
+    availability: [RUNTIME]
   - variable: APPLE_TEAM_IDENTIFIER
-    availability: [BUILD, RUNTIME]
+    availability: [RUNTIME]
   - variable: APPLE_PASS_CERT_PASSWORD
-    availability: [BUILD, RUNTIME]
+    availability: [RUNTIME]
