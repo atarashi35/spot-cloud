@@ -1,15 +1,21 @@
-import { AdminConsoleClient } from "@/components/admin/admin-console-client";
+import { AdminStatsCards } from "@/components/admin/admin-stats-cards";
+import { AdminRevenueChart } from "@/components/admin/admin-revenue-chart";
+import { AdminTabs } from "@/components/admin/admin-tabs";
 
 export default function AdminPage() {
   return (
-    <div className="shell">
-      <section className="panel px-6 py-8 sm:px-8">
+    <div className="shell space-y-6 py-8">
+
+      <div>
         <span className="chip">ADMIN</span>
-        <h1 className="mt-4 text-3xl font-bold text-ink">全 SPOT 管理</h1>
-        <div className="mt-8">
-          <AdminConsoleClient />
-        </div>
-      </section>
+        <h1 className="mt-4 text-3xl font-bold text-ink">管理ダッシュボード</h1>
+        <p className="mt-2 text-sm text-ink/55">プラットフォーム全体の状況を確認・管理できます。</p>
+      </div>
+
+      <AdminStatsCards />
+      <AdminRevenueChart />
+      <AdminTabs />
+
     </div>
   );
 }
