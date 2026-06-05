@@ -6,3 +6,6 @@ dist
 npm-debug.log*
 tsconfig.tsbuildinfo
 .next-dev/
+
+# wallet secrets
+secrets/

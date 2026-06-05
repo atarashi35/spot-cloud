@@ -12,6 +12,8 @@ import { listUserMemberships } from "@/lib/firestore/memberships";
 import { listSpotPostsFromFirestore } from "@/lib/firestore/posts";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { UserMembership } from "@/lib/types";
+import { SocioCard } from "@/components/account/socio-card";
+import { AppleWalletButton } from "@/components/account/apple-wallet-button";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
@@ -27,16 +29,6 @@ type UpcomingEvent = {
   title: string;
   startAt: string;
   location?: string;
-};
-
-type SupportTier = {
-  label: string;
-  requirement: string;
-  description: string;
-  nextMilestone: string | null;
-  badgeClassName: string;
-  accentClassName: string;
-  ringClassName: string;
 };
 
 // ─── ユーティリティ ────────────────────────────────────────────────────
@@ -59,17 +51,6 @@ function getMembershipTone(status: UserMembership["status"]) {
   }
 }
 
-/** 加入からの経過期間を「〇ヶ月のソシオ」形式で返す */
-function getSocioAge(joinedAt: string): string {
-  const diff = Date.now() - new Date(joinedAt).getTime();
-  const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
-  if (months < 1) {
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return `${days}日のソシオ`;
-  }
-  return `${months}ヶ月のソシオ`;
-}
-
 /** ISO文字列を「YYYY/MM/DD」形式に変換 */
 function toDateLabel(iso: string) {
   return iso.slice(0, 10).replace(/-/g, "/");
@@ -85,65 +66,6 @@ function toEventLabel(iso: string) {
   return `${m}/${day} ${hh}:${mm}`;
 }
 
-function getSupportTier(count: number): SupportTier {
-  if (count >= 20) {
-    return {
-      label: "プラチナソシオ",
-      requirement: "20 SPOT",
-      description: "このまちのあちこちに深く関わるトップソシオです。",
-      nextMilestone: null,
-      badgeClassName: "border-slate-300/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(214,224,232,0.95)_48%,rgba(176,190,199,0.9))] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_18px_40px_rgba(120,136,150,0.18)]",
-      accentClassName: "text-slate-700",
-      ringClassName: "border-slate-200/80 bg-white/70"
-    };
-  }
-
-  if (count >= 5) {
-    if (count >= 10) {
-      return {
-        label: "ゴールドソシオ",
-        requirement: "10 SPOT",
-        description: "複数のSPOTを横断して支える中心的なソシオです。",
-        nextMilestone: "次は 20 SPOT でプラチナソシオ",
-        badgeClassName: "border-amber-300/80 bg-[linear-gradient(135deg,rgba(255,247,214,0.98),rgba(247,215,110,0.95)_52%,rgba(214,151,39,0.92))] text-amber-950 shadow-[inset_0_1px_0_rgba(255,251,230,0.95),0_18px_40px_rgba(214,151,39,0.2)]",
-        accentClassName: "text-amber-900",
-        ringClassName: "border-amber-200/80 bg-amber-50/70"
-      };
-    }
-
-    return {
-      label: "シルバーソシオ",
-      requirement: "5 SPOT",
-      description: "応援の輪をしっかり広げているアクティブなソシオです。",
-      nextMilestone: "次は 10 SPOT でゴールドソシオ",
-      badgeClassName: "border-zinc-300/80 bg-[linear-gradient(135deg,rgba(250,251,252,0.98),rgba(223,229,235,0.96)_55%,rgba(164,176,188,0.92))] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_18px_40px_rgba(148,163,184,0.16)]",
-      accentClassName: "text-slate-700",
-      ringClassName: "border-slate-200/80 bg-slate-50/80"
-    };
-  }
-
-  if (count >= 3) {
-    return {
-      label: "ブロンズソシオ",
-      requirement: "3 SPOT",
-      description: "ひとつ先の応援へ踏み出した頼もしいソシオです。",
-      nextMilestone: "次は 5 SPOT でシルバーソシオ",
-      badgeClassName: "border-orange-300/80 bg-[linear-gradient(135deg,rgba(255,240,229,0.98),rgba(215,145,96,0.95)_56%,rgba(157,92,51,0.9))] text-orange-950 shadow-[inset_0_1px_0_rgba(255,244,236,0.96),0_18px_40px_rgba(180,105,63,0.18)]",
-      accentClassName: "text-orange-900",
-      ringClassName: "border-orange-200/80 bg-orange-50/75"
-    };
-  }
-
-  return {
-    label: "ソシオ",
-    requirement: "1-2 SPOT",
-    description: "あなたの応援が、SPOTを支えています。",
-    nextMilestone: "次は 3 SPOT でブロンズソシオ",
-    badgeClassName: "border-emerald-200/80 bg-[linear-gradient(135deg,rgba(244,251,246,0.98),rgba(190,220,198,0.95)_52%,rgba(117,153,128,0.9))] text-emerald-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_18px_40px_rgba(117,153,128,0.16)]",
-    accentClassName: "text-emerald-900",
-    ringClassName: "border-emerald-200/80 bg-emerald-50/70"
-  };
-}
 
 /** SPOT ごとの直近お知らせ・イベントを並列取得 */
 async function fetchSpotPreview(user: User, spotId: string): Promise<SpotPreview & { currentName: string | null }> {
@@ -288,60 +210,21 @@ export function AccountPageClient() {
 
   const activeList = memberships.filter((m) => m.status !== "canceled");
   const canceledList = memberships.filter((m) => m.status === "canceled");
-  const supportTier = getSupportTier(activeList.length);
-
-  if (memberships.length === 0) {
-    return (
-      <section className="panel px-6 py-8 sm:px-8">
-        <EmptyState
-          title="まだ応援中のSPOTはありません"
-          description="SPOTを見つけて加入すると、限定ページやイベント情報にアクセスできるようになります。"
-        />
-        <div className="mt-6">
-          <Link href="/spots" className="cta-primary">SPOTを探す</Link>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <div className="space-y-6">
 
-      {/* サポートサマリー */}
-      {activeList.length > 0 ? (
-        <section className="panel px-6 py-6 sm:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">SUPPORTING SPOTS</div>
-              <div className="mt-2 flex items-end gap-3">
-                <div className="text-5xl font-bold tracking-tight text-ink">{activeList.length}</div>
-                <div className="pb-1 text-sm font-medium text-ink/52">SPOTをサポート中</div>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-ink/62">
-                応援しているSPOTの限定コンテンツやイベント情報にアクセスできます。
-              </p>
-            </div>
-
-            <div className={`rounded-[20px] border px-5 py-4 lg:min-w-[320px] ${supportTier.badgeClassName}`}>
-              <div className="text-xs font-semibold tracking-[0.18em] text-current/60">SOCIO STATUS</div>
-              <div className="mt-3 flex items-center gap-4">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-full border text-xl shadow-sm ${supportTier.ringClassName}`}>
-                  <span aria-hidden="true">S</span>
-                </div>
-                <div>
-                  <div className="text-lg font-bold text-current">{supportTier.label}</div>
-                  <span className="mt-1 inline-flex rounded-full border border-current/10 bg-white/55 px-3 py-1 text-[11px] font-semibold tracking-[0.12em] text-current/70">
-                    {supportTier.requirement}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3 text-sm leading-7 text-current/72">{supportTier.description}</div>
-              {supportTier.nextMilestone ? (
-                <div className={`mt-2 text-xs font-semibold ${supportTier.accentClassName}`}>{supportTier.nextMilestone}</div>
-              ) : (
-                <div className={`mt-2 text-xs font-semibold ${supportTier.accentClassName}`}>現在の最高ランクです</div>
-              )}
-            </div>
+      {/* ソシオカード */}
+      {user ? (
+        <section className="space-y-3">
+          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">MY SOCIO CARD</h2>
+          <div className="mx-auto max-w-sm space-y-3">
+            <SocioCard
+              uid={user.uid}
+              displayName={user.displayName ?? "SOCIO"}
+              memberships={memberships}
+            />
+            <AppleWalletButton />
           </div>
         </section>
       ) : null}
@@ -368,6 +251,19 @@ export function AccountPageClient() {
                 </Link>
               </div>
             ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* 応援中のSPOTがない場合 */}
+      {activeList.length === 0 ? (
+        <section className="panel px-6 py-8 sm:px-8">
+          <EmptyState
+            title="まだ応援中のSPOTはありません"
+            description="SPOTを見つけて加入すると、限定ページやイベント情報にアクセスできるようになります。"
+          />
+          <div className="mt-6">
+            <Link href="/spots" className="cta-primary">SPOTを探す</Link>
           </div>
         </section>
       ) : null}
