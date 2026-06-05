@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
-import { sendSociosNewPost } from "@/lib/server/mailer";
+import { sendSociosNewEvent } from "@/lib/server/mailer";
 
 type Body = {
   title: string;
-  body: string;
+  description: string;
+  startAt: string;
+  location?: string;
   imageUrl?: string;
-  publishDate: string;
   isPublic: boolean;
+  hasJoinButton: boolean;
 };
 
 export async function POST(
@@ -25,15 +27,8 @@ export async function POST(
     const decoded = await getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
     const db = getAdminDb();
 
-    console.log(`[posts API] spotId=${spotId} uid=${decoded.uid}`);
-
-    // オーナー確認
     const spotSnap = await db.doc(`spots/${spotId}`).get();
-    const ownerUid = spotSnap.data()?.ownerUid;
-    console.log(`[posts API] spot.ownerUid=${ownerUid} exists=${spotSnap.exists}`);
-
-    if (!spotSnap.exists || ownerUid !== decoded.uid) {
-      console.log(`[posts API] forbidden: ownerUid=${ownerUid} !== uid=${decoded.uid}`);
+    if (!spotSnap.exists || spotSnap.data()?.ownerUid !== decoded.uid) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
@@ -42,33 +37,40 @@ export async function POST(
       return NextResponse.json({ error: "missing_title" }, { status: 400 });
     }
 
-    console.log(`[posts API] writing post: title="${payload.title}"`);
-    const ref = await db.collection(`spots/${spotId}/posts`).add({
+    const ref = await db.collection(`spots/${spotId}/events`).add({
       title: payload.title.trim(),
-      body: payload.body ?? "",
+      description: payload.description ?? "",
+      startAt: payload.startAt,
+      location: payload.location ?? "",
       imageUrl: payload.imageUrl ?? "",
-      publishDate: payload.publishDate,
       isPublic: Boolean(payload.isPublic),
+      hasJoinButton: Boolean(payload.hasJoinButton),
       createdBy: decoded.uid,
       createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
-    console.log(`[posts API] written: postId=${ref.id}`);
-
-    // ソシオへのメール通知（公開投稿のみ・失敗しても応答は返す）
+    // ソシオへのメール通知（公開イベントのみ）
     if (payload.isPublic) {
-      void sendSociosNewPost({
+      const eventDate = payload.startAt
+        ? new Date(payload.startAt).toLocaleString("ja-JP", {
+            year: "numeric", month: "long", day: "numeric",
+            weekday: "short", hour: "2-digit", minute: "2-digit",
+          })
+        : "";
+      void sendSociosNewEvent({
         spotId,
         spotName: String(spotSnap.data()?.name ?? ""),
-        postTitle: payload.title.trim(),
-        postBody: payload.body ?? "",
-      }).catch((e) => console.error("[posts API] mail error:", e));
+        eventId: ref.id,
+        eventTitle: payload.title.trim(),
+        eventDate,
+        eventPlace: payload.location ?? "",
+      }).catch((e) => console.error("[events API] mail error:", e));
     }
 
-    return NextResponse.json({ ok: true, postId: ref.id });
+    return NextResponse.json({ ok: true, eventId: ref.id });
   } catch (error) {
-    console.error("[posts API] error:", error);
+    console.error("[events API] error:", error);
     return NextResponse.json({ error: "internal_error" }, { status: 500 });
   }
 }

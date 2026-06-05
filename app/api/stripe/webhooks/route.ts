@@ -4,6 +4,14 @@ import Stripe from "stripe";
 import { getMembershipBySubscriptionId, upsertMembership } from "@/lib/server/memberships";
 import { stripe } from "@/lib/stripe/config";
 import { MembershipStatus, PlanAmount, SocioAgeRange, SocioGender } from "@/lib/types";
+import {
+  sendSocioWelcome,
+  sendSocioCanceling,
+  sendPaymentFailed,
+  sendOwnerNewSocio,
+  sendOwnerSocioLeft,
+} from "@/lib/server/mailer";
+import { getAdminDb } from "@/lib/firebase/admin";
 
 /**
  * Stripe Subscription → MembershipStatus のマッピング
@@ -129,6 +137,7 @@ export async function POST(request: Request) {
         }
       }
 
+      const planAmount = Number(metadata.planAmount) as PlanAmount;
       await upsertMembership({
         uid: metadata.uid,
         displayName: buyerName,
@@ -138,11 +147,34 @@ export async function POST(request: Request) {
         gender: (metadata.gender ?? "") as SocioGender,
         spotId: metadata.spotId,
         spotName: metadata.spotName,
-        planAmount: Number(metadata.planAmount) as PlanAmount,
+        planAmount,
         status: "active",
         stripeCustomerId: String(session.customer ?? ""),
         stripeSubscriptionId: String(session.subscription ?? "")
       });
+
+      // メール通知（失敗しても webhook は成功扱い）
+      const spotSnap = await getAdminDb().doc(`spots/${metadata.spotId}`).get();
+      const totalSocios = Number(spotSnap.data()?.socioCount ?? 0);
+      await Promise.allSettled([
+        buyerEmail
+          ? sendSocioWelcome({
+              to: buyerEmail,
+              spotName: metadata.spotName,
+              spotId: metadata.spotId,
+              planAmount,
+              displayName: buyerName,
+            })
+          : Promise.resolve(),
+        sendOwnerNewSocio({
+          spotId: metadata.spotId,
+          spotName: metadata.spotName,
+          socioName: buyerName,
+          socioAffiliation: String(metadata.affiliation ?? ""),
+          planAmount,
+          totalSocios,
+        }),
+      ]);
 
       return NextResponse.json({ received: true, type: event.type });
     }
@@ -161,7 +193,45 @@ export async function POST(request: Request) {
       event.type === "customer.subscription.deleted"
     ) {
       const subscription = event.data.object as Stripe.Subscription;
+      const membership = await getMembershipBySubscriptionId(subscription.id);
       const result = await syncMembershipFromSubscription(subscription);
+
+      if (membership) {
+        const newStatus = mapSubscriptionToMembershipStatus(subscription);
+
+        // 解約予定になった
+        if (newStatus === "canceling" && membership.status !== "canceling") {
+          const periodEnd = subscription.cancel_at
+            ? new Date(subscription.cancel_at * 1000).toLocaleDateString("ja-JP")
+            : "";
+          await Promise.allSettled([
+            membership.email
+              ? sendSocioCanceling({
+                  to: membership.email,
+                  spotName: membership.spotName,
+                  spotId: membership.spotId,
+                  displayName: membership.displayName ?? "",
+                  periodEnd,
+                })
+              : Promise.resolve(),
+          ]);
+        }
+
+        // 完全解約
+        if (newStatus === "canceled" && membership.status !== "canceled") {
+          const spotSnap = await getAdminDb().doc(`spots/${membership.spotId}`).get();
+          const totalSocios = Number(spotSnap.data()?.socioCount ?? 0);
+          await Promise.allSettled([
+            sendOwnerSocioLeft({
+              spotId: membership.spotId,
+              spotName: membership.spotName,
+              socioName: membership.displayName ?? "",
+              totalSocios,
+            }),
+          ]);
+        }
+      }
+
       return NextResponse.json({ ...result, type: event.type });
     }
 
@@ -184,10 +254,21 @@ export async function POST(request: Request) {
     // ─── 支払い失敗 ────────────────────────────────────────────────────
     if (event.type === "invoice.payment_failed") {
       const invoice = event.data.object as Stripe.Invoice;
-      const result = await syncMembershipFromSubscriptionId(
-        getSubscriptionIdFromInvoice(invoice),
-        "past_due"
-      );
+      const subscriptionId = getSubscriptionIdFromInvoice(invoice);
+      const membership = await getMembershipBySubscriptionId(subscriptionId);
+      const result = await syncMembershipFromSubscriptionId(subscriptionId, "past_due");
+
+      if (membership?.email) {
+        await Promise.allSettled([
+          sendPaymentFailed({
+            to: membership.email,
+            spotName: membership.spotName,
+            displayName: membership.displayName ?? "",
+            portalUrl: `${process.env.NEXT_PUBLIC_BASE_URL ?? "https://spotcloud.app"}/dashboard`,
+          }),
+        ]);
+      }
+
       return NextResponse.json({ ...result, type: event.type });
     }
 
