@@ -265,6 +265,8 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                       </div>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-ink/45">
+                      {m.occupation ? <span>{m.occupation}</span> : null}
+                      {m.specialty ? <span className="text-ink/35">✦ {m.specialty}</span> : null}
                       {m.ageRange ? <span>{m.ageRange}</span> : null}
                       {m.gender ? <span>{m.gender}</span> : null}
                       <span>加入 {m.joinedAt.slice(0, 10)}</span>

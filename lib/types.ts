@@ -85,6 +85,11 @@ export interface SpotMembership {
   status: MembershipStatus;
   joinedAt: string;
   updatedAt: string;
+  // ソシオプロフィール（users/{uid} から結合）
+  avatarUrl?: string;
+  occupation?: string;
+  specialty?: string;
+  bio?: string;
 }
 
 export interface UserMembership {
@@ -96,12 +101,20 @@ export interface UserMembership {
   joinedAt: string;
 }
 
+export interface PostAttachment {
+  url: string;
+  type: "image" | "pdf";
+  name: string; // 表示用ファイル名
+}
+
 export interface SpotPost {
   id: string;
   spotId: string;
   title: string;
   body: string;
+  /** @deprecated 旧フィールド。attachments に移行済み */
   imageUrl?: string;
+  attachments?: PostAttachment[];
   publishDate: string;
   /** true: 誰でも閲覧可、false/undefined: ソシオ限定 */
   isPublic: boolean;

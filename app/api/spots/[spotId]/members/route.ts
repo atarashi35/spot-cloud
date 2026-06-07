@@ -42,8 +42,23 @@ export async function GET(
       .orderBy("joinedAt", "desc")
       .get();
 
+    // users/{uid} プロフィールを一括取得
+    const uids = snapshot.docs.map((doc) => String(doc.data().uid ?? doc.id));
+    const profileSnaps = uids.length > 0
+      ? await auth.db.getAll(...uids.map((uid) => auth.db.doc(`users/${uid}`)))
+      : [];
+    const profileMap = new Map(
+      profileSnaps.map((snap) => [snap.id, snap.exists ? snap.data() ?? {} : {}])
+    );
+
+    function str(v: unknown): string | undefined {
+      return typeof v === "string" && v.trim() ? v.trim() : undefined;
+    }
+
     const members: SpotMembership[] = snapshot.docs.map((doc) => {
       const d = doc.data();
+      const uid = String(d.uid ?? doc.id);
+      const p = profileMap.get(uid) ?? {};
       const joinedAt =
         d.joinedAt instanceof Timestamp
           ? d.joinedAt.toDate().toISOString()
@@ -54,8 +69,8 @@ export async function GET(
           : new Date().toISOString();
 
       return {
-        uid: String(d.uid ?? doc.id),
-        displayName: String(d.displayName ?? ""),
+        uid,
+        displayName: str(p.profileDisplayName) ?? str(d.displayName) ?? "",
         email: String(d.email ?? ""),
         affiliation: String(d.affiliation ?? ""),
         ageRange: d.ageRange ?? undefined,
@@ -65,7 +80,11 @@ export async function GET(
         stripeSubscriptionId: String(d.stripeSubscriptionId ?? ""),
         status: d.status ?? "active",
         joinedAt,
-        updatedAt
+        updatedAt,
+        avatarUrl: str(p.avatarUrl),
+        occupation: str(p.occupation),
+        specialty: str(p.specialty),
+        bio: str(p.bio),
       };
     });
 

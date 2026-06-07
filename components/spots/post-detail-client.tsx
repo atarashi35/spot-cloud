@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -108,7 +109,42 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
           )}
         </div>
 
-        {post.imageUrl && (
+        {(post.attachments ?? []).length > 0 && (
+          <div className="mt-6 space-y-3">
+            {/* 画像ギャラリー */}
+            {post.attachments!.filter((a) => a.type === "image").length > 0 && (
+              <div className={`grid gap-2 ${post.attachments!.filter((a) => a.type === "image").length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                {post.attachments!.filter((a) => a.type === "image").map((att, i) => (
+                  <div key={i} className="overflow-hidden rounded-[20px]">
+                    <Image
+                      src={att.url}
+                      alt={att.name || post.title}
+                      width={800}
+                      height={400}
+                      className="w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* PDF ダウンロードカード */}
+            {post.attachments!.filter((a) => a.type === "pdf").map((att, i) => (
+              <a
+                key={i}
+                href={att.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-[16px] border border-ink/10 bg-mist px-4 py-3 transition hover:bg-ink/5"
+              >
+                <FileText className="h-5 w-5 shrink-0 text-ink/40" />
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink/75">{att.name}</span>
+                <span className="shrink-0 text-xs text-ink/40">ダウンロード</span>
+              </a>
+            ))}
+          </div>
+        )}
+        {/* 旧フィールド後方互換 */}
+        {!post.attachments?.length && post.imageUrl && (
           <div className="mt-6 overflow-hidden rounded-[20px]">
             <Image
               src={post.imageUrl}

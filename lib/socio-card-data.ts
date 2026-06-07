@@ -27,7 +27,30 @@ export function buildSocioCardData(
   };
 }
 
-export function buildShareText(data: SocioCardData): string {
-  const n = data.spotCount;
-  return n === 0 ? "私はSPOTのソシオです。" : `私は${n}つのSPOTのソシオです。`;
+export function buildShareContent(data: SocioCardData): { text: string; url: string } {
+  const base =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (typeof window !== "undefined" ? window.location.origin : "https://spotcloud.app");
+
+  const first = data.memberships[0];
+
+  if (!first) {
+    return {
+      text: "SPOTでソシオ（サポーター）を募集中です！",
+      url: `${base}/spots`,
+    };
+  }
+
+  if (data.memberships.length === 1) {
+    return {
+      text: `「${first.spotName}」のソシオになりました。応援しています！`,
+      url: `${base}/spots/${first.spotId}`,
+    };
+  }
+
+  const names = data.memberships.map((m) => `「${m.spotName}」`).join("・");
+  return {
+    text: `${names}のソシオになりました。`,
+    url: `${base}/spots/${first.spotId}`,
+  };
 }

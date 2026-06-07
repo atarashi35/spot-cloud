@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import { sendSociosNewPost } from "@/lib/server/mailer";
+import type { PostAttachment } from "@/lib/types";
 
 type Body = {
   title: string;
   body: string;
-  imageUrl?: string;
+  attachments?: PostAttachment[];
   publishDate: string;
   isPublic: boolean;
 };
@@ -46,7 +47,7 @@ export async function POST(
     const ref = await db.collection(`spots/${spotId}/posts`).add({
       title: payload.title.trim(),
       body: payload.body ?? "",
-      imageUrl: payload.imageUrl ?? "",
+      attachments: payload.attachments ?? [],
       publishDate: payload.publishDate,
       isPublic: Boolean(payload.isPublic),
       createdBy: decoded.uid,

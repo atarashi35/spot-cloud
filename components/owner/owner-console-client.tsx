@@ -17,6 +17,8 @@ import {
 } from "@/lib/firestore/spots";
 import { getSocioRankProgress } from "@/lib/socio-rank";
 import { Spot } from "@/lib/types";
+import { RecentSociosPanel } from "@/components/owner/recent-socios-panel";
+import { OpinionBoxPanel } from "@/components/owner/opinion-box-panel";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
@@ -505,48 +507,62 @@ export function OwnerConsoleClient() {
                 <div className="mt-4 h-14 animate-pulse rounded-[16px] bg-mist" />
               )}
 
-              {/* ソシオ・イベント管理へのリンク */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <a
-                  href={`/manage/${spot.id}/socios`}
-                  className="flex items-center gap-1.5 rounded-full border border-ink/12 bg-white px-4 py-2 text-xs font-semibold text-ink/65 transition hover:border-ink/25 hover:text-ink"
+              {/* 最近加入したソシオ */}
+              <RecentSociosPanel
+                spotId={spot.id}
+                spotShareHref={`/owner/spots/${spot.id}/share`}
+                spotPublicHref={`/spots/${spot.id}`}
+              />
+
+              {/* ご意見ボックス */}
+              <OpinionBoxPanel
+                spot={spot}
+                onSpotChange={(updated) =>
+                  setSpots((prev) =>
+                    prev?.map((s) => (s.id === spot.id ? { ...s, ...updated } : s)) ?? prev
+                  )
+                }
+              />
+
+              {/* プライマリアクション（高頻度） */}
+              <div className="mt-6 grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPostModal({ spotId: spot.id, mode: "create" })}
+                  className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
-                  ソシオ一覧
-                  {revenue ? (
-                    <span className="rounded-full bg-mist px-2 py-0.5 text-[10px] text-ink/55">{socioCount}人</span>
-                  ) : null}
-                </a>
+                  <span className="text-xs font-semibold">お知らせ</span>
+                </button>
                 <a
                   href={`/manage/${spot.id}/events`}
-                  className="flex items-center gap-1.5 rounded-full border border-ink/12 bg-white px-4 py-2 text-xs font-semibold text-ink/65 transition hover:border-ink/25 hover:text-ink"
+                  className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
-                  イベント管理
+                  <span className="text-xs font-semibold">イベント</span>
                 </a>
                 <a
                   href={`/manage/${spot.id}/voices`}
-                  className="flex items-center gap-1.5 rounded-full border border-ink/12 bg-white px-4 py-2 text-xs font-semibold text-ink/65 transition hover:border-ink/25 hover:text-ink"
+                  className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
-                  みんなの声
+                  <span className="text-xs font-semibold">アンケート</span>
                 </a>
               </div>
 
-              {/* アクションボタン */}
-              <div className="mt-5 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="cta-primary"
-                  onClick={() => setPostModal({ spotId: spot.id, mode: "create" })}
-                >
-                  お知らせを投稿
-                </button>
-                <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">
+              {/* セカンダリリンク（低頻度） */}
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <a href={`/manage/${spot.id}/socios`} className="text-xs text-ink/45 hover:text-ink transition-colors">
+                  ソシオ一覧{revenue ? `（${socioCount}人）` : ""}
+                </a>
+                <span className="text-ink/20">·</span>
+                <Link href={`/owner/spots/${spot.id}/edit`} className="text-xs text-ink/45 hover:text-ink transition-colors">
                   SPOT編集
                 </Link>
-                <Link href={`/owner/spots/${spot.id}/share`} className="cta-secondary">
+                <span className="text-ink/20">·</span>
+                <Link href={`/owner/spots/${spot.id}/share`} className="text-xs text-ink/45 hover:text-ink transition-colors">
                   QRコード
                 </Link>
-                <Link href={`/owner/spots/${spot.id}/payout`} className="cta-secondary">
-                  {connectReady ? "受取設定" : "受取設定を始める"}
+                <span className="text-ink/20">·</span>
+                <Link href={`/owner/spots/${spot.id}/payout`} className={`text-xs transition-colors ${connectReady ? "text-ink/45 hover:text-ink" : "font-semibold text-amber-600 hover:text-amber-700"}`}>
+                  受取設定{!connectReady ? "（未設定）" : ""}
                 </Link>
               </div>
 

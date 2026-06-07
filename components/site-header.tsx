@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogIn, LogOut, MapPin, Settings2, Shield, UserCircle } from "lucide-react";
+import { Building2, LogIn, LogOut, MapPin, Settings2, Shield, UserCircle } from "lucide-react";
 import { LogoHorizontal } from "@/components/ui/logo";
 import { NotificationDrawer } from "@/components/ui/notification-drawer";
 import { useEffect, useRef, useState } from "react";
@@ -9,6 +9,8 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { LoginModal } from "@/components/auth/login-modal";
 import { listOwnerSpotsFromFirestore } from "@/lib/firestore/spots";
 import { isAdminEmail } from "@/lib/auth/admin";
+import { getUserProfileDoc } from "@/lib/firestore/user-profile";
+import { resolveDisplayName } from "@/lib/user-profile";
 
 function getInitials(name: string | null | undefined) {
   if (!name) {
@@ -29,6 +31,7 @@ export function SiteHeader() {
   const [showManageLink, setShowManageLink] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const showAdminLink = authReady && isAdminEmail(user?.email);
   const visibleUser = user && !user.isAnonymous ? user : null;
@@ -37,6 +40,7 @@ export function SiteHeader() {
     if (!visibleUser) {
       setShowManageLink(false);
       setMenuOpen(false);
+      setProfileDisplayName(null);
       return;
     }
 
@@ -47,6 +51,10 @@ export function SiteHeader() {
       .catch(() => {
         setShowManageLink(false);
       });
+
+    void getUserProfileDoc(visibleUser.uid).then((profile) => {
+      setProfileDisplayName(profile?.profileDisplayName ?? null);
+    });
   }, [visibleUser]);
 
   useEffect(() => {
@@ -101,13 +109,15 @@ export function SiteHeader() {
                 onClick={() => setMenuOpen((current) => !current)}
                 className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 bg-white text-sm font-bold text-ink transition hover:border-moss hover:text-moss"
               >
-                {getInitials(visibleUser.displayName)}
+                {getInitials(resolveDisplayName(profileDisplayName, visibleUser.displayName, visibleUser.email))}
               </button>
               {menuOpen ? (
                 <div className="menu-surface absolute right-0 top-[calc(100%+10px)] z-[100] w-64 p-2">
                   <div className="border-b border-ink/8 px-3 py-3">
-                    <div className="text-sm font-semibold text-ink">{visibleUser.displayName ?? "ログイン中"}</div>
-                    <div className="mt-1 text-xs text-ink/55">{visibleUser.email}</div>
+                    <div className="text-sm font-semibold text-ink">
+                      {resolveDisplayName(profileDisplayName, visibleUser.displayName, visibleUser.email)}
+                    </div>
+                    <div className="mt-1 text-xs text-ink/55">ソシオ</div>
                   </div>
                   <div className="py-2">
                     <Link href="/#spot-list" className="menu-link" onClick={() => setMenuOpen(false)}>
@@ -116,10 +126,10 @@ export function SiteHeader() {
                     </Link>
                     <Link href="/account" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <UserCircle className="h-4 w-4" />
-                      応援中のSPOT
+                      マイSOCIO
                     </Link>
                     <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
-                      <Settings2 className="h-4 w-4" />
+                      <Building2 className="h-4 w-4" />
                       {showManageLink ? "運営中のSPOT" : "SPOTを作る"}
                     </Link>
                     {showAdminLink ? (

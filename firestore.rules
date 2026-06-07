@@ -84,6 +84,11 @@ service cloud.firestore {
       }
     }
 
+    match /users/{uid} {
+      // profileDisplayName など自分のプロフィールフィールドの読み書き
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
     match /users/{uid}/memberships/{spotId} {
       allow read, write: if signedIn() && request.auth.uid == uid;
     }

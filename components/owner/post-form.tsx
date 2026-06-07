@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ImageUploader } from "@/components/ui/image-uploader";
+import { AttachmentsUploader } from "@/components/ui/attachments-uploader";
+import { PostAttachment } from "@/lib/types";
 import {
   createSpotPostInFirestore,
   deleteSpotPostInFirestore,
@@ -22,7 +23,7 @@ export function PostForm(props: PostFormProps) {
   const { authReady, user } = useAuth();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [attachments, setAttachments] = useState<PostAttachment[]>([]);
   const [publishDate, setPublishDate] = useState(new Date().toISOString().slice(0, 10));
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(props.mode === "edit");
@@ -46,7 +47,7 @@ export function PostForm(props: PostFormProps) {
         if (post) {
           setTitle(post.title);
           setBody(post.body);
-          setImageUrl(post.imageUrl ?? "");
+          setAttachments(post.attachments ?? []);
           setPublishDate(post.publishDate);
           setIsPublic(post.isPublic);
         }
@@ -78,7 +79,7 @@ export function PostForm(props: PostFormProps) {
         const res = await fetch(`/api/spots/${props.spotId}/posts`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ title, body, imageUrl, publishDate, isPublic })
+          body: JSON.stringify({ title, body, attachments, publishDate, isPublic })
         });
         if (!res.ok) {
           const data = (await res.json()) as { error?: string };
@@ -95,7 +96,7 @@ export function PostForm(props: PostFormProps) {
         });
       } else {
         await updateSpotPostInFirestore(props.spotId, props.postId, {
-          title, body, imageUrl, publishDate, isPublic
+          title, body, attachments, publishDate, isPublic
         });
       }
       if (props.onSuccess) {
@@ -156,10 +157,12 @@ export function PostForm(props: PostFormProps) {
       <input className="field" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="タイトル" required />
       <textarea className="field min-h-40" value={body} onChange={(event) => setBody(event.target.value)} placeholder="本文" required />
       <div>
-        <label className="mb-2 block text-sm font-medium text-ink/62">画像（任意）</label>
-        <ImageUploader
-          value={imageUrl}
-          onChange={setImageUrl}
+        <label className="mb-2 block text-sm font-medium text-ink/62">
+          画像・PDF（任意・最大5件）
+        </label>
+        <AttachmentsUploader
+          value={attachments}
+          onChange={setAttachments}
           storagePath={`spots/${props.spotId}/posts`}
         />
       </div>

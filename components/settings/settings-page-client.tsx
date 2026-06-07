@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { multiFactor } from "firebase/auth";
-import { ShieldCheck, ShieldAlert } from "lucide-react";
+import { Pencil, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { MfaEnrollmentModal } from "@/components/auth/mfa-enrollment-modal";
 import { SupportSection } from "@/components/settings/support-section";
-import { loadUserProfileCache } from "@/lib/user-profile-cache";
 import { MetricPill } from "@/components/ui/metric-pill";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { listUserMemberships } from "@/lib/firestore/memberships";
 import { listOwnerSpotsFromFirestore } from "@/lib/firestore/spots";
+import { getUserProfileDoc, saveUserProfileDoc } from "@/lib/firestore/user-profile";
+import { resolveDisplayName } from "@/lib/user-profile";
+import { uploadAvatar } from "@/lib/firebase/upload-avatar";
 import { UserMembership } from "@/lib/types";
 import type { InvoiceItem } from "@/app/api/stripe/invoices/route";
 
@@ -84,11 +86,44 @@ export function SettingsPageClient() {
   const [mfaEnrollOpen, setMfaEnrollOpen] = useState(false);
   const [mfaEnrolled, setMfaEnrolled] = useState(false);
 
+  // プロフィール表示名
+  const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
+  const [nameEditing, setNameEditing] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // アバター
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // bio / occupation / specialty
+  const [bio, setBio] = useState("");
+  const [occupation, setOccupation] = useState("");
+  const [specialty, setSpecialty] = useState("");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileSaved, setProfileSaved] = useState(false);
+
   useEffect(() => {
     if (user) {
       const factors = multiFactor(user).enrolledFactors;
       setMfaEnrolled(factors.length > 0);
     }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    void getUserProfileDoc(user.uid).then((profile) => {
+      setProfileDisplayName(profile?.profileDisplayName ?? null);
+      setAvatarUrl(profile?.avatarUrl ?? null);
+      setBio(profile?.bio ?? "");
+      setOccupation(profile?.occupation ?? "");
+      setSpecialty(profile?.specialty ?? "");
+    });
   }, [user]);
 
   useEffect(() => {
@@ -138,6 +173,80 @@ export function SettingsPageClient() {
     });
   }, [memberships, user]);
 
+  function startNameEdit() {
+    setNameInput(
+      profileDisplayName ?? user?.displayName ?? ""
+    );
+    setNameError(null);
+    setNameEditing(true);
+    setTimeout(() => nameInputRef.current?.focus(), 0);
+  }
+
+  async function saveName() {
+    if (!user) return;
+    const trimmed = nameInput.trim();
+    if (!trimmed) {
+      setNameError("表示名を入力してください");
+      return;
+    }
+    if (trimmed.length > 40) {
+      setNameError("40文字以内で入力してください");
+      return;
+    }
+    setNameSaving(true);
+    setNameError(null);
+    try {
+      await saveUserProfileDoc(user.uid, { profileDisplayName: trimmed });
+      setProfileDisplayName(trimmed);
+      setNameEditing(false);
+    } catch {
+      setNameError("保存できませんでした。もう一度お試しください。");
+    } finally {
+      setNameSaving(false);
+    }
+  }
+
+  async function saveProfile() {
+    if (!user) return;
+    if (bio.length > 100) { setProfileError("ひとことは100文字以内で入力してください"); return; }
+    if (occupation.length > 30) { setProfileError("職業は30文字以内で入力してください"); return; }
+    if (specialty.length > 30) { setProfileError("得意なことは30文字以内で入力してください"); return; }
+    setProfileSaving(true);
+    setProfileError(null);
+    setProfileSaved(false);
+    try {
+      await saveUserProfileDoc(user.uid, {
+        bio: bio.trim(),
+        occupation: occupation.trim(),
+        specialty: specialty.trim(),
+        visibilityLevel: "owner_only",
+      });
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 2500);
+    } catch {
+      setProfileError("保存できませんでした。もう一度お試しください。");
+    } finally {
+      setProfileSaving(false);
+    }
+  }
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setAvatarUploading(true);
+    setAvatarError(null);
+    try {
+      const url = await uploadAvatar(user.uid, file);
+      await saveUserProfileDoc(user.uid, { avatarUrl: url });
+      setAvatarUrl(url);
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "アップロードできませんでした");
+    } finally {
+      setAvatarUploading(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  }
+
   async function openPortal(spotId: string) {
     if (!user) {
       return;
@@ -182,12 +291,179 @@ export function SettingsPageClient() {
         <h2 className="mt-4 text-2xl font-bold text-ink">アカウント情報</h2>
         {user ? (
           <>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <MetricPill
-                label="名前"
-                value={user.displayName || loadUserProfileCache()?.name || "未設定"}
-              />
-              <MetricPill label="メール" value={user.email ?? "未設定"} />
+            {/* アバター */}
+            <div className="mt-6 flex items-center gap-5">
+              <div className="relative shrink-0">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="プロフィール画像"
+                    className="h-16 w-16 rounded-full object-cover border border-ink/10"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-mist border border-ink/10">
+                    <svg viewBox="0 0 24 24" className="h-8 w-8 text-ink/30" fill="currentColor">
+                      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                    </svg>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={avatarUploading}
+                  className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-white bg-moss text-white shadow transition hover:bg-moss/80"
+                  aria-label="画像を変更"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => void handleAvatarChange(e)}
+                />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-ink">プロフィール画像</div>
+                <div className="mt-0.5 text-xs text-ink/50">
+                  {avatarUploading ? "アップロード中..." : "JPG・PNG・WebP / 2MB以内"}
+                </div>
+                {avatarError ? (
+                  <div className="mt-1 text-xs text-red-600">{avatarError}</div>
+                ) : null}
+              </div>
+            </div>
+
+            {/* 表示名編集 */}
+            <div className="mt-4 rounded-[20px] border border-ink/8 bg-mist px-5 py-5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">ソシオ表示名</div>
+                  {nameEditing ? (
+                    <div className="mt-2 flex flex-col gap-2">
+                      <input
+                        ref={nameInputRef}
+                        type="text"
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") void saveName();
+                          if (e.key === "Escape") setNameEditing(false);
+                        }}
+                        maxLength={40}
+                        placeholder="表示名を入力"
+                        className="w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-moss"
+                      />
+                      {nameError ? (
+                        <p className="text-xs text-red-600">{nameError}</p>
+                      ) : null}
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void saveName()}
+                          disabled={nameSaving}
+                          className="cta-primary text-xs"
+                        >
+                          {nameSaving ? "保存中..." : "保存する"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNameEditing(false)}
+                          className="cta-secondary text-xs"
+                        >
+                          キャンセル
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-1 text-base font-semibold text-ink truncate">
+                      {resolveDisplayName(profileDisplayName, user.displayName, user.email)}
+                    </div>
+                  )}
+                </div>
+                {!nameEditing ? (
+                  <button
+                    type="button"
+                    onClick={startNameEdit}
+                    aria-label="表示名を編集"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/10 bg-white text-ink/50 transition hover:border-moss hover:text-moss"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                ) : null}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-ink/40">
+                ソシオカードや加入SPOTで表示される名前です。メールアドレスは表示されません。
+              </p>
+            </div>
+
+            {/* bio / occupation / specialty */}
+            <div className="mt-4 space-y-4 rounded-[20px] border border-ink/8 bg-mist px-5 py-5">
+              <div>
+                <label className="block text-xs font-semibold tracking-[0.15em] text-ink/45">
+                  ひとこと
+                </label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={100}
+                  rows={2}
+                  placeholder="好きなことや活動のことなど、自由に"
+                  className="mt-2 w-full resize-none rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-moss"
+                />
+                <div className="mt-1 text-right text-[11px] text-ink/35">{bio.length}/100</div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-semibold tracking-[0.15em] text-ink/45">
+                    職業
+                  </label>
+                  <input
+                    type="text"
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                    maxLength={30}
+                    placeholder="例：会社員、デザイナー、学生"
+                    className="mt-2 w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-moss"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold tracking-[0.15em] text-ink/45">
+                    得意なこと
+                  </label>
+                  <input
+                    type="text"
+                    value={specialty}
+                    onChange={(e) => setSpecialty(e.target.value)}
+                    maxLength={30}
+                    placeholder="例：コーヒー、DIY、ドローン撮影"
+                    className="mt-2 w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-moss"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => void saveProfile()}
+                  disabled={profileSaving}
+                  className="cta-primary text-sm"
+                >
+                  {profileSaving ? "保存中..." : "保存する"}
+                </button>
+                {profileSaved ? (
+                  <span className="text-xs font-semibold text-moss">保存しました</span>
+                ) : null}
+                {profileError ? (
+                  <span className="text-xs text-red-600">{profileError}</span>
+                ) : null}
+              </div>
+              <p className="text-[11px] leading-5 text-ink/35">
+                この情報は加入SPOTのオーナーに共有されます。SNSには公開されません。
+              </p>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <MetricPill label="ログイン方法" value={getLoginMethodLabel(user)} />
             </div>
             {/* 二段階認証 */}

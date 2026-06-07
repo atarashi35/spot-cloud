@@ -14,6 +14,8 @@ import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { UserMembership } from "@/lib/types";
 import { SocioCard } from "@/components/account/socio-card";
 import { AppleWalletButton } from "@/components/account/apple-wallet-button";
+import { getUserProfileDoc } from "@/lib/firestore/user-profile";
+import { resolveDisplayName } from "@/lib/user-profile";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
@@ -105,6 +107,19 @@ export function AccountPageClient() {
   const [previews, setPreviews] = useState<Record<string, SpotPreview>>({});
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [membershipError, setMembershipError] = useState<string | null>(null);
+  const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setProfileDisplayName(null);
+      return;
+    }
+    void getUserProfileDoc(user.uid).then((profile) => {
+      setProfileDisplayName(profile?.profileDisplayName ?? null);
+      setAvatarUrl(profile?.avatarUrl ?? null);
+    });
+  }, [user]);
 
   // メンバーシップ一覧を取得
   useEffect(() => {
@@ -221,9 +236,19 @@ export function AccountPageClient() {
           <div className="mx-auto max-w-sm space-y-3">
             <SocioCard
               uid={user.uid}
-              displayName={user.displayName ?? "SOCIO"}
+              displayName={resolveDisplayName(profileDisplayName, user.displayName, user.email)}
+              avatarUrl={avatarUrl}
               memberships={memberships}
             />
+            {!profileDisplayName ? (
+              <Link
+                href="/settings"
+                className="flex items-center justify-between gap-3 rounded-[20px] border border-dashed border-moss/40 bg-moss/5 px-5 py-4 text-sm font-semibold text-moss hover:bg-moss/10 transition-colors"
+              >
+                <span>表示名を設定する</span>
+                <span className="text-xs font-normal text-moss/70">カードに表示される名前を変更できます →</span>
+              </Link>
+            ) : null}
             <AppleWalletButton />
           </div>
         </section>

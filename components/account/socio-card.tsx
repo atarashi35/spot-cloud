@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useCallback, useMemo, useState } from "react";
+import { useRef, useCallback, useMemo, useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import type { UserMembership } from "@/lib/types";
-import { buildSocioCardData, buildShareText } from "@/lib/socio-card-data";
+import { buildSocioCardData, buildShareContent } from "@/lib/socio-card-data";
 export type { SocioCardData } from "@/lib/socio-card-data";
 
 // ─── 軌道ドット設計 ──────────────────────────────────────────────────────────
@@ -51,11 +51,57 @@ function buildDotCSS(dots: ReturnType<typeof assignDotsToRings>): string {
 
 // ─── PNG保存 ─────────────────────────────────────────────────────────────────
 
+/**
+ * 表面要素をオフスクリーンにクローンしてキャプチャ。
+ * カードが裏返し中でも transform なしで確実に取得できる。
+ * setTimeout 不要 → ユーザージェスチャーのコンテキストを保持できる。
+ */
 async function captureCardAsPng(el: HTMLElement): Promise<Blob> {
   const { toBlob } = await import("html-to-image");
-  const blob = await toBlob(el, { pixelRatio: 3, cacheBust: true });
-  if (!blob) throw new Error("toBlob failed");
-  return blob;
+
+  // 元要素の実寸を取得してクローンに明示的に設定する。
+  // 設定しないと fixed + off-screen 要素の幅が 0 になり toBlob が空 Blob を返す。
+  const { width, height } = el.getBoundingClientRect();
+
+  const clone = el.cloneNode(true) as HTMLElement;
+  Object.assign(clone.style, {
+    position: "fixed",
+    top: "-9999px",
+    left: "-9999px",
+    width: `${width}px`,
+    height: `${height}px`,
+    transform: "none",
+    backfaceVisibility: "visible",
+    WebkitBackfaceVisibility: "visible",
+    pointerEvents: "none",
+  });
+  document.body.appendChild(clone);
+
+  try {
+    const blob = await toBlob(clone, { pixelRatio: 3, cacheBust: true });
+    if (!blob) throw new Error("toBlob が空を返しました（要素幅: ${width}px）");
+    return blob;
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+// ─── クリップボードコピー（execCommand フォールバック付き） ──────────────────
+
+function legacyCopy(text: string, onResult: (msg: string) => void) {
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    onResult(ok ? "リンクをコピーしました！" : "コピーできませんでした。");
+  } catch {
+    onResult("コピーできませんでした。");
+  }
 }
 
 // ─── 日付フォーマット ─────────────────────────────────────────────────────────
@@ -70,21 +116,24 @@ function toYM(iso: string) {
 type Props = {
   uid: string;
   displayName: string;
+  avatarUrl?: string | null;
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId" | "status">[];
 };
 
-export function SocioCard({ uid, displayName, memberships }: Props) {
+export function SocioCard({ uid, displayName, avatarUrl, memberships }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
 
   const [isFlipped, setIsFlipped] = useState(false);
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50 });
   const [isHovering, setIsHovering] = useState(false);
+  const [toast, setToast] = useState<{ message: string; ok: boolean } | null>(null);
 
   const data = useMemo(
     () => buildSocioCardData(uid, displayName, memberships),
     [uid, displayName, memberships]
   );
+  const shareContent = useMemo(() => buildShareContent(data), [data]);
 
   const dots = useMemo(() => assignDotsToRings(Math.max(data.spotCount, 1)), [data.spotCount]);
   const dotCSS = useMemo(() => buildDotCSS(dots), [dots]);
@@ -114,14 +163,18 @@ export function SocioCard({ uid, displayName, memberships }: Props) {
     setIsHovering(false);
   }, []);
 
+  // トースト自動消去
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   // ─── 保存 & シェア ────────────────────────────────────────────────────────
 
+  // 「カードを保存」: カード表面を PNG でダウンロード
   const handleSave = useCallback(async () => {
     if (!cardRef.current) return;
-    // 裏面表示中は表面に戻してからキャプチャ
-    const wasFlipped = isFlipped;
-    if (wasFlipped) setIsFlipped(false);
-    await new Promise((r) => setTimeout(r, 320));
     try {
       const blob = await captureCardAsPng(cardRef.current);
       const url = URL.createObjectURL(blob);
@@ -130,39 +183,18 @@ export function SocioCard({ uid, displayName, memberships }: Props) {
       a.download = "spot-socio-card.png";
       a.click();
       URL.revokeObjectURL(url);
-    } finally {
-      if (wasFlipped) setIsFlipped(true);
+    } catch (err) {
+      console.error("[SocioCard] save failed:", err);
+      setToast({ message: "画像の保存に失敗しました。", ok: false });
     }
-  }, [isFlipped]);
+  }, []);
 
-  const handleShare = useCallback(async () => {
-    if (!cardRef.current) return;
-    const wasFlipped = isFlipped;
-    if (wasFlipped) setIsFlipped(false);
-    await new Promise((r) => setTimeout(r, 320));
-    try {
-      const blob = await captureCardAsPng(cardRef.current);
-      const file = new File([blob], "spot-socio-card.png", { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "SPOT SOCIO CARD",
-          text: buildShareText(data),
-        });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "spot-socio-card.png";
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-    } catch {
-      // キャンセルは無視
-    } finally {
-      if (wasFlipped) setIsFlipped(true);
-    }
-  }, [isFlipped, data]);
+  // 「リンクをコピー」: SPOTの公開ページURLをコピー
+  const handleShare = useCallback(() => {
+    legacyCopy(`${shareContent.text}\n${shareContent.url}`, (msg) => {
+      setToast({ message: msg, ok: msg.includes("コピーしました") });
+    });
+  }, [shareContent]);
 
   // ─── tiltのY回転 + flip回転を合成 ────────────────────────────────────────
 
@@ -172,7 +204,7 @@ export function SocioCard({ uid, displayName, memberships }: Props) {
     : `perspective(900px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY + flipY}deg)`;
 
   return (
-    <div className="space-y-4">
+    <div className="relative space-y-4">
       <style>{dotCSS}</style>
 
       {/* tilt + flip コンテナ */}
@@ -259,8 +291,24 @@ export function SocioCard({ uid, displayName, memberships }: Props) {
                   {data.spotCount}
                   <span className="ml-1.5 font-semibold text-white/50" style={{ fontSize: 13, letterSpacing: "0.15em" }}>{spotsLabel}</span>
                 </div>
-                <div className="mt-2 truncate font-semibold text-white/80" style={{ fontSize: 13, letterSpacing: "0.04em" }}>
-                  {displayName}
+                <div className="mt-2 flex items-center gap-2 min-w-0">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt=""
+                      className="h-6 w-6 shrink-0 rounded-full object-cover"
+                      style={{ border: "1px solid rgba(255,255,255,0.2)" }}
+                    />
+                  ) : (
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="rgba(255,255,255,0.5)">
+                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                      </svg>
+                    </div>
+                  )}
+                  <div className="truncate font-semibold text-white/80" style={{ fontSize: 13, letterSpacing: "0.04em" }}>
+                    {displayName}
+                  </div>
                 </div>
               </div>
               <div className="shrink-0 rounded-[8px] bg-white p-1.5">
@@ -336,11 +384,31 @@ export function SocioCard({ uid, displayName, memberships }: Props) {
         {isFlipped ? "タップして表面に戻す" : "タップして裏面を見る"}
       </p>
 
+      {/* トースト通知 */}
+      <div
+        aria-live="polite"
+        className={`pointer-events-none absolute inset-x-0 -top-12 flex justify-center transition-all duration-300 ${
+          toast ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+        }`}
+      >
+        {toast ? (
+          <span
+            className={`rounded-full px-4 py-2 text-xs font-semibold shadow-md ${
+              toast.ok
+                ? "bg-[#355746] text-white"
+                : "bg-red-600 text-white"
+            }`}
+          >
+            {toast.message}
+          </span>
+        ) : null}
+      </div>
+
       {/* アクションボタン */}
       <div className="flex gap-3">
         <button
           type="button"
-          onClick={handleSave}
+          onClick={() => { void handleSave(); }}
           className="flex-1 rounded-full border border-ink/15 bg-white py-2.5 text-sm font-semibold text-ink transition hover:bg-sand active:scale-[0.98]"
         >
           カードを保存
@@ -350,7 +418,7 @@ export function SocioCard({ uid, displayName, memberships }: Props) {
           onClick={handleShare}
           className="flex-1 rounded-full bg-moss py-2.5 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.98]"
         >
-          シェアする
+          リンクをコピー
         </button>
       </div>
     </div>
