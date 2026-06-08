@@ -524,7 +524,7 @@ export function SettingsPageClient() {
 
       <section className="panel px-6 py-8 sm:px-8">
         <span className="chip">MEMBERSHIP</span>
-        <h2 className="mt-4 text-2xl font-bold text-ink">メンバーシップ管理</h2>
+        <h2 className="mt-4 text-2xl font-bold text-ink">サポーターシップ管理</h2>
         <p className="mt-4 text-sm leading-7 text-ink/62">
           プラン・支払い方法の変更や解約はこちらで管理できます。
         </p>

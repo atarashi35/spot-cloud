@@ -550,7 +550,7 @@ export function OwnerConsoleClient() {
               {/* セカンダリリンク（低頻度） */}
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <a href={`/manage/${spot.id}/socios`} className="text-xs text-ink/45 hover:text-ink transition-colors">
-                  メンバー一覧{revenue ? `（${socioCount}人）` : ""}
+                  サポーター一覧{revenue ? `（${socioCount}人）` : ""}
                 </a>
                 <span className="text-ink/20">·</span>
                 <Link href={`/owner/spots/${spot.id}/edit`} className="text-xs text-ink/45 hover:text-ink transition-colors">

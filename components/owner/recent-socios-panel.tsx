@@ -102,9 +102,9 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref }: Pro
   if (!recents || recents.length === 0) {
     return (
       <div className="mt-5 rounded-[16px] border border-dashed border-ink/15 px-5 py-5">
-        <div className="text-sm font-semibold text-ink/60">まだメンバーがいません</div>
+        <div className="text-sm font-semibold text-ink/60">まだサポーターがいません</div>
         <p className="mt-1 text-xs leading-6 text-ink/45">
-          QRコードを共有して、最初のメンバーを募集しましょう。
+          QRコードを共有して、最初のサポーターを募集しましょう。
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <a href={spotShareHref} className="cta-secondary text-xs">
@@ -123,7 +123,7 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref }: Pro
       <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">
         応援してくれている人
       </div>
-      <p className="mt-0.5 text-[11px] text-ink/35">最近新しくメンバーになった方</p>
+      <p className="mt-0.5 text-[11px] text-ink/35">最近新しくサポーターになった方</p>
 
       <div className="mt-3 space-y-2.5">
         {recents.map((m, i) => (
@@ -131,7 +131,7 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref }: Pro
             <InitialAvatar name={m.displayName} index={i} />
             <div className="min-w-0">
               <div className="text-sm font-semibold text-ink leading-none truncate">
-                {m.displayName?.trim() || "メンバー"}
+                {m.displayName?.trim() || "サポーター"}
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-ink/45">
                 {m.occupation ? <span>{m.occupation}</span> : null}
@@ -152,7 +152,7 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref }: Pro
         href={`/manage/${spotId}/socios`}
         className="mt-4 block text-xs font-semibold text-ink/40 underline-offset-2 hover:text-ink/70 transition-colors"
       >
-        メンバー全員を見る →
+        サポーター全員を見る →
       </Link>
     </div>
   );

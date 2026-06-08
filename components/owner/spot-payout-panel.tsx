@@ -303,12 +303,12 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
             )}
             <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/60">
               {ready
-                ? "メンバー募集を開始できます。会費はプラットフォームが決済し、売上は登録口座へ振り込まれます。"
+                ? "サポーター募集を開始できます。会費はプラットフォームが決済し、売上は登録口座へ振り込まれます。"
                 : inReview
                 ? "本人確認の審査が行われています。通常 3〜4 営業日で完了します。"
                 : !connected
-                ? "メンバー募集を始めるには、Stripe で本人確認と振込口座の登録が必要です。"
-                : "以下のステップを完了してメンバー募集を開始しましょう。"}
+                ? "サポーター募集を始めるには、Stripe で本人確認と振込口座の登録が必要です。"
+                : "以下のステップを完了してサポーター募集を開始しましょう。"}
             </p>
           </div>
           <StatusBadge tone={ready ? "success" : inReview ? "warning" : "danger"}>
@@ -384,9 +384,9 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
       <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-6">
         {ready ? (
           <div className="space-y-3">
-            <p className="text-sm font-semibold text-ink">メンバー募集を開始できます</p>
+            <p className="text-sm font-semibold text-ink">サポーター募集を開始できます</p>
             <p className="text-sm leading-7 text-ink/60">
-              追加の操作は不要です。SPOT の公開設定を確認してメンバーを募集しましょう。
+              追加の操作は不要です。SPOT の公開設定を確認してサポーターを募集しましょう。
             </p>
           </div>
         ) : disabledReasonLabel ? (

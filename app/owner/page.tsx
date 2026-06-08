@@ -14,19 +14,19 @@ const GRID_BG = {
 
 const values = [
   {
-    eyebrow: "メンバーが集まる",
+    eyebrow: "サポーターが集まる",
     title: "応援者を\n集められます。",
     body: "月100円から参加できる仕組みで、あなたの居場所を長く支えてくれる人を募れます。",
   },
   {
     eyebrow: "一緒につくる",
     title: "参加者と\n活動を育てられます。",
-    body: "アンケートや意見募集を通して、メンバーの声を活動に活かせます。",
+    body: "アンケートや意見募集を通して、サポーターの声を活動に活かせます。",
   },
   {
     eyebrow: "続けられる",
     title: "関係を\n継続できます。",
-    body: "イベントやお知らせで定期的につながり、メンバーとの距離を縮め続けられます。",
+    body: "イベントやお知らせで定期的につながり、サポーターとの距離を縮め続けられます。",
   },
 ];
 
@@ -37,10 +37,10 @@ const steps = [
   },
   {
     title: "受取設定を行う",
-    body: "受取口座の設定です。完了後、メンバー募集を本番公開できます。",
+    body: "受取口座の設定です。完了後、サポーター募集を本番公開できます。",
   },
   {
-    title: "メンバーを募集する",
+    title: "サポーターを募集する",
     body: "月額100円・300円・500円のプランで参加者を募り、活動を一緒に育てていきます。",
   },
 ];
@@ -77,7 +77,7 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     q: "利用料金はかかりますか？",
     a: (
       <span>
-        SPOTの登録・公開は無料です。メンバーから支援を受けた場合のみ、
+        SPOTの登録・公開は無料です。サポーターから支援を受けた場合のみ、
         <ul className="mt-2 space-y-1 pl-1">
           <li>・Stripe 決済手数料　3.6%</li>
           <li>・SPOT 利用料　決済手数料控除後の<strong className="text-ink/80">純額の 10%</strong></li>
@@ -87,15 +87,15 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     ),
   },
   {
-    q: "メンバーの月額金額は？",
-    a: "月100円・300円・500円の3プランです。どのプランでも、メンバーは1票を持ちます。",
+    q: "サポーターの月額金額は？",
+    a: "月100円・300円・500円の3プランです。どのプランでも、サポーターは1票を持ちます。",
   },
   {
     q: "どんな団体が利用できますか？",
     a: "カフェ、個人店、教室、文化施設、スポーツ団体、地域団体、神社仏閣など幅広くご利用いただけます。",
   },
   {
-    q: "メンバーと何ができますか？",
+    q: "サポーターと何ができますか？",
     a: "限定投稿、イベント、アンケート、意見募集などを通じて、参加者と活動を一緒に育てられます。",
   },
 ];
@@ -137,7 +137,7 @@ export default function OwnerPage() {
             <span className="hero-gradient-text block">居場所をつくる。</span>
           </h1>
           <p className="mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
-            月100円のメンバーと共に、<br />
+            月100円のサポーターと共に、<br />
             活動を育てていくためのSPOT。
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
@@ -166,7 +166,7 @@ export default function OwnerPage() {
           </p>
           <p className="mt-5 max-w-xl text-sm leading-8 text-ink/65 sm:text-[15px]">
             SNSでは埋もれる。ホームページでは届かない。<br />
-            SPOTは、月100円から参加できるメンバーコミュニティを
+            SPOTは、月100円から参加できるサポーターコミュニティを
             あなたの居場所に作ります。
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -191,7 +191,7 @@ export default function OwnerPage() {
       <PageShell>
         <div className="mb-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">WHAT YOU CAN DO</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">メンバーと共に育てる、3つのこと。</h2>
+          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">サポーターと共に育てる、3つのこと。</h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           {values.map((v) => (
@@ -276,12 +276,12 @@ export default function OwnerPage() {
             ))}
           </div>
           <p className="mt-4 text-xs leading-6 text-ink/40">
-            手数料はメンバーの決済が発生した場合のみ。固定費・月額費用はかかりません。
+            手数料はサポーターの決済が発生した場合のみ。固定費・月額費用はかかりません。
           </p>
 
           {/* 振込額 */}
           <div className="mt-8 border-t border-ink/8 pt-7">
-            <p className="text-sm font-semibold text-ink">メンバー1人あたりの振込額（目安）</p>
+            <p className="text-sm font-semibold text-ink">サポーター1人あたりの振込額（目安）</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {[
                 { from: "¥100", to: "約 ¥87" },
@@ -326,7 +326,7 @@ export default function OwnerPage() {
             <div className="px-8 py-10 sm:px-10 sm:py-14">
               <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">IF 100 SOCIOS</div>
               <p className="mt-5 text-base font-semibold text-white/70">
-                100人のメンバーがいると。
+                100人のサポーターがいると。
               </p>
               <div className="mt-6 space-y-4">
                 <div>
@@ -387,7 +387,7 @@ export default function OwnerPage() {
               まず、居場所をひとつ登録する。
             </h2>
             <p className="mt-4 text-sm leading-7 text-white/55">
-              登録は無料。受取設定を完了すると、メンバー募集を本番公開できます。
+              登録は無料。受取設定を完了すると、サポーター募集を本番公開できます。
             </p>
             <div className="mt-8 flex justify-center">
               <Link

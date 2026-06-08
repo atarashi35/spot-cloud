@@ -68,8 +68,8 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
-            title="このお知らせはメンバー限定です"
-            description="加入済みメンバーのみ閲覧できます。"
+            title="このお知らせはサポーター限定です"
+            description="加入済みサポーターのみ閲覧できます。"
           />
           <Link href={`/spots/${spotId}/join`} className="cta-primary mt-6">
             加入ページへ

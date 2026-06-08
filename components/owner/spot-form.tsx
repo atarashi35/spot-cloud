@@ -543,12 +543,12 @@ export function SpotForm(props: SpotFormProps) {
         />
       </div>
 
-      {/* メンバー特典 */}
+      {/* サポーター特典 */}
       <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
         <div>
-          <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">メンバー特典（任意）</p>
+          <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">サポーター特典（任意）</p>
           <p className="mt-1 text-xs leading-5 text-ink/40">
-            各プランの特典を入力すると、メンバー加入画面に表示されます。<br />
+            各プランの特典を入力すると、サポーター加入画面に表示されます。<br />
             全員同じ内容でも、金額によって傾斜をつけても構いません。
           </p>
         </div>
