@@ -62,6 +62,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
   const [signupModalOpen, setSignupModalOpen] = useState(false);
   const [emailJoinPlan, setEmailJoinPlan] = useState<PlanAmount | null>(null);
+  const [showOwnerCta, setShowOwnerCta] = useState(false);
 
   async function loadSpotDetail(currentUser = user) {
     const nextSpot = await getSpotFromFirestore(spotId).catch((e: unknown) => { throw Object.assign(e as Error, { _step: "getSpot" }); });
@@ -211,6 +212,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
         const currentMembership = await getUserMembership(currentUser.uid, spotId);
         if (currentMembership) {
+          setShowOwnerCta(true);
           router.replace(`/spots/${spotId}`);
           return;
         }
@@ -276,6 +278,26 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
 
+      {showOwnerCta && (
+        <div className="flex items-center justify-between gap-4 rounded-[20px] border border-moss/20 bg-moss/8 px-5 py-4">
+          <p className="text-sm font-medium text-ink">
+            あなたもSPOTを作りませんか？
+          </p>
+          <div className="flex shrink-0 items-center gap-3">
+            <Link href="/owner" className="cta-primary text-sm">
+              SPOTを作る
+            </Link>
+            <button
+              type="button"
+              className="text-xs text-ink/45 hover:text-ink"
+              onClick={() => setShowOwnerCta(false)}
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
       <section className="panel overflow-hidden">
         <div className="relative h-64 w-full">
           {spot.coverImageUrl ? (
@@ -292,6 +314,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             <div className={`h-full w-full bg-gradient-to-br ${spot.coverTone}`} />
           )}
         </div>
+        {/* ── ヘッダー + CTA グリッド ─────────────────────────────────── */}
         <div className="grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
             <div className="flex flex-wrap items-center gap-3">
@@ -299,12 +322,11 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <SocioRankBadge socioCount={spot.socioCount} />
             </div>
             <h1 className="mt-4 text-3xl font-bold text-ink sm:text-4xl">{spot.name}</h1>
-            <p className="mt-5 max-w-3xl text-sm leading-8 text-ink/72 sm:text-base">{spot.description}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-5 flex flex-wrap gap-3">
               <MetricPill label="ソシオ" value={`${spot.socioCount}人`} />
               <MetricPill label="エリア" value={`${spot.prefecture}${spot.city ? ` / ${spot.city}` : ""}`} />
             </div>
-            <div className="mt-6 flex items-center gap-2 text-sm text-ink/62">
+            <div className="mt-5 flex items-center gap-2 text-sm text-ink/62">
               <MapPin className="h-4 w-4 shrink-0" />
               <a
                 href={`https://maps.google.com/maps?q=${encodeURIComponent(spot.address)}`}
@@ -453,6 +475,20 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           </aside>
         </div>
       </section>
+
+      {/* ── 紹介文 ───────────────────────────────────────────────────── */}
+      {spot.description ? (
+        <section className="panel px-6 py-8 sm:px-10 sm:py-10">
+          <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">ABOUT</p>
+          <div className="mt-5 max-w-3xl space-y-5">
+            {spot.description.split(/\n{2,}/).map((para, i) => (
+              <p key={i} className="text-sm leading-7 text-ink/65 sm:text-[15px] sm:leading-8">
+                {para.replace(/\n/g, " ")}
+              </p>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {/* ── ギャラリー ───────────────────────────────────────────────── */}
       {spot.galleryImageUrls && spot.galleryImageUrls.length > 0 && (
