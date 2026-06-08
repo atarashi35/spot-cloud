@@ -343,7 +343,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             </div>
             <h1 className="mt-4 text-3xl font-bold text-ink sm:text-4xl">{spot.name}</h1>
             <div className="mt-5 flex flex-wrap gap-3">
-              <MetricPill label="ソシオ" value={`${spot.socioCount}人`} />
+              <MetricPill label="メンバー" value={`${spot.socioCount}人`} />
               <MetricPill label="エリア" value={`${spot.prefecture}${spot.city ? ` / ${spot.city}` : ""}`} />
             </div>
             <div className="mt-5 flex items-center gap-2 text-sm text-ink/62">
@@ -404,7 +404,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <>
                 <h2 className="text-xl font-bold text-ink">運営中のSPOT</h2>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <StatusBadge tone="success">ソシオ限定を表示中</StatusBadge>
+                  <StatusBadge tone="success">メンバー限定を表示中</StatusBadge>
                 </div>
                 <Link href="/manage" className="cta-secondary mt-5 w-full">
                   管理画面へ
@@ -450,7 +450,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
                 {canAcceptMembership ? (
                   <button type="button" className="cta-primary mt-5 w-full" onClick={() => setSignupModalOpen(true)}>
-                    ソシオになる
+                    メンバーになる
                   </button>
                 ) : (
                   <div className="mt-5 rounded-[20px] bg-white px-4 py-4 text-sm text-ink/65">
@@ -479,7 +479,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 ) : (
                   <div className="inline-flex items-center gap-2 self-start rounded-full bg-moss/10 px-3 py-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-moss" />
-                    <span className="text-xs font-semibold text-moss">最初のソシオを募集中</span>
+                    <span className="text-xs font-semibold text-moss">最初のメンバーを募集中</span>
                   </div>
                 )}
 
@@ -508,7 +508,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     className="cta-primary w-full"
                     onClick={() => setSignupModalOpen(true)}
                   >
-                    ソシオになる
+                    メンバーになる
                   </button>
                 </div>
               </div>
@@ -584,7 +584,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                             <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">MEMBERS ONLY</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
-                                ソシオになる
+                                メンバーになる
                               </button>
                             )}
                           </div>
@@ -642,7 +642,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                             <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">MEMBERS ONLY</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
-                                ソシオになる
+                                メンバーになる
                               </button>
                             )}
                           </div>

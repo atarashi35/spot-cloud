@@ -62,7 +62,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
     return (
       <EmptyState
         title="このページはログイン後に利用できます"
-        description="Google ログイン後に、加入済み SPOT のソシオ限定の内容を確認できます。"
+        description="Google ログイン後に、加入済み SPOT のメンバー限定の内容を確認できます。"
       />
     );
   }
@@ -83,7 +83,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
-            title="このページはソシオ限定です"
+            title="このページはメンバー限定です"
             description="加入済みユーザーのみ閲覧可能です。まずは 100円 / 300円 / 500円 のいずれかで所属してください。"
           />
           <Link href={`/spots/${spot.id}/join`} className="cta-primary mt-6">
@@ -125,7 +125,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
             {posts.length === 0 ? (
               <EmptyState
                 title="まだお知らせはありません"
-                description="最初のお知らせを作成すると、このエリアにソシオ向けの告知が表示されます。"
+                description="最初のお知らせを作成すると、このエリアにメンバー向けの告知が表示されます。"
               />
             ) : (
               posts.map((post) => (

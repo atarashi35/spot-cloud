@@ -188,11 +188,11 @@ export function SpotMapPage() {
               <h1 className="hero-animate-2 mt-6 text-[clamp(2.6rem,8vw,5.5rem)] font-bold leading-[1.08] tracking-tight">
                 <span className="block text-white/90">月100円で</span>
                 <span className="block text-white/90">好きな居場所の</span>
-                <span className="hero-gradient-text block">ソシオになる。</span>
+                <span className="hero-gradient-text block">メンバーになる。</span>
               </h1>
 
               <p className="hero-animate-3 mt-6 text-[15px] leading-relaxed text-white/70 sm:text-base">
-                ソシオ = 月額100円から参加できる応援メンバー
+                月額100円から参加できる、応援メンバー（ソシオ）
               </p>
 
               <div className="hero-animate-4 mt-10 flex flex-wrap items-center gap-3">
@@ -238,7 +238,7 @@ export function SpotMapPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           {[
             { label: "SPOT とは？", body: "場所やコミュニティが作るページ。\nカフェ・サークル・地域団体など、\nあらゆる「居場所」が登録できます。" },
-            { label: "ソシオとは？", body: "月100円から参加できる、\n新しい参加のかたち。\n金額に関わらず、\nすべてのソシオが1票を持ちます。" },
+            { label: "メンバーとは？", body: "月100円から参加できる、\n新しい参加のかたち。\n金額に関わらず、\nすべてのメンバーが1票を持ちます。" },
             { label: "なにができる？", body: "イベントに参加したり、\nアンケートや意見を通して、\nその場所を一緒につくっていけます。" },
           ].map(({ label, body }) => (
             <div key={label} className="flex flex-col rounded-[24px] border border-ink/8 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(19,35,28,0.07)]">
@@ -394,7 +394,7 @@ export function SpotMapPage() {
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR OWNERS</div>
           <p className="mt-2 text-base font-bold text-ink">あなたのSPOTを登録しませんか？</p>
           <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/55">
-            カフェ・サークル・地域活動など、ソシオを集める場所として公開できます。
+            カフェ・サークル・地域活動など、メンバーを集める場所として公開できます。
           </p>
           <Link href="/owner" className="cta-primary mt-5 inline-flex">
             SPOTを登録する

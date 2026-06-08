@@ -138,7 +138,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
         onClick={() => setOpen((p) => !p)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold tracking-[0.18em] text-ink/55">ソシオ一覧</span>
+          <span className="text-xs font-semibold tracking-[0.18em] text-ink/55">メンバー一覧</span>
           {members !== null ? (
             <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-ink/70">
               {payingCount}人
@@ -194,7 +194,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
               <p className="text-sm text-red-700">{error}</p>
             ) : displayed.length === 0 ? (
               <p className="text-sm text-ink/50">
-                {filter === "paying" ? "現在加入中のソシオはいません。" : "まだソシオはいません。"}
+                {filter === "paying" ? "現在加入中のメンバーはいません。" : "まだメンバーはいません。"}
               </p>
             ) : (
               <div className="space-y-2">

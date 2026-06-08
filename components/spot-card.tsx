@@ -59,7 +59,7 @@ export function SpotCard({ spot }: { spot: Spot }) {
           </div>
           <div className="flex items-center justify-end gap-2">
             <span className="text-2xl font-bold tabular-nums text-ink">{spot.socioCount}</span>
-            <span className="text-ink/55">人のソシオ</span>
+            <span className="text-ink/55">人のメンバー</span>
           </div>
         </div>
       </div>

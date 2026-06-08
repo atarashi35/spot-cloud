@@ -249,7 +249,7 @@ export function SocioSignupModal({
             {/* ─── Step: login ─────────────────────────────── */}
             {step === "login" ? (
               <>
-                <h2 className="mt-5 text-3xl font-bold text-ink">ソシオ登録</h2>
+                <h2 className="mt-5 text-3xl font-bold text-ink">メンバー登録<span className="ml-2 text-base font-normal text-ink/40">（ソシオ）</span></h2>
                 <p className="mt-2 text-sm text-ink/58">
                   加入にはアカウントが必要です。ログインまたは新規登録してください。
                 </p>
