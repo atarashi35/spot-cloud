@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { updateProfile } from "firebase/auth";
 import { Mail, MapPin, Phone } from "lucide-react";
@@ -63,6 +63,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [signupModalOpen, setSignupModalOpen] = useState(false);
   const [emailJoinPlan, setEmailJoinPlan] = useState<PlanAmount | null>(null);
   const [showOwnerCta, setShowOwnerCta] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(false);
+  const mainCtaRef = useRef<HTMLElement>(null);
 
   async function loadSpotDetail(currentUser = user) {
     const nextSpot = await getSpotFromFirestore(spotId).catch((e: unknown) => { throw Object.assign(e as Error, { _step: "getSpot" }); });
@@ -143,6 +145,18 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       sessionStorage.removeItem(EMAIL_JOIN_PENDING_KEY);
     }
   }, [authReady, user?.uid, spotId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // メインCTAが画面外に出たらスティッキーバーを表示
+  useEffect(() => {
+    const el = mainCtaRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setCtaVisible(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [status]);
 
   useEffect(() => {
     if (searchParams.get("signup") !== "1") return;
@@ -267,9 +281,15 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   );
   const canAcceptMembership = Boolean(spot.stripeConnectedAccountId);
   const useRawCoverImage = spot.coverImageUrl ? isSvgAssetUrl(spot.coverImageUrl) : false;
+  const showStickyJoin =
+    ctaVisible &&
+    !isOwner &&
+    canAcceptMembership &&
+    membershipStatus !== "active" &&
+    membershipStatus !== "canceling";
 
   return (
-    <div className="space-y-8">
+    <div className={`space-y-8 ${showStickyJoin ? "pb-24" : ""}`}>
       <SocioSignupModal
         spot={spot}
         open={signupModalOpen}
@@ -379,7 +399,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
             ) : null}
           </div>
-          <aside className="flex flex-col rounded-[28px] bg-mist p-5">
+          <aside ref={mainCtaRef} className="flex flex-col rounded-[28px] bg-mist p-5">
             {isOwner ? (
               <>
                 <h2 className="text-xl font-bold text-ink">運営中のSPOT</h2>
@@ -446,31 +466,52 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
               </>
             ) : (
-              <>
-                <h2 className="text-xl font-bold text-ink">ソシオになる</h2>
+              <div className="flex h-full flex-col">
+                {/* ソシオ数 or 募集中バッジ */}
                 {spot.socioCount > 0 ? (
-                  <div className="mt-4">
-                    <p className="text-4xl font-bold tabular-nums text-ink">{spot.socioCount}
-                      <span className="ml-1.5 text-base font-normal text-ink/45">人が応援中</span>
+                  <div>
+                    <p className="text-[11px] font-semibold tracking-[0.18em] text-ink/40">SOCIOS</p>
+                    <p className="mt-1 text-5xl font-bold tabular-nums leading-none text-ink">
+                      {spot.socioCount}
+                      <span className="ml-2 text-base font-normal text-ink/45">人が応援中</span>
                     </p>
                   </div>
-                ) : null}
-                <ul className="mt-4 space-y-2">
+                ) : (
+                  <div className="inline-flex items-center gap-2 self-start rounded-full bg-moss/10 px-3 py-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-moss" />
+                    <span className="text-xs font-semibold text-moss">最初のソシオを募集中</span>
+                  </div>
+                )}
+
+                {/* 区切り */}
+                <div className="my-5 border-t border-ink/8" />
+
+                {/* ベネフィット */}
+                <ul className="space-y-2.5">
                   {[
                     "限定のお知らせが読める",
                     "限定イベントに参加できる",
                     "このSPOTの活動を支える",
                   ].map((text) => (
-                    <li key={text} className="flex items-center gap-2 text-sm text-ink/65">
-                      <span className="text-ink/30">—</span>
+                    <li key={text} className="flex items-center gap-2.5 text-sm text-ink/65">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-ink/8 text-[9px] font-bold text-ink/40">✓</span>
                       {text}
                     </li>
                   ))}
                 </ul>
-                <button type="button" className="cta-primary mt-5 w-full" onClick={() => setSignupModalOpen(true)}>
-                  ソシオになる
-                </button>
-              </>
+
+                {/* 価格 + ボタン */}
+                <div className="mt-auto pt-5">
+                  <p className="mb-3 text-center text-xs text-ink/40">月額 100円 〜</p>
+                  <button
+                    type="button"
+                    className="cta-primary w-full"
+                    onClick={() => setSignupModalOpen(true)}
+                  >
+                    ソシオになる
+                  </button>
+                </div>
+              </div>
             )}
           </aside>
         </div>
@@ -626,6 +667,23 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         isOwner={isOwner}
         onSignupClick={() => setSignupModalOpen(true)}
       />
+
+      {/* ── スティッキー ソシオになるCTA ─────────────────────────────── */}
+      {showStickyJoin && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
+            <p className="text-xs text-ink/50">月100円から参加できます</p>
+          </div>
+          <button
+            type="button"
+            className="cta-primary shrink-0"
+            onClick={() => setSignupModalOpen(true)}
+          >
+            ソシオになる
+          </button>
+        </div>
+      )}
     </div>
   );
 }
