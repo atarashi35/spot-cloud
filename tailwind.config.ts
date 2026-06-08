@@ -19,8 +19,8 @@ const config: Config = {
         card: "0 20px 50px rgba(0, 0, 0, 0.08)"
       },
       fontFamily: {
-        sans: ["'Outfit'", "'Noto Sans JP'", "sans-serif"],
-        serif: ["'Outfit'", "'Noto Sans JP'", "sans-serif"]
+        sans: ["var(--font-outfit)", "var(--font-noto)", "sans-serif"],
+        serif: ["var(--font-outfit)", "var(--font-noto)", "sans-serif"]
       }
     }
   },

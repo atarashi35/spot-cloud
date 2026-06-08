@@ -1,9 +1,24 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Outfit, Noto_Sans_JP } from "next/font/google";
 import "@/app/globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { AppProviders } from "@/components/providers/app-providers";
 import { SiteHeader } from "@/components/site-header";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-noto",
+  display: "swap",
+});
 
 const GA_ID = "G-ZD364VFSW5";
 
@@ -39,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable}`}>
       <head>
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="gtag-init" strategy="afterInteractive">{`
