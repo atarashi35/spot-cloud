@@ -120,7 +120,7 @@ export function SiteHeader() {
                     <div className="mt-1 text-xs text-ink/55">サポーター</div>
                   </div>
                   <div className="py-2">
-                    <Link href="/#spot-list" className="menu-link" onClick={() => setMenuOpen(false)}>
+                    <Link href="/spots" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <MapPin className="h-4 w-4" />
                       SPOTを探す
                     </Link>

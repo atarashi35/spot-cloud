@@ -79,6 +79,10 @@ export function SpotMapPage() {
 
       {/* ── About ── */}
       <PageShell className="py-14">
+        <div className="mb-6 px-1">
+          <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">ABOUT</div>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">SPOTってなに？</h2>
+        </div>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
             { label: "SPOT とは？", body: "場所やコミュニティが作るページ。\nカフェ・サークル・地域団体など、\nあらゆる「居場所」が登録できます。" },
@@ -86,8 +90,7 @@ export function SpotMapPage() {
             { label: "なにができる？", body: "イベントに参加したり、\nアンケートや意見を通して、\nその場所を一緒につくっていけます。" },
           ].map(({ label, body }) => (
             <div key={label} className="flex flex-col rounded-[24px] border border-ink/8 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(19,35,28,0.07)]">
-              <div className="text-[10px] font-semibold tracking-[0.22em] text-ink/38">ABOUT</div>
-              <h3 className="mt-2 text-base font-bold text-ink">{label}</h3>
+              <h3 className="text-base font-bold text-ink">{label}</h3>
               <p className="mt-3 flex-1 whitespace-pre-line text-sm leading-[2] text-ink/58">{body}</p>
             </div>
           ))}
@@ -96,20 +99,20 @@ export function SpotMapPage() {
 
       {/* ── カウンター ── */}
       {spots && (spots.length > 0 || spots.reduce((sum, s) => sum + s.socioCount, 0) > 0) && (
-        <PageShell className="pb-2">
-          <div className="flex items-center justify-center gap-8 rounded-[24px] border border-ink/8 bg-white px-8 py-6 sm:gap-16">
+        <PageShell className="py-10">
+          <div className="flex items-center justify-center gap-16 sm:gap-28">
             <div className="text-center">
-              <div className="text-[11px] font-semibold tracking-[0.22em] text-ink/38">SPOTS</div>
-              <div className="mt-1 text-4xl font-bold tabular-nums text-ink">{spots.length}</div>
-              <div className="mt-1 text-xs text-ink/45">参加中</div>
+              <div className="text-[10px] font-bold tracking-[0.3em] text-ink/35">SPOTS</div>
+              <div className="mt-1 text-[clamp(3.5rem,10vw,6rem)] font-bold leading-none tabular-nums text-ink">{spots.length}</div>
+              <div className="mt-2 text-[11px] font-semibold tracking-[0.15em] text-ink/40">参加中</div>
             </div>
-            <div className="h-10 w-px bg-ink/10" />
+            <div className="h-16 w-px bg-ink/12" />
             <div className="text-center">
-              <div className="text-[11px] font-semibold tracking-[0.22em] text-ink/38">SUPPORTERS</div>
-              <div className="mt-1 text-4xl font-bold tabular-nums text-ink">
+              <div className="text-[10px] font-bold tracking-[0.3em] text-ink/35">SUPPORTERS</div>
+              <div className="mt-1 text-[clamp(3.5rem,10vw,6rem)] font-bold leading-none tabular-nums text-ink">
                 {spots.reduce((sum, s) => sum + s.socioCount, 0)}
               </div>
-              <div className="mt-1 text-xs text-ink/45">人のサポーター</div>
+              <div className="mt-2 text-[11px] font-semibold tracking-[0.15em] text-ink/40">人のサポーター</div>
             </div>
           </div>
         </PageShell>
