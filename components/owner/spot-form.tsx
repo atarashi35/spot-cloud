@@ -341,14 +341,17 @@ export function SpotForm(props: SpotFormProps) {
 
   return (
     <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-      <input
-        className="field"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        placeholder="SPOT名"
-        required
-        aria-invalid={!!error && !name.trim() ? true : undefined}
-      />
+      <div>
+        <input
+          className="field"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="SPOT名"
+          required
+          aria-invalid={!!error && !name.trim() ? true : undefined}
+        />
+        <p className="mt-1.5 text-xs text-ink/45">※お店・屋号・団体名・プロジェクト名など</p>
+      </div>
       <select
         className="field"
         value={category}

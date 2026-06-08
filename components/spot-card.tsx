@@ -1,19 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Users } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { SocioRankBadge } from "@/components/ui/socio-rank-badge";
 import { Spot } from "@/lib/types";
 import { isSvgAssetUrl } from "@/lib/utils";
 
+const NEW_BADGE_MONTHS = 3;
+
+function isNewSpot(createdAt: string): boolean {
+  const created = new Date(createdAt);
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - NEW_BADGE_MONTHS);
+  return created > cutoff;
+}
+
 export function SpotCard({ spot }: { spot: Spot }) {
   const useRawImage = spot.coverImageUrl ? isSvgAssetUrl(spot.coverImageUrl) : false;
+  const showNewBadge = isNewSpot(spot.createdAt);
 
   return (
     <Link
       href={`/spots/${spot.id}`}
       className="panel block overflow-hidden transition hover:-translate-y-0.5 hover:border-ink/15 hover:shadow-[0_18px_50px_rgba(19,35,28,0.08)] focus:outline-none focus:ring-2 focus:ring-moss/25"
     >
-      {/* カバー画像: next/image でリサイズ・WebP・lazy load を自動適用 */}
       <div className="relative h-44 w-full">
         {spot.coverImageUrl ? (
           <Image
@@ -26,6 +35,11 @@ export function SpotCard({ spot }: { spot: Spot }) {
           />
         ) : (
           <div className={`h-full w-full bg-gradient-to-br ${spot.coverTone}`} />
+        )}
+        {showNewBadge && (
+          <span className="absolute left-3 top-3 rounded-full bg-moss px-3 py-1 text-[11px] font-bold tracking-widest text-white uppercase">
+            NEW
+          </span>
         )}
       </div>
       <div className="space-y-4 p-5">
@@ -43,9 +57,9 @@ export function SpotCard({ spot }: { spot: Spot }) {
             <MapPin className="h-4 w-4" />
             <span>{spot.address}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            <span>{spot.socioCount} 人のソシオ</span>
+          <div className="flex items-center justify-end gap-2">
+            <span className="text-2xl font-bold tabular-nums text-ink">{spot.socioCount}</span>
+            <span className="text-ink/55">人のソシオ</span>
           </div>
         </div>
       </div>

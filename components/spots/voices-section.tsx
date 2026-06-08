@@ -308,8 +308,12 @@ export function VoicesSection({
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    if (!canParticipate && !isOwner) {
+      setLoaded(true);
+      return;
+    }
     void listOpenVotes(spotId).then((v) => { setVotes(v); setLoaded(true); });
-  }, [spotId]);
+  }, [spotId, canParticipate, isOwner]);
 
   const hasContent = votes.length > 0 || opinionBoxEnabled;
   if (loaded && !hasContent) return null;
@@ -354,15 +358,6 @@ export function VoicesSection({
         {!canParticipate && !isOwner && loaded && hasContent && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
             <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">MEMBERS ONLY</p>
-            {canAcceptMembership && (
-              <button
-                type="button"
-                onClick={onSignupClick}
-                className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40"
-              >
-                ソシオになる
-              </button>
-            )}
           </div>
         )}
       </div>
