@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       line_items: [{ price: priceId, quantity: 1 }],
       // {CHECKOUT_SESSION_ID} は Stripe がリダイレクト時に実際の ID に置換する
       success_url: `${origin}/spots/${body.spotId}?checkout=success&sid={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/spots/${body.spotId}/join?checkout=cancel`,
+      cancel_url: `${origin}/spots/${body.spotId}`,
       customer_email: checkoutEmail || undefined,
       subscription_data: {
         // SPOT利用料はStripe手数料控除後の純額に対して PLATFORM_FEE_PERCENT% を課金する設計。
