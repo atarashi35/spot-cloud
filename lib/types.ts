@@ -47,6 +47,12 @@ export type SocialLinks = {
   facebook?: string;
 };
 
+export type PlanBenefits = {
+  100?: string;
+  300?: string;
+  500?: string;
+};
+
 export interface Spot {
   id: string;
   name: string;
@@ -67,6 +73,7 @@ export interface Spot {
   phone?: string;
   email?: string;
   socialLinks?: SocialLinks;
+  planBenefits?: PlanBenefits;
   opinionBoxEnabled?: boolean;
   createdAt: string;
   updatedAt: string;

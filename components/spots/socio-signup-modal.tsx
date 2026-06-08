@@ -394,6 +394,7 @@ export function SocioSignupModal({
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   {planOptions.map((amount) => {
                     const active = amount === planAmount;
+                    const benefit = spot.planBenefits?.[amount];
                     return (
                       <button
                         key={amount}
@@ -405,6 +406,11 @@ export function SocioSignupModal({
                       >
                         <div className="text-[11px] font-semibold tracking-[0.18em] opacity-65">MONTHLY</div>
                         <div className="mt-2 text-4xl font-bold">¥{amount}</div>
+                        {benefit && (
+                          <p className={`mt-2.5 text-xs leading-5 ${active ? "text-white/70" : "text-ink/55"}`}>
+                            {benefit}
+                          </p>
+                        )}
                       </button>
                     );
                   })}

@@ -13,7 +13,7 @@ import {
   where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
-import { Spot, SpotCategory, SocialLinks } from "@/lib/types";
+import { Spot, SpotCategory, SocialLinks, PlanBenefits } from "@/lib/types";
 import { prefecturePattern, slugify, splitAddress, toShortDescription } from "@/lib/utils";
 
 type SpotInput = {
@@ -29,6 +29,7 @@ type SpotInput = {
   phone?: string;
   email?: string;
   socialLinks?: SocialLinks;
+  planBenefits?: PlanBenefits;
 };
 
 const tonePalette = [
@@ -96,6 +97,9 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
     socialLinks: typeof data.socialLinks === "object" && data.socialLinks
       ? (data.socialLinks as SocialLinks)
       : undefined,
+    planBenefits: typeof data.planBenefits === "object" && data.planBenefits
+      ? (data.planBenefits as PlanBenefits)
+      : undefined,
     opinionBoxEnabled: Boolean(data.opinionBoxEnabled),
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
@@ -152,6 +156,7 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
     phone: input.phone ?? "",
     email: input.email ?? "",
     socialLinks: input.socialLinks ?? {},
+    planBenefits: input.planBenefits ?? {},
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
@@ -174,6 +179,7 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     phone: input.phone ?? "",
     email: input.email ?? "",
     socialLinks: input.socialLinks ?? {},
+    planBenefits: input.planBenefits ?? {},
     updatedAt: serverTimestamp()
   });
 }

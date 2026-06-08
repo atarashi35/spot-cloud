@@ -12,7 +12,7 @@ import {
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SpotCategory } from "@/lib/types";
+import { SpotCategory, planOptions, PlanAmount } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -186,6 +186,7 @@ export function SpotForm(props: SpotFormProps) {
   const [twitter, setTwitter] = useState("");
   const [line, setLine] = useState("");
   const [youtube, setYoutube] = useState("");
+  const [planBenefits, setPlanBenefits] = useState<Record<PlanAmount, string>>({ 100: "", 300: "", 500: "" });
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -234,6 +235,11 @@ export function SpotForm(props: SpotFormProps) {
         setTwitter(spot.socialLinks?.twitter ?? "");
         setLine(spot.socialLinks?.line ?? "");
         setYoutube(spot.socialLinks?.youtube ?? "");
+        setPlanBenefits({
+          100: spot.planBenefits?.[100] ?? "",
+          300: spot.planBenefits?.[300] ?? "",
+          500: spot.planBenefits?.[500] ?? "",
+        });
       })
       .catch((cause: Error) => {
         setError(cause.message);
@@ -273,7 +279,12 @@ export function SpotForm(props: SpotFormProps) {
             name, category, address: fullAddress, prefecture,
             city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
             phone: normalizedPhone, email: normalizedEmail,
-            socialLinks: { website, instagram, twitter, line, youtube }
+            socialLinks: { website, instagram, twitter, line, youtube },
+            planBenefits: {
+              ...(planBenefits[100].trim() ? { 100: planBenefits[100].trim() } : {}),
+              ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
+              ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
+            }
           },
           user.uid
         );
@@ -286,7 +297,12 @@ export function SpotForm(props: SpotFormProps) {
         name, category, address: fullAddress, prefecture,
         city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
         phone: normalizedPhone, email: normalizedEmail,
-        socialLinks: { website, instagram, twitter, line, youtube }
+        socialLinks: { website, instagram, twitter, line, youtube },
+        planBenefits: {
+          ...(planBenefits[100].trim() ? { 100: planBenefits[100].trim() } : {}),
+          ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
+          ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
+        }
       });
       router.push("/manage");
       router.refresh();
@@ -525,6 +541,35 @@ export function SpotForm(props: SpotFormProps) {
           placeholder="チャンネル名"
           onChange={(h) => setYoutube(h ? `https://youtube.com/@${h}` : "")}
         />
+      </div>
+
+      {/* メンバー特典 */}
+      <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">メンバー特典（任意）</p>
+          <p className="mt-1 text-xs leading-5 text-ink/40">
+            各プランの特典を入力すると、メンバー加入画面に表示されます。<br />
+            全員同じ内容でも、金額によって傾斜をつけても構いません。
+          </p>
+        </div>
+        {planOptions.map((amount) => (
+          <label key={amount} className="flex items-center gap-3">
+            <span className="w-16 shrink-0 rounded-full bg-ink/8 py-1 text-center text-xs font-bold text-ink/60">
+              ¥{amount}
+            </span>
+            <input
+              className="field text-sm"
+              value={planBenefits[amount]}
+              onChange={(e) => setPlanBenefits((prev) => ({ ...prev, [amount]: e.target.value }))}
+              placeholder={
+                amount === 100 ? "例：限定お知らせが届く" :
+                amount === 300 ? "例：イベント優先案内あり" :
+                "例：コーヒー1杯サービス"
+              }
+              maxLength={40}
+            />
+          </label>
+        ))}
       </div>
 
       <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/68">
