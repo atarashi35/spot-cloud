@@ -1,168 +1,10 @@
 "use client";
 
-import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { LogoAnimation } from "@/components/ui/logo-animation";
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { EmptyState } from "@/components/empty-state";
-import { SpotCard } from "@/components/spot-card";
 import { PageShell } from "@/components/ui/page-shell";
-import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
-import { Spot, SpotCategory } from "@/lib/types";
-
-const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
-  { value: "all", label: "すべて" },
-  { value: "カフェ", label: "カフェ" },
-  { value: "飲食・レストラン", label: "飲食・レストラン" },
-  { value: "バー・居酒屋", label: "バー・居酒屋" },
-  { value: "スポーツ", label: "スポーツ" },
-  { value: "音楽・ライブ", label: "音楽・ライブ" },
-  { value: "アート", label: "アート" },
-  { value: "クリエイター", label: "クリエイター" },
-  { value: "文化施設", label: "文化施設" },
-  { value: "学び・教室", label: "学び・教室" },
-  { value: "ワークスペース", label: "ワークスペース" },
-  { value: "自然・アウトドア", label: "自然・アウトドア" },
-  { value: "市民団体", label: "市民団体" },
-  { value: "商店街", label: "商店街" },
-  { value: "寺社仏閣", label: "寺社仏閣" },
-  { value: "自治会", label: "自治会" },
-  { value: "その他", label: "その他" },
-];
-
-function normalizeText(value: string) {
-  return value.trim().toLocaleLowerCase("ja-JP");
-}
-
-function FilterSelect({
-  value,
-  options,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  options: Array<{ value: string; label: string }>;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const active = options.find((o) => o.value === value) ?? options[0];
-
-  useEffect(() => {
-    if (!open) return;
-    function handlePointerDown(e: MouseEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
-    }
-    function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [open]);
-
-  return (
-    <div ref={rootRef} className="relative flex-1">
-      <button
-        type="button"
-        onClick={() => setOpen((c) => !c)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 rounded-2xl border border-ink/12 bg-white px-4 py-3 text-sm font-medium text-ink/60 transition hover:border-ink/20 hover:text-ink/80"
-      >
-        <span className="truncate">{placeholder && value === "all" ? placeholder : (active?.label ?? "")}</span>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-ink/35 transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-
-      {open ? (
-        <div className="absolute left-0 top-[calc(100%+6px)] z-30 min-w-full overflow-hidden rounded-[20px] border border-white/80 bg-white/95 p-1.5 shadow-[0_24px_54px_rgba(19,35,28,0.14)] backdrop-blur" role="listbox">
-          {options.map((option) => {
-            const selected = option.value === value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                role="option"
-                aria-selected={selected}
-                className={`flex w-full items-center whitespace-nowrap rounded-[14px] px-3 py-2.5 text-left text-sm font-medium transition hover:bg-mist ${selected ? "bg-mist text-ink" : "text-ink/55 hover:text-ink/70"}`}
-                onClick={() => { onChange(option.value); setOpen(false); }}
-              >
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 export function SpotMapPage() {
-  const [spots, setSpots] = useState<Spot[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [keyword, setKeyword] = useState("");
-  const [prefecture, setPrefecture] = useState("all");
-  const [city, setCity] = useState("all");
-  const [category, setCategory] = useState<"all" | SpotCategory>("all");
-  const [showAreaFilter, setShowAreaFilter] = useState(false);
-  const deferredKeyword = useDeferredValue(keyword);
-
-  useEffect(() => {
-    void listPublishedSpotsFromFirestore()
-      .then(setSpots)
-      .catch((cause: Error) => setError(cause.message));
-  }, []);
-
-  const prefectureOptions = useMemo(() => {
-    if (!spots) return [];
-    return Array.from(new Set(spots.map((s) => s.prefecture).filter(Boolean))).sort((a, b) =>
-      a.localeCompare(b, "ja")
-    );
-  }, [spots]);
-
-  const cityOptions = useMemo(() => {
-    if (!spots) return [];
-    const source = prefecture === "all" ? spots : spots.filter((s) => s.prefecture === prefecture);
-    return Array.from(new Set(source.map((s) => s.city).filter(Boolean))).sort((a, b) =>
-      a.localeCompare(b, "ja")
-    );
-  }, [prefecture, spots]);
-
-  const prefectureFilterOptions = useMemo(
-    () => [{ value: "all", label: "都道府県" }, ...prefectureOptions.map((v) => ({ value: v, label: v }))],
-    [prefectureOptions]
-  );
-
-  const cityFilterOptions = useMemo(
-    () => [{ value: "all", label: "市区町村" }, ...cityOptions.map((v) => ({ value: v, label: v }))],
-    [cityOptions]
-  );
-
-  const filteredSpots = useMemo(() => {
-    if (!spots) return [];
-    const normalized = normalizeText(deferredKeyword);
-    return spots.filter((spot) => {
-      const matchesKeyword =
-        normalized.length === 0 ||
-        [spot.name, spot.description, spot.address, spot.city, spot.prefecture]
-          .join(" ")
-          .toLocaleLowerCase("ja-JP")
-          .includes(normalized);
-      return (
-        matchesKeyword &&
-        (prefecture === "all" || spot.prefecture === prefecture) &&
-        (city === "all" || spot.city === city) &&
-        (category === "all" || spot.category === category)
-      );
-    });
-  }, [spots, deferredKeyword, prefecture, city, category]);
-
-  const activeFilterCount = [prefecture !== "all", city !== "all"].filter(Boolean).length;
-
   return (
     <div className="pb-20">
       {/* ── LP Hero ── */}
@@ -196,9 +38,9 @@ export function SpotMapPage() {
               </p>
 
               <div className="hero-animate-4 mt-10 flex flex-wrap items-center gap-3">
-                <a href="#spot-list" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]">
+                <Link href="/spots" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]">
                   SPOTを探す →
-                </a>
+                </Link>
                 <Link href="/owner" className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-moss hover:bg-moss hover:text-white active:scale-[0.97]">
                   SPOTを作る
                 </Link>
@@ -219,18 +61,6 @@ export function SpotMapPage() {
 
           </div>
         </div>
-
-        {/* スクロール誘導矢印 */}
-        <div className="mt-16 flex justify-center">
-          <a href="#spot-list" className="group flex flex-col items-center gap-3 text-white/50 transition hover:text-white">
-            <span className="text-[11px] font-bold tracking-[0.3em]">SCROLL</span>
-            <svg width="32" height="44" viewBox="0 0 32 44" fill="none" className="overflow-visible">
-              <polyline className="scroll-arrow-1" points="3,2 16,14 29,2"  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              <polyline className="scroll-arrow-2" points="3,16 16,28 29,16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              <polyline className="scroll-arrow-3" points="3,30 16,42 29,30" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            </svg>
-          </a>
-        </div>
       </div>
 
       {/* ── About ── */}
@@ -250,146 +80,23 @@ export function SpotMapPage() {
         </div>
       </PageShell>
 
-      {/* ── SPOT一覧 ── */}
-      <div id="spot-list" className="pt-2">
-
-      {/* ── セクションヘッダー ── */}
-      <PageShell className="pb-6">
-        <div className="flex items-end justify-between px-1">
+      {/* ── SPOT一覧へのCTA ── */}
+      <PageShell>
+        <Link
+          href="/spots"
+          className="flex items-center justify-between rounded-[28px] border border-ink/10 bg-white px-8 py-6 transition hover:border-moss hover:shadow-[0_8px_24px_rgba(19,35,28,0.07)]"
+        >
           <div>
             <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">SPOT MAP</div>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-              あなたのSPOTを探す
-            </h2>
+            <p className="mt-1 text-lg font-bold text-ink">SPOTを探す</p>
+            <p className="mt-0.5 text-sm text-ink/50">あなたの居場所を見つけて、サポーターになろう。</p>
           </div>
-          <div className="text-[11px] font-semibold tracking-[0.2em] text-ink/35">
-            {spots ? `${filteredSpots.length} SPOTS` : "···"}
-          </div>
-        </div>
+          <span className="text-2xl text-ink/30">→</span>
+        </Link>
       </PageShell>
-
-      {/* ── Search bar ── */}
-      <PageShell className="mt-5 px-4 sm:px-6 lg:px-8">
-        <label className="flex items-center gap-3 rounded-[22px] border border-ink/10 bg-white px-4 py-3.5 shadow-[0_4px_20px_rgba(19,35,28,0.07)] transition focus-within:border-moss focus-within:shadow-[0_4px_24px_rgba(19,35,28,0.10)]">
-          <Search className="h-5 w-5 shrink-0 text-ink/38" />
-          <input
-            className="w-full border-0 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink/35"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="SPOT名、住所、エリアで探す..."
-          />
-          {keyword ? (
-            <button type="button" onClick={() => setKeyword("")} className="shrink-0 rounded-full p-0.5 text-ink/35 transition hover:text-ink/60">
-              <X className="h-4 w-4" />
-            </button>
-          ) : null}
-        </label>
-      </PageShell>
-
-      {/* ── Category chips ── */}
-      <PageShell className="mt-4 overflow-x-auto pb-1 hide-scrollbar">
-      <div className="flex gap-2 w-max sm:w-auto sm:flex-wrap">
-        {categoryOptions.map((cat) => {
-          const active = category === cat.value;
-          return (
-            <button
-              key={cat.value}
-              type="button"
-              onClick={() => setCategory(cat.value as "all" | SpotCategory)}
-              className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition active:scale-[0.95] ${
-                active
-                  ? "bg-ink text-white shadow-sm"
-                  : "border border-ink/12 bg-white text-ink/58 hover:border-ink/22 hover:text-ink/80"
-              }`}
-            >
-              {cat.label}
-            </button>
-          );
-        })}
-      </div>
-      </PageShell>
-
-      {/* ── Filter bar ── */}
-      <PageShell className="mt-3">
-        <div className="flex items-center justify-between gap-3 px-1">
-          <button
-            type="button"
-            onClick={() => setShowAreaFilter((c) => !c)}
-            className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold transition active:scale-[0.96] ${
-              showAreaFilter || activeFilterCount > 0
-                ? "border-moss bg-moss/8 text-moss"
-                : "border-ink/12 bg-white text-ink/50 hover:border-ink/22 hover:text-ink/70"
-            }`}
-          >
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            エリア
-            {activeFilterCount > 0 ? (
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-moss text-[9px] font-bold text-white">
-                {activeFilterCount}
-              </span>
-            ) : null}
-          </button>
-
-        </div>
-
-        {/* Area filter (collapsible) */}
-        {showAreaFilter ? (
-          <div className="mt-3 flex gap-3 px-1">
-            <FilterSelect
-              value={prefecture}
-              options={prefectureFilterOptions}
-              onChange={(v) => { setPrefecture(v); setCity("all"); }}
-              placeholder="都道府県"
-            />
-            <FilterSelect
-              value={city}
-              options={cityFilterOptions}
-              onChange={setCity}
-              placeholder="市区町村"
-            />
-          </div>
-        ) : null}
-      </PageShell>
-
-      {/* ── Results ── */}
-      <PageShell className="mt-5">
-        {error ? (
-          <EmptyState
-            title="SPOT 一覧を取得できませんでした"
-            description={`Firestore 接続でエラーが出ています: ${error}`}
-          />
-        ) : !spots ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="panel overflow-hidden animate-pulse">
-                <div className="h-48 w-full bg-mist" />
-                <div className="space-y-3 p-5">
-                  <div className="h-3 w-16 rounded-full bg-mist" />
-                  <div className="h-5 w-3/4 rounded-full bg-mist" />
-                  <div className="h-3 w-full rounded-full bg-mist" />
-                  <div className="h-3 w-2/3 rounded-full bg-mist" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filteredSpots.length === 0 ? (
-          <EmptyState
-            title="条件に合うSPOTが見つかりません"
-            description="キーワード、カテゴリ、エリアの条件をゆるめてもう一度お試しください。"
-          />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredSpots.map((spot) => (
-              <SpotCard key={spot.id} spot={spot} />
-            ))}
-          </div>
-        )}
-      </PageShell>
-
-      </div>{/* /spot-list */}
 
       {/* ── Owner CTA ── */}
-      <PageShell className="mt-10">
+      <PageShell className="mt-4">
         <div className="rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR OWNERS</div>
           <p className="mt-2 text-base font-bold text-ink">あなたのSPOTを登録しませんか？</p>
