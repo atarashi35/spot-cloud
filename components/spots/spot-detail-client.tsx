@@ -680,7 +680,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             className="cta-primary shrink-0"
             onClick={() => setSignupModalOpen(true)}
           >
-            ソシオになる
+            メンバーになる
           </button>
         </div>
       )}
