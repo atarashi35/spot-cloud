@@ -324,14 +324,14 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
             </p>
             <div className="mt-3 flex flex-col gap-2">
               {existingAccounts.map((acc) => (
-                <div key={acc.accountId} className="flex items-center justify-between gap-3 rounded-[14px] bg-white px-4 py-3">
-                  <div>
+                <div key={acc.accountId} className="flex flex-col gap-3 rounded-[14px] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-ink">{acc.spotName}</p>
-                    <p className="text-xs text-ink/40">{acc.accountId}</p>
+                    <p className="truncate text-xs text-ink/40">{acc.accountId}</p>
                   </div>
                   <button
                     type="button"
-                    className="cta-primary shrink-0 text-sm"
+                    className="cta-primary w-full shrink-0 text-sm sm:w-auto"
                     onClick={() => void linkAccount(acc.accountId)}
                     disabled={linkLoading}
                   >
