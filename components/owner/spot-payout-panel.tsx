@@ -21,6 +21,12 @@ type ConnectStatus = {
   hasExternalAccount: boolean;
 };
 
+type ExistingAccount = {
+  spotId: string;
+  spotName: string;
+  accountId: string;
+};
+
 function getDisabledReasonLabel(reason: string | null) {
   switch (reason) {
     case "requirements.past_due":
@@ -112,6 +118,8 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [returnedFromStripe, setReturnedFromStripe] = useState(false);
   const [connectStatus, setConnectStatus] = useState<ConnectStatus | null>(null);
+  const [existingAccounts, setExistingAccounts] = useState<ExistingAccount[]>([]);
+  const [linkLoading, setLinkLoading] = useState(false);
 
   useEffect(() => {
     if (!authReady) return;
@@ -146,6 +154,12 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
     }
   }, [returnedFromStripe, user, spot]);
 
+  // connected でない場合のみ既存口座を取得
+  useEffect(() => {
+    if (!user || !spot || spot.stripeConnectedAccountId) return;
+    void loadExistingAccounts();
+  }, [spot, user]);
+
   async function loadStatus() {
     if (!user) return;
     setStatusLoading(true);
@@ -166,6 +180,45 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
       setError(cause instanceof Error ? cause.message : "Connect 状態を取得できませんでした。");
     } finally {
       setStatusLoading(false);
+    }
+  }
+
+  async function loadExistingAccounts() {
+    if (!user) return;
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/stripe/connect/existing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ spotId })
+      });
+      const data = (await response.json()) as { accounts?: ExistingAccount[] };
+      setExistingAccounts(data.accounts ?? []);
+    } catch {
+      // 取得失敗は無視（新規登録フローを表示）
+    }
+  }
+
+  async function linkAccount(accountId: string) {
+    if (!user) return;
+    setLinkLoading(true);
+    setError(null);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/stripe/connect/link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ spotId, accountId })
+      });
+      const data = (await response.json()) as { success?: boolean; message?: string; error?: string };
+      if (!response.ok) throw new Error(data.message ?? data.error ?? "link_error");
+      // 紐づけ完了 → status を再取得
+      await loadStatus();
+      setExistingAccounts([]);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "口座の紐づけに失敗しました。");
+    } finally {
+      setLinkLoading(false);
     }
   }
 
@@ -263,7 +316,34 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
           </StatusBadge>
         </div>
 
-        {returnedFromStripe && !ready ? (
+          {existingAccounts.length > 0 && !connected ? (
+          <div className="mt-5 rounded-[20px] border border-moss/20 bg-moss/5 px-5 py-4">
+            <p className="text-sm font-semibold text-ink">他の SPOT で登録済みの口座を使う</p>
+            <p className="mt-1 text-xs leading-5 text-ink/55">
+              同じ受取口座を複数の SPOT に使えます。再登録は不要です。
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              {existingAccounts.map((acc) => (
+                <div key={acc.accountId} className="flex items-center justify-between gap-3 rounded-[14px] bg-white px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium text-ink">{acc.spotName}</p>
+                    <p className="text-xs text-ink/40">{acc.accountId}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="cta-primary shrink-0 text-sm"
+                    onClick={() => void linkAccount(acc.accountId)}
+                    disabled={linkLoading}
+                  >
+                    {linkLoading ? "設定中…" : "この口座を使う"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+      {returnedFromStripe && !ready ? (
           <div className="mt-4 rounded-[16px] bg-mist px-4 py-3 text-sm text-ink/70">
             Stripe から戻りました。設定状況を更新しています…
           </div>
