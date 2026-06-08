@@ -321,7 +321,7 @@ export function VoicesSection({
   return (
     <section className="panel px-6 py-8 sm:px-8">
       <h3 className="text-xl font-bold text-ink">みんなの声</h3>
-      <p className="mt-1 text-sm text-ink/50">ソシオだけが参加できる投票・意見コーナーです。</p>
+      <p className="mt-1 text-sm text-ink/50">メンバーだけが参加できる投票・意見コーナーです。</p>
 
       <div className="relative mt-6 space-y-4">
         {/* コンテンツ */}

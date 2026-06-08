@@ -339,7 +339,7 @@ export function SettingsPageClient() {
             <div className="mt-4 rounded-[20px] border border-ink/8 bg-mist px-5 py-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">ソシオ表示名</div>
+                  <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">表示名</div>
                   {nameEditing ? (
                     <div className="mt-2 flex flex-col gap-2">
                       <input
@@ -394,7 +394,7 @@ export function SettingsPageClient() {
                 ) : null}
               </div>
               <p className="mt-3 text-[11px] leading-5 text-ink/40">
-                ソシオカードや加入SPOTで表示される名前です。メールアドレスは表示されません。
+                加入SPOTで表示される名前です。メールアドレスは表示されません。
               </p>
             </div>
 
@@ -538,7 +538,7 @@ export function SettingsPageClient() {
           ) : activeMemberships.length === 0 ? (
             /* 参加中のソシオなし */
             <div className="rounded-[20px] bg-mist px-5 py-5">
-              <p className="text-sm text-ink/55">現在参加中のソシオプランはありません。</p>
+              <p className="text-sm text-ink/55">現在参加中のプランはありません。</p>
               <Link href="/" className="mt-3 inline-block text-sm font-semibold text-moss hover:underline">
                 SPOTを探す →
               </Link>

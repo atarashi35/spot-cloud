@@ -119,7 +119,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
     // メインコピー
     ctx.fillStyle = "#111111";
     ctx.font = "bold 48px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
-    ctx.fillText("ソシオとして、", 48, 200);
+    ctx.fillText("メンバーとして、", 48, 200);
 
     const spotName = spot.name ?? "";
     const nameText = `${spotName}に`;
@@ -153,7 +153,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
 
     ctx.font = "14px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
     ctx.fillStyle = "#888888";
-    ctx.fillText("QRコードをスキャンしてソシオ登録", W / 2, 682);
+    ctx.fillText("QRコードをスキャンしてメンバー登録", W / 2, 682);
 
     ctx.fillStyle = "#e5e5e5";
     ctx.fillRect(48, 740, W - 96, 1);
@@ -166,7 +166,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
 
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");
-    link.download = `${spot.name ?? "spot"}-ソシオ募集チラシ.png`;
+    link.download = `${spot.name ?? "spot"}-メンバー募集チラシ.png`;
     link.click();
   }
 
@@ -215,10 +215,10 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         </section>
 
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
-          <h2 className="text-lg font-semibold text-ink">ソシオ登録へのリンク</h2>
+          <h2 className="text-lg font-semibold text-ink">メンバー登録へのリンク</h2>
           <p className="mt-1.5 text-xs leading-5 text-ink/55">
-            スキャンするとソシオ加入画面が開くQR。<br />
-            「ソシオ募集中」の告知に直接使えます。
+            スキャンするとメンバー加入画面が開くQR。<br />
+            「メンバー募集中」の告知に直接使えます。
           </p>
           <div ref={signupQrRef} className="mt-5 inline-flex rounded-[20px] bg-white p-5 shadow-sm">
             <QRCode value={signupUrl} size={210} />
@@ -245,7 +245,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
       </div>
 
       <section className="mt-5 rounded-[28px] bg-mist px-5 py-6">
-        <h2 className="text-lg font-semibold text-ink">ソシオ募集チラシ</h2>
+        <h2 className="text-lg font-semibold text-ink">メンバー募集チラシ</h2>
         <p className="mt-1.5 text-xs leading-5 text-ink/55">
           印刷してそのまま使えるチラシをPNGで保存できます。<br />
           店頭POP・名刺・チラシに貼り付けてご利用ください。
@@ -257,7 +257,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/spot_logo_horizontal.svg" alt="SPOT" className="mb-4 h-5 w-auto" />
             <p className="text-[13px] font-bold leading-snug text-ink">
-              ソシオとして、<br />
+              メンバーとして、<br />
               <span className="text-[12px]">{spot.name}に</span><br />
               関わろう。
             </p>
@@ -265,7 +265,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
               <QRCode value={signupUrl} size={90} />
             </div>
             <p className="text-center text-[8px] font-semibold text-ink">¥100 / ¥300 / ¥500 /月</p>
-            <p className="mt-1 text-center text-[7px] text-ink/50">QRコードをスキャンしてソシオ登録</p>
+            <p className="mt-1 text-center text-[7px] text-ink/50">QRコードをスキャンしてメンバー登録</p>
             <div className="my-3 h-px bg-ink/10" />
             <p className="text-center text-[7px] text-ink/40">spotcloud.app</p>
           </div>
