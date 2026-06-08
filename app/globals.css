@@ -352,3 +352,12 @@ select {
   0%   { transform: scale(1) translate(0,0); opacity: 0.9; }
   100% { transform: scale(0) translate(var(--px), var(--py)); opacity: 0; }
 }
+
+/* ── Scroll arrow (SpotHero) ─────────────────────────────────────────── */
+.scroll-arrow-1 { animation: scroll-bounce 1.4s ease-in-out infinite; }
+.scroll-arrow-2 { animation: scroll-bounce 1.4s ease-in-out 0.22s infinite; }
+.scroll-arrow-3 { animation: scroll-bounce 1.4s ease-in-out 0.44s infinite; }
+@keyframes scroll-bounce {
+  0%, 100% { opacity: 0.2; transform: translateY(-3px); }
+  50%       { opacity: 1;   transform: translateY(4px); }
+}
