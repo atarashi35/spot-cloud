@@ -14,7 +14,7 @@ function isNewSpot(createdAt: string): boolean {
   return created > cutoff;
 }
 
-export function SpotCard({ spot, priority = false }: { spot: Spot; priority?: boolean }) {
+export function SpotCard({ spot }: { spot: Spot }) {
   const useRawImage = spot.coverImageUrl ? isSvgAssetUrl(spot.coverImageUrl) : false;
   const showNewBadge = isNewSpot(spot.createdAt);
 
@@ -32,7 +32,6 @@ export function SpotCard({ spot, priority = false }: { spot: Spot; priority?: bo
             className="object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             unoptimized={useRawImage}
-            priority={priority}
           />
         ) : (
           <div className={`h-full w-full bg-gradient-to-br ${spot.coverTone}`} />
