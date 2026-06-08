@@ -21,7 +21,7 @@ type ImageUploaderProps = {
  * 長辺を maxPx に収め、quality で画質を調整。
  * これにより 5MB のスマホ写真が ~150KB 程度になる。
  */
-async function compressImage(file: File, maxPx = 1600, quality = 0.82): Promise<Blob> {
+async function compressImage(file: File, maxPx = 1200, quality = 0.78): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);

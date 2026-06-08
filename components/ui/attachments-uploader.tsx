@@ -12,7 +12,7 @@ const MAX_PDF_MB = 20;
 
 // ─── 画像圧縮 ──────────────────────────────────────────────────────────────────
 
-async function compressImage(file: File, maxPx = 1600, quality = 0.82): Promise<Blob> {
+async function compressImage(file: File, maxPx = 1200, quality = 0.78): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
