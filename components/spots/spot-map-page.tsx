@@ -3,8 +3,22 @@
 import Link from "next/link";
 import { LogoAnimation } from "@/components/ui/logo-animation";
 import { PageShell } from "@/components/ui/page-shell";
+import { SpotCard } from "@/components/spot-card";
+import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
+import { Spot } from "@/lib/types";
+import { useEffect, useState } from "react";
+
+const PREVIEW_COUNT = 6;
 
 export function SpotMapPage() {
+  const [spots, setSpots] = useState<Spot[] | null>(null);
+
+  useEffect(() => {
+    void listPublishedSpotsFromFirestore().then(setSpots).catch(() => setSpots([]));
+  }, []);
+
+  const preview = spots?.slice(0, PREVIEW_COUNT) ?? null;
+
   return (
     <div className="pb-20">
       {/* ── LP Hero ── */}
@@ -80,19 +94,48 @@ export function SpotMapPage() {
         </div>
       </PageShell>
 
-      {/* ── SPOT一覧へのCTA ── */}
-      <PageShell>
-        <Link
-          href="/spots"
-          className="flex items-center justify-between rounded-[28px] border border-ink/10 bg-white px-8 py-6 transition hover:border-moss hover:shadow-[0_8px_24px_rgba(19,35,28,0.07)]"
-        >
+      {/* ── SPOT プレビュー ── */}
+      <PageShell className="py-10">
+        <div className="mb-6 flex items-end justify-between px-1">
           <div>
             <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">SPOT MAP</div>
-            <p className="mt-1 text-lg font-bold text-ink">SPOTを探す</p>
-            <p className="mt-0.5 text-sm text-ink/50">あなたの居場所を見つけて、サポーターになろう。</p>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">SPOTを探す</h2>
           </div>
-          <span className="text-2xl text-ink/30">→</span>
-        </Link>
+          <Link href="/spots" className="text-sm font-semibold text-moss hover:underline">
+            すべて見る →
+          </Link>
+        </div>
+
+        {/* カードグリッド */}
+        {!preview ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="panel overflow-hidden animate-pulse">
+                <div className="h-44 w-full bg-mist" />
+                <div className="space-y-3 p-5">
+                  <div className="h-3 w-16 rounded-full bg-mist" />
+                  <div className="h-5 w-3/4 rounded-full bg-mist" />
+                  <div className="h-3 w-full rounded-full bg-mist" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : preview.length === 0 ? null : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {preview.map((spot) => (
+              <SpotCard key={spot.id} spot={spot} />
+            ))}
+          </div>
+        )}
+
+        {/* もっと見るボタン */}
+        {spots && spots.length > PREVIEW_COUNT && (
+          <div className="mt-8 text-center">
+            <Link href="/spots" className="cta-secondary">
+              すべての {spots.length} SPOTを見る
+            </Link>
+          </div>
+        )}
       </PageShell>
 
       {/* ── Owner CTA ── */}
