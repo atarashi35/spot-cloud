@@ -94,6 +94,27 @@ export function SpotMapPage() {
         </div>
       </PageShell>
 
+      {/* ── カウンター ── */}
+      {spots && (spots.length > 0 || spots.reduce((sum, s) => sum + s.socioCount, 0) > 0) && (
+        <PageShell className="pb-2">
+          <div className="flex items-center justify-center gap-8 rounded-[24px] border border-ink/8 bg-white px-8 py-6 sm:gap-16">
+            <div className="text-center">
+              <div className="text-[11px] font-semibold tracking-[0.22em] text-ink/38">SPOTS</div>
+              <div className="mt-1 text-4xl font-bold tabular-nums text-ink">{spots.length}</div>
+              <div className="mt-1 text-xs text-ink/45">参加中</div>
+            </div>
+            <div className="h-10 w-px bg-ink/10" />
+            <div className="text-center">
+              <div className="text-[11px] font-semibold tracking-[0.22em] text-ink/38">SUPPORTERS</div>
+              <div className="mt-1 text-4xl font-bold tabular-nums text-ink">
+                {spots.reduce((sum, s) => sum + s.socioCount, 0)}
+              </div>
+              <div className="mt-1 text-xs text-ink/45">人のサポーター</div>
+            </div>
+          </div>
+        </PageShell>
+      )}
+
       {/* ── SPOT プレビュー ── */}
       <PageShell className="py-10">
         <div className="mb-6 flex items-end justify-between px-1">
