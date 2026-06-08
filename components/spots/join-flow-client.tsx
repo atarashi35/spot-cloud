@@ -48,7 +48,7 @@ export function JoinFlowClient({
   return (
     <div className="shell">
       <section className="mx-auto max-w-3xl panel px-6 py-8 sm:px-8">
-        <span className="chip">JOIN FLOW</span>
+        <span className="chip">JOIN AS SOCIO</span>
         <h1 className="mt-4 text-3xl font-bold text-ink">{spot.name} のメンバー加入</h1>
         <p className="mt-3 text-sm text-ink/62">金額を選ぶと、そのまま決済へ進みます。</p>
 

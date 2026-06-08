@@ -357,7 +357,7 @@ export function VoicesSection({
         {/* 非ソシオ向けオーバーレイ */}
         {!canParticipate && !isOwner && loaded && hasContent && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">MEMBERS ONLY</p>
+            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SOCIOS ONLY</p>
           </div>
         )}
       </div>

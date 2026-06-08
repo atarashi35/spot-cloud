@@ -424,7 +424,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
                 {membership?.joinedAt && (
                   <div className="flex flex-1 flex-col items-center justify-center py-8">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/35">Member Since</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/35">SOCIO Since</p>
                     <p className="mt-1 text-[88px] font-bold tabular-nums leading-none text-ink">
                       {Math.floor((Date.now() - new Date(membership.joinedAt).getTime()) / 86_400_000) + 1}
                     </p>
@@ -581,7 +581,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">MEMBERS ONLY</p>
+                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SOCIOS ONLY</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
                                 メンバーになる
@@ -639,7 +639,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">MEMBERS ONLY</p>
+                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SOCIOS ONLY</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
                                 メンバーになる
