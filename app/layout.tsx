@@ -25,7 +25,7 @@ const GA_ID = "G-ZD364VFSW5";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // maximumScale を設定しない → ユーザーが自由にズームできる（アクセシビリティ改善）
 };
 
 export const metadata: Metadata = {
@@ -56,6 +56,9 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable}`}>
       <head>
+        {/* Firebase Storage 画像の接続を事前確立（LCP改善） */}
+        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+        <link rel="preconnect" href="https://storage.googleapis.com" />
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="gtag-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];

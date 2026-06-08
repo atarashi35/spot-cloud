@@ -379,8 +379,8 @@ export function SpotMapPage() {
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredSpots.map((spot) => (
-              <SpotCard key={spot.id} spot={spot} />
+            {filteredSpots.map((spot, i) => (
+              <SpotCard key={spot.id} spot={spot} priority={i < 3} />
             ))}
           </div>
         )}
