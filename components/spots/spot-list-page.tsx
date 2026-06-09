@@ -8,6 +8,7 @@ import { SpotCard } from "@/components/spot-card";
 import { PageShell } from "@/components/ui/page-shell";
 import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
 import { Spot, SpotCategory } from "@/lib/types";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "all", label: "すべて" },
@@ -109,6 +110,7 @@ export function SpotListPage() {
   const [city, setCity] = useState("all");
   const [category, setCategory] = useState<"all" | SpotCategory>("all");
   const [showAreaFilter, setShowAreaFilter] = useState(false);
+  const gridRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 60 });
   const deferredKeyword = useDeferredValue(keyword);
 
   useEffect(() => {
@@ -292,7 +294,7 @@ export function SpotListPage() {
             description="キーワード、カテゴリ、エリアの条件をゆるめてもう一度お試しください。"
           />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div ref={gridRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredSpots.map((spot) => (
               <SpotCard key={spot.id} spot={spot} />
             ))}

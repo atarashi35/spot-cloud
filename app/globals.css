@@ -193,6 +193,16 @@ select {
 .hero-animate-4 { animation: hero-fade-up 0.7s cubic-bezier(0.22,1,0.36,1) 0.42s both; }
 .hero-animate-5 { animation: hero-fade-up 0.7s cubic-bezier(0.22,1,0.36,1) 0.54s both; }
 
+/* ── スクロール連動フェードアップ ── */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; }
+.reveal.is-visible {
+  animation: reveal-up 0.65s cubic-bezier(0.22,1,0.36,1) both;
+}
+
 .hero-float-1 { animation: hero-float 4.5s ease-in-out 0s    infinite; }
 .hero-float-2 { animation: hero-float 5.2s ease-in-out 0.8s  infinite; }
 .hero-float-3 { animation: hero-float 4.0s ease-in-out 1.4s  infinite; }

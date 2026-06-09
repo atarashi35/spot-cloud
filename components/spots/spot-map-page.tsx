@@ -7,6 +7,7 @@ import { SpotCard } from "@/components/spot-card";
 import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
 import { Spot } from "@/lib/types";
 import { useEffect, useState } from "react";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const PREVIEW_COUNT = 6;
 
@@ -18,6 +19,12 @@ export function SpotMapPage() {
   }, []);
 
   const preview = spots?.slice(0, PREVIEW_COUNT) ?? null;
+
+  const aboutHeadingRef = useScrollReveal<HTMLDivElement>({ threshold: 0.3 });
+  const aboutRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 90 });
+  const counterRef = useScrollReveal<HTMLDivElement>({ threshold: 0.3 });
+  const previewRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 70 });
+  const ctaRef = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
 
   return (
     <div className="pb-20">
@@ -79,11 +86,11 @@ export function SpotMapPage() {
 
       {/* ── About ── */}
       <PageShell className="py-14">
-        <div className="mb-6 px-1">
+        <div ref={aboutHeadingRef} className="mb-6 px-1 reveal">
           <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">ABOUT</div>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">SPOTってなに？</h2>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div ref={aboutRef} className="grid gap-4 sm:grid-cols-3">
           {[
             { label: "SPOT とは？", body: "場所やコミュニティが作るページ。\nカフェ・サークル・地域団体など、\nあらゆる「居場所」が登録できます。" },
             { label: "サポーターとは？", body: "月100円から参加できる、\n新しい参加のかたち。\n金額に関わらず、\nすべてのサポーターが1票を持ちます。" },
@@ -100,7 +107,7 @@ export function SpotMapPage() {
       {/* ── カウンター ── */}
       {spots && (spots.length > 0 || spots.reduce((sum, s) => sum + s.socioCount, 0) > 0) && (
         <PageShell className="py-10">
-          <div className="flex items-center justify-center gap-16 sm:gap-28">
+          <div ref={counterRef} className="reveal flex items-center justify-center gap-16 sm:gap-28">
             <div className="text-center">
               <div className="text-[10px] font-bold tracking-[0.3em] text-ink/35">SPOTS</div>
               <div className="mt-1 text-[clamp(3.5rem,10vw,6rem)] font-bold leading-none tabular-nums text-ink">{spots.length}</div>
@@ -145,7 +152,7 @@ export function SpotMapPage() {
             ))}
           </div>
         ) : preview.length === 0 ? null : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div ref={previewRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {preview.map((spot) => (
               <SpotCard key={spot.id} spot={spot} />
             ))}
@@ -164,7 +171,7 @@ export function SpotMapPage() {
 
       {/* ── Owner CTA ── */}
       <PageShell className="mt-4">
-        <div className="rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
+        <div ref={ctaRef} className="reveal rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR OWNERS</div>
           <p className="mt-2 text-base font-bold text-ink">あなたのSPOTを登録しませんか？</p>
           <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/55">
