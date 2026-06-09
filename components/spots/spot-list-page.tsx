@@ -18,6 +18,7 @@ const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "音楽・ライブ", label: "音楽・ライブ" },
   { value: "アート", label: "アート" },
   { value: "クリエイター", label: "クリエイター" },
+  { value: "プロジェクト", label: "プロジェクト" },
   { value: "文化施設", label: "文化施設" },
   { value: "学び・教室", label: "学び・教室" },
   { value: "ワークスペース", label: "ワークスペース" },
