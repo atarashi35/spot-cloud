@@ -62,8 +62,8 @@ function getClassId(issuerId: string): string {
 }
 
 function getObjectId(issuerId: string, uid: string): string {
-  // v4: ヒーロー画像キャッシュバスト・QR alternateText修正
-  return `${issuerId}.socio_v4_${uid}`;
+  // v5: QR alternateText削除・ヒーロー偽QR削除
+  return `${issuerId}.socio_v5_${uid}`;
 }
 
 // ─── Google Wallet GenericObject ペイロード ────────────────────────────────────
@@ -111,7 +111,6 @@ function buildGenericObject(data: SocioCardData, issuerId: string) {
     barcode: {
       type: "QR_CODE",
       value: data.verifyUrl,
-      alternateText: data.displayName,
     },
 
     // ロゴ（左上）

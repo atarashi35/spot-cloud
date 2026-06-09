@@ -111,64 +111,27 @@ export async function GET(request: NextRequest) {
             </span>
           </div>
 
-          {/* 下段: SPOTS数＋名前 ／ QR */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-
-            {/* 左: SPOTS数 + 名前 */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 0 }}>
-                <span style={{ color: "white", fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.01em", fontFamily: "sans-serif" }}>
-                  {spotCount}
-                </span>
-                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 16, fontWeight: 600, letterSpacing: "0.18em", marginLeft: 12, marginBottom: 10, fontFamily: "sans-serif" }}>
-                  SPOTS
-                </span>
-              </div>
-              {/* 名前行 */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{
-                  width: 24, height: 24, borderRadius: "50%",
-                  background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  display: "flex",
-                }} />
-                <span style={{ color: "rgba(255,255,255,0.75)", fontSize: 15, fontWeight: 600, letterSpacing: "0.04em", fontFamily: "sans-serif" }}>
-                  {displayName}
-                </span>
-              </div>
+          {/* 下段: SPOTS数＋名前 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 0 }}>
+              <span style={{ color: "white", fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.01em", fontFamily: "sans-serif" }}>
+                {spotCount}
+              </span>
+              <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 16, fontWeight: 600, letterSpacing: "0.18em", marginLeft: 12, marginBottom: 10, fontFamily: "sans-serif" }}>
+                SPOTS
+              </span>
             </div>
-
-            {/* 右: QRコード（白い正方形） */}
-            <div style={{
-              width: 80, height: 80,
-              background: "white",
-              borderRadius: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}>
-              <div style={{ position: "relative", width: 60, height: 60, display: "flex" }}>
-                {/* 左上 */}
-                <div style={{ position: "absolute", top: 0, left: 0, width: 18, height: 18, border: "3px solid #111", borderRadius: 3, display: "flex" }}>
-                  <div style={{ position: "absolute", top: 3, left: 3, width: 6, height: 6, background: "#111", borderRadius: 1, display: "flex" }} />
-                </div>
-                {/* 右上 */}
-                <div style={{ position: "absolute", top: 0, right: 0, width: 18, height: 18, border: "3px solid #111", borderRadius: 3, display: "flex" }}>
-                  <div style={{ position: "absolute", top: 3, left: 3, width: 6, height: 6, background: "#111", borderRadius: 1, display: "flex" }} />
-                </div>
-                {/* 左下 */}
-                <div style={{ position: "absolute", bottom: 0, left: 0, width: 18, height: 18, border: "3px solid #111", borderRadius: 3, display: "flex" }}>
-                  <div style={{ position: "absolute", top: 3, left: 3, width: 6, height: 6, background: "#111", borderRadius: 1, display: "flex" }} />
-                </div>
-                {/* 中央ドット群 */}
-                {[14,22,30,38,46].map((x) =>
-                  [14,22,30,38,46].map((y) =>
-                    (x > 20 || y > 20) && !(x > 40 && y < 24) ? (
-                      <div key={`${x}-${y}`} style={{ position: "absolute", left: x, top: y, width: 4, height: 4, background: (x + y) % 9 > 4 ? "#111" : "transparent", borderRadius: 1, display: "flex" }} />
-                    ) : null
-                  )
-                )}
-              </div>
+            {/* 名前行 */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: "50%",
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.18)",
+                display: "flex",
+              }} />
+              <span style={{ color: "rgba(255,255,255,0.75)", fontSize: 15, fontWeight: 600, letterSpacing: "0.04em", fontFamily: "sans-serif" }}>
+                {displayName}
+              </span>
             </div>
           </div>
         </div>
