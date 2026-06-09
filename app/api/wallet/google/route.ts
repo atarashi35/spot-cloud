@@ -37,17 +37,37 @@ export async function GET(request: NextRequest) {
   }
 
   let uid: string;
-  let displayName: string;
+  let authDisplayName: string;
+  let authEmail: string;
   try {
     const decoded = await getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
     uid = decoded.uid;
-    displayName = decoded.name ?? decoded.email ?? "SOCIO";
+    authDisplayName = decoded.name ?? "";
+    authEmail = decoded.email ?? "";
   } catch {
     return NextResponse.json({ error: "invalid_token" }, { status: 401 });
   }
 
   try {
-    const memberships = await getUserMembershipsAdmin(uid);
+    const db = getAdminDb();
+    const [memberships, profileSnap] = await Promise.all([
+      getUserMembershipsAdmin(uid),
+      db.collection("users").doc(uid).get(),
+    ]);
+
+    const profile = profileSnap.exists ? profileSnap.data() ?? {} : {};
+    const profileDisplayName =
+      typeof profile.profileDisplayName === "string" && profile.profileDisplayName.trim()
+        ? profile.profileDisplayName.trim()
+        : null;
+
+    // 優先順位: プロフィール設定名 > Google名 > メール@前 > "ソシオ"
+    const displayName =
+      profileDisplayName ??
+      (authDisplayName.trim() || null) ??
+      (authEmail.includes("@") ? authEmail.split("@")[0] : null) ??
+      "ソシオ";
+
     const cardData = buildSocioCardData(uid, displayName, memberships);
     const walletUrl = generateGoogleWalletUrl(cardData);
 
