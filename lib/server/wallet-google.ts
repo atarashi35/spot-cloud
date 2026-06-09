@@ -114,14 +114,14 @@ function buildGenericObject(data: SocioCardData, issuerId: string) {
       alternateText: `SOCIO: ${data.displayName}`,
     },
 
-    // ロゴ（公開URLが必要 → 本番デプロイ後に設定）
-    // logo: {
-    //   sourceUri: { uri: "https://spotcloud.app/icons/spot-logo-192.png" },
-    //   contentDescription: { defaultValue: { language: "ja", value: "SPOT" } },
-    // },
+    // ロゴ（左上）
+    logo: {
+      sourceUri: { uri: "https://spotcloud.app/spot_logomark_1024.png" },
+      contentDescription: { defaultValue: { language: "ja", value: "SPOT" } },
+    },
 
     // 背景色
-    hexBackgroundColor: "#0d0d0d",
+    hexBackgroundColor: "#111111",
   };
 }
 
