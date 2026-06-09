@@ -23,6 +23,8 @@ import { EMAIL_JOIN_PENDING_KEY, EmailJoinPending } from "@/lib/auth/email-link"
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
 import { PlanAmount, Spot, UserMembership, planOptions } from "@/lib/types";
 import { isSvgAssetUrl } from "@/lib/utils";
+import { AppleWalletButton } from "@/components/account/apple-wallet-button";
+import { GoogleWalletButton } from "@/components/account/google-wallet-button";
 
 type FeedPost = {
   id: string; isPublic: boolean; publishDate: string;
@@ -63,6 +65,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [signupModalOpen, setSignupModalOpen] = useState(false);
   const [emailJoinPlan, setEmailJoinPlan] = useState<PlanAmount | null>(null);
   const [showOwnerCta, setShowOwnerCta] = useState(false);
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
   const mainCtaRef = useRef<HTMLElement>(null);
 
@@ -226,6 +229,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
         const currentMembership = await getUserMembership(currentUser.uid, spotId);
         if (currentMembership) {
+          setShowWelcomeBanner(true);
           setShowOwnerCta(true);
           router.replace(`/spots/${spotId}`);
           return;
@@ -297,6 +301,38 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         defaultPlan={emailJoinPlan ?? membership?.planAmount ?? 100}
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
+
+      {showWelcomeBanner && (
+        <div className="rounded-[24px] border border-moss/25 bg-gradient-to-br from-moss/8 to-moss/4 px-6 py-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-moss">
+                <span className="text-lg">🎉</span>
+                <span className="text-sm font-bold tracking-wide">ソシオになりました</span>
+              </div>
+              <p className="mt-1 text-xs text-ink/60">
+                ソシオカードをウォレットに追加して、いつでも証明できるようにしましょう。
+              </p>
+            </div>
+            <button
+              type="button"
+              className="shrink-0 text-xs text-ink/35 hover:text-ink"
+              onClick={() => setShowWelcomeBanner(false)}
+            >
+              ✕
+            </button>
+          </div>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <div className="flex-1"><AppleWalletButton /></div>
+            <div className="flex-1"><GoogleWalletButton /></div>
+          </div>
+          <div className="mt-3 text-center">
+            <Link href="/account" className="text-xs text-ink/45 hover:text-ink underline">
+              ソシオカードを確認する →
+            </Link>
+          </div>
+        </div>
+      )}
 
       {showOwnerCta && (
         <div className="flex items-center justify-between gap-4 rounded-[20px] border border-moss/20 bg-moss/8 px-5 py-4">

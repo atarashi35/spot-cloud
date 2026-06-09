@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EventJoinButton } from "@/components/spots/event-join-button";
+import { AppleWalletButton } from "@/components/account/apple-wallet-button";
+import { GoogleWalletButton } from "@/components/account/google-wallet-button";
 import { listSpotEventsFromFirestore } from "@/lib/firestore/events";
 import { getUserMembership } from "@/lib/firestore/memberships";
 import { listSpotPostsFromFirestore } from "@/lib/firestore/posts";
@@ -108,6 +110,18 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
           <div className="rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/70">
             加入プラン: <span className="font-bold text-ink">¥{membership?.planAmount ?? 500}</span>
           </div>
+        </div>
+
+        {/* ウォレットCTA */}
+        <div className="mt-6 border-t border-ink/8 pt-6">
+          <p className="mb-3 text-xs font-semibold tracking-[0.18em] text-ink/45">SOCIO CARD</p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="flex-1"><AppleWalletButton /></div>
+            <div className="flex-1"><GoogleWalletButton /></div>
+          </div>
+          <p className="mt-2 text-xs text-ink/40 text-center">
+            カードは <Link href="/account" className="underline hover:text-ink">マイページ</Link> でも確認できます
+          </p>
         </div>
       </section>
 
