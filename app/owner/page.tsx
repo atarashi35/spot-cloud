@@ -18,7 +18,7 @@ const values = [
   {
     eyebrow: "サポーターが集まる",
     title: "応援者を\n集められます。",
-    body: "月100円から参加できる仕組みで、あなたの居場所を長く支えてくれる人を募れます。",
+    body: "月100〜500円で参加できる仕組みで、活動を長く支えてくれる人を募れます。",
   },
   {
     eyebrow: "一緒につくる",
@@ -34,8 +34,8 @@ const values = [
 
 const steps = [
   {
-    title: "居場所を登録する",
-    body: "場所や団体の紹介、カテゴリ、カバー画像を登録して、あなたの居場所を公開します。",
+    title: "SPOTを登録する",
+    body: "団体や活動の紹介、カテゴリ、カバー画像を登録して、SPOTを公開します。",
   },
   {
     title: "受取設定を行う",
@@ -47,31 +47,11 @@ const steps = [
   },
 ];
 
-const useCases = [
-  {
-    category: "カフェ・飲食店",
-    emoji: "☕",
-    tags: ["常連向けイベント", "新メニュー投票", "限定情報配信"],
-    body: "お店のファンに、来店以外でもつながれる場所を。日々の限定情報や投票を通じてリピーターが育ちます。",
-  },
-  {
-    category: "アート・音楽・文化活動",
-    emoji: "🎨",
-    tags: ["制作過程の共有", "作品先行公開", "意見募集"],
-    body: "活動を支えてくれる人を集めながら、制作の裏側を届ける。共感が応援に変わる場所をつくれます。",
-  },
-  {
-    category: "地域団体・自治会",
-    emoji: "🏘",
-    tags: ["イベント案内", "お知らせ", "地域アンケート"],
-    body: "回覧板では届かない層にも。デジタルで参加できる仕組みで、関わりたい人を巻き込めます。",
-  },
-  {
-    category: "教室・スクール",
-    emoji: "📚",
-    tags: ["卒業後のコミュニティ", "限定イベント", "近況共有"],
-    body: "卒業しても続く縁を。受講生どうしのつながりや、卒業後も続く関係性をつくれます。",
-  },
+const comparison = [
+  { axis: "かたち", cf: "一度きりの資金集め", spot: "毎月続く継続型" },
+  { axis: "目的", cf: "目標額を達成する", spot: "続く関係をつくる" },
+  { axis: "終わり方", cf: "達成したら終了", spot: "ずっと続いていく" },
+  { axis: "関係", cf: "支援したら終わり", spot: "お知らせ・投票で関わり続ける" },
 ];
 
 const faqs: { q: string; a: React.ReactNode }[] = [
@@ -93,8 +73,8 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     a: "月100円・300円・500円の3プランです。どのプランでも、サポーターは1票を持ちます。",
   },
   {
-    q: "どんな団体が利用できますか？",
-    a: "カフェ、個人店、教室、文化施設、スポーツ団体、地域団体、神社仏閣など幅広くご利用いただけます。",
+    q: "どんな用途で使えますか？",
+    a: "組織・団体・プロジェクトなら、幅広くご利用いただけます。使い道はあなた次第です。",
   },
   {
     q: "サポーターと何ができますか？",
@@ -124,11 +104,12 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
 }
 
 export default function OwnerPage() {
-  const empathyRef    = useScrollReveal<HTMLDivElement>({ threshold: 0.15 });
+  const definitionRef = useScrollReveal<HTMLDivElement>({ threshold: 0.15 });
   const valuesHeadRef = useScrollReveal<HTMLDivElement>();
   const valuesRef     = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
-  const useCasesHeadRef = useScrollReveal<HTMLDivElement>();
-  const useCasesRef   = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 90 });
+  const questionRef   = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
+  const whyHeadRef    = useScrollReveal<HTMLDivElement>();
+  const whyRef        = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
   const stepsHeadRef  = useScrollReveal<HTMLDivElement>();
   const stepsRef      = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
   const pricingRef    = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
@@ -156,20 +137,19 @@ export default function OwnerPage() {
               <div className="hero-animate-1 inline-flex items-center rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-white/50">
                 FOR OWNERS
               </div>
-              <h1 className="hero-animate-2 mt-5 text-[clamp(2.4rem,7vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
-                <span className="block text-white/90">応援され続ける</span>
-                <span className="hero-gradient-text block">居場所をつくる。</span>
+              <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
+                <span className="hero-gradient-text block">継続型・超低額クラファン。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
-                月100円のサポーターと共に、<br />
-                活動を育てていくためのSPOT。
+                月100〜500円でサポーターを集められます。<br />
+                あなたなら SPOT を何に使いますか？
               </p>
               <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
                 <Link
                   href="/owner/spots/new"
                   className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]"
                 >
-                  居場所を登録する →
+                  SPOTを作る →
                 </Link>
                 <Link
                   href="/manage"
@@ -190,32 +170,28 @@ export default function OwnerPage() {
         </div>
       </div>
 
-      {/* ── 共感コピー ── */}
+      {/* ── 一言定義（何ができるか） ── */}
       <PageShell className="py-14">
-        <div ref={empathyRef} className="reveal rounded-[28px] bg-mist px-8 py-10 sm:px-12 sm:py-12">
-          <p className="text-lg font-bold leading-relaxed text-ink sm:text-xl">
-            応援してくれる人はいるのに、<br />
-            つながり続ける方法がない。
+        <div ref={definitionRef} className="reveal rounded-[28px] bg-mist px-8 py-10 sm:px-12 sm:py-12">
+          <p className="text-lg font-bold leading-relaxed text-ink sm:text-2xl">
+            SPOTは、月100〜500円で応援してくれる<br className="hidden sm:block" />
+            サポーターを集められる、継続型・超低額クラファンです。
           </p>
           <p className="mt-5 max-w-xl text-sm leading-8 text-ink/65 sm:text-[15px]">
-            SNSでは埋もれる。ホームページでは届かない。<br />
-            SPOTは、月100円から参加できるサポーターコミュニティを
-            あなたの居場所に作ります。
+            組織・団体・プロジェクトのためのSPOTをつくり、活動を支えてくれる人と
+            お知らせ・イベント・アンケートでつながり続けられます。
           </p>
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-7 grid gap-3 sm:grid-cols-3">
             {[
-              "カフェ", "飲食・レストラン", "バー・居酒屋", "スポーツ",
-              "音楽・ライブ", "アート", "クリエイター", "文化施設",
-              "学び・教室", "ワークスペース", "自然・アウトドア",
-              "市民団体", "商店街", "寺社仏閣", "自治会",
+              { label: "初期費用", value: "0円" },
+              { label: "月額費用", value: "0円" },
+              { label: "サポーター", value: "月100〜500円" },
             ].map((item) => (
-              <span key={item} className="rounded-full border border-ink/12 bg-white px-3.5 py-1.5 text-sm text-ink/68">
-                {item}
-              </span>
+              <div key={item.label} className="rounded-2xl border border-ink/8 bg-white px-5 py-4">
+                <div className="text-xs font-semibold text-ink/45">{item.label}</div>
+                <div className="mt-1.5 text-xl font-bold text-ink">{item.value}</div>
+              </div>
             ))}
-            <span className="rounded-full border border-ink/12 bg-white px-3.5 py-1.5 text-sm text-ink/40">
-              など
-            </span>
           </div>
         </div>
       </PageShell>
@@ -237,29 +213,64 @@ export default function OwnerPage() {
         </div>
       </PageShell>
 
-      {/* ── 利用例 ── */}
+      {/* ── 問い（誰向けか） ── */}
       <PageShell className="mt-14">
-        <div ref={useCasesHeadRef} className="reveal mb-8 text-center">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">USE CASES</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">こんな居場所で使われています。</h2>
+        <div ref={questionRef} className="reveal rounded-[28px] border border-ink/8 bg-white px-8 py-12 text-center sm:px-12 sm:py-16">
+          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR ANYONE</div>
+          <h2 className="mt-4 text-2xl font-bold leading-snug text-ink sm:text-3xl">
+            あなたなら、<br className="sm:hidden" />
+            SPOTを何に使いますか？
+          </h2>
+          <p className="mx-auto mt-5 max-w-md text-sm leading-8 text-ink/60">
+            組織・団体・プロジェクト、活動の数だけ使い道があります。
+            支えてくれる人がいるなら、SPOTは始められます。
+          </p>
         </div>
-        <div ref={useCasesRef} className="grid gap-4 sm:grid-cols-2">
-          {useCases.map((uc) => (
-            <Card key={uc.category} className="px-6 py-7 sm:px-7">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{uc.emoji}</span>
-                <div className="text-sm font-bold text-ink">{uc.category}</div>
+      </PageShell>
+
+      {/* ── なぜ（よくある疑問に答える） ── */}
+      <PageShell className="mt-14">
+        <div ref={whyHeadRef} className="reveal mb-8 text-center">
+          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">WHY SPOT</div>
+          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">よくある疑問。</h2>
+        </div>
+        <div ref={whyRef} className="grid gap-4 lg:grid-cols-2">
+
+          {/* なぜ月100円 */}
+          <Card className="px-6 py-7 sm:px-8">
+            <div className="text-base font-bold text-moss">Q. なんで月100円なの？</div>
+            <h3 className="mt-3 text-lg font-bold leading-snug text-ink">
+              お金の大きさで、<br className="hidden sm:block" />声の大きさが変わらないように。
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-ink/65">
+              もし高い金額ほど発言力が増す仕組みなら、活動は一部の人の声に偏ってしまいます。
+              SPOTはあえて少額に揃え、金額に関わらずサポーターは<strong className="text-ink/80">全員1票</strong>。
+              誰もが気軽に、そして対等に参加できます。少額でも、続けば大きな力になります。
+            </p>
+          </Card>
+
+          {/* クラファンとの違い */}
+          <Card className="px-6 py-7 sm:px-8">
+            <div className="text-base font-bold text-moss">Q. 従来のクラファンと何が違うの？</div>
+            <h3 className="mt-3 text-lg font-bold leading-snug text-ink">
+              「集めて終わり」ではなく、<br className="hidden sm:block" />「続けて育てる」継続型。
+            </h3>
+            <div className="mt-4 overflow-hidden rounded-2xl border border-ink/8">
+              <div className="grid grid-cols-[68px_1fr_1fr] bg-mist text-[11px] font-semibold text-ink/45">
+                <div className="px-3 py-2.5" />
+                <div className="px-3 py-2.5">従来のクラファン</div>
+                <div className="px-3 py-2.5 text-moss">SPOT</div>
               </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {uc.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-mist px-3 py-1 text-[12px] font-semibold text-ink/65">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-4 text-sm leading-7 text-ink/60">{uc.body}</p>
-            </Card>
-          ))}
+              {comparison.map((row) => (
+                <div key={row.axis} className="grid grid-cols-[68px_1fr_1fr] border-t border-ink/8 text-xs">
+                  <div className="px-3 py-3 font-semibold text-ink/55">{row.axis}</div>
+                  <div className="px-3 py-3 leading-5 text-ink/50">{row.cf}</div>
+                  <div className="bg-moss/5 px-3 py-3 font-semibold leading-5 text-ink">{row.spot}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
         </div>
       </PageShell>
 
@@ -349,7 +360,7 @@ export default function OwnerPage() {
         </Card>
       </PageShell>
 
-      {/* ── 100人のソシオ ── */}
+      {/* ── 100人のサポーター ── */}
       <PageShell className="mt-14">
         <div ref={hundredRef} className="reveal relative overflow-hidden rounded-[28px] bg-ink">
           <div className="pointer-events-none absolute inset-0" style={GRID_BG} />
@@ -357,7 +368,7 @@ export default function OwnerPage() {
 
             {/* 左：数字 */}
             <div className="px-8 py-10 sm:px-10 sm:py-14">
-              <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">IF 100 SOCIOS</div>
+              <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">IF 100 SUPPORTERS</div>
               <p className="mt-5 text-base font-semibold text-white/70">
                 100人のサポーターがいると。
               </p>
@@ -410,6 +421,17 @@ export default function OwnerPage() {
         </div>
       </PageShell>
 
+      {/* ── 世界観（最後に少しだけ） ── */}
+      <PageShell className="mt-14">
+        <div className="px-2 text-center">
+          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">OUR THOUGHT</div>
+          <p className="mx-auto mt-4 max-w-xl text-lg font-bold leading-relaxed text-ink/80 sm:text-xl">
+            応援は、お金だけじゃない。<br />
+            続く関係そのものが、活動を支えていく。
+          </p>
+        </div>
+      </PageShell>
+
       {/* ── 底部CTA ── */}
       <PageShell className="mt-14">
         <div ref={bottomCtaRef} className="reveal relative overflow-hidden rounded-[28px] bg-ink px-8 py-10 text-center sm:px-12 sm:py-14">
@@ -417,7 +439,7 @@ export default function OwnerPage() {
           <div className="relative">
             <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">START FOR FREE</div>
             <h2 className="mt-3 text-2xl font-bold text-white/90 sm:text-3xl">
-              まず、居場所をひとつ登録する。
+              まず、SPOTをひとつ作ってみる。
             </h2>
             <p className="mt-4 text-sm leading-7 text-white/55">
               登録は無料。受取設定を完了すると、サポーター募集を本番公開できます。
@@ -427,7 +449,7 @@ export default function OwnerPage() {
                 href="/owner/spots/new"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]"
               >
-                居場所を登録する →
+                SPOTを作る →
               </Link>
             </div>
           </div>

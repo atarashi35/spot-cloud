@@ -45,17 +45,16 @@ export function SpotMapPage() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-moss opacity-75" style={{animation:"ping 1.5s cubic-bezier(0,0,0.2,1) infinite"}} />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-moss" />
                 </span>
-                <span className="text-[11px] font-semibold tracking-[0.2em] text-white/60">A NEW WAY TO BELONG</span>
+                <span className="text-[11px] font-semibold tracking-[0.2em] text-white/60">継続型・超低額クラファン</span>
               </div>
 
               <h1 className="hero-animate-2 mt-6 text-[clamp(2.6rem,8vw,5.5rem)] font-bold leading-[1.08] tracking-tight">
-                <span className="block text-white/90">月100円で</span>
-                <span className="block text-white/90">好きな居場所の</span>
-                <span className="hero-gradient-text block">サポーターになる。</span>
+                <span className="block text-white/90">好きな活動を</span>
+                <span className="hero-gradient-text block">月100〜500円で応援できる。</span>
               </h1>
 
               <p className="hero-animate-3 mt-6 text-[15px] leading-relaxed text-white/70 sm:text-base">
-                月額100円から参加できる、応援サポーター（ソシオ）
+                気になるSPOTを見つけて、サポーターになれます。
               </p>
 
               <div className="hero-animate-4 mt-10 flex flex-wrap items-center gap-3">
@@ -89,18 +88,67 @@ export function SpotMapPage() {
         <div ref={aboutHeadingRef} className="mb-6 px-1 reveal">
           <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">ABOUT</div>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">SPOTってなに？</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/60">
+            SPOTは、好きな組織・団体・活動を月100〜500円で応援できるサービスです。
+          </p>
         </div>
         <div ref={aboutRef} className="grid gap-4 sm:grid-cols-3">
           {[
-            { label: "SPOT とは？", body: "場所やコミュニティが作るページ。\nカフェ・サークル・地域団体など、\nあらゆる「居場所」が登録できます。" },
-            { label: "サポーターとは？", body: "月100円から参加できる、\n新しい参加のかたち。\n金額に関わらず、\nすべてのサポーターが1票を持ちます。" },
-            { label: "なにができる？", body: "イベントに参加したり、\nアンケートや意見を通して、\nその場所を一緒につくっていけます。" },
+            { label: "SPOT とは？", body: "組織・団体・活動が作るページ。\nカフェ・サークル・地域団体など、\nさまざまな活動が登録できます。" },
+            { label: "サポーターとは？", body: "月100〜500円で参加できる、\n新しい応援のかたち。\n金額に関わらず、\nすべてのサポーターが1票を持ちます。" },
+            { label: "なにができる？", body: "イベントに参加したり、\nアンケートや意見を通して、\nその活動を一緒につくっていけます。" },
           ].map(({ label, body }) => (
             <div key={label} className="flex flex-col rounded-[24px] border border-ink/8 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(19,35,28,0.07)]">
               <h3 className="text-base font-bold text-ink">{label}</h3>
               <p className="mt-3 flex-1 whitespace-pre-line text-sm leading-[2] text-ink/58">{body}</p>
             </div>
           ))}
+        </div>
+      </PageShell>
+
+      {/* ── WHY ── */}
+      <PageShell className="pb-14">
+        <div className="mb-6 px-1">
+          <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">WHY SPOT</div>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">よくある疑問。</h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Q1 */}
+          <div className="flex flex-col rounded-[24px] border border-ink/8 bg-white p-6">
+            <p className="text-base font-bold text-moss">Q. なんで月100円なの？</p>
+            <p className="mt-3 text-lg font-bold leading-snug text-ink">
+              お金の大きさで、声の大きさが変わらないように。
+            </p>
+            <p className="mt-3 flex-1 text-sm leading-[1.9] text-ink/60">
+              高い金額ほど発言力が増す仕組みなら、活動は一部の人の声に偏ってしまいます。SPOTはあえて少額に揃え、金額に関わらずサポーターは全員1票。誰もが対等に関われます。
+            </p>
+          </div>
+          {/* Q2 */}
+          <div className="flex flex-col rounded-[24px] border border-ink/8 bg-white p-6">
+            <p className="text-base font-bold text-moss">Q. 従来のクラファンと何が違う？</p>
+            <p className="mt-3 text-lg font-bold leading-snug text-ink">
+              「集めて終わり」ではなく、「続けて育てる」継続型。
+            </p>
+            <div className="mt-3 overflow-hidden rounded-2xl border border-ink/8 text-[13px]">
+              <div className="grid grid-cols-3 border-b border-ink/8 bg-mist px-4 py-2.5 font-semibold text-ink/55">
+                <span />
+                <span className="text-center">従来のクラファン</span>
+                <span className="text-center text-moss">SPOT</span>
+              </div>
+              {[
+                ["かたち", "一度きりの資金集め", "毎月続くファンクラブ"],
+                ["目的", "目標額を達成する", "続く関係をつくる"],
+                ["終わり方", "達成したら終了", "ずっと続いていく"],
+                ["関係", "支援したら終わり", "投票・お知らせで関わり続ける"],
+              ].map(([row, cfCol, spotCol]) => (
+                <div key={row} className="grid grid-cols-3 border-b border-ink/6 px-4 py-2.5 last:border-0">
+                  <span className="font-semibold text-ink/45">{row}</span>
+                  <span className="text-center text-ink/55">{cfCol}</span>
+                  <span className="text-center font-semibold text-moss">{spotCol}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </PageShell>
 
@@ -173,12 +221,12 @@ export function SpotMapPage() {
       <PageShell className="mt-4">
         <div ref={ctaRef} className="reveal rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR OWNERS</div>
-          <p className="mt-2 text-base font-bold text-ink">あなたのSPOTを登録しませんか？</p>
+          <p className="mt-2 text-base font-bold text-ink">あなたもSPOTを作りませんか？</p>
           <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/55">
-            カフェ・サークル・地域活動など、サポーターを集める場所として公開できます。
+            継続型・超低額クラファンで、あなたの活動を応援する人を集めませんか？
           </p>
           <Link href="/owner" className="cta-primary mt-5 inline-flex">
-            SPOTを登録する
+            SPOTを作る
           </Link>
         </div>
       </PageShell>

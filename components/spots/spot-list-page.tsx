@@ -176,7 +176,7 @@ export function SpotListPage() {
             SPOTを探す
           </h1>
           <p className="mt-2 text-sm text-ink/55">
-            あなたの居場所を見つけて、サポーターになろう。
+            気になる活動を見つけて、月100〜500円でサポーターになろう。
           </p>
         </div>
       </div>
@@ -306,12 +306,12 @@ export function SpotListPage() {
       <PageShell className="mt-10">
         <div className="rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR OWNERS</div>
-          <p className="mt-2 text-base font-bold text-ink">あなたのSPOTを登録しませんか？</p>
+          <p className="mt-2 text-base font-bold text-ink">あなたもSPOTを作りませんか？</p>
           <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/55">
-            カフェ・サークル・地域活動など、サポーターを集める場所として公開できます。
+            継続型・超低額クラファンで、あなたの活動を応援する人を集めませんか？
           </p>
           <Link href="/owner" className="cta-primary mt-5 inline-flex">
-            SPOTを登録する
+            SPOTを作る
           </Link>
         </div>
       </PageShell>

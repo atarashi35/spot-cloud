@@ -29,21 +29,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: { default: "SPOT", template: "%s | SPOT" },
-  description: "場所と人のゆるやかな所属をつなぐソシオ型コミュニティ基盤",
+  title: { default: "SPOT｜継続型・超低額クラファン", template: "%s | SPOT" },
+  description: "好きな活動を月100〜500円で継続的に応援できる、継続型・超低額クラファンサービス。",
   metadataBase: new URL("https://spotcloud.app"),
   openGraph: {
     siteName: "SPOT",
-    title: "SPOT",
-    description: "場所と人のゆるやかな所属をつなぐソシオ型コミュニティ基盤",
+    title: "SPOT｜継続型・超低額クラファン",
+    description: "好きな活動を月100〜500円で継続的に応援できる、継続型・超低額クラファンサービス。",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "ja_JP",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "SPOT",
-    description: "場所と人のゆるやかな所属をつなぐソシオ型コミュニティ基盤",
+    title: "SPOT｜継続型・超低額クラファン",
+    description: "好きな活動を月100〜500円で継続的に応援できる、継続型・超低額クラファンサービス。",
     images: ["/og-image.png"]
   }
 };
