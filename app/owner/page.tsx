@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/ui/page-shell";
+import { LogoAnimation } from "@/components/ui/logo-animation";
 
 const GRID_BG = {
   backgroundImage:
@@ -126,33 +127,53 @@ export default function OwnerPage() {
     <div className="pb-20">
 
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden bg-ink px-6 py-16 sm:px-8 sm:py-24">
+      <div className="relative overflow-hidden bg-ink px-6 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-20">
         <div className="pointer-events-none absolute inset-0" style={GRID_BG} />
-        <div className="relative mx-auto max-w-3xl">
-          <div className="inline-flex items-center rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-white/50">
-            FOR OWNERS
-          </div>
-          <h1 className="mt-5 text-[clamp(2.4rem,7vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
-            <span className="block text-white/90">応援され続ける</span>
-            <span className="hero-gradient-text block">居場所をつくる。</span>
-          </h1>
-          <p className="mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
-            月100円のサポーターと共に、<br />
-            活動を育てていくためのSPOT。
-          </p>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              href="/owner/spots/new"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]"
-            >
-              居場所を登録する →
-            </Link>
-            <Link
-              href="/manage"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-moss hover:bg-moss hover:text-white active:scale-[0.97]"
-            >
-              運営中のSPOTを見る
-            </Link>
+
+        {/* 背景：ロゴアニメーション（モバイルのみ・薄く重ねる） */}
+        <div className="pointer-events-none absolute -right-16 -top-8 lg:hidden"
+          style={{ animation: "hero-fade-up 1s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}>
+          <LogoAnimation className="h-[320px] w-[320px] opacity-20" />
+        </div>
+
+        <div className="relative mx-auto max-w-6xl">
+          <div className="lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16">
+
+            {/* 左：コピー */}
+            <div>
+              <div className="hero-animate-1 inline-flex items-center rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-white/50">
+                FOR OWNERS
+              </div>
+              <h1 className="hero-animate-2 mt-5 text-[clamp(2.4rem,7vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
+                <span className="block text-white/90">応援され続ける</span>
+                <span className="hero-gradient-text block">居場所をつくる。</span>
+              </h1>
+              <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
+                月100円のサポーターと共に、<br />
+                活動を育てていくためのSPOT。
+              </p>
+              <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
+                <Link
+                  href="/owner/spots/new"
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]"
+                >
+                  居場所を登録する →
+                </Link>
+                <Link
+                  href="/manage"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-moss hover:bg-moss hover:text-white active:scale-[0.97]"
+                >
+                  運営中のSPOTを見る
+                </Link>
+              </div>
+            </div>
+
+            {/* 右：ロゴアニメーション（デスクトップ） */}
+            <div className="hidden lg:flex lg:items-center lg:justify-center"
+              style={{ animation: "hero-fade-up 1s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}>
+              <LogoAnimation className="h-[420px] w-[420px] opacity-90" />
+            </div>
+
           </div>
         </div>
       </div>
