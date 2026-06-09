@@ -62,8 +62,8 @@ function getClassId(issuerId: string): string {
 }
 
 function getObjectId(issuerId: string, uid: string): string {
-  // uidはFirebase UIDなので英数字のみ想定
-  return `${issuerId}.socio_${uid}`;
+  // v2: heroImage追加に伴い新規オブジェクトを作成
+  return `${issuerId}.socio_v2_${uid}`;
 }
 
 // ─── Google Wallet GenericObject ペイロード ────────────────────────────────────
@@ -84,10 +84,10 @@ function buildGenericObject(data: SocioCardData, issuerId: string) {
 
     // カードのヘッダー（ロゴ横）
     cardTitle: {
-      defaultValue: { language: "ja", value: "SPOT SOCIO" },
+      defaultValue: { language: "ja", value: "SPOT" },
     },
     subheader: {
-      defaultValue: { language: "ja", value: "地域参加証" },
+      defaultValue: { language: "ja", value: "SOCIO CARD" },
     },
     header: {
       defaultValue: { language: "ja", value: data.displayName },
