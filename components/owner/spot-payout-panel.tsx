@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ConnectOnboardingButton } from "@/components/owner/connect-onboarding-button";
@@ -292,12 +291,10 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
         )}
 
         {/* サブアクション */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
+        <div className="flex items-center gap-2 pt-1">
           <button type="button" className="cta-secondary text-sm" onClick={() => void loadStatus()} disabled={statusLoading}>
             {statusLoading ? "確認中…" : "状態を更新"}
           </button>
-          <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary text-sm">SPOT を編集</Link>
-          <Link href="/manage" className="cta-secondary text-sm text-ink/50">運営する SPOT へ</Link>
         </div>
       </section>
     </div>
