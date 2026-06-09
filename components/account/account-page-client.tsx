@@ -214,14 +214,14 @@ export function AccountPageClient() {
   if (membershipError) {
     return (
       <EmptyState
-        title="所属情報を取得できませんでした"
+        title="サポート情報を取得できませんでした"
         description={`membership 読み込みでエラーが出ています: ${membershipError}`}
       />
     );
   }
 
   if (!memberships) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">所属情報を読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/60">サポート情報を読み込み中です。</div>;
   }
 
   const activeList = memberships.filter((m) => m.status !== "canceled");
@@ -230,10 +230,10 @@ export function AccountPageClient() {
   return (
     <div className="space-y-6">
 
-      {/* ソシオカード */}
+      {/* サポーター会員証 */}
       {user ? (
         <section className="space-y-3">
-          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">MY SOCIO CARD</h2>
+          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">MY SUPPORTER CARD</h2>
           <div className="mx-auto max-w-sm space-y-3">
             <SocioCard
               uid={user.uid}
@@ -367,10 +367,10 @@ export function AccountPageClient() {
         </div>
       ) : null}
 
-      {/* 過去の所属 */}
+      {/* 過去のサポート */}
       {canceledList.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">過去の所属</h2>
+          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">過去のサポート</h2>
           {canceledList.map((membership) => (
             <article
               key={membership.spotId}

@@ -133,7 +133,7 @@ export function LoginModal({ open, onClose, onSuccess }: { open: boolean; onClos
             <div>
               <p className="text-sm font-medium text-ink">{email}</p>
               <p className="mt-2 text-sm leading-7 text-ink/65">
-                上記のアドレスに認証リンクを送信しました。<br />
+                上記のアドレスにメールリンクを送信しました。<br />
                 メール内のリンクをクリックするとログインが完了します。
               </p>
             </div>

@@ -308,10 +308,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             <div>
               <div className="flex items-center gap-2 text-moss">
                 <span className="text-lg">🎉</span>
-                <span className="text-sm font-bold tracking-wide">ソシオになりました</span>
+                <span className="text-sm font-bold tracking-wide">サポーターになりました</span>
               </div>
               <p className="mt-1 text-xs text-ink/60">
-                ソシオカードをウォレットに追加して、いつでも証明できるようにしましょう。
+                サポーター会員証をウォレットに追加して、いつでも証明できるようにしましょう。
               </p>
             </div>
             <button
@@ -328,7 +328,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           </div>
           <div className="mt-3 text-center">
             <Link href="/account" className="text-xs text-ink/45 hover:text-ink underline">
-              ソシオカードを確認する →
+              サポーター会員証を確認する →
             </Link>
           </div>
         </div>
@@ -460,7 +460,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
                 {membership?.joinedAt && (
                   <div className="flex flex-1 flex-col items-center justify-center py-8">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/35">SOCIO Since</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/35">SUPPORTER Since</p>
                     <p className="mt-1 text-[88px] font-bold tabular-nums leading-none text-ink">
                       {Math.floor((Date.now() - new Date(membership.joinedAt).getTime()) / 86_400_000) + 1}
                     </p>
@@ -503,10 +503,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </>
             ) : (
               <div className="flex h-full flex-col">
-                {/* ソシオ数 or 募集中バッジ */}
+                {/* サポーター数 or 募集中バッジ */}
                 {spot.socioCount > 0 ? (
                   <div>
-                    <p className="text-[11px] font-semibold tracking-[0.18em] text-ink/40">SOCIOS</p>
+                    <p className="text-[11px] font-semibold tracking-[0.18em] text-ink/40">SUPPORTERS</p>
                     <p className="mt-1 text-5xl font-bold tabular-nums leading-none text-ink">
                       {spot.socioCount}
                       <span className="ml-2 text-base font-normal text-ink/45">人が応援中</span>
@@ -553,7 +553,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
                 {/* 価格 + ボタン */}
                 <div className="mt-auto pt-5">
-                  <p className="mb-3 text-center text-xs text-ink/40">月額 100円 〜</p>
+                  <p className="mb-3 text-center text-xs text-ink/40">月額 100〜500円</p>
                   <button
                     type="button"
                     className="cta-primary w-full"
@@ -668,7 +668,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SOCIOS ONLY</p>
+                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SUPPORTERS ONLY</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
                                 サポーターになる
@@ -726,7 +726,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SOCIOS ONLY</p>
+                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SUPPORTERS ONLY</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
                                 サポーターになる
@@ -755,12 +755,12 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onSignupClick={() => setSignupModalOpen(true)}
       />
 
-      {/* ── スティッキー ソシオになるCTA ─────────────────────────────── */}
+      {/* ── スティッキー サポーターになるCTA ─────────────────────────────── */}
       {showStickyJoin && (
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
-            <p className="text-xs text-ink/50">月100円から参加できます</p>
+            <p className="text-xs text-ink/50">月100〜500円で参加できます</p>
           </div>
           <button
             type="button"
