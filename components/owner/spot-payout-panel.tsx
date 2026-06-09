@@ -48,67 +48,6 @@ function getDisabledReasonLabel(reason: string | null) {
 
 type StepState = "done" | "active" | "pending" | "review";
 
-function StepCard({
-  number,
-  label,
-  description,
-  state,
-  note
-}: {
-  number: number;
-  label: string;
-  description?: string;
-  state: StepState;
-  note?: string | null;
-}) {
-  const stateConfig: Record<StepState, { badge: string; badgeClass: string; cardClass: string }> = {
-    done: {
-      badge: "完了",
-      badgeClass: "bg-moss/10 text-moss",
-      cardClass: "border-moss/20 bg-moss/5"
-    },
-    active: {
-      badge: "要対応",
-      badgeClass: "bg-red-50 text-red-700",
-      cardClass: "border-red-200 bg-red-50/50"
-    },
-    review: {
-      badge: "審査中",
-      badgeClass: "bg-amber-50 text-amber-700",
-      cardClass: "border-amber-200 bg-amber-50"
-    },
-    pending: {
-      badge: "未対応",
-      badgeClass: "bg-ink/5 text-ink/40",
-      cardClass: "border-ink/10 bg-white"
-    }
-  };
-
-  const config = stateConfig[state];
-
-  return (
-    <article className={`rounded-[24px] border px-5 py-5 ${config.cardClass}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-            state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/40"
-          }`}>
-            {state === "done" ? "✓" : number}
-          </span>
-          <span className="text-sm font-semibold text-ink">{label}</span>
-        </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${config.badgeClass}`}>
-          {config.badge}
-        </span>
-      </div>
-      {description ? <p className="mt-2 pl-10 text-sm leading-6 text-ink/60">{description}</p> : null}
-      {note ? (
-        <p className="mt-2 pl-10 text-xs leading-5 text-ink/45">{note}</p>
-      ) : null}
-    </article>
-  );
-}
-
 export function SpotPayoutPanel({ spotId }: { spotId: string }) {
   const { authReady, user } = useAuth();
   const searchParams = useSearchParams();
@@ -350,24 +289,31 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
       </section>
 
       {/* ステップ一覧 */}
-      <section className="space-y-3">
-        <StepCard
-          number={1}
-          label="本人確認"
-          state={step1State}
-        />
-        <StepCard
-          number={2}
-          label="売上受取の有効化"
-          state={step2State}
-          note={step2State === "review" ? "審査完了まで通常 3〜4 営業日かかります。" : null}
-        />
-        <StepCard
-          number={3}
-          label="振込口座の登録"
-          state={step3State}
-          note={step3State === "active" && !connectStatus?.hasExternalAccount ? "口座がまだ登録されていません。" : null}
-        />
+      <section className="grid grid-cols-3 gap-3">
+        {([
+          { number: 1, label: "本人確認", state: step1State, note: null },
+          { number: 2, label: "売上受取", state: step2State, note: step2State === "review" ? "審査中（3〜4営業日）" : null },
+          { number: 3, label: "振込口座", state: step3State, note: step3State === "active" && !connectStatus?.hasExternalAccount ? "口座未登録" : null },
+        ] as const).map(({ number, label, state, note }) => {
+          const cfg = {
+            done:    { badge: "完了",  badgeClass: "bg-moss/10 text-moss",      card: "border-moss/20 bg-moss/5" },
+            active:  { badge: "要対応", badgeClass: "bg-red-50 text-red-700",   card: "border-red-200 bg-red-50/50" },
+            review:  { badge: "審査中", badgeClass: "bg-amber-50 text-amber-700", card: "border-amber-200 bg-amber-50" },
+            pending: { badge: "未対応", badgeClass: "bg-ink/5 text-ink/40",     card: "border-ink/10 bg-white" },
+          }[state];
+          return (
+            <div key={number} className={`rounded-[20px] border px-4 py-4 ${cfg.card}`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/40"}`}>
+                  {state === "done" ? "✓" : number}
+                </span>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.badgeClass}`}>{cfg.badge}</span>
+              </div>
+              <p className="mt-2 text-xs font-semibold text-ink">{label}</p>
+              {note && <p className="mt-1 text-[10px] text-ink/45">{note}</p>}
+            </div>
+          );
+        })}
       </section>
 
       {/* アクションエリア */}
