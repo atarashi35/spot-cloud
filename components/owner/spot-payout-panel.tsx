@@ -32,15 +32,15 @@ function getDisabledReasonLabel(reason: string | null) {
     case "requirements.past_due":
       return "本人確認や口座登録で未完了の項目があります。";
     case "requirements.pending_verification":
-      return "Stripe 側で確認中の項目があります。審査完了まで少し待つ必要があります。";
+      return "確認中の項目があります。審査完了まで少しお待ちください。";
     case "under_review":
-      return "Stripe 側の審査中です。完了まで待つ必要があります。";
+      return "審査中です。完了まで待つ必要があります。";
     case "listed":
-      return "Stripe 側で追加確認が必要な状態です。ダッシュボードの案内を確認してください。";
+      return "追加確認が必要な状態です。登録内容の案内をご確認ください。";
     case "rejected.fraud":
     case "rejected.listed":
     case "rejected.terms_of_service":
-      return "Stripe 側で受取設定が停止されています。ダッシュボードの案内確認が必要です。";
+      return "受取設定が停止されています。登録内容の案内確認が必要です。";
     default:
       return null;
   }
@@ -275,12 +275,12 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
 
   // CTA ラベル
   const primaryCta = !connected
-    ? "Stripe で本人確認を始める"
+    ? "口座登録・本人確認を始める"
     : !onboardingComplete
-    ? "本人確認を再開する"
+    ? "登録の続きをする"
     : !payoutsEnabled && !connectStatus?.hasExternalAccount
     ? "振込口座を登録する"
-    : "Stripe 設定を確認する";
+    : "登録内容を確認する";
 
   const showCta = !ready && !inReview;
 
@@ -307,9 +307,14 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
                 : inReview
                 ? "本人確認の審査が行われています。通常 3〜4 営業日で完了します。"
                 : !connected
-                ? "サポーター募集を始めるには、Stripe で本人確認と振込口座の登録が必要です。"
+                ? "サポーター募集を始めるには、本人確認と振込口座の登録が必要です。"
                 : "以下のステップを完了してサポーター募集を開始しましょう。"}
             </p>
+            {showCta && (
+              <div className="mt-4">
+                <ConnectOnboardingButton spotId={spotId} connected={connected} label={primaryCta} />
+              </div>
+            )}
           </div>
           <StatusBadge tone={ready ? "success" : inReview ? "warning" : "danger"}>
             {ready ? "受取準備完了" : inReview ? "審査中" : !connected ? "未設定" : "設定中"}
@@ -361,20 +366,20 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
         <StepCard
           number={1}
           label="本人確認"
-          description="Stripe で氏名・住所・生年月日などを登録します。一度完了すれば再登録は不要です。"
+          description="氏名・住所・生年月日などを登録します。一度完了すれば再登録は不要です。"
           state={step1State}
         />
         <StepCard
           number={2}
           label="売上受取の有効化"
-          description="プラットフォームからの売上振替を受け取るための設定です。本人確認完了後に自動で有効になります。"
+          description="サポーター会費を受け取るための設定です。本人確認完了後に自動で有効になります。"
           state={step2State}
-          note={step2State === "review" ? "Stripe の審査完了まで通常 3〜4 営業日かかります。" : null}
+          note={step2State === "review" ? "審査完了まで通常 3〜4 営業日かかります。" : null}
         />
         <StepCard
           number={3}
           label="振込口座の登録"
-          description="売上を受け取る銀行口座を登録します。Stripe Connect の設定画面から登録できます。"
+          description="売上を受け取る銀行口座を登録します。登録が完了すると自動で振り込まれます。"
           state={step3State}
           note={step3State === "active" && !connectStatus?.hasExternalAccount ? "口座がまだ登録されていません。" : null}
         />
@@ -397,9 +402,6 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
         ) : null}
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          {showCta ? (
-            <ConnectOnboardingButton spotId={spotId} connected={connected} label={primaryCta} />
-          ) : null}
           <button
             type="button"
             className="cta-secondary"
