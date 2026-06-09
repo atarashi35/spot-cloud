@@ -31,7 +31,7 @@ async function compressImage(file: File, maxPx = 1200, quality = 0.78): Promise<
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       canvas.toBlob(
         (blob) => blob ? resolve(blob) : reject(new Error("compression failed")),
-        "image/jpeg",
+        "image/webp",
         quality
       );
     };
@@ -55,7 +55,7 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
     if (file.size > 5 * 1024 * 1024) return null;
     try {
       const compressed = await compressImage(file);
-      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
       const storageRef = ref(getFirebaseStorage(), `${storagePath}/${filename}`);
       const task = uploadBytesResumable(storageRef, compressed);
       await new Promise<void>((resolve, reject) => {

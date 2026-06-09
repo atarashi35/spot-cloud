@@ -41,7 +41,7 @@ async function compressImage(file: File, maxPx = 1200, quality = 0.78): Promise<
 
       canvas.toBlob(
         (blob) => blob ? resolve(blob) : reject(new Error("compression failed")),
-        "image/jpeg",
+        "image/webp",
         quality
       );
     };
@@ -87,7 +87,7 @@ export function ImageUploader({
       // アップロード前に圧縮（長辺1600px・JPEG 82%品質）
       // スマホ写真 ~5MB → ~150KB 程度に削減
       const compressed = await compressImage(file);
-      const filename = `${Date.now()}.jpg`; // 常にJPEGで保存
+      const filename = `${Date.now()}.webp`;
       const storageRef = ref(storage, `${storagePath}/${filename}`);
 
       const task = uploadBytesResumable(storageRef, compressed);
