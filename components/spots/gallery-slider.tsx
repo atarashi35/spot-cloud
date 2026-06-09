@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 type Props = { images: string[] };
 
@@ -39,11 +40,13 @@ export function GallerySlider({ images }: Props) {
         >
           {images.map((url, i) => (
             <div key={url} className="relative w-full shrink-0 aspect-[3/2] sm:aspect-[16/7]">
-              <img
+              <Image
                 src={url}
                 alt={`ギャラリー ${i + 1}`}
-                className="h-full w-full object-cover"
-                loading={i === 0 ? "eager" : "lazy"}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 900px"
+                priority={i === 0}
               />
             </div>
           ))}
