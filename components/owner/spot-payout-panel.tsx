@@ -224,23 +224,17 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
   const showCta = !ready && !inReview;
 
   return (
-    <div className="mt-8 space-y-5">
+    <div className="mt-8">
+      <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-5 space-y-4">
 
-      {/* ステータスヘッダー */}
-      <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-5">
+        {/* ステータス行 */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <StatusBadge tone={ready ? "success" : inReview ? "warning" : "danger"}>
               {ready ? "受取準備完了" : inReview ? "審査中" : !connected ? "未設定" : "設定中"}
             </StatusBadge>
             <p className="text-sm font-semibold text-ink">
-              {ready
-                ? "サポーター募集を開始できます"
-                : inReview
-                ? "審査中です（3〜4営業日）"
-                : !connected
-                ? "口座登録がまだです"
-                : "設定の続きがあります"}
+              {ready ? "サポーター募集を開始できます" : inReview ? "審査中です（3〜4営業日）" : !connected ? "口座登録がまだです" : "設定の続きがあります"}
             </p>
           </div>
           {showCta && (
@@ -248,105 +242,62 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
           )}
         </div>
 
-          {existingAccounts.length > 0 && !connected ? (
-          <div className="mt-5 rounded-[20px] border border-moss/20 bg-moss/5 px-5 py-4">
-            <p className="text-sm font-semibold text-ink">他の SPOT で登録済みの口座を使う</p>
-            <p className="mt-1 text-xs leading-5 text-ink/55">
-              同じ受取口座を複数の SPOT に使えます。再登録は不要です。
-            </p>
-            <div className="mt-3 flex flex-col gap-2">
-              {existingAccounts.map((acc) => (
-                <div key={acc.accountId} className="flex flex-col gap-3 rounded-[14px] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink">{acc.spotName}</p>
-                    <p className="truncate text-xs text-ink/40">{acc.accountId}</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="cta-primary w-full shrink-0 text-sm sm:w-auto"
-                    onClick={() => void linkAccount(acc.accountId)}
-                    disabled={linkLoading}
-                  >
-                    {linkLoading ? "設定中…" : "この口座を使う"}
-                  </button>
+        {/* ステップ */}
+        <div className="grid grid-cols-3 gap-3">
+          {([
+            { number: 1, label: "本人確認",  state: step1State, note: null },
+            { number: 2, label: "売上受取",  state: step2State, note: step2State === "review" ? "審査中（3〜4営業日）" : null },
+            { number: 3, label: "振込口座",  state: step3State, note: step3State === "active" && !connectStatus?.hasExternalAccount ? "口座未登録" : null },
+          ] as const).map(({ number, label, state, note }) => {
+            const cfg = {
+              done:    { badge: "完了",   badgeClass: "bg-moss/10 text-moss",        card: "border-moss/20 bg-moss/5" },
+              active:  { badge: "要対応", badgeClass: "bg-red-50 text-red-700",      card: "border-red-200 bg-red-50/50" },
+              review:  { badge: "審査中", badgeClass: "bg-amber-50 text-amber-700",  card: "border-amber-200 bg-amber-50" },
+              pending: { badge: "未対応", badgeClass: "bg-ink/5 text-ink/40",        card: "border-ink/10 bg-mist" },
+            }[state];
+            return (
+              <div key={number} className={`rounded-[16px] border px-4 py-3 ${cfg.card}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/40"}`}>
+                    {state === "done" ? "✓" : number}
+                  </span>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.badgeClass}`}>{cfg.badge}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-      {returnedFromStripe && !ready ? (
-          <div className="mt-4 rounded-[16px] bg-mist px-4 py-3 text-sm text-ink/70">
-            Stripe から戻りました。設定状況を更新しています…
-          </div>
-        ) : null}
-
-        {error ? (
-          <div className="mt-4 rounded-[16px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        ) : null}
-      </section>
-
-      {/* ステップ一覧 */}
-      <section className="grid grid-cols-3 gap-3">
-        {([
-          { number: 1, label: "本人確認", state: step1State, note: null },
-          { number: 2, label: "売上受取", state: step2State, note: step2State === "review" ? "審査中（3〜4営業日）" : null },
-          { number: 3, label: "振込口座", state: step3State, note: step3State === "active" && !connectStatus?.hasExternalAccount ? "口座未登録" : null },
-        ] as const).map(({ number, label, state, note }) => {
-          const cfg = {
-            done:    { badge: "完了",  badgeClass: "bg-moss/10 text-moss",      card: "border-moss/20 bg-moss/5" },
-            active:  { badge: "要対応", badgeClass: "bg-red-50 text-red-700",   card: "border-red-200 bg-red-50/50" },
-            review:  { badge: "審査中", badgeClass: "bg-amber-50 text-amber-700", card: "border-amber-200 bg-amber-50" },
-            pending: { badge: "未対応", badgeClass: "bg-ink/5 text-ink/40",     card: "border-ink/10 bg-white" },
-          }[state];
-          return (
-            <div key={number} className={`rounded-[20px] border px-4 py-4 ${cfg.card}`}>
-              <div className="flex items-center justify-between gap-2">
-                <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/40"}`}>
-                  {state === "done" ? "✓" : number}
-                </span>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.badgeClass}`}>{cfg.badge}</span>
+                <p className="mt-1.5 text-xs font-semibold text-ink">{label}</p>
+                {note && <p className="mt-0.5 text-[10px] text-ink/45">{note}</p>}
               </div>
-              <p className="mt-2 text-xs font-semibold text-ink">{label}</p>
-              {note && <p className="mt-1 text-[10px] text-ink/45">{note}</p>}
-            </div>
-          );
-        })}
-      </section>
+            );
+          })}
+        </div>
 
-      {/* アクションエリア */}
-      <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-6">
-        {ready ? (
-          <div className="space-y-3">
-            <p className="text-sm font-semibold text-ink">サポーター募集を開始できます</p>
-            <p className="text-sm leading-7 text-ink/60">
-              追加の操作は不要です。SPOT の公開設定を確認してサポーターを募集しましょう。
-            </p>
+        {/* エラー・通知 */}
+        {error && (
+          <div className="rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>
+        )}
+        {disabledReasonLabel && !error && (
+          <p className="text-xs text-ink/55">{disabledReasonLabel}</p>
+        )}
+        {existingAccounts.length > 0 && !connected && (
+          <div className="rounded-[16px] border border-moss/20 bg-moss/5 px-4 py-3 space-y-2">
+            <p className="text-xs font-semibold text-ink">他のSPOTの登録済み口座を使う</p>
+            {existingAccounts.map((acc) => (
+              <div key={acc.accountId} className="flex items-center justify-between gap-3">
+                <p className="text-xs text-ink/60 truncate">{acc.spotName}</p>
+                <button type="button" className="cta-primary shrink-0 text-xs" onClick={() => void linkAccount(acc.accountId)} disabled={linkLoading}>
+                  {linkLoading ? "設定中…" : "この口座を使う"}
+                </button>
+              </div>
+            ))}
           </div>
-        ) : disabledReasonLabel ? (
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-ink">Stripe からの通知</p>
-            <p className="text-sm leading-6 text-ink/60">{disabledReasonLabel}</p>
-          </div>
-        ) : null}
+        )}
 
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            className="cta-secondary"
-            onClick={() => void loadStatus()}
-            disabled={statusLoading}
-          >
+        {/* サブアクション */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <button type="button" className="cta-secondary text-sm" onClick={() => void loadStatus()} disabled={statusLoading}>
             {statusLoading ? "確認中…" : "状態を更新"}
           </button>
-          <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary">
-            SPOT を編集
-          </Link>
-          <Link href="/manage" className="cta-secondary text-ink/50">
-            運営する SPOT へ
-          </Link>
+          <Link href={`/owner/spots/${spot.id}/edit`} className="cta-secondary text-sm">SPOT を編集</Link>
+          <Link href="/manage" className="cta-secondary text-sm text-ink/50">運営する SPOT へ</Link>
         </div>
       </section>
     </div>
