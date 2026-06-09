@@ -62,8 +62,8 @@ function getClassId(issuerId: string): string {
 }
 
 function getObjectId(issuerId: string, uid: string): string {
-  // v2: heroImage追加に伴い新規オブジェクトを作成
-  return `${issuerId}.socio_v2_${uid}`;
+  // v3: 表示名をFirestoreプロフィール優先に修正
+  return `${issuerId}.socio_v3_${uid}`;
 }
 
 // ─── Google Wallet GenericObject ペイロード ────────────────────────────────────
