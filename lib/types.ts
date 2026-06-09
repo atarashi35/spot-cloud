@@ -92,6 +92,11 @@ export interface SpotMembership {
   status: MembershipStatus;
   joinedAt: string;
   updatedAt: string;
+  /**
+   * 直近の解約確定日時（ISO文字列）。
+   * 再登録後30日以内はアンケート投票権なし。
+   */
+  canceledAt?: string;
   // ソシオプロフィール（users/{uid} から結合）
   avatarUrl?: string;
   occupation?: string;

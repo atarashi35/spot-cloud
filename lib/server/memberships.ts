@@ -31,6 +31,12 @@ export async function upsertMembership(payload: MembershipPayload) {
     const becameActive = !isPaying(previousStatus) && isPaying(payload.status);
     const becameInactive = isPaying(previousStatus) && !isPaying(payload.status);
 
+    // 解約確定時に canceledAt を記録。再登録時は既存の canceledAt を保持（merge で残る）。
+    const canceledAtField: Record<string, unknown> = {};
+    if (becameInactive) {
+      canceledAtField.canceledAt = FieldValue.serverTimestamp();
+    }
+
     transaction.set(
       memberRef,
       {
@@ -45,7 +51,8 @@ export async function upsertMembership(payload: MembershipPayload) {
         stripeSubscriptionId: payload.stripeSubscriptionId,
         status: payload.status,
         joinedAt: snapshot.exists ? snapshot.data()?.joinedAt ?? FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
+        updatedAt: FieldValue.serverTimestamp(),
+        ...canceledAtField,
       },
       { merge: true }
     );

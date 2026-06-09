@@ -15,6 +15,41 @@ import {
 import { getFirestoreDb } from "@/lib/firebase/client";
 import { OpinionBoxEntry, PollOption, SpotVote, VoteResponse, VoteType } from "@/lib/types";
 
+const VOTE_WAITING_DAYS = 30;
+
+/**
+ * 再登録後30日以内かどうかをチェックしてアンケート投票権を返す。
+ * - 初回登録（canceledAt なし）→ 投票可
+ * - 解約→再登録で joinedAt が canceledAt より後かつ30日未満 → 投票不可
+ */
+export async function getVotingEligibility(
+  spotId: string,
+  uid: string
+): Promise<{ eligible: boolean; waitUntil?: Date }> {
+  const memberSnap = await getDoc(
+    doc(getFirestoreDb(), "spots", spotId, "members", uid)
+  );
+  if (!memberSnap.exists()) return { eligible: false };
+
+  const data = memberSnap.data();
+  const canceledAt = data.canceledAt?.toDate?.() as Date | undefined;
+  const joinedAt = data.joinedAt?.toDate?.() as Date | undefined;
+
+  if (!canceledAt || !joinedAt) return { eligible: true };
+
+  // 再登録（joinedAt が canceledAt より後）かどうか
+  if (joinedAt <= canceledAt) return { eligible: true };
+
+  const waitUntil = new Date(joinedAt.getTime() + VOTE_WAITING_DAYS * 24 * 60 * 60 * 1000);
+  const now = new Date();
+
+  if (now < waitUntil) {
+    return { eligible: false, waitUntil };
+  }
+
+  return { eligible: true };
+}
+
 // ─── votes コレクション ───────────────────────────────────────────────
 
 function votesCol(spotId: string) {
@@ -98,6 +133,14 @@ export async function submitResponse(
   uid: string,
   data: { optionId?: string; text?: string; amount: number }
 ): Promise<void> {
+  const { eligible, waitUntil } = await getVotingEligibility(spotId, uid);
+  if (!eligible) {
+    const msg = waitUntil
+      ? `再登録から${VOTE_WAITING_DAYS}日間は投票できません（${waitUntil.toLocaleDateString("ja-JP")}以降に解禁）`
+      : "投票権がありません";
+    throw new Error(msg);
+  }
+
   await runTransaction(getFirestoreDb(), async (tx) => {
     const resRef = responseDoc(spotId, voteId, uid);
     const existing = await tx.get(resRef);

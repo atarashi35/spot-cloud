@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, ChevronRight, Loader2, MessageSquare } from "lucide-react";
 import {
+  getVotingEligibility,
   getUserResponse,
   listOpenVotes,
   submitOpinion,
@@ -17,11 +18,15 @@ function PollCard({
   spotId,
   uid,
   amount,
+  votingEligible,
+  votingUnlocksAt,
 }: {
   vote: SpotVote;
   spotId: string;
   uid: string;
   amount: PlanAmount;
+  votingEligible: boolean;
+  votingUnlocksAt?: Date;
 }) {
   const [existing, setExisting] = useState<VoteResponse | null | undefined>(undefined);
   const [selected, setSelected] = useState<string | null>(null);
@@ -74,6 +79,15 @@ function PollCard({
           })}
           <p className="text-right text-[11px] text-ink/38">{localCount} 票</p>
         </div>
+      ) : !votingEligible ? (
+        <div className="rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/55">
+          再登録から30日間は投票できません。
+          {votingUnlocksAt && (
+            <span className="block mt-0.5 text-[11px] text-ink/40">
+              {votingUnlocksAt.toLocaleDateString("ja-JP")} から解禁
+            </span>
+          )}
+        </div>
       ) : (
         <div className="space-y-2">
           {vote.options?.map((opt) => (
@@ -117,11 +131,15 @@ function OpenQuestionCard({
   spotId,
   uid,
   amount,
+  votingEligible,
+  votingUnlocksAt,
 }: {
   vote: SpotVote;
   spotId: string;
   uid: string;
   amount: PlanAmount;
+  votingEligible: boolean;
+  votingUnlocksAt?: Date;
 }) {
   const [existing, setExisting] = useState<VoteResponse | null | undefined>(undefined);
   const [text, setText] = useState("");
@@ -163,6 +181,15 @@ function OpenQuestionCard({
         <div className="flex items-center gap-2 rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/55">
           <CheckCircle2 className="h-4 w-4 text-moss shrink-0" />
           意見を送りました
+        </div>
+      ) : !votingEligible ? (
+        <div className="rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/55">
+          再登録から30日間は回答できません。
+          {votingUnlocksAt && (
+            <span className="block mt-0.5 text-[11px] text-ink/40">
+              {votingUnlocksAt.toLocaleDateString("ja-JP")} から解禁
+            </span>
+          )}
         </div>
       ) : (
         <div className="space-y-2">
@@ -306,6 +333,8 @@ export function VoicesSection({
 }) {
   const [votes, setVotes] = useState<SpotVote[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [votingEligible, setVotingEligible] = useState(true);
+  const [votingUnlocksAt, setVotingUnlocksAt] = useState<Date | undefined>();
 
   useEffect(() => {
     if (!canParticipate && !isOwner) {
@@ -314,6 +343,14 @@ export function VoicesSection({
     }
     void listOpenVotes(spotId).then((v) => { setVotes(v); setLoaded(true); });
   }, [spotId, canParticipate, isOwner]);
+
+  useEffect(() => {
+    if (!canParticipate || !uid || isOwner) return;
+    void getVotingEligibility(spotId, uid).then(({ eligible, waitUntil }) => {
+      setVotingEligible(eligible);
+      setVotingUnlocksAt(waitUntil);
+    });
+  }, [spotId, uid, canParticipate, isOwner]);
 
   const hasContent = votes.length > 0 || opinionBoxEnabled;
   if (loaded && !hasContent) return null;
@@ -331,9 +368,9 @@ export function VoicesSection({
             if (isOwner) return <OwnerVotePreview key={vote.id} vote={vote} />;
             if (!uid || !amount) return null;
             return vote.type === "poll" ? (
-              <PollCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} />
+              <PollCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} votingEligible={votingEligible} votingUnlocksAt={votingUnlocksAt} />
             ) : (
-              <OpenQuestionCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} />
+              <OpenQuestionCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} votingEligible={votingEligible} votingUnlocksAt={votingUnlocksAt} />
             );
           })}
           {/* 意見ボックス: ソシオのみ（オーナーは管理画面で見る） */}
