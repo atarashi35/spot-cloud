@@ -62,17 +62,19 @@ export async function POST(request: NextRequest) {
       account: accountId,
       type: "account_onboarding",
       refresh_url: `${origin}/owner/spots/${body.spotId}/payout?connect=refresh`,
-      return_url: `${origin}/owner/spots/${body.spotId}/payout?connect=return`,
-      collection_options: {
-        fields: "currently_due",
-        future_requirements: "omit"
-      }
+      return_url: `${origin}/owner/spots/${body.spotId}/payout?connect=return`
     });
 
     return NextResponse.json({ url: accountLink.url, accountId });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Connect onboarding の開始に失敗しました。";
     const connectNotEnabled = message.includes("signed up for Connect");
+
+    // Cloud Logging でエラー詳細を確認できるようにフル出力
+    console.error("[connect/onboarding] Stripe error:", {
+      message,
+      raw: error
+    });
 
     return NextResponse.json(
       {
