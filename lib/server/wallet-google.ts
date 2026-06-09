@@ -62,8 +62,8 @@ function getClassId(issuerId: string): string {
 }
 
 function getObjectId(issuerId: string, uid: string): string {
-  // v3: 表示名をFirestoreプロフィール優先に修正
-  return `${issuerId}.socio_v3_${uid}`;
+  // v4: ヒーロー画像キャッシュバスト・QR alternateText修正
+  return `${issuerId}.socio_v4_${uid}`;
 }
 
 // ─── Google Wallet GenericObject ペイロード ────────────────────────────────────
@@ -111,7 +111,7 @@ function buildGenericObject(data: SocioCardData, issuerId: string) {
     barcode: {
       type: "QR_CODE",
       value: data.verifyUrl,
-      alternateText: `SOCIO: ${data.displayName}`,
+      alternateText: data.displayName,
     },
 
     // ロゴ（左上）
@@ -120,9 +120,11 @@ function buildGenericObject(data: SocioCardData, issuerId: string) {
       contentDescription: { defaultValue: { language: "ja", value: "SPOT" } },
     },
 
-    // ヒーロー画像
+    // ヒーロー画像（名前・SPOTS数をクエリパラメータで渡してパーソナライズ）
     heroImage: {
-      sourceUri: { uri: "https://spotcloud.app/api/wallet/google/hero" },
+      sourceUri: {
+        uri: `https://spotcloud.app/api/wallet/google/hero?name=${encodeURIComponent(data.displayName)}&spots=${data.spotCount}`,
+      },
       contentDescription: { defaultValue: { language: "ja", value: "SPOT SOCIO CARD" } },
     },
 
