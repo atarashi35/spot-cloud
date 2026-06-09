@@ -135,10 +135,10 @@ export default function OwnerPage() {
             {/* 左：コピー */}
             <div>
               <div className="hero-animate-1 inline-flex items-center rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-white/50">
-                FOR OWNERS
+                継続型・超低額クラファン
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
-                <span className="hero-gradient-text block">継続型・超低額クラファン。</span>
+                <span className="hero-gradient-text block">超低額ファンクラブ作成サービス。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
                 月100〜500円でサポーターを集められます。<br />
