@@ -126,7 +126,7 @@ export function SiteHeader() {
                     </Link>
                     <Link href="/account" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <UserCircle className="h-4 w-4" />
-                      マイSOCIO
+                      サポート中
                     </Link>
                     <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <Building2 className="h-4 w-4" />
