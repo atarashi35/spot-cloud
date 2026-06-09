@@ -9,6 +9,7 @@ type MembershipPayload = {
   affiliation?: string;
   ageRange?: SocioAgeRange;
   gender?: SocioGender;
+  address?: string;
   spotId: string;
   spotName: string;
   planAmount: PlanAmount;
@@ -46,6 +47,7 @@ export async function upsertMembership(payload: MembershipPayload) {
         affiliation: payload.affiliation ?? "",
         ageRange: payload.ageRange ?? "",
         gender: payload.gender ?? "",
+        address: payload.address ?? "",
         planAmount: payload.planAmount,
         stripeCustomerId: payload.stripeCustomerId,
         stripeSubscriptionId: payload.stripeSubscriptionId,
@@ -201,11 +203,12 @@ export async function reconcileMembershipsByEmail(uid: string, email: string) {
     await db.runTransaction(async (transaction) => {
       // Firestoreトランザクションは全 read を write より先に行う必要があるため
       // すべてのドキュメントを最初にまとめて取得する
-      const [sourceMemberSnap, targetMemberSnap, sourceMembershipSnap, spotSnap] =
+      const [sourceMemberSnap, targetMemberSnap, sourceMembershipSnap, targetMembershipSnap, spotSnap] =
         await Promise.all([
           transaction.get(sourceMemberRef),
           transaction.get(targetMemberRef),
           transaction.get(sourceMembershipRef),
+          transaction.get(targetMembershipRef),
           transaction.get(spotRef)
         ]);
 
@@ -219,6 +222,8 @@ export async function reconcileMembershipsByEmail(uid: string, email: string) {
         sourceMember.joinedAt ??
         sourceMembership.joinedAt ??
         FieldValue.serverTimestamp();
+      const targetMember = targetMemberSnap.exists ? targetMemberSnap.data() ?? {} : {};
+      const targetMembership = targetMembershipSnap.exists ? targetMembershipSnap.data() ?? {} : {};
       const spotName =
         String(sourceMembership.spotName ?? "") || String(spotSnap.data()?.name ?? "");
       const planAmount = Number(
@@ -231,14 +236,25 @@ export async function reconcileMembershipsByEmail(uid: string, email: string) {
       const targetPreviousStatus = targetMemberSnap.exists
         ? (targetMemberSnap.data()?.status as string | null)
         : null;
+      const keepTargetMembership = isPaying(targetPreviousStatus) && !isPaying(status);
+      const resolvedStatus = keepTargetMembership
+        ? (targetPreviousStatus as MembershipStatus)
+        : status;
+      const resolvedJoinedAt =
+        targetMember.joinedAt ??
+        targetMembership.joinedAt ??
+        joinedAt;
 
       transaction.set(
         targetMemberRef,
         {
-          ...sourceMember,
+          ...(keepTargetMembership ? sourceMember : {}),
+          ...targetMember,
+          ...(!keepTargetMembership ? sourceMember : {}),
           uid,
           email: normalizedEmail,
-          joinedAt,
+          joinedAt: resolvedJoinedAt,
+          status: resolvedStatus,
           updatedAt: FieldValue.serverTimestamp()
         },
         { merge: true }
@@ -248,11 +264,21 @@ export async function reconcileMembershipsByEmail(uid: string, email: string) {
         targetMembershipRef,
         {
           spotId,
-          spotName,
-          affiliation: String(sourceMember.affiliation ?? sourceMembership.affiliation ?? ""),
-          planAmount,
-          status,
-          joinedAt,
+          spotName: String(targetMembership.spotName ?? "") || spotName,
+          affiliation: String(
+            targetMembership.affiliation ??
+              targetMember.affiliation ??
+              sourceMember.affiliation ??
+              sourceMembership.affiliation ??
+              ""
+          ),
+          planAmount: keepTargetMembership
+            ? (Number(
+                targetMembership.planAmount ?? targetMember.planAmount ?? planAmount
+              ) as PlanAmount)
+            : planAmount,
+          status: resolvedStatus,
+          joinedAt: resolvedJoinedAt,
           updatedAt: FieldValue.serverTimestamp()
         },
         { merge: true }
@@ -279,9 +305,6 @@ export async function reconcileMembershipsByEmail(uid: string, email: string) {
         }
         // isPaying(status) && !isPaying(targetPreviousStatus):
         //   source の paying はそのままカウントに残る（doc が uid に移るだけ） → 変化なし
-        // !isPaying(status) && isPaying(targetPreviousStatus):
-        //   source non-paying を target の paying に merge → target の paying を上書きする危険
-        //   この場合は merge しないほうが安全だが、現状は status を source から引き継ぐ設計
       }
     });
 

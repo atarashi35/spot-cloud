@@ -54,6 +54,13 @@ export type PlanBenefits = {
   500?: string;
 };
 
+export type TeamMember = {
+  name: string;
+  role: string;
+  bio?: string;
+  avatarUrl?: string;
+};
+
 export interface Spot {
   id: string;
   name: string;
@@ -76,6 +83,7 @@ export interface Spot {
   socialLinks?: SocialLinks;
   planBenefits?: PlanBenefits;
   opinionBoxEnabled?: boolean;
+  teamMembers?: TeamMember[];
   createdAt: string;
   updatedAt: string;
 }
@@ -98,6 +106,7 @@ export interface SpotMembership {
    * 再登録後30日以内はアンケート投票権なし。
    */
   canceledAt?: string;
+  address?: string;
   // ソシオプロフィール（users/{uid} から結合）
   avatarUrl?: string;
   occupation?: string;

@@ -106,7 +106,7 @@ export async function generateSocioPkpass(data: SocioCardData): Promise<Uint8Arr
         {
           key: "verifyUrl",
           label: "認証URL",
-          value: `https://spotcloud.app/socio/${data.uid}`,
+          value: data.verifyUrl,
         },
         {
           key: "socioId",
@@ -119,13 +119,13 @@ export async function generateSocioPkpass(data: SocioCardData): Promise<Uint8Arr
     barcodes: [
       {
         format: "PKBarcodeFormatQR",
-        message: `https://spotcloud.app/socio/${data.uid}`,
+        message: data.verifyUrl,
         messageEncoding: "iso-8859-1",
       },
     ],
     barcode: {
       format: "PKBarcodeFormatQR",
-      message: `https://spotcloud.app/socio/${data.uid}`,
+      message: data.verifyUrl,
       messageEncoding: "iso-8859-1",
     },
 
@@ -152,4 +152,3 @@ export async function generateSocioPkpass(data: SocioCardData): Promise<Uint8Arr
 
   return pass.getAsBuffer();
 }
-

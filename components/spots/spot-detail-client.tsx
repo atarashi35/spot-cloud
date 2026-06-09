@@ -582,6 +582,42 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         </section>
       ) : null}
 
+      {/* ── 運営メンバー ─────────────────────────────────────────────── */}
+      {spot.teamMembers && spot.teamMembers.length > 0 && (
+        <section className="panel px-6 py-8 sm:px-10 sm:py-10">
+          <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">TEAM</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {spot.teamMembers.map((member, i) => (
+              <div key={i} className="flex items-start gap-3 rounded-[20px] bg-mist p-4">
+                {member.avatarUrl ? (
+                  <Image
+                    src={member.avatarUrl}
+                    alt={member.name}
+                    width={44}
+                    height={44}
+                    className="h-11 w-11 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink/10">
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 text-ink/35" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                    </svg>
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="font-semibold text-ink leading-tight">{member.name}</p>
+                  <p className="mt-0.5 text-xs font-medium text-ink/50">{member.role}</p>
+                  {member.bio && (
+                    <p className="mt-1.5 text-xs leading-5 text-ink/60">{member.bio}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── ギャラリー ───────────────────────────────────────────────── */}
       {spot.galleryImageUrls && spot.galleryImageUrls.length > 0 && (
         <GallerySlider images={spot.galleryImageUrls} />

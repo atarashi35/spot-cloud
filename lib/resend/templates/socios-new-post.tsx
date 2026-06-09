@@ -2,7 +2,7 @@ import { Button, Heading, Text } from "@react-email/components";
 import * as React from "react";
 import { EmailLayout } from "./layout";
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://spotcloud.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://spotcloud.app";
 
 type Props = {
   spotName: string;

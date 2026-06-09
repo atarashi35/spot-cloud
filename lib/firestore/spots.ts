@@ -13,7 +13,7 @@ import {
   where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
-import { Spot, SpotCategory, SocialLinks, PlanBenefits } from "@/lib/types";
+import { Spot, SpotCategory, SocialLinks, PlanBenefits, TeamMember } from "@/lib/types";
 import { prefecturePattern, slugify, splitAddress, toShortDescription } from "@/lib/utils";
 
 type SpotInput = {
@@ -30,6 +30,7 @@ type SpotInput = {
   email?: string;
   socialLinks?: SocialLinks;
   planBenefits?: PlanBenefits;
+  teamMembers?: TeamMember[];
 };
 
 const tonePalette = [
@@ -101,6 +102,9 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
       ? (data.planBenefits as PlanBenefits)
       : undefined,
     opinionBoxEnabled: Boolean(data.opinionBoxEnabled),
+    teamMembers: Array.isArray(data.teamMembers)
+      ? (data.teamMembers as TeamMember[]).filter((m) => m && typeof m.name === "string")
+      : undefined,
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
   };
@@ -157,6 +161,7 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
     email: input.email ?? "",
     socialLinks: input.socialLinks ?? {},
     planBenefits: input.planBenefits ?? {},
+    teamMembers: input.teamMembers ?? [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
@@ -180,6 +185,7 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     email: input.email ?? "",
     socialLinks: input.socialLinks ?? {},
     planBenefits: input.planBenefits ?? {},
+    teamMembers: input.teamMembers ?? [],
     updatedAt: serverTimestamp()
   });
 }

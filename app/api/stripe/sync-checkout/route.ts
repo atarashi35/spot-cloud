@@ -119,6 +119,7 @@ export async function POST(request: NextRequest) {
     affiliation: String(metadata.affiliation ?? ""),
     ageRange: (metadata.ageRange ?? "") as SocioAgeRange,
     gender: (metadata.gender ?? "") as SocioGender,
+    address: String(metadata.address ?? ""),
     spotId: metadata.spotId,
     spotName: metadata.spotName,
     planAmount: Number(metadata.planAmount) as PlanAmount,

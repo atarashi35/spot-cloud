@@ -7,6 +7,9 @@ import { getFirebaseAuth } from "@/lib/firebase/client";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EMAIL_LINK_STORAGE_KEY, EmailSignInState } from "@/lib/auth/email-link";
 import { loadUserProfileCache, saveUserProfileCache } from "@/lib/user-profile-cache";
+import { getUserProfileDoc } from "@/lib/firestore/user-profile";
+import { resolveDisplayName } from "@/lib/user-profile";
+import { PostalCodeField } from "@/components/forms/postal-code-field";
 import {
   PlanAmount,
   SocioAgeRange,
@@ -61,6 +64,8 @@ export function SocioSignupModal({
   const [affiliation, setAffiliation] = useState("");
   const [ageRange, setAgeRange] = useState("");
   const [gender, setGender] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [addressLine, setAddressLine] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -74,14 +79,20 @@ export function SocioSignupModal({
     setError(null);
 
     if (user) {
-      // キャッシュがあれば前回入力値を自動入力（2回目以降の加入を楽にする）
       const cached = loadUserProfileCache();
-      setName(cached?.name || user.displayName || "");
       setAgeRange(cached?.ageRange ?? "");
       setGender(cached?.gender ?? "");
       setAffiliation("");
       setEmail(user.email ?? "");
       setStep("profile");
+      // アプリ設定の表示名を優先（キャッシュ→Firestore→Auth名の順）
+      if (cached?.name) {
+        setName(cached.name);
+      } else {
+        void getUserProfileDoc(user.uid).then((profile) => {
+          setName(resolveDisplayName(profile?.profileDisplayName, user.displayName, user.email));
+        });
+      }
     } else {
       setEmail("");
       setName("");
@@ -97,9 +108,11 @@ export function SocioSignupModal({
     if (!open || !user) return;
 
     if (step === "login" || step === "email_sent") {
-      setName(user.displayName ?? "");
       setEmail(user.email ?? "");
       setStep("profile");
+      void getUserProfileDoc(user.uid).then((profile) => {
+        setName(resolveDisplayName(profile?.profileDisplayName, user.displayName, user.email));
+      });
     }
   }, [user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -206,7 +219,8 @@ export function SocioSignupModal({
           name: name.trim(),
           affiliation: affiliation.trim() || undefined,
           ageRange: ageRange || undefined,
-          gender: gender || undefined
+          gender: gender || undefined,
+          address: addressLine.trim() ? `〒${postalCode} ${addressLine.trim()}` : undefined,
         })
       });
 
@@ -363,6 +377,22 @@ export function SocioSignupModal({
                       placeholder={affiliationPlaceholder}
                     />
                   </label>
+                  <div className="space-y-2 sm:col-span-2">
+                    <span className="text-sm font-medium text-ink/62">住所（任意）</span>
+                    <PostalCodeField
+                      onResolved={({ postalCode: pc, prefecture, city, addressLine: al }) => {
+                        setPostalCode(pc);
+                        setAddressLine(`${prefecture}${city}${al}`);
+                      }}
+                    />
+                    <input
+                      className="field"
+                      value={addressLine}
+                      onChange={(e) => setAddressLine(e.target.value)}
+                      placeholder="都道府県・市区町村・番地"
+                    />
+                    <p className="text-[11px] text-ink/40">特典の送付などに利用します。オーナーのみ閲覧できます。</p>
+                  </div>
                   <label className="space-y-2">
                     <span className="text-sm font-medium text-ink/62">年齢（任意）</span>
                     <select

@@ -145,6 +145,7 @@ export async function POST(request: Request) {
         affiliation: String(metadata.affiliation ?? ""),
         ageRange: (metadata.ageRange ?? "") as SocioAgeRange,
         gender: (metadata.gender ?? "") as SocioGender,
+        address: String(metadata.address ?? ""),
         spotId: metadata.spotId,
         spotName: metadata.spotName,
         planAmount,
@@ -264,7 +265,7 @@ export async function POST(request: Request) {
             to: membership.email,
             spotName: membership.spotName,
             displayName: membership.displayName ?? "",
-            portalUrl: `${process.env.NEXT_PUBLIC_BASE_URL ?? "https://spotcloud.app"}/dashboard`,
+            portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://spotcloud.app"}/dashboard`,
           }),
         ]);
       }

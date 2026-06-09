@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
       affiliation?: string;
       ageRange?: SocioAgeRange;
       gender?: SocioGender;
+      address?: string;
     };
     const planAmount = body.planAmount as PlanAmount | undefined;
 
@@ -105,6 +106,7 @@ export async function POST(request: NextRequest) {
     const affiliation = body.affiliation?.trim() ?? "";
     const ageRange = body.ageRange ?? "";
     const gender = body.gender ?? "";
+    const address = body.address?.trim() ?? "";
 
     const origin = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
 
@@ -129,6 +131,7 @@ export async function POST(request: NextRequest) {
           affiliation,
           ageRange,
           gender,
+          address,
           planAmount: String(planAmount),
           stripeConnectedAccountId: connectedAccountId,
           platformFeePercent: String(PLATFORM_FEE_PERCENT),

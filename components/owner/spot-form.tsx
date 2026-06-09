@@ -12,7 +12,7 @@ import {
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SpotCategory, planOptions, PlanAmount } from "@/lib/types";
+import { SpotCategory, planOptions, PlanAmount, TeamMember } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -188,6 +188,7 @@ export function SpotForm(props: SpotFormProps) {
   const [line, setLine] = useState("");
   const [youtube, setYoutube] = useState("");
   const [planBenefits, setPlanBenefits] = useState<Record<PlanAmount, string>>({ 100: "", 300: "", 500: "" });
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -241,6 +242,7 @@ export function SpotForm(props: SpotFormProps) {
           300: spot.planBenefits?.[300] ?? "",
           500: spot.planBenefits?.[500] ?? "",
         });
+        setTeamMembers(spot.teamMembers ?? []);
       })
       .catch((cause: Error) => {
         setError(cause.message);
@@ -285,7 +287,8 @@ export function SpotForm(props: SpotFormProps) {
               ...(planBenefits[100].trim() ? { 100: planBenefits[100].trim() } : {}),
               ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
               ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
-            }
+            },
+            teamMembers: teamMembers.filter((m) => m.name.trim()),
           },
           user.uid
         );
@@ -303,7 +306,8 @@ export function SpotForm(props: SpotFormProps) {
           ...(planBenefits[100].trim() ? { 100: planBenefits[100].trim() } : {}),
           ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
           ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
-        }
+        },
+        teamMembers: teamMembers.filter((m) => m.name.trim()),
       });
       router.push("/manage");
       router.refresh();
@@ -542,6 +546,57 @@ export function SpotForm(props: SpotFormProps) {
           placeholder="チャンネル名"
           onChange={(h) => setYoutube(h ? `https://youtube.com/@${h}` : "")}
         />
+      </div>
+
+      {/* 運営メンバー */}
+      <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">運営メンバー（任意）</p>
+          <p className="mt-1 text-xs leading-5 text-ink/40">
+            このSPOTを動かしているメンバーを紹介できます。支援者が「誰がやっているか」を知るための情報です。
+          </p>
+        </div>
+        {teamMembers.map((member, index) => (
+          <div key={index} className="space-y-2 rounded-[16px] bg-white/70 p-3">
+            <div className="grid gap-2 sm:grid-cols-2">
+              <input
+                className="field text-sm"
+                value={member.name}
+                onChange={(e) => setTeamMembers((prev) => prev.map((m, i) => i === index ? { ...m, name: e.target.value } : m))}
+                placeholder="名前（例：田中 太郎）"
+              />
+              <input
+                className="field text-sm"
+                value={member.role}
+                onChange={(e) => setTeamMembers((prev) => prev.map((m, i) => i === index ? { ...m, role: e.target.value } : m))}
+                placeholder="役割（例：代表、指導教員、学生メンバー）"
+              />
+            </div>
+            <div className="flex gap-2">
+              <input
+                className="field flex-1 text-sm"
+                value={member.bio ?? ""}
+                onChange={(e) => setTeamMembers((prev) => prev.map((m, i) => i === index ? { ...m, bio: e.target.value } : m))}
+                placeholder="一言紹介（任意）"
+                maxLength={60}
+              />
+              <button
+                type="button"
+                className="shrink-0 rounded-full px-3 py-1.5 text-xs text-ink/40 hover:bg-ink/8 hover:text-ink"
+                onClick={() => setTeamMembers((prev) => prev.filter((_, i) => i !== index))}
+              >
+                削除
+              </button>
+            </div>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="w-full rounded-[16px] border border-dashed border-ink/20 py-2.5 text-sm text-ink/50 hover:border-ink/40 hover:text-ink/70 transition-colors"
+          onClick={() => setTeamMembers((prev) => [...prev, { name: "", role: "", bio: "" }])}
+        >
+          ＋ メンバーを追加
+        </button>
       </div>
 
       {/* サポーター特典 */}
