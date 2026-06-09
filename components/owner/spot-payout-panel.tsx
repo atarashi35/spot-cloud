@@ -57,7 +57,7 @@ function StepCard({
 }: {
   number: number;
   label: string;
-  description: string;
+  description?: string;
   state: StepState;
   note?: string | null;
 }) {
@@ -101,7 +101,7 @@ function StepCard({
           {config.badge}
         </span>
       </div>
-      <p className="mt-3 pl-10 text-sm leading-6 text-ink/60">{description}</p>
+      {description ? <p className="mt-2 pl-10 text-sm leading-6 text-ink/60">{description}</p> : null}
       {note ? (
         <p className="mt-2 pl-10 text-xs leading-5 text-ink/45">{note}</p>
       ) : null}
@@ -288,37 +288,25 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
     <div className="mt-8 space-y-5">
 
       {/* ステータスヘッダー */}
-      <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">CURRENT STATUS</p>
-            {ready ? (
-              <h2 className="mt-2 text-2xl font-bold text-ink">受取準備が整っています</h2>
-            ) : inReview ? (
-              <h2 className="mt-2 text-2xl font-bold text-ink">Stripe の審査中です</h2>
-            ) : !connected ? (
-              <h2 className="mt-2 text-2xl font-bold text-ink">受取先をまだ登録していません</h2>
-            ) : (
-              <h2 className="mt-2 text-2xl font-bold text-ink">設定の続きがあります</h2>
-            )}
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/60">
+      <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <StatusBadge tone={ready ? "success" : inReview ? "warning" : "danger"}>
+              {ready ? "受取準備完了" : inReview ? "審査中" : !connected ? "未設定" : "設定中"}
+            </StatusBadge>
+            <p className="text-sm font-semibold text-ink">
               {ready
-                ? "サポーター募集を開始できます。会費はプラットフォームが決済し、売上は登録口座へ振り込まれます。"
+                ? "サポーター募集を開始できます"
                 : inReview
-                ? "本人確認の審査が行われています。通常 3〜4 営業日で完了します。"
+                ? "審査中です（3〜4営業日）"
                 : !connected
-                ? "サポーター募集を始めるには、本人確認と振込口座の登録が必要です。"
-                : "以下のステップを完了してサポーター募集を開始しましょう。"}
+                ? "口座登録がまだです"
+                : "設定の続きがあります"}
             </p>
-            {showCta && (
-              <div className="mt-4">
-                <ConnectOnboardingButton spotId={spotId} connected={connected} label={primaryCta} />
-              </div>
-            )}
           </div>
-          <StatusBadge tone={ready ? "success" : inReview ? "warning" : "danger"}>
-            {ready ? "受取準備完了" : inReview ? "審査中" : !connected ? "未設定" : "設定中"}
-          </StatusBadge>
+          {showCta && (
+            <ConnectOnboardingButton spotId={spotId} connected={connected} label={primaryCta} className="cta-primary shrink-0 text-sm" />
+          )}
         </div>
 
           {existingAccounts.length > 0 && !connected ? (
@@ -366,20 +354,17 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
         <StepCard
           number={1}
           label="本人確認"
-          description="氏名・住所・生年月日などを登録します。一度完了すれば再登録は不要です。"
           state={step1State}
         />
         <StepCard
           number={2}
           label="売上受取の有効化"
-          description="サポーター会費を受け取るための設定です。本人確認完了後に自動で有効になります。"
           state={step2State}
           note={step2State === "review" ? "審査完了まで通常 3〜4 営業日かかります。" : null}
         />
         <StepCard
           number={3}
           label="振込口座の登録"
-          description="売上を受け取る銀行口座を登録します。登録が完了すると自動で振り込まれます。"
           state={step3State}
           note={step3State === "active" && !connectStatus?.hasExternalAccount ? "口座がまだ登録されていません。" : null}
         />
