@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, Mail, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sendSignInLinkToEmail } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -70,6 +70,7 @@ export function SocioSignupModal({
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const checkoutInFlight = useRef(false);
 
   // モーダルが開いたときの初期化
   useEffect(() => {
@@ -188,6 +189,9 @@ export function SocioSignupModal({
 
   // ─── Stripe Checkout へ進む ────────────────────────────────────
   async function startCheckout() {
+    if (checkoutInFlight.current) return;
+    checkoutInFlight.current = true;
+
     if (!user) {
       setError("ログインが必要です。");
       return;
@@ -234,6 +238,7 @@ export function SocioSignupModal({
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "加入処理に失敗しました。");
       setLoading(false);
+      checkoutInFlight.current = false;
     }
   }
 

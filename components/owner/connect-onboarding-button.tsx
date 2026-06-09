@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 
 type ConnectOnboardingButtonProps = {
@@ -19,8 +19,12 @@ export function ConnectOnboardingButton({
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const inFlight = useRef(false);
 
   async function startOnboarding() {
+    if (inFlight.current) return;
+    inFlight.current = true;
+
     if (!user) {
       setError("受取設定を始めるにはログインが必要です。");
       return;
@@ -50,6 +54,7 @@ export function ConnectOnboardingButton({
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Connect onboarding を開始できませんでした。");
       setLoading(false);
+      inFlight.current = false;
     }
   }
 
