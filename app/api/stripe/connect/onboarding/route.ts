@@ -65,10 +65,7 @@ export async function POST(request: NextRequest) {
       return_url: `${origin}/owner/spots/${body.spotId}/payout?connect=return`,
       collection_options: {
         fields: "currently_due",
-        future_requirements: "omit",
-        // ウェブサイトURLは任意（サイトを持たないオーナーのため除外）
-        // @ts-expect-error – Stripe Node SDK の型定義に未反映だが APIは対応済み
-        requirements: { exclude: ["business_profile.url"] }
+        future_requirements: "omit"
       }
     });
 
