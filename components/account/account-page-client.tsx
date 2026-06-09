@@ -14,6 +14,7 @@ import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { UserMembership } from "@/lib/types";
 import { SocioCard } from "@/components/account/socio-card";
 import { AppleWalletButton } from "@/components/account/apple-wallet-button";
+import { GoogleWalletButton } from "@/components/account/google-wallet-button";
 import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
 
@@ -250,6 +251,7 @@ export function AccountPageClient() {
               </Link>
             ) : null}
             <AppleWalletButton />
+            <GoogleWalletButton />
           </div>
         </section>
       ) : null}
