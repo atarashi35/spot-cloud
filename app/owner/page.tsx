@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/ui/page-shell";
 import { LogoAnimation } from "@/components/ui/logo-animation";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const GRID_BG = {
   backgroundImage:
@@ -123,6 +124,17 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
 }
 
 export default function OwnerPage() {
+  const empathyRef    = useScrollReveal<HTMLDivElement>({ threshold: 0.15 });
+  const valuesHeadRef = useScrollReveal<HTMLDivElement>();
+  const valuesRef     = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
+  const useCasesHeadRef = useScrollReveal<HTMLDivElement>();
+  const useCasesRef   = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 90 });
+  const stepsHeadRef  = useScrollReveal<HTMLDivElement>();
+  const stepsRef      = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
+  const pricingRef    = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
+  const hundredRef    = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
+  const bottomCtaRef  = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
+
   return (
     <div className="pb-20">
 
@@ -180,7 +192,7 @@ export default function OwnerPage() {
 
       {/* ── 共感コピー ── */}
       <PageShell className="py-14">
-        <div className="rounded-[28px] bg-mist px-8 py-10 sm:px-12 sm:py-12">
+        <div ref={empathyRef} className="reveal rounded-[28px] bg-mist px-8 py-10 sm:px-12 sm:py-12">
           <p className="text-lg font-bold leading-relaxed text-ink sm:text-xl">
             応援してくれる人はいるのに、<br />
             つながり続ける方法がない。
@@ -210,11 +222,11 @@ export default function OwnerPage() {
 
       {/* ── 価値訴求 3列 ── */}
       <PageShell>
-        <div className="mb-8 text-center">
+        <div ref={valuesHeadRef} className="reveal mb-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">WHAT YOU CAN DO</div>
           <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">サポーターと共に育てる、3つのこと。</h2>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div ref={valuesRef} className="grid gap-4 sm:grid-cols-3">
           {values.map((v) => (
             <Card key={v.eyebrow} className="px-6 py-7 sm:px-7">
               <div className="text-[11px] font-semibold tracking-[0.2em] text-moss">{v.eyebrow}</div>
@@ -227,11 +239,11 @@ export default function OwnerPage() {
 
       {/* ── 利用例 ── */}
       <PageShell className="mt-14">
-        <div className="mb-8 text-center">
+        <div ref={useCasesHeadRef} className="reveal mb-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">USE CASES</div>
           <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">こんな居場所で使われています。</h2>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div ref={useCasesRef} className="grid gap-4 sm:grid-cols-2">
           {useCases.map((uc) => (
             <Card key={uc.category} className="px-6 py-7 sm:px-7">
               <div className="flex items-center gap-3">
@@ -253,11 +265,11 @@ export default function OwnerPage() {
 
       {/* ── STEP ── */}
       <PageShell className="mt-14">
-        <div className="mb-8 text-center">
+        <div ref={stepsHeadRef} className="reveal mb-8 text-center">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">HOW TO START</div>
           <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">はじめ方は、3ステップ。</h2>
         </div>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div ref={stepsRef} className="grid gap-4 lg:grid-cols-3">
           {steps.map((step, index) => (
             <Card key={step.title} className="px-6 py-6 sm:px-7">
               <div className="flex items-center gap-3">
@@ -275,7 +287,7 @@ export default function OwnerPage() {
 
       {/* ── 料金 ── */}
       <PageShell className="mt-14">
-        <div className="overflow-hidden rounded-[28px] border border-ink/8 bg-white px-8 py-10 sm:px-10 sm:py-12">
+        <div ref={pricingRef} className="reveal overflow-hidden rounded-[28px] border border-ink/8 bg-white px-8 py-10 sm:px-10 sm:py-12">
           <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">PRICING</div>
           <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
             始めるのに、費用はかかりません。
@@ -339,7 +351,7 @@ export default function OwnerPage() {
 
       {/* ── 100人のソシオ ── */}
       <PageShell className="mt-14">
-        <div className="relative overflow-hidden rounded-[28px] bg-ink">
+        <div ref={hundredRef} className="reveal relative overflow-hidden rounded-[28px] bg-ink">
           <div className="pointer-events-none absolute inset-0" style={GRID_BG} />
           <div className="relative grid lg:grid-cols-[1fr_1px_1fr]">
 
@@ -400,7 +412,7 @@ export default function OwnerPage() {
 
       {/* ── 底部CTA ── */}
       <PageShell className="mt-14">
-        <div className="relative overflow-hidden rounded-[28px] bg-ink px-8 py-10 text-center sm:px-12 sm:py-14">
+        <div ref={bottomCtaRef} className="reveal relative overflow-hidden rounded-[28px] bg-ink px-8 py-10 text-center sm:px-12 sm:py-14">
           <div className="pointer-events-none absolute inset-0 rounded-[28px]" style={GRID_BG} />
           <div className="relative">
             <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">START FOR FREE</div>
