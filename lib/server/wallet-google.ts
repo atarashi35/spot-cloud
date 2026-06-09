@@ -120,6 +120,12 @@ function buildGenericObject(data: SocioCardData, issuerId: string) {
       contentDescription: { defaultValue: { language: "ja", value: "SPOT" } },
     },
 
+    // ヒーロー画像（カードデザインを再現した静止画）
+    heroImage: {
+      sourceUri: { uri: "https://spotcloud.app/api/wallet/google/hero" },
+      contentDescription: { defaultValue: { language: "ja", value: "SPOT SOCIO CARD" } },
+    },
+
     // 背景色
     hexBackgroundColor: "#111111",
   };
