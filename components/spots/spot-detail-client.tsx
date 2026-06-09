@@ -487,18 +487,33 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 <div className="my-5 border-t border-ink/8" />
 
                 {/* ベネフィット */}
-                <ul className="space-y-2.5">
-                  {[
-                    "限定のお知らせが読める",
-                    "限定イベントに参加できる",
-                    "このSPOTの活動を支える",
-                  ].map((text) => (
-                    <li key={text} className="flex items-center gap-2.5 text-sm text-ink/65">
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-ink/8 text-[9px] font-bold text-ink/40">✓</span>
-                      {text}
-                    </li>
-                  ))}
-                </ul>
+                {spot.planBenefits && Object.values(spot.planBenefits).some(Boolean) ? (
+                  <ul className="space-y-2.5">
+                    {planOptions.map((amount) => {
+                      const benefit = spot.planBenefits?.[amount];
+                      if (!benefit) return null;
+                      return (
+                        <li key={amount} className="flex items-start gap-2.5 text-sm text-ink/65">
+                          <span className="mt-0.5 shrink-0 rounded-full bg-ink/8 px-2 py-0.5 text-[10px] font-bold text-ink/50">¥{amount}</span>
+                          {benefit}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <ul className="space-y-2.5">
+                    {[
+                      "限定のお知らせが読める",
+                      "限定イベントに参加できる",
+                      "このSPOTの活動を支える",
+                    ].map((text) => (
+                      <li key={text} className="flex items-center gap-2.5 text-sm text-ink/65">
+                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-ink/8 text-[9px] font-bold text-ink/40">✓</span>
+                        {text}
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 {/* 価格 + ボタン */}
                 <div className="mt-auto pt-5">
