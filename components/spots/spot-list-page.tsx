@@ -308,7 +308,7 @@ export function SpotListPage() {
           <div className="text-sm font-bold text-ink/72">FOR OWNERS</div>
           <p className="mt-2 text-base font-bold text-ink">あなたもSPOTを作りませんか？</p>
           <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/68">
-            継続型・超低額クラファンで、あなたの活動を応援する人を集めませんか？
+            小さなファンクラブで、あなたの活動を応援する人を集めませんか？
           </p>
           <Link href="/owner" className="cta-primary mt-5 inline-flex">
             SPOTを作る

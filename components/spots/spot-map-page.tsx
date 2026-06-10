@@ -54,7 +54,7 @@ export function SpotMapPage() {
               </h1>
 
               <p className="hero-animate-3 mt-5 max-w-md text-[clamp(0.95rem,2vw,1.1rem)] leading-relaxed text-white/60">
-                好きな組織・団体・活動に月額少額で参加できる、継続型の応援サービスです。
+                組織・団体・プロジェクトのための、小さなファンクラブサービスです。
               </p>
 
               <div className="hero-animate-4 mt-8 flex flex-wrap items-center gap-3">
@@ -89,7 +89,7 @@ export function SpotMapPage() {
           <div className="text-sm font-bold text-ink/72">ABOUT</div>
           <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">SPOTってなに？</h2>
           <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink/72">
-            SPOTは、好きな組織・団体・活動を月100〜500円で応援できるサービスです。
+            SPOTは、組織・団体・プロジェクトのための小さなファンクラブサービスです。月100〜500円で参加できます。
           </p>
         </div>
         <div ref={aboutRef} className="grid gap-4 sm:grid-cols-3">
@@ -97,7 +97,7 @@ export function SpotMapPage() {
           <div className="flex flex-col rounded-[24px] border border-ink/8 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(19,35,28,0.07)]">
             <h3 className="text-xl font-extrabold text-ink">SPOT とは？</h3>
             <p className="mt-3 flex-1 whitespace-pre-line text-[15px] leading-[1.9] text-ink/68">
-              {"組織・団体・活動が作るページ。\nカフェ・サークル・地域団体など、\nさまざまな活動が登録できます。"}
+              {"組織・団体・プロジェクトが作るページ。\nカフェ・サークル・地域団体など、\nさまざまな活動が登録できます。"}
             </p>
           </div>
           {/* 反転カード（最重要）: サポーターとは？ */}
@@ -237,7 +237,7 @@ export function SpotMapPage() {
           <div className="text-sm font-bold text-ink/72">FOR OWNERS</div>
           <p className="mt-2 text-2xl font-extrabold text-ink">あなたもSPOTを作りませんか？</p>
           <p className="mt-2 text-[15px] leading-relaxed text-ink/68">
-            継続型・超低額クラファンで、あなたの活動を応援する人を集めませんか？
+            小さなファンクラブで、あなたの活動を応援する人を集めませんか？
           </p>
           <Link href="/owner" className="cta-primary mt-5 inline-flex">
             SPOTを作る
