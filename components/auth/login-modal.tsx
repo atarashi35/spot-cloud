@@ -79,8 +79,8 @@ export function LoginModal({ open, onClose, onSuccess }: { open: boolean; onClos
       {step === "login" ? (
         <div className="space-y-5 pb-2">
           <div>
-            <h2 className="text-2xl font-bold text-ink">ログイン / 新規登録</h2>
-            <p className="mt-2 text-sm text-ink/58">アカウントをお持ちでない方も、そのまま新規登録できます。</p>
+            <h2 className="text-2xl font-extrabold text-ink">ログイン / 新規登録</h2>
+            <p className="mt-2 text-sm text-ink/70">アカウントをお持ちでない方も、そのまま新規登録できます。</p>
           </div>
 
           <button
@@ -94,13 +94,13 @@ export function LoginModal({ open, onClose, onSuccess }: { open: boolean; onClos
 
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-ink/10" />
-            <span className="text-xs text-ink/40">または</span>
+            <span className="text-xs text-ink/60">または</span>
             <div className="h-px flex-1 bg-ink/10" />
           </div>
 
           <div className="space-y-3">
             <label className="space-y-2">
-              <span className="text-sm font-medium text-ink/62">メールアドレス</span>
+              <span className="text-sm font-medium text-ink/72">メールアドレス</span>
               <input
                 type="email"
                 className="field h-14"
@@ -125,20 +125,20 @@ export function LoginModal({ open, onClose, onSuccess }: { open: boolean; onClos
         </div>
       ) : (
         <div className="space-y-5 pb-2">
-          <h2 className="text-2xl font-bold text-ink">メールを確認してください</h2>
+          <h2 className="text-2xl font-extrabold text-ink">メールを確認してください</h2>
           <div className="flex flex-col items-center gap-4 rounded-[20px] bg-mist p-6 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
-              <Mail className="h-6 w-6 text-ink/70" />
+              <Mail className="h-6 w-6 text-ink/78" />
             </div>
             <div>
               <p className="text-sm font-medium text-ink">{email}</p>
-              <p className="mt-2 text-sm leading-7 text-ink/65">
+              <p className="mt-2 text-[15px] leading-relaxed text-ink/75">
                 上記のアドレスにメールリンクを送信しました。<br />
                 メール内のリンクをクリックするとログインが完了します。
               </p>
             </div>
           </div>
-          <p className="text-xs leading-6 text-ink/45">
+          <p className="text-xs leading-6 text-ink/65">
             メールが届かない場合は迷惑メールフォルダをご確認ください。
             <button
               type="button"

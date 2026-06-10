@@ -56,7 +56,7 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
   if (!authReady || loading) {
     return (
       <div className="shell">
-        <div className="panel px-6 py-8 text-sm text-ink/60 animate-pulse">読み込み中...</div>
+        <div className="panel px-6 py-8 text-sm text-ink/72 animate-pulse">読み込み中...</div>
       </div>
     );
   }
@@ -99,7 +99,7 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
   return (
     <div className="shell space-y-6">
       {/* パンくず */}
-      <nav className="text-sm text-ink/55">
+      <nav className="text-sm text-ink/68">
         <Link href={`/spots/${spotId}`} className="hover:text-ink transition-colors">{spot.name}</Link>
         <span className="mx-2">/</span>
         <span>イベント</span>
@@ -112,7 +112,7 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
             {!event.isPublic && (
               <span className="chip ml-2">MEMBER ONLY</span>
             )}
-            <h1 className="mt-4 text-3xl font-bold text-ink">{event.title}</h1>
+            <h1 className="mt-4 text-3xl font-extrabold text-ink">{event.title}</h1>
           </div>
           {isOwner && (
             <Link
@@ -125,18 +125,18 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
         </div>
 
         <div className="mt-6 space-y-3">
-          <div className="flex items-center gap-3 text-sm text-ink/70">
+          <div className="flex items-center gap-3 text-sm text-ink/78">
             <Calendar className="h-4 w-4 shrink-0" />
             <span>{formatDateRange(event.startAt, event.endAt)}</span>
           </div>
           {event.location && (
-            <div className="flex items-center gap-3 text-sm text-ink/70">
+            <div className="flex items-center gap-3 text-sm text-ink/78">
               <MapPin className="h-4 w-4 shrink-0" />
               <span>{event.location}</span>
             </div>
           )}
           {event.hasJoinButton && (
-            <div className="flex items-center gap-3 text-sm text-ink/70">
+            <div className="flex items-center gap-3 text-sm text-ink/78">
               <Users className="h-4 w-4 shrink-0" />
               <span>{event.participantCount} 人が参加予定</span>
             </div>
@@ -144,7 +144,7 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
         </div>
 
         {event.description && (
-          <p className="mt-6 text-sm leading-7 text-ink/75 whitespace-pre-wrap">{event.description}</p>
+          <p className="mt-6 text-[15px] leading-relaxed text-ink/75 whitespace-pre-wrap">{event.description}</p>
         )}
 
         {event.hasJoinButton && isMember && !isOwner && (
@@ -154,14 +154,14 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
         )}
 
         {isOwner && event.hasJoinButton && (
-          <div className="mt-6 rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/70">
+          <div className="mt-6 rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/78">
             参加登録者数: <span className="font-bold text-ink">{event.participantCount} 人</span>
           </div>
         )}
       </section>
 
       <div className="text-sm">
-        <Link href={`/spots/${spotId}/member`} className="text-ink/55 hover:text-ink transition-colors">
+        <Link href={`/spots/${spotId}/member`} className="text-ink/68 hover:text-ink transition-colors">
           ← {spot.name} の限定ページに戻る
         </Link>
       </div>

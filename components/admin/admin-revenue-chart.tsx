@@ -35,21 +35,21 @@ export function AdminRevenueChart() {
     <div className="rounded-[24px] border border-ink/8 bg-white px-6 py-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold tracking-wider text-ink/45">REVENUE</p>
+          <p className="text-xs font-semibold tracking-wider text-ink/65">REVENUE</p>
           <p className="mt-0.5 text-lg font-bold text-ink">月次収益グラフ（6ヶ月）</p>
         </div>
         <div className="flex rounded-full border border-ink/10 p-0.5 text-xs font-semibold">
           <button
             type="button"
             onClick={() => setView("gmv")}
-            className={`rounded-full px-3 py-1.5 transition ${view === "gmv" ? "bg-ink text-white" : "text-ink/50 hover:text-ink"}`}
+            className={`rounded-full px-3 py-1.5 transition ${view === "gmv" ? "bg-ink text-white" : "text-ink/65 hover:text-ink"}`}
           >
             GMV
           </button>
           <button
             type="button"
             onClick={() => setView("fee")}
-            className={`rounded-full px-3 py-1.5 transition ${view === "fee" ? "bg-ink text-white" : "text-ink/50 hover:text-ink"}`}
+            className={`rounded-full px-3 py-1.5 transition ${view === "fee" ? "bg-ink text-white" : "text-ink/65 hover:text-ink"}`}
           >
             収益
           </button>
@@ -63,7 +63,7 @@ export function AdminRevenueChart() {
           const isLatest = i === months.length - 1;
           return (
             <div key={m.label} className="flex flex-1 flex-col items-center gap-1.5">
-              <span className="text-[10px] font-semibold text-ink/55">
+              <span className="text-xs font-semibold text-ink/68">
                 {val > 0 ? `¥${(val / 1000).toFixed(0)}k` : "—"}
               </span>
               <div className="relative w-full" style={{ height: "120px" }}>
@@ -72,7 +72,7 @@ export function AdminRevenueChart() {
                   style={{ height: `${Math.max(pct, val > 0 ? 4 : 1)}%` }}
                 />
               </div>
-              <span className={`text-[10px] font-semibold ${isLatest ? "text-ink" : "text-ink/40"}`}>
+              <span className={`text-xs font-semibold ${isLatest ? "text-ink" : "text-ink/60"}`}>
                 {m.label}
               </span>
             </div>

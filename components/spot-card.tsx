@@ -21,7 +21,7 @@ export function SpotCard({ spot }: { spot: Spot }) {
   return (
     <Link
       href={`/spots/${spot.id}`}
-      className="panel block overflow-hidden transition hover:-translate-y-0.5 hover:border-ink/15 hover:shadow-[0_18px_50px_rgba(19,35,28,0.08)] focus:outline-none focus:ring-2 focus:ring-moss/25"
+      className="panel flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:border-ink/15 hover:shadow-[0_18px_50px_rgba(19,35,28,0.08)] focus:outline-none focus:ring-2 focus:ring-moss/25"
     >
       <div className="relative h-44 w-full">
         {spot.coverImageUrl ? (
@@ -37,29 +37,29 @@ export function SpotCard({ spot }: { spot: Spot }) {
           <div className={`h-full w-full bg-gradient-to-br ${spot.coverTone}`} />
         )}
         {showNewBadge && (
-          <span className="absolute left-3 top-3 rounded-full bg-moss px-3 py-1 text-[11px] font-bold tracking-widest text-white uppercase">
+          <span className="absolute left-3 top-3 rounded-full bg-moss px-3 py-1 text-[13px] font-bold tracking-widest text-white uppercase">
             NEW
           </span>
         )}
       </div>
-      <div className="space-y-4 p-5">
+      <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-center justify-between gap-3">
           <span className="chip">{spot.category}</span>
-          <span className="text-sm font-semibold text-ink/55">{spot.prefecture}</span>
+          <span className="text-sm font-semibold text-ink/68">{spot.prefecture}</span>
         </div>
         <SocioRankBadge socioCount={spot.socioCount} compact />
-        <div>
-          <h3 className="text-xl font-bold text-ink">{spot.name}</h3>
-          <p className="mt-2 text-sm leading-7 text-ink/68">{spot.shortDescription}</p>
+        <div className="flex-1">
+          <h3 className="text-2xl font-extrabold text-ink">{spot.name}</h3>
+          <p className="mt-2 text-[15px] leading-relaxed text-ink/78">{spot.shortDescription}</p>
         </div>
-        <div className="space-y-2 text-sm text-ink/60">
+        <div className="mt-auto space-y-2 border-t border-ink/8 pt-3 text-sm text-ink/72">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
             <span>{spot.address}</span>
           </div>
           <div className="flex items-center justify-end gap-2">
-            <span className="text-2xl font-bold tabular-nums text-ink">{spot.socioCount}</span>
-            <span className="text-ink/55">人のサポーター</span>
+            <span className="text-2xl font-extrabold tabular-nums text-teal-600">{spot.socioCount}</span>
+            <span className="text-sm font-semibold text-teal-700/80">人のサポーター</span>
           </div>
         </div>
       </div>

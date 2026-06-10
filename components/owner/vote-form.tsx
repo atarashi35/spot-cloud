@@ -85,7 +85,7 @@ export function VoteForm({
               type="button"
               onClick={() => setType(t)}
               className={`flex-1 rounded-[16px] border py-2.5 text-sm font-semibold transition ${
-                type === t ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink/55 hover:border-ink/25"
+                type === t ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink/68 hover:border-ink/25"
               }`}
             >
               {t === "poll" ? "アンケート" : "意見募集"}
@@ -95,7 +95,7 @@ export function VoteForm({
 
         {/* タイトル */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-ink/55">タイトル</label>
+          <label className="text-xs font-semibold text-ink/68">タイトル</label>
           <input
             className="field"
             value={title}
@@ -106,20 +106,20 @@ export function VoteForm({
 
         {/* 補足説明 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-ink/55">補足説明（任意）</label>
+          <label className="text-xs font-semibold text-ink/68">補足説明（任意）</label>
           <textarea
             className="field resize-none"
             rows={2}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="詳細や背景を書くとソシオに伝わりやすいです"
+            placeholder="詳細や背景を書くとサポーターに伝わりやすいです"
           />
         </div>
 
         {/* 選択肢（アンケートのみ） */}
         {type === "poll" && (
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-ink/55">選択肢</label>
+            <label className="text-xs font-semibold text-ink/68">選択肢</label>
             {options.map((opt, i) => (
               <div key={opt.id} className="flex items-center gap-2">
                 <input
@@ -129,14 +129,14 @@ export function VoteForm({
                   placeholder={`選択肢 ${i + 1}`}
                 />
                 {options.length > 2 && (
-                  <button type="button" onClick={() => removeOption(opt.id)} className="shrink-0 rounded-full p-2 text-ink/35 hover:bg-mist hover:text-ink/60">
+                  <button type="button" onClick={() => removeOption(opt.id)} className="shrink-0 rounded-full p-2 text-ink/58 hover:bg-mist hover:text-ink/72">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}
               </div>
             ))}
             {options.length < 6 && (
-              <button type="button" onClick={addOption} className="flex items-center gap-1.5 text-xs font-semibold text-ink/45 hover:text-ink/65">
+              <button type="button" onClick={addOption} className="flex items-center gap-1.5 text-xs font-semibold text-ink/65 hover:text-ink/75">
                 <Plus className="h-3.5 w-3.5" />
                 選択肢を追加
               </button>
@@ -146,7 +146,7 @@ export function VoteForm({
 
         {/* 締切 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-ink/55">締切日（任意）</label>
+          <label className="text-xs font-semibold text-ink/68">締切日（任意）</label>
           <input
             type="date"
             className="field"

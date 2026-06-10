@@ -68,8 +68,8 @@ function AttachmentPreview({
         />
       ) : (
         <div className="flex h-24 flex-col items-center justify-center gap-1.5 px-2">
-          <FileText className="h-7 w-7 text-ink/40" />
-          <span className="line-clamp-2 text-center text-[10px] leading-tight text-ink/55">
+          <FileText className="h-7 w-7 text-ink/60" />
+          <span className="line-clamp-2 text-center text-xs leading-tight text-ink/68">
             {attachment.name}
           </span>
         </div>
@@ -194,7 +194,7 @@ export function AttachmentsUploader({ value, onChange, storagePath }: Props) {
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           disabled={uploading}
-          className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-[20px] border-2 border-dashed border-ink/15 bg-mist text-sm text-ink/50 transition hover:border-ink/30 hover:text-ink/70 disabled:cursor-not-allowed"
+          className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-[20px] border-2 border-dashed border-ink/15 bg-mist text-sm text-ink/65 transition hover:border-ink/30 hover:text-ink/78 disabled:cursor-not-allowed"
         >
           {uploading ? (
             <>
@@ -208,7 +208,7 @@ export function AttachmentsUploader({ value, onChange, storagePath }: Props) {
                 <FileText className="h-5 w-5" />
               </div>
               <span>クリックまたはドラッグ＆ドロップ</span>
-              <span className="text-xs text-ink/35">
+              <span className="text-xs text-ink/58">
                 画像（JPEG・PNG・WebP）またはPDF・最大{MAX_FILES}枚
                 {value.length > 0 ? `（あと${remaining}枚）` : ""}
               </span>

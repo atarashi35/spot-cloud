@@ -46,7 +46,7 @@ export function EventParticipantsList({ spotId, eventId }: EventParticipantsList
   }, [eventId, spotId, user]);
 
   if (loading) {
-    return <p className="mt-4 text-xs text-ink/60">参加者を読み込み中です。</p>;
+    return <p className="mt-4 text-xs text-ink/72">参加者を読み込み中です。</p>;
   }
 
   if (error) {
@@ -55,22 +55,22 @@ export function EventParticipantsList({ spotId, eventId }: EventParticipantsList
 
   return (
     <div className="mt-4 rounded-[20px] border border-ink/10 bg-white px-4 py-4">
-      <div className="text-xs font-semibold tracking-[0.18em] text-ink/55">
+      <div className="text-sm font-bold text-ink/72">
         参加予定 {participants.length} 人
       </div>
       {participants.length === 0 ? (
-        <p className="mt-3 text-sm text-ink/60">まだ参加者はいません。</p>
+        <p className="mt-3 text-sm text-ink/72">まだ参加者はいません。</p>
       ) : (
-        <div className="mt-3 space-y-2 text-sm text-ink/70">
+        <div className="mt-3 space-y-2 text-sm text-ink/78">
           {participants.map((participant) => (
             <div key={participant.uid} className="rounded-[16px] bg-mist px-3 py-3">
               <div className="font-medium text-ink">
                 {participant.displayName || participant.email || participant.uid}
               </div>
-              <div className="mt-1 text-xs text-ink/55">
+              <div className="mt-1 text-xs text-ink/68">
                 {participant.email && participant.displayName ? participant.email : participant.uid}
               </div>
-              <div className="mt-1 text-xs text-ink/55">
+              <div className="mt-1 text-xs text-ink/68">
                 参加登録: {participant.joinedAt.slice(0, 10)}
               </div>
             </div>

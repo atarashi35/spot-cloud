@@ -51,11 +51,11 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       >
         <span className="text-sm font-medium text-ink">{q}</span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-ink/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-ink/60 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open ? (
-        <p className="pb-4 text-sm leading-7 text-ink/65">{a}</p>
+        <p className="pb-4 text-[15px] leading-relaxed text-ink/75">{a}</p>
       ) : null}
     </div>
   );
@@ -122,11 +122,11 @@ export function SupportSection() {
   return (
     <section className="panel px-6 py-8 sm:px-8">
       <span className="chip">SUPPORT</span>
-      <h2 className="mt-4 text-2xl font-bold text-ink">サポート</h2>
+      <h2 className="mt-4 text-2xl font-extrabold text-ink">サポート</h2>
 
       {/* FAQ */}
       <div className="mt-6 rounded-[20px] bg-mist px-5">
-        <p className="pt-5 text-xs font-semibold tracking-[0.18em] text-ink/50">よくある質問</p>
+        <p className="pt-5 text-sm font-bold text-ink/72">よくある質問</p>
         <div className="mt-2">
           {FAQ_ITEMS.map((item) => (
             <FaqItem key={item.q} q={item.q} a={item.a} />
@@ -136,10 +136,10 @@ export function SupportSection() {
 
       {/* お問い合わせフォーム */}
       <div className="mt-6">
-        <p className="text-xs font-semibold tracking-[0.18em] text-ink/50">お問い合わせ</p>
+        <p className="text-sm font-bold text-ink/72">お問い合わせ</p>
 
         {formStatus === "done" ? (
-          <div className="mt-4 rounded-[20px] bg-mist px-5 py-6 text-sm leading-7 text-ink/65">
+          <div className="mt-4 rounded-[20px] bg-mist px-5 py-6 text-[15px] leading-relaxed text-ink/75">
             お問い合わせを受け付けました。内容を確認のうえ、登録メールアドレスへご連絡いたします。
             <button
               type="button"
@@ -152,13 +152,13 @@ export function SupportSection() {
         ) : (
           <div className="mt-4 space-y-3">
             {!user ? (
-              <p className="rounded-[20px] bg-mist px-4 py-4 text-sm text-ink/62">
+              <p className="rounded-[20px] bg-mist px-4 py-4 text-sm text-ink/72">
                 お問い合わせにはログインが必要です。
               </p>
             ) : (
               <>
                 <label className="space-y-2">
-                  <span className="text-sm font-medium text-ink/62">お名前</span>
+                  <span className="text-sm font-medium text-ink/72">お名前</span>
                   <input
                     className="field h-12"
                     value={name}
@@ -168,7 +168,7 @@ export function SupportSection() {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-sm font-medium text-ink/62">種別</span>
+                  <span className="text-sm font-medium text-ink/72">種別</span>
                   <select
                     className="field h-12"
                     value={category}
@@ -182,7 +182,7 @@ export function SupportSection() {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-sm font-medium text-ink/62">内容</span>
+                  <span className="text-sm font-medium text-ink/72">内容</span>
                   <textarea
                     className="field min-h-[120px] resize-y py-3"
                     value={message}

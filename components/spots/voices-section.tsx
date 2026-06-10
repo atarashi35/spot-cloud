@@ -57,33 +57,33 @@ function PollCard({
   return (
     <div className="rounded-[20px] bg-mist p-5 space-y-4">
       <div>
-        <div className="text-[10px] font-semibold tracking-[0.22em] text-ink/40">VOTE</div>
-        <h4 className="mt-1 text-base font-bold text-ink">{vote.title}</h4>
-        {vote.body ? <p className="mt-1 text-sm leading-6 text-ink/60">{vote.body}</p> : null}
+        <div className="text-sm font-bold text-ink/72">VOTE</div>
+        <h4 className="mt-1 text-lg font-bold text-ink">{vote.title}</h4>
+        {vote.body ? <p className="mt-1 text-[15px] leading-6 text-ink/72">{vote.body}</p> : null}
       </div>
 
       {loading ? (
         <div className="flex justify-center py-4">
-          <Loader2 className="h-5 w-5 animate-spin text-ink/30" />
+          <Loader2 className="h-5 w-5 animate-spin text-ink/55" />
         </div>
       ) : voted ? (
         <div className="space-y-2">
           {vote.options?.map((opt) => {
             const isChosen = existing?.optionId === opt.id;
             return (
-              <div key={opt.id} className={`flex items-center gap-3 rounded-[14px] px-4 py-3 text-sm font-medium ${isChosen ? "bg-ink text-white" : "bg-white/80 text-ink/60"}`}>
+              <div key={opt.id} className={`flex items-center gap-3 rounded-[14px] px-4 py-3 text-sm font-medium ${isChosen ? "bg-ink text-white" : "bg-white/80 text-ink/72"}`}>
                 {isChosen ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <span className="h-4 w-4 shrink-0" />}
                 {opt.text}
               </div>
             );
           })}
-          <p className="text-right text-[11px] text-ink/38">{localCount} 票</p>
+          <p className="text-right text-[13px] text-ink/60">{localCount} 票</p>
         </div>
       ) : !votingEligible ? (
-        <div className="rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/55">
+        <div className="rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/68">
           再登録から30日間は投票できません。
           {votingUnlocksAt && (
-            <span className="block mt-0.5 text-[11px] text-ink/40">
+            <span className="block mt-0.5 text-[13px] text-ink/60">
               {votingUnlocksAt.toLocaleDateString("ja-JP")} から解禁
             </span>
           )}
@@ -98,7 +98,7 @@ function PollCard({
               className={`flex w-full items-center gap-3 rounded-[14px] border px-4 py-3 text-left text-sm font-medium transition ${
                 selected === opt.id
                   ? "border-ink bg-ink text-white"
-                  : "border-ink/10 bg-white text-ink/70 hover:border-ink/25"
+                  : "border-ink/10 bg-white text-ink/78 hover:border-ink/25"
               }`}
             >
               {opt.text}
@@ -116,7 +116,7 @@ function PollCard({
       )}
 
       {vote.deadline ? (
-        <p className="text-[11px] text-ink/38">
+        <p className="text-[13px] text-ink/60">
           締切: {new Date(vote.deadline).toLocaleDateString("ja-JP")}
         </p>
       ) : null}
@@ -168,25 +168,25 @@ function OpenQuestionCard({
   return (
     <div className="rounded-[20px] bg-mist p-5 space-y-4">
       <div>
-        <div className="text-[10px] font-semibold tracking-[0.22em] text-ink/40">OPINION</div>
-        <h4 className="mt-1 text-base font-bold text-ink">{vote.title}</h4>
-        {vote.body ? <p className="mt-1 text-sm leading-6 text-ink/60">{vote.body}</p> : null}
+        <div className="text-sm font-bold text-ink/72">OPINION</div>
+        <h4 className="mt-1 text-lg font-bold text-ink">{vote.title}</h4>
+        {vote.body ? <p className="mt-1 text-[15px] leading-6 text-ink/72">{vote.body}</p> : null}
       </div>
 
       {loading ? (
         <div className="flex justify-center py-4">
-          <Loader2 className="h-5 w-5 animate-spin text-ink/30" />
+          <Loader2 className="h-5 w-5 animate-spin text-ink/55" />
         </div>
       ) : sent ? (
-        <div className="flex items-center gap-2 rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/55">
+        <div className="flex items-center gap-2 rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/68">
           <CheckCircle2 className="h-4 w-4 text-moss shrink-0" />
           意見を送りました
         </div>
       ) : !votingEligible ? (
-        <div className="rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/55">
+        <div className="rounded-[14px] bg-white/80 px-4 py-3 text-sm text-ink/68">
           再登録から30日間は回答できません。
           {votingUnlocksAt && (
-            <span className="block mt-0.5 text-[11px] text-ink/40">
+            <span className="block mt-0.5 text-[13px] text-ink/60">
               {votingUnlocksAt.toLocaleDateString("ja-JP")} から解禁
             </span>
           )}
@@ -220,31 +220,31 @@ function OwnerVotePreview({ vote }: { vote: SpotVote }) {
   return (
     <div className="rounded-[20px] bg-mist p-5 space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <div className="text-[10px] font-semibold tracking-[0.22em] text-ink/40">
+        <div className="text-sm font-bold text-ink/72">
           {vote.type === "poll" ? "VOTE" : "OPINION"}
         </div>
-        <span className="text-[10px] text-ink/35">{vote.responseCount} 件の回答</span>
+        <span className="text-xs text-ink/58">{vote.responseCount} 件の回答</span>
       </div>
-      <h4 className="text-base font-bold text-ink">{vote.title}</h4>
-      {vote.body ? <p className="text-sm leading-6 text-ink/60">{vote.body}</p> : null}
+      <h4 className="text-lg font-bold text-ink">{vote.title}</h4>
+      {vote.body ? <p className="text-[15px] leading-6 text-ink/72">{vote.body}</p> : null}
       {vote.type === "poll" && vote.options && (
         <div className="space-y-2">
           {vote.options.map((opt) => (
-            <div key={opt.id} className="rounded-[14px] border border-ink/10 bg-white/80 px-4 py-2.5 text-sm text-ink/55">
+            <div key={opt.id} className="rounded-[14px] border border-ink/10 bg-white/80 px-4 py-2.5 text-sm text-ink/68">
               {opt.text}
             </div>
           ))}
         </div>
       )}
       {vote.type === "open_question" && (
-        <div className="rounded-[14px] border border-ink/10 bg-white/80 px-4 py-2.5 text-sm text-ink/40 italic">
+        <div className="rounded-[14px] border border-ink/10 bg-white/80 px-4 py-2.5 text-sm text-ink/60 italic">
           テキスト自由記述
         </div>
       )}
       {vote.deadline ? (
-        <p className="text-[11px] text-ink/38">締切: {new Date(vote.deadline).toLocaleDateString("ja-JP")}</p>
+        <p className="text-[13px] text-ink/60">締切: {new Date(vote.deadline).toLocaleDateString("ja-JP")}</p>
       ) : null}
-      <p className="text-[11px] text-moss font-semibold">オーナー表示（投票不可）· 結果は管理画面で確認</p>
+      <p className="text-[13px] text-moss font-semibold">オーナー表示（投票不可）· 結果は管理画面で確認</p>
     </div>
   );
 }
@@ -279,11 +279,11 @@ function OpinionBox({
   return (
     <div className="rounded-[20px] border border-dashed border-ink/15 p-5 space-y-3">
       <div className="flex items-center gap-2">
-        <MessageSquare className="h-4 w-4 text-ink/40" />
-        <span className="text-sm font-semibold text-ink/55">ご意見ボックス</span>
+        <MessageSquare className="h-4 w-4 text-ink/60" />
+        <span className="text-sm font-semibold text-ink/68">ご意見ボックス</span>
       </div>
       {sent ? (
-        <div className="flex items-center gap-2 text-sm text-ink/55">
+        <div className="flex items-center gap-2 text-sm text-ink/68">
           <CheckCircle2 className="h-4 w-4 text-moss shrink-0" />
           送信しました。またいつでもどうぞ。
         </div>
@@ -357,8 +357,8 @@ export function VoicesSection({
 
   return (
     <section className="panel px-6 py-8 sm:px-8">
-      <h3 className="text-xl font-bold text-ink">みんなの声</h3>
-      <p className="mt-1 text-sm text-ink/50">サポーターだけが参加できる投票・意見コーナーです。</p>
+      <h3 className="text-2xl font-extrabold text-ink">みんなの声</h3>
+      <p className="mt-1 text-sm text-ink/65">サポーターだけが参加できる投票・意見コーナーです。</p>
 
       <div className="relative mt-6 space-y-4">
         {/* コンテンツ */}
@@ -373,12 +373,12 @@ export function VoicesSection({
               <OpenQuestionCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} votingEligible={votingEligible} votingUnlocksAt={votingUnlocksAt} />
             );
           })}
-          {/* 意見ボックス: ソシオのみ（オーナーは管理画面で見る） */}
+          {/* 意見ボックス: サポーターのみ（オーナーは管理画面で見る） */}
           {opinionBoxEnabled && uid && amount && !isOwner ? (
             <OpinionBox spotId={spotId} uid={uid} amount={amount} />
           ) : null}
           {opinionBoxEnabled && isOwner ? (
-            <div className="rounded-[20px] border border-dashed border-ink/15 p-5 text-sm text-ink/45 text-center">
+            <div className="rounded-[20px] border border-dashed border-ink/15 p-5 text-sm text-ink/65 text-center">
               ご意見ボックスは有効です。受信内容は管理画面で確認できます。
             </div>
           ) : null}
@@ -386,15 +386,15 @@ export function VoicesSection({
           {/* ローディング */}
           {!loaded && (
             <div className="flex justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-ink/30" />
+              <Loader2 className="h-5 w-5 animate-spin text-ink/55" />
             </div>
           )}
         </div>
 
-        {/* 非ソシオ向けオーバーレイ */}
+        {/* 非サポーター向けオーバーレイ */}
         {!canParticipate && !isOwner && loaded && hasContent && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SOCIOS ONLY</p>
+            <p className="text-sm font-bold text-ink/72">SUPPORTERS ONLY</p>
           </div>
         )}
       </div>

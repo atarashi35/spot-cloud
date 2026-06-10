@@ -24,7 +24,7 @@ export async function generateMetadata({
   const { uid } = await params;
 
   return {
-    title: `SOCIO Verification ${uid.slice(0, 8)} | SPOT`,
+    title: `Supporter Verification ${uid.slice(0, 8)} | SPOT`,
     robots: {
       index: false,
       follow: false,
@@ -73,7 +73,7 @@ function getStatusClassName(status: MembershipStatus) {
       return "border-orange-200 bg-orange-50 text-orange-700";
     case "canceled":
     default:
-      return "border-ink/10 bg-mist text-ink/60";
+      return "border-ink/10 bg-mist text-ink/72";
   }
 }
 
@@ -122,34 +122,34 @@ export default async function SocioVerificationPage({
     <PageShell className="py-10 sm:py-14">
       <div className="panel overflow-hidden">
         <div className="bg-[radial-gradient(circle_at_top_left,rgba(232,38,26,0.14),transparent_36%),linear-gradient(135deg,#121212_0%,#1b1b1b_55%,#2a2a2a_100%)] px-6 py-8 text-white sm:px-8">
-          <span className="chip border-white/15 bg-white/10 text-white/80">SOCIO CARD</span>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">会員証の確認</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72 sm:text-base">
-            このページは SPOT のソシオ会員証に紐づく確認ページです。現在の加入状況を表示しています。
+          <span className="chip border-white/15 bg-white/10 text-white/80">SUPPORTER CARD</span>
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">会員証の確認</h1>
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/72 sm:text-base">
+            このページは SPOT のサポーター会員証に紐づく確認ページです。現在の加入状況を表示しています。
           </p>
         </div>
 
         <div className="grid gap-6 px-6 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           <section className="space-y-4">
             <div className="rounded-[24px] border border-ink/10 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold tracking-[0.2em] text-ink/45">DISPLAY NAME</p>
+              <p className="text-sm font-bold text-ink/72">DISPLAY NAME</p>
               <p className="mt-2 text-2xl font-semibold text-ink">
-                {displayName || "SOCIO"}
+                {displayName || "SUPPORTER"}
               </p>
-              <p className="mt-4 text-xs text-ink/45">SOCIO ID</p>
+              <p className="mt-4 text-xs text-ink/65">SUPPORTER ID</p>
               <p className="mt-1 break-all font-mono text-sm text-ink/75">{uid}</p>
             </div>
 
             <div className="rounded-[24px] border border-ink/10 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold text-ink">加入中の SPOT</h2>
-                <span className="rounded-full border border-ink/10 bg-mist px-3 py-1 text-xs font-semibold text-ink/60">
+                <span className="rounded-full border border-ink/10 bg-mist px-3 py-1 text-xs font-semibold text-ink/72">
                   {activeMemberships.length}件
                 </span>
               </div>
 
               {memberships.length === 0 ? (
-                <p className="mt-4 text-sm leading-7 text-ink/55">
+                <p className="mt-4 text-[15px] leading-relaxed text-ink/68">
                   この会員証に紐づく加入情報はまだ確認されていません。
                 </p>
               ) : (
@@ -162,7 +162,7 @@ export default async function SocioVerificationPage({
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="text-base font-semibold text-ink">{membership.spotName}</p>
-                          <p className="mt-1 text-sm text-ink/55">
+                          <p className="mt-1 text-sm text-ink/68">
                             参加開始日 {toDateLabel(membership.joinedAt)}
                           </p>
                         </div>
@@ -186,10 +186,10 @@ export default async function SocioVerificationPage({
           </section>
 
           <aside className="rounded-[24px] border border-ink/10 bg-mist/55 p-5">
-            <p className="text-xs font-semibold tracking-[0.2em] text-ink/45">STATUS</p>
-            <p className="mt-3 text-3xl font-bold text-ink">{activeMemberships.length}</p>
-            <p className="mt-1 text-sm text-ink/55">現在有効な加入数</p>
-            <p className="mt-6 text-sm leading-7 text-ink/60">
+            <p className="text-sm font-bold text-ink/72">STATUS</p>
+            <p className="mt-3 text-3xl font-extrabold text-ink">{activeMemberships.length}</p>
+            <p className="mt-1 text-sm text-ink/68">現在有効な加入数</p>
+            <p className="mt-6 text-[15px] leading-relaxed text-ink/72">
               表示内容は Firebase 上の加入情報を元にリアルタイムで確認しています。情報に差異がある場合は運営へお問い合わせください。
             </p>
           </aside>

@@ -171,7 +171,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
   }
 
   if (!authReady || loading) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">読み込み中です。</div>;
   }
 
   if (!user) {
@@ -186,8 +186,8 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
     <div className="py-3">
       <div className="grid gap-5 md:grid-cols-2">
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
-          <h2 className="text-lg font-semibold text-ink">SPOT詳細ページへのリンク</h2>
-          <p className="mt-1.5 text-xs leading-5 text-ink/55">
+          <h2 className="text-xl font-semibold text-ink">SPOT詳細ページへのリンク</h2>
+          <p className="mt-1.5 text-xs leading-5 text-ink/68">
             SPOTの紹介ページを見てもらうためのQR。<br />
             チラシや店頭POPに掲載するのに最適です。
           </p>
@@ -215,8 +215,8 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         </section>
 
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
-          <h2 className="text-lg font-semibold text-ink">サポーター登録へのリンク</h2>
-          <p className="mt-1.5 text-xs leading-5 text-ink/55">
+          <h2 className="text-xl font-semibold text-ink">サポーター登録へのリンク</h2>
+          <p className="mt-1.5 text-xs leading-5 text-ink/68">
             スキャンするとサポーター加入画面が開くQR。<br />
             「サポーター募集中」の告知に直接使えます。
           </p>
@@ -245,8 +245,8 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
       </div>
 
       <section className="mt-5 rounded-[28px] bg-mist px-5 py-6">
-        <h2 className="text-lg font-semibold text-ink">サポーター募集チラシ</h2>
-        <p className="mt-1.5 text-xs leading-5 text-ink/55">
+        <h2 className="text-xl font-semibold text-ink">サポーター募集チラシ</h2>
+        <p className="mt-1.5 text-xs leading-5 text-ink/68">
           印刷してそのまま使えるチラシをPNGで保存できます。<br />
           店頭POP・名刺・チラシに貼り付けてご利用ください。
         </p>
@@ -258,16 +258,16 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
             <img src="/spot_logo_horizontal.svg" alt="SPOT" className="mb-4 h-5 w-auto" />
             <p className="text-[13px] font-bold leading-snug text-ink">
               サポーターとして、<br />
-              <span className="text-[12px]">{spot.name}に</span><br />
+              <span className="text-xs">{spot.name}に</span><br />
               関わろう。
             </p>
             <div ref={flyerQrRef} className="my-4 flex justify-center">
               <QRCode value={signupUrl} size={90} />
             </div>
             <p className="text-center text-[8px] font-semibold text-ink">¥100 / ¥300 / ¥500 /月</p>
-            <p className="mt-1 text-center text-[7px] text-ink/50">QRコードをスキャンしてサポーター登録</p>
+            <p className="mt-1 text-center text-[7px] text-ink/65">QRコードをスキャンしてサポーター登録</p>
             <div className="my-3 h-px bg-ink/10" />
-            <p className="text-center text-[7px] text-ink/40">spotcloud.app</p>
+            <p className="text-center text-[7px] text-ink/60">spotcloud.app</p>
           </div>
         </div>
 

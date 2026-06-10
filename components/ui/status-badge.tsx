@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 const toneClassMap = {
-  neutral: "bg-white text-ink/72 border-ink/10",
+  neutral: "bg-white text-ink/80 border-ink/10",
   success: "bg-moss/10 text-moss border-moss/15",
   warning: "bg-amber-50 text-amber-800 border-amber-200",
   danger: "bg-red-50 text-red-700 border-red-200"

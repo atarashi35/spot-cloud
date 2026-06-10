@@ -80,10 +80,10 @@ export function PostalCodeField({
           {loading ? "検索中..." : "住所を反映"}
         </button>
       </div>
-      <p className="mt-2 text-sm text-ink/60">
+      <p className="mt-2 text-sm text-ink/72">
         郵便番号から都道府県と市区町村を補助入力します。番地は必要に応じて調整してください。
       </p>
-      {message ? <p className="mt-2 text-sm text-ink/68">{message}</p> : null}
+      {message ? <p className="mt-2 text-sm text-ink/78">{message}</p> : null}
     </div>
   );
 }

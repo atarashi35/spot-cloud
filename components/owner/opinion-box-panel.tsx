@@ -44,10 +44,10 @@ export function OpinionBoxPanel({ spot, onSpotChange }: Props) {
       {/* ヘッダー */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <MessageSquare className="h-3.5 w-3.5 text-ink/40" />
-          <span className="text-xs font-semibold tracking-[0.15em] text-ink/45">ご意見ボックス</span>
+          <MessageSquare className="h-3.5 w-3.5 text-ink/60" />
+          <span className="text-sm font-bold text-ink/72">ご意見ボックス</span>
           {unreadCount > 0 && (
-            <span className="flex h-4.5 w-4.5 min-w-[18px] items-center justify-center rounded-full bg-moss px-1 text-[10px] font-bold text-white">
+            <span className="flex h-4.5 w-4.5 min-w-[18px] items-center justify-center rounded-full bg-moss px-1 text-xs font-bold text-white">
               {unreadCount}
             </span>
           )}
@@ -55,7 +55,7 @@ export function OpinionBoxPanel({ spot, onSpotChange }: Props) {
         <button
           type="button"
           onClick={() => void handleToggle()}
-          className="flex items-center gap-1 text-[11px] font-semibold text-ink/45 hover:text-ink transition-colors"
+          className="flex items-center gap-1 text-[13px] font-semibold text-ink/65 hover:text-ink transition-colors"
         >
           {spot.opinionBoxEnabled ? (
             <><ToggleRight className="h-4 w-4 text-moss" />オン</>
@@ -73,7 +73,7 @@ export function OpinionBoxPanel({ spot, onSpotChange }: Props) {
           ))}
         </div>
       ) : displayed.length === 0 ? (
-        <p className="mt-2 text-xs text-ink/38">
+        <p className="mt-2 text-xs text-ink/60">
           {spot.opinionBoxEnabled
             ? (unreadCount === 0 && (opinions.length > 0)
                 ? "未読の意見はありません"
@@ -91,14 +91,14 @@ export function OpinionBoxPanel({ spot, onSpotChange }: Props) {
             >
               <p className="text-xs leading-5 text-ink/75">{o.text}</p>
               <div className="mt-1 flex items-center justify-between">
-                <span className="text-[10px] text-ink/35">
+                <span className="text-xs text-ink/58">
                   {new Date(o.createdAt).toLocaleDateString("ja-JP")}
                 </span>
                 {!o.isRead && (
                   <button
                     type="button"
                     onClick={() => void handleMarkRead(o.id)}
-                    className="text-[10px] font-semibold text-ink/40 hover:text-ink/70 transition-colors"
+                    className="text-xs font-semibold text-ink/60 hover:text-ink/78 transition-colors"
                   >
                     既読
                   </button>
@@ -114,7 +114,7 @@ export function OpinionBoxPanel({ spot, onSpotChange }: Props) {
         <button
           type="button"
           onClick={() => setExpanded((p) => !p)}
-          className="mt-2 text-[11px] font-semibold text-ink/38 hover:text-ink/60 transition-colors"
+          className="mt-2 text-[13px] font-semibold text-ink/60 hover:text-ink/72 transition-colors"
         >
           {expanded ? "閉じる ↑" : `全${opinions.length}件を見る ↓`}
         </button>

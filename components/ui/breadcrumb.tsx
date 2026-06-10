@@ -15,13 +15,13 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
         const isLast = i === items.length - 1;
         return (
           <span key={i} className="flex items-center gap-1.5">
-            {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-ink/25" />}
+            {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-ink/52" />}
             {item.href && !isLast ? (
-              <Link href={item.href} className="text-ink/45 transition hover:text-ink">
+              <Link href={item.href} className="text-ink/65 transition hover:text-ink">
                 {item.label}
               </Link>
             ) : (
-              <span className={isLast ? "font-semibold text-ink" : "text-ink/45"}>
+              <span className={isLast ? "font-semibold text-ink" : "text-ink/65"}>
                 {item.label}
               </span>
             )}

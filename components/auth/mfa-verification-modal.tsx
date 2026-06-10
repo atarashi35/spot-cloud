@@ -55,11 +55,11 @@ export function MfaVerificationModal({
   return (
     <ModalShell open={open} onClose={onClose} title="二段階認証" size="sm">
       <div className="space-y-5 pb-2">
-        <p className="text-sm text-ink/70">
+        <p className="text-sm text-ink/78">
           認証アプリに表示されている6桁のコードを入力してください。
         </p>
         <label className="space-y-2">
-          <span className="text-sm font-medium text-ink/62">確認コード</span>
+          <span className="text-sm font-medium text-ink/72">確認コード</span>
           <input
             type="text"
             inputMode="numeric"

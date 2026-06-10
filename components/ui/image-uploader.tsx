@@ -145,7 +145,7 @@ export function ImageUploader({
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           disabled={uploading}
-          className="flex h-40 w-full flex-col items-center justify-center gap-3 rounded-[20px] border-2 border-dashed border-ink/15 bg-mist text-sm text-ink/50 transition hover:border-ink/30 hover:text-ink/70 disabled:cursor-not-allowed"
+          className="flex h-40 w-full flex-col items-center justify-center gap-3 rounded-[20px] border-2 border-dashed border-ink/15 bg-mist text-sm text-ink/65 transition hover:border-ink/30 hover:text-ink/78 disabled:cursor-not-allowed"
         >
           {uploading ? (
             <>
@@ -156,7 +156,7 @@ export function ImageUploader({
             <>
               <ImagePlus className="h-6 w-6" />
               <span>クリックまたはドラッグ＆ドロップ</span>
-              <span className="text-xs text-ink/35">JPEG / PNG / WebP・{maxMb}MB 以下</span>
+              <span className="text-xs text-ink/58">JPEG / PNG / WebP・{maxMb}MB 以下</span>
             </>
           )}
         </button>

@@ -9,7 +9,7 @@
   --spot-surface-strong: #ffffff;
   --spot-border: rgba(0, 0, 0, 0.09);
   --spot-text: #111111;
-  --spot-text-muted: rgba(0, 0, 0, 0.50);
+  --spot-text-muted: rgba(0, 0, 0, 0.65);
   --spot-accent: #e8261a;
 }
 
@@ -26,6 +26,8 @@ body {
   min-height: 100vh;
   background: var(--spot-bg);
   color: var(--spot-text);
+  font-size: 15px;
+  line-height: 1.7;
   font-feature-settings: "palt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -34,6 +36,12 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 800;
 }
 
 button,
@@ -52,7 +60,7 @@ select {
 }
 
 .chip {
-  @apply inline-flex items-center rounded-full border border-ink/10 bg-white/70 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-ink/70;
+  @apply inline-flex items-center rounded-full border border-ink/10 bg-white/70 px-3 py-1 text-[13px] font-semibold tracking-[0.15em] text-ink/75;
 }
 
 .cta-primary {
@@ -64,7 +72,7 @@ select {
 }
 
 .field {
-  @apply w-full rounded-2xl border border-ink/10 bg-mist px-4 py-3 text-sm text-ink outline-none transition focus:border-moss focus:bg-white aria-[invalid=true]:border-red-400 aria-[invalid=true]:bg-red-50/50;
+  @apply w-full rounded-2xl border border-ink/10 bg-mist px-4 py-3 text-[15px] text-ink outline-none transition focus:border-moss focus:bg-white aria-[invalid=true]:border-red-400 aria-[invalid=true]:bg-red-50/50;
 }
 
 .icon-button {
@@ -76,7 +84,7 @@ select {
 }
 
 .menu-link {
-  @apply flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-ink transition hover:bg-mist hover:text-moss;
+  @apply flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[15px] font-medium text-ink transition hover:bg-mist hover:text-moss;
 }
 
 .search-shell {
@@ -124,7 +132,7 @@ select {
 }
 
 .filter-select-button {
-  @apply flex w-full items-center justify-between gap-3 rounded-[16px] border border-transparent bg-transparent px-1 py-0 text-left text-sm font-medium text-ink/55 outline-none transition;
+  @apply flex w-full items-center justify-between gap-3 rounded-[16px] border border-transparent bg-transparent px-1 py-0 text-left text-[15px] font-medium text-ink/70 outline-none transition;
 }
 
 .filter-select-button-open {
@@ -136,7 +144,7 @@ select {
 }
 
 .filter-dropdown-item {
-  @apply flex w-full items-center whitespace-nowrap rounded-[16px] px-3 py-2.5 text-left text-sm font-medium text-ink/50 transition hover:bg-mist hover:text-ink/70;
+  @apply flex w-full items-center whitespace-nowrap rounded-[16px] px-3 py-2.5 text-left text-[15px] font-medium text-ink/65 transition hover:bg-mist hover:text-ink/80;
 }
 
 .filter-dropdown-item-selected {
@@ -152,7 +160,7 @@ select {
 }
 
 .search-result-pill {
-  @apply inline-flex items-center self-start rounded-full border border-ink/10 bg-white/75 px-3 py-1.5 text-[11px] font-semibold tracking-[0.2em] text-ink/50;
+  @apply inline-flex items-center self-start rounded-full border border-ink/10 bg-white/75 px-3 py-1.5 text-[13px] font-semibold tracking-[0.15em] text-ink/65;
 }
 
 .search-toolbar {

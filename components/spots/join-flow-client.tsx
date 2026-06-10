@@ -49,8 +49,8 @@ export function JoinFlowClient({
     <div className="shell">
       <section className="mx-auto max-w-3xl panel px-6 py-8 sm:px-8">
         <span className="chip">JOIN AS SOCIO</span>
-        <h1 className="mt-4 text-3xl font-bold text-ink">{spot.name} のサポーター加入</h1>
-        <p className="mt-3 text-sm text-ink/62">金額を選ぶと、そのまま決済へ進みます。</p>
+        <h1 className="mt-4 text-3xl font-extrabold text-ink">{spot.name} のサポーター加入</h1>
+        <p className="mt-3 text-sm text-ink/72">金額を選ぶと、そのまま決済へ進みます。</p>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {planOptions.map((amount) => {
@@ -65,7 +65,7 @@ export function JoinFlowClient({
                 }`}
               >
                 <div className="text-xs font-semibold tracking-[0.2em] opacity-70">PLAN</div>
-                <div className="mt-2 text-3xl font-bold">¥{amount}</div>
+                <div className="mt-2 text-3xl font-extrabold">¥{amount}</div>
                 <div className="mt-2 text-sm opacity-75">月額</div>
               </button>
             );
@@ -74,7 +74,7 @@ export function JoinFlowClient({
 
         {error ? <p className="mt-5 text-sm font-medium text-red-700">{error}</p> : null}
 
-        <p className="mt-8 text-xs leading-6 text-ink/50">
+        <p className="mt-8 text-xs leading-6 text-ink/65">
           「加入する」ボタンをクリックすることで、
           <Link href="/terms" className="underline hover:text-moss">利用規約</Link>
           および

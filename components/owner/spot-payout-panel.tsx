@@ -161,7 +161,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
   }
 
   if (!authReady || loading) {
-    return <div className="mt-8 text-sm text-ink/60">受取設定の状態を確認中です。</div>;
+    return <div className="mt-8 text-sm text-ink/72">受取設定の状態を確認中です。</div>;
   }
 
   if (!user) {
@@ -252,18 +252,18 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
               done:    { badge: "完了",   badgeClass: "bg-moss/10 text-moss",        card: "border-moss/20 bg-moss/5" },
               active:  { badge: "要対応", badgeClass: "bg-red-50 text-red-700",      card: "border-red-200 bg-red-50/50" },
               review:  { badge: "審査中", badgeClass: "bg-amber-50 text-amber-700",  card: "border-amber-200 bg-amber-50" },
-              pending: { badge: "未対応", badgeClass: "bg-ink/5 text-ink/40",        card: "border-ink/10 bg-mist" },
+              pending: { badge: "未対応", badgeClass: "bg-ink/5 text-ink/60",        card: "border-ink/10 bg-mist" },
             }[state];
             return (
               <div key={number} className={`rounded-[16px] border px-4 py-3 ${cfg.card}`}>
                 <div className="flex items-center justify-between gap-2">
-                  <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/40"}`}>
+                  <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/60"}`}>
                     {state === "done" ? "✓" : number}
                   </span>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.badgeClass}`}>{cfg.badge}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cfg.badgeClass}`}>{cfg.badge}</span>
                 </div>
                 <p className="mt-1.5 text-xs font-semibold text-ink">{label}</p>
-                {note && <p className="mt-0.5 text-[10px] text-ink/45">{note}</p>}
+                {note && <p className="mt-0.5 text-xs text-ink/65">{note}</p>}
               </div>
             );
           })}
@@ -274,14 +274,14 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
           <div className="rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>
         )}
         {disabledReasonLabel && !error && (
-          <p className="text-xs text-ink/55">{disabledReasonLabel}</p>
+          <p className="text-xs text-ink/68">{disabledReasonLabel}</p>
         )}
         {existingAccounts.length > 0 && !connected && (
           <div className="rounded-[16px] border border-moss/20 bg-moss/5 px-4 py-3 space-y-2">
             <p className="text-xs font-semibold text-ink">他のSPOTの登録済み口座を使う</p>
             {existingAccounts.map((acc) => (
               <div key={acc.accountId} className="flex items-center justify-between gap-3">
-                <p className="text-xs text-ink/60 truncate">{acc.spotName}</p>
+                <p className="text-xs text-ink/72 truncate">{acc.spotName}</p>
                 <button type="button" className="cta-primary shrink-0 text-xs" onClick={() => void linkAccount(acc.accountId)} disabled={linkLoading}>
                   {linkLoading ? "設定中…" : "この口座を使う"}
                 </button>

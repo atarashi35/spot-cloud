@@ -25,12 +25,12 @@ function KpiCard({
 }) {
   return (
     <div className={`rounded-[20px] px-5 py-5 ${accent ? "bg-ink text-white" : "bg-mist"}`}>
-      <p className={`text-xs font-semibold tracking-wider ${accent ? "text-white/45" : "text-ink/45"}`}>
+      <p className={`text-xs font-semibold tracking-wider ${accent ? "text-white/68" : "text-ink/65"}`}>
         {label}
       </p>
       <p className={`mt-2 text-3xl font-bold ${accent ? "text-white" : "text-ink"}`}>{value}</p>
       {sub && (
-        <p className={`mt-1 text-xs ${accent ? "text-white/40" : "text-ink/45"}`}>{sub}</p>
+        <p className={`mt-1 text-xs ${accent ? "text-white/65" : "text-ink/65"}`}>{sub}</p>
       )}
     </div>
   );

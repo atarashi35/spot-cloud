@@ -36,21 +36,21 @@ export function buildShareContent(data: SocioCardData): { text: string; url: str
 
   if (!first) {
     return {
-      text: "SPOTでソシオ（サポーター）を募集中です！",
+      text: "SPOTでサポーターを募集中です！",
       url: `${base}/spots`,
     };
   }
 
   if (data.memberships.length === 1) {
     return {
-      text: `「${first.spotName}」のソシオになりました。応援しています！`,
+      text: `「${first.spotName}」のサポーターになりました。応援しています！`,
       url: `${base}/spots/${first.spotId}`,
     };
   }
 
   const names = data.memberships.map((m) => `「${m.spotName}」`).join("・");
   return {
-    text: `${names}のソシオになりました。`,
+    text: `${names}のサポーターになりました。`,
     url: `${base}/spots/${first.spotId}`,
   };
 }

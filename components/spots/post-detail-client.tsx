@@ -39,7 +39,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
   if (!authReady || loading) {
     return (
       <div className="shell">
-        <div className="panel px-6 py-8 text-sm text-ink/60 animate-pulse">読み込み中...</div>
+        <div className="panel px-6 py-8 text-sm text-ink/72 animate-pulse">読み込み中...</div>
       </div>
     );
   }
@@ -81,7 +81,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
 
   return (
     <div className="shell space-y-6">
-      <nav className="text-sm text-ink/55">
+      <nav className="text-sm text-ink/68">
         <Link href={`/spots/${spotId}`} className="hover:text-ink transition-colors">{spot.name}</Link>
         <span className="mx-2">/</span>
         <span>お知らせ</span>
@@ -94,10 +94,10 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
               <span className="chip">POST</span>
               {!post.isPublic && <span className="chip">MEMBER ONLY</span>}
             </div>
-            <div className="mt-4 text-xs font-semibold tracking-[0.18em] text-ink/55">
+            <div className="mt-4 text-sm font-bold text-ink/72">
               {post.publishDate}
             </div>
-            <h1 className="mt-2 text-3xl font-bold text-ink">{post.title}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold text-ink">{post.title}</h1>
           </div>
           {isOwner && (
             <Link
@@ -136,9 +136,9 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 rounded-[16px] border border-ink/10 bg-mist px-4 py-3 transition hover:bg-ink/5"
               >
-                <FileText className="h-5 w-5 shrink-0 text-ink/40" />
+                <FileText className="h-5 w-5 shrink-0 text-ink/60" />
                 <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink/75">{att.name}</span>
-                <span className="shrink-0 text-xs text-ink/40">ダウンロード</span>
+                <span className="shrink-0 text-xs text-ink/60">ダウンロード</span>
               </a>
             ))}
           </div>
@@ -156,13 +156,13 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
           </div>
         )}
 
-        <div className="mt-6 text-sm leading-7 text-ink/75 whitespace-pre-wrap">
+        <div className="mt-6 text-[15px] leading-relaxed text-ink/75 whitespace-pre-wrap">
           {post.body}
         </div>
       </article>
 
       <div className="text-sm">
-        <Link href={`/spots/${spotId}/member`} className="text-ink/55 hover:text-ink transition-colors">
+        <Link href={`/spots/${spotId}/member`} className="text-ink/68 hover:text-ink transition-colors">
           ← {spot.name} の限定ページに戻る
         </Link>
       </div>

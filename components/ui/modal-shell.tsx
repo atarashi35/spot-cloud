@@ -45,7 +45,7 @@ export function ModalShell({ open, onClose, title, children, size = "md" }: Moda
       />
       <section className={`menu-surface relative z-[141] w-full ${SIZE_CLASS[size]} overflow-hidden`}>
         <div className="flex items-center justify-between border-b border-ink/8 px-6 py-5">
-          <h2 className="text-lg font-bold text-ink">{title}</h2>
+          <h2 className="text-xl font-bold text-ink">{title}</h2>
           <button type="button" className="icon-button" onClick={onClose} aria-label="閉じる">
             <X className="h-4 w-4" />
           </button>

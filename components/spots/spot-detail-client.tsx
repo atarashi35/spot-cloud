@@ -335,7 +335,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             <div className="flex-1"><AppleWalletButton /></div>
             <div className="flex-1"><GoogleWalletButton /></div>
           </div>
-          <p className="text-center text-xs text-ink/45">
+          <p className="text-center text-xs text-ink/65">
             会員証はいつでも{" "}
             <Link href="/account" className="underline hover:text-ink" onClick={() => setShowWelcomeBanner(false)}>
               マイページ
@@ -356,7 +356,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             </Link>
             <button
               type="button"
-              className="text-xs text-ink/45 hover:text-ink"
+              className="text-xs text-ink/65 hover:text-ink"
               onClick={() => setShowOwnerCta(false)}
             >
               閉じる
@@ -388,12 +388,16 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <span className="chip">{spot.category}</span>
               <SocioRankBadge socioCount={spot.socioCount} />
             </div>
-            <h1 className="mt-4 text-3xl font-bold text-ink sm:text-4xl">{spot.name}</h1>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <MetricPill label="サポーター" value={`${spot.socioCount}人`} />
+            <h1 className="mt-4 text-3xl font-extrabold text-ink sm:text-4xl">{spot.name}</h1>
+            <div className="mt-5 flex flex-wrap items-center gap-4">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[2.2rem] font-extrabold tabular-nums leading-none text-teal-600">{spot.socioCount}</span>
+                <span className="text-sm font-semibold text-teal-700/80">人のサポーター</span>
+              </div>
+              <div className="h-5 w-px bg-ink/15" />
               <MetricPill label="エリア" value={`${spot.prefecture}${spot.city ? ` / ${spot.city}` : ""}`} />
             </div>
-            <div className="mt-5 flex items-center gap-2 text-sm text-ink/62">
+            <div className="mt-5 flex items-center gap-2 text-sm text-ink/72">
               <MapPin className="h-4 w-4 shrink-0" />
               <a
                 href={`https://maps.google.com/maps?q=${encodeURIComponent(spot.address)}`}
@@ -405,7 +409,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </a>
             </div>
             {spot.phone ? (
-              <div className="mt-3 flex items-center gap-2 text-sm text-ink/62">
+              <div className="mt-3 flex items-center gap-2 text-sm text-ink/72">
                 <Phone className="h-4 w-4 shrink-0" />
                 <a href={`tel:${spot.phone}`} className="hover:text-ink hover:underline">
                   {spot.phone}
@@ -413,7 +417,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
             ) : null}
             {spot.email ? (
-              <div className="mt-3 flex items-center gap-2 text-sm text-ink/62">
+              <div className="mt-3 flex items-center gap-2 text-sm text-ink/72">
                 <Mail className="h-4 w-4 shrink-0" />
                 <a href={`mailto:${spot.email}`} className="hover:text-ink hover:underline">
                   {spot.email}
@@ -437,7 +441,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                       href={href}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/12 bg-white text-ink/55 transition hover:border-ink/30 hover:text-ink"
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/12 bg-white text-ink/68 transition hover:border-ink/30 hover:text-ink"
                       aria-label={key}
                     >
                       <Icon className="h-4 w-4" />
@@ -446,10 +450,17 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
             ) : null}
           </div>
-          <aside ref={mainCtaRef} className="flex flex-col rounded-[28px] bg-mist p-5">
+          <aside ref={mainCtaRef} className={`flex flex-col rounded-[28px] p-5 ${
+            // 未加入（メイン訴求）状態のみ黒背景で強調、それ以外はmist
+            !isOwner && membershipStatus !== "active" && membershipStatus !== "canceling"
+            && membershipStatus !== "past_due" && membershipStatus !== "canceled"
+            && canAcceptMembership
+              ? "bg-ink"
+              : "bg-mist"
+          }`}>
             {isOwner ? (
               <>
-                <h2 className="text-xl font-bold text-ink">運営中のSPOT</h2>
+                <h2 className="text-2xl font-extrabold text-ink">運営中のSPOT</h2>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <StatusBadge tone="success">サポーター限定を表示中</StatusBadge>
                 </div>
@@ -464,24 +475,24 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     {membershipStatus === "canceling" ? "解約予定（期末まで有効）" : "利用中"}
                   </StatusBadge>
                   {socioNumber !== null && (
-                    <span className="text-[10px] font-semibold tabular-nums uppercase tracking-[0.15em] text-ink/35">
+                    <span className="text-xs font-semibold tabular-nums uppercase tracking-[0.15em] text-ink/65">
                       No. {String(socioNumber).padStart(4, "0")}
                     </span>
                   )}
                 </div>
                 {membership?.joinedAt && (
                   <div className="flex flex-1 flex-col items-center justify-center py-8">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/35">SUPPORTER Since</p>
-                    <p className="mt-1 text-[88px] font-bold tabular-nums leading-none text-ink">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-teal-600">SUPPORTER Since</p>
+                    <p className="mt-1 text-[88px] font-extrabold tabular-nums leading-none text-teal-600">
                       {Math.floor((Date.now() - new Date(membership.joinedAt).getTime()) / 86_400_000) + 1}
                     </p>
-                    <p className="mt-2 text-sm tracking-wide text-ink/40">日目</p>
+                    <p className="mt-2 text-sm font-semibold text-ink/65">日目</p>
                   </div>
                 )}
               </div>
             ) : membershipStatus === "past_due" ? (
               <>
-                <h2 className="text-xl font-bold text-ink">支払い確認が必要です</h2>
+                <h2 className="text-2xl font-extrabold text-ink">支払い確認が必要です</h2>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <StatusBadge tone="warning">{getMembershipStatusLabel(membershipStatus)}</StatusBadge>
                 </div>
@@ -491,7 +502,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </>
             ) : membershipStatus === "canceled" ? (
               <>
-                <h2 className="text-xl font-bold text-ink">加入は停止中です</h2>
+                <h2 className="text-2xl font-extrabold text-ink">加入は停止中です</h2>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <StatusBadge>{getMembershipStatusLabel(membershipStatus)}</StatusBadge>
                 </div>
@@ -500,62 +511,63 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     サポーターになる
                   </button>
                 ) : (
-                  <div className="mt-5 rounded-[20px] bg-white px-4 py-4 text-sm text-ink/65">
+                  <div className="mt-5 rounded-[20px] bg-white px-4 py-4 text-sm text-ink/75">
                     受取設定の完了後に再加入できます。
                   </div>
                 )}
               </>
             ) : !canAcceptMembership ? (
               <>
-                <h2 className="text-xl font-bold text-ink">加入受付は準備中です</h2>
+                <h2 className="text-2xl font-extrabold text-ink">加入受付は準備中です</h2>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <StatusBadge>受取設定中</StatusBadge>
                 </div>
               </>
             ) : (
+              /* ── 未加入・募集中（メイン訴求）── bg-ink 反転パネル */
               <div className="flex h-full flex-col">
-                {/* サポーター数 or 募集中バッジ */}
+                {/* サポーター数 */}
                 {spot.socioCount > 0 ? (
                   <div>
-                    <p className="text-[11px] font-semibold tracking-[0.18em] text-ink/40">SUPPORTERS</p>
-                    <p className="mt-1 text-5xl font-bold tabular-nums leading-none text-ink">
-                      {spot.socioCount}
-                      <span className="ml-2 text-base font-normal text-ink/45">人が応援中</span>
+                    <p className="text-sm font-bold text-teal-400">SUPPORTERS</p>
+                    <p className="mt-1 tabular-nums leading-none">
+                      <span className="text-5xl font-extrabold text-teal-400">{spot.socioCount}</span>
+                      <span className="ml-2 text-base font-semibold text-white/65">人が応援中</span>
                     </p>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-2 self-start rounded-full bg-moss/10 px-3 py-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-moss" />
-                    <span className="text-xs font-semibold text-moss">最初のサポーターを募集中</span>
+                  <div className="inline-flex items-center gap-2 self-start rounded-full bg-teal-400/15 px-3 py-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                    <span className="text-sm font-semibold text-teal-400">サポーター募集中</span>
                   </div>
                 )}
 
                 {/* 区切り */}
-                <div className="my-5 border-t border-ink/8" />
+                <div className="my-5 border-t border-white/10" />
 
                 {/* ベネフィット */}
                 {spot.planBenefits && Object.values(spot.planBenefits).some(Boolean) ? (
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-3">
                     {planOptions.map((amount) => {
                       const benefit = spot.planBenefits?.[amount];
                       if (!benefit) return null;
                       return (
-                        <li key={amount} className="flex items-start gap-2.5 text-sm text-ink/65">
-                          <span className="mt-0.5 shrink-0 rounded-full bg-ink/8 px-2 py-0.5 text-[10px] font-bold text-ink/50">¥{amount}</span>
+                        <li key={amount} className="flex items-start gap-2.5 text-[15px] text-white/80">
+                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-xs font-bold text-teal-400">¥{amount}</span>
                           {benefit}
                         </li>
                       );
                     })}
                   </ul>
                 ) : (
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-3">
                     {[
                       "限定のお知らせが読める",
                       "限定イベントに参加できる",
                       "このSPOTの活動を支える",
                     ].map((text) => (
-                      <li key={text} className="flex items-center gap-2.5 text-sm text-ink/65">
-                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-ink/8 text-[9px] font-bold text-ink/40">✓</span>
+                      <li key={text} className="flex items-center gap-2.5 text-[15px] text-white/80">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-400/20 text-xs font-bold text-teal-400">✓</span>
                         {text}
                       </li>
                     ))}
@@ -563,8 +575,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 )}
 
                 {/* 価格 + ボタン */}
-                <div className="mt-auto pt-5">
-                  <p className="mb-3 text-center text-xs text-ink/40">月額 100〜500円</p>
+                <div className="mt-auto pt-6">
+                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 100〜500円</p>
                   <button
                     type="button"
                     className="cta-primary w-full"
@@ -582,10 +594,11 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       {/* ── 紹介文 ───────────────────────────────────────────────────── */}
       {spot.description ? (
         <section className="panel px-6 py-8 sm:px-10 sm:py-10">
-          <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">ABOUT</p>
-          <div className="mt-5 max-w-3xl space-y-5">
+          <p className="text-xs font-bold uppercase tracking-widest text-ink/45">ABOUT</p>
+          <h2 className="mt-2 text-2xl font-extrabold text-ink sm:text-3xl">{spot.name}について</h2>
+          <div className="mt-5 max-w-3xl space-y-5 border-t border-ink/8 pt-5">
             {spot.description.split(/\n{2,}/).map((para, i) => (
-              <p key={i} className="text-sm leading-7 text-ink/65 sm:text-[15px] sm:leading-8">
+              <p key={i} className={`leading-[1.9] text-ink/80 ${i === 0 ? "text-[17px] font-medium" : "text-[15px]"}`}>
                 {para.replace(/\n/g, " ")}
               </p>
             ))}
@@ -596,10 +609,11 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       {/* ── 運営メンバー ─────────────────────────────────────────────── */}
       {spot.teamMembers && spot.teamMembers.length > 0 && (
         <section className="panel px-6 py-8 sm:px-10 sm:py-10">
-          <p className="text-xs font-semibold tracking-[0.18em] text-ink/40">TEAM</p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-ink/45">TEAM</p>
+          <h2 className="mt-2 text-2xl font-extrabold text-ink">運営メンバー</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {spot.teamMembers.map((member, i) => (
-              <div key={i} className="flex items-start gap-3 rounded-[20px] bg-mist p-4">
+              <div key={i} className="flex items-start gap-3 rounded-[20px] border border-ink/8 bg-white p-4">
                 {member.avatarUrl ? (
                   <Image
                     src={member.avatarUrl}
@@ -609,18 +623,18 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     className="h-11 w-11 shrink-0 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink/10">
-                    <svg viewBox="0 0 24 24" className="h-5 w-5 text-ink/35" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink/8">
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 text-ink/65" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="8" r="4" />
                       <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
                     </svg>
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="font-semibold text-ink leading-tight">{member.name}</p>
-                  <p className="mt-0.5 text-xs font-medium text-ink/50">{member.role}</p>
+                  <p className="font-bold text-ink leading-tight">{member.name}</p>
+                  <p className="mt-0.5 text-sm text-ink/65">{member.role}</p>
                   {member.bio && (
-                    <p className="mt-1.5 text-xs leading-5 text-ink/60">{member.bio}</p>
+                    <p className="mt-1.5 text-[13px] leading-5 text-ink/72">{member.bio}</p>
                   )}
                 </div>
               </div>
@@ -647,14 +661,14 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
               {/* お知らせ列 */}
               <div className="rounded-[28px] bg-white/60 p-6">
-                <h3 className="text-xl font-bold text-ink">お知らせ</h3>
+                <h3 className="text-2xl font-extrabold text-ink">お知らせ</h3>
                 <div className="mt-4 space-y-4">
                   {allPosts.length === 0 ? (
-                    <p className="text-sm text-ink/50">お知らせはありません。</p>
+                    <p className="text-[15px] text-ink/65">お知らせはありません。</p>
                   ) : allPosts.map((post) => {
                     const isLocked = locked && !post.isPublic;
                     return (
-                      <article key={post.id} className="relative overflow-hidden rounded-[20px] bg-mist">
+                      <article key={post.id} className="relative overflow-hidden rounded-[20px] border border-ink/8 bg-white">
                         {post.imageUrl ? (
                           <div className="relative h-44 w-full">
                             <Image src={post.imageUrl} alt={post.title} fill className={`object-cover ${isLocked ? "blur-sm" : ""}`} sizes="(max-width:768px) 100vw, 50vw" />
@@ -662,26 +676,26 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         ) : null}
                         <div className={`p-5 ${isLocked ? "blur-[2px] select-none" : ""} ${isLocked && !post.imageUrl ? "min-h-[160px]" : ""}`}>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold tracking-[0.18em] text-ink/55">{post.publishDate}</span>
+                            <span className="text-sm font-semibold text-ink/65">{post.publishDate}</span>
                             {!post.isPublic && (
-                              <span className="rounded-full bg-ink/8 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-ink/50">MEMBERS</span>
+                              <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-700">MEMBERS</span>
                             )}
                           </div>
-                          <h4 className="mt-2 text-base font-bold text-ink">{post.title}</h4>
-                          <p className="mt-2 text-sm leading-7 text-ink/68 line-clamp-3">{post.body}</p>
+                          <h4 className="mt-2 text-lg font-bold text-ink">{post.title}</h4>
+                          <p className="mt-2 text-[15px] leading-relaxed text-ink/72 line-clamp-3">{post.body}</p>
                           {!isLocked && (
                             <div className="mt-3">
-                              <Link href={`/spots/${spotId}/posts/${post.id}`} className="text-xs font-semibold text-ink/55 hover:text-ink transition-colors">
+                              <Link href={`/spots/${spotId}/posts/${post.id}`} className="text-sm font-semibold text-moss hover:underline transition-colors">
                                 続きを読む →
                               </Link>
                             </div>
                           )}
                         </div>
                         {isLocked && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SUPPORTERS ONLY</p>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[20px] bg-white/80 backdrop-blur-[3px]">
+                            <p className="text-sm font-bold text-ink/72">サポーター限定コンテンツです</p>
                             {canAcceptMembership && (
-                              <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
+                              <button type="button" onClick={() => setSignupModalOpen(true)} className="cta-primary">
                                 サポーターになる
                               </button>
                             )}
@@ -695,14 +709,14 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
               {/* イベント列 */}
               <div className="rounded-[28px] bg-white/60 p-6">
-                <h3 className="text-xl font-bold text-ink">イベント</h3>
+                <h3 className="text-2xl font-extrabold text-ink">イベント</h3>
                 <div className="mt-4 space-y-4">
                   {allEvents.length === 0 ? (
-                    <p className="text-sm text-ink/50">イベントはありません。</p>
+                    <p className="text-[15px] text-ink/65">イベントはありません。</p>
                   ) : allEvents.map((event) => {
                     const isLocked = locked && !event.isPublic;
                     return (
-                      <article key={event.id} className="relative overflow-hidden rounded-[20px] bg-mist">
+                      <article key={event.id} className="relative overflow-hidden rounded-[20px] border border-ink/8 bg-white">
                         {event.imageUrl ? (
                           <div className="relative h-44 w-full">
                             <Image src={event.imageUrl} alt={event.title} fill className={`object-cover ${isLocked ? "blur-sm" : ""}`} sizes="(max-width:768px) 100vw, 50vw" />
@@ -710,22 +724,24 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         ) : null}
                         <div className={`p-5 ${isLocked ? "blur-[2px] select-none" : ""} ${isLocked && !event.imageUrl ? "min-h-[160px]" : ""}`}>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold tracking-[0.18em] text-ink/55">
+                            <span className="text-sm font-semibold text-ink/65">
                               {new Date(event.startAt).toLocaleString("ja-JP")}
                             </span>
                             {!event.isPublic && (
-                              <span className="rounded-full bg-ink/8 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-ink/50">MEMBERS</span>
+                              <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-700">MEMBERS</span>
                             )}
                           </div>
-                          <h4 className="mt-2 text-base font-bold text-ink">{event.title}</h4>
-                          <p className="mt-2 text-sm leading-7 text-ink/68 line-clamp-2">{event.description}</p>
+                          <h4 className="mt-2 text-lg font-bold text-ink">{event.title}</h4>
+                          <p className="mt-2 text-[15px] leading-relaxed text-ink/72 line-clamp-2">{event.description}</p>
                           {event.location ? (
-                            <p className="mt-1 text-sm text-ink/55">📍 {event.location}</p>
+                            <p className="mt-1.5 flex items-center gap-1 text-sm text-ink/65">
+                              <span>📍</span>{event.location}
+                            </p>
                           ) : null}
                           {!isLocked && (
                             <>
                               <div className="mt-3">
-                                <Link href={`/spots/${spotId}/events/${event.id}`} className="text-xs font-semibold text-ink/55 hover:text-ink transition-colors">
+                                <Link href={`/spots/${spotId}/events/${event.id}`} className="text-sm font-semibold text-moss hover:underline transition-colors">
                                   詳細を見る →
                                 </Link>
                               </div>
@@ -736,10 +752,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                           )}
                         </div>
                         {isLocked && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
-                            <p className="text-[10px] font-semibold tracking-[0.2em] text-ink/40">SUPPORTERS ONLY</p>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[20px] bg-white/80 backdrop-blur-[3px]">
+                            <p className="text-sm font-bold text-ink/72">サポーター限定コンテンツです</p>
                             {canAcceptMembership && (
-                              <button type="button" onClick={() => setSignupModalOpen(true)} className="rounded-full border border-ink/20 bg-white px-5 py-2 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/40 hover:shadow">
+                              <button type="button" onClick={() => setSignupModalOpen(true)} className="cta-primary">
                                 サポーターになる
                               </button>
                             )}
@@ -771,7 +787,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
-            <p className="text-xs text-ink/50">月100〜500円で参加できます</p>
+            <p className="text-xs text-ink/65">月100〜500円で参加できます</p>
           </div>
           <button
             type="button"

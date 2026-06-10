@@ -17,7 +17,7 @@ export function SocioManageClient({ spotId }: { spotId: string }) {
   }, [spotId]);
 
   if (!authReady || !user) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">読み込み中です。</div>;
   }
 
   return (
@@ -28,8 +28,8 @@ export function SocioManageClient({ spotId }: { spotId: string }) {
         { label: "サポーター管理" },
       ]} />
       <div>
-        <h1 className="text-2xl font-bold text-ink">{spotName ?? "…"}</h1>
-        <p className="mt-1 text-sm text-ink/55">サポーター管理</p>
+        <h1 className="text-2xl font-extrabold text-ink">{spotName ?? "…"}</h1>
+        <p className="mt-1 text-sm text-ink/68">サポーター管理</p>
       </div>
       <SocioListPanel spotId={spotId} spotName={spotName ?? spotId} defaultOpen />
     </div>

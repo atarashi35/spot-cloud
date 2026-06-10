@@ -73,10 +73,10 @@ function FilterSelect({
         onClick={() => setOpen((c) => !c)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 rounded-2xl border border-ink/12 bg-white px-4 py-3 text-sm font-medium text-ink/60 transition hover:border-ink/20 hover:text-ink/80"
+        className="flex w-full items-center justify-between gap-2 rounded-2xl border border-ink/12 bg-white px-4 py-3 text-sm font-medium text-ink/72 transition hover:border-ink/20 hover:text-ink/80"
       >
         <span className="truncate">{placeholder && value === "all" ? placeholder : (active?.label ?? "")}</span>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-ink/35 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-ink/58 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open ? (
@@ -89,7 +89,7 @@ function FilterSelect({
                 type="button"
                 role="option"
                 aria-selected={selected}
-                className={`flex w-full items-center whitespace-nowrap rounded-[14px] px-3 py-2.5 text-left text-sm font-medium transition hover:bg-mist ${selected ? "bg-mist text-ink" : "text-ink/55 hover:text-ink/70"}`}
+                className={`flex w-full items-center whitespace-nowrap rounded-[14px] px-3 py-2.5 text-left text-sm font-medium transition hover:bg-mist ${selected ? "bg-mist text-ink" : "text-ink/68 hover:text-ink/78"}`}
                 onClick={() => { onChange(option.value); setOpen(false); }}
               >
                 {option.label}
@@ -171,11 +171,11 @@ export function SpotListPage() {
       {/* ── ページヘッダー ── */}
       <div className="border-b border-ink/8 bg-white/70 px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <div className="text-[10px] font-semibold tracking-[0.28em] text-ink/38">SPOT MAP</div>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+          <div className="text-sm font-bold text-ink/72">SPOT MAP</div>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
             SPOTを探す
           </h1>
-          <p className="mt-2 text-sm text-ink/55">
+          <p className="mt-2 text-sm text-ink/68">
             気になる活動を見つけて、月100〜500円でサポーターになろう。
           </p>
         </div>
@@ -184,15 +184,15 @@ export function SpotListPage() {
       {/* ── Search bar ── */}
       <PageShell className="mt-6">
         <label className="flex items-center gap-3 rounded-[22px] border border-ink/10 bg-white px-4 py-3.5 shadow-[0_4px_20px_rgba(19,35,28,0.07)] transition focus-within:border-moss focus-within:shadow-[0_4px_24px_rgba(19,35,28,0.10)]">
-          <Search className="h-5 w-5 shrink-0 text-ink/38" />
+          <Search className="h-5 w-5 shrink-0 text-ink/60" />
           <input
-            className="w-full border-0 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink/35"
+            className="w-full border-0 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink/58"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="SPOT名、住所、エリアで探す..."
           />
           {keyword ? (
-            <button type="button" onClick={() => setKeyword("")} className="shrink-0 rounded-full p-0.5 text-ink/35 transition hover:text-ink/60">
+            <button type="button" onClick={() => setKeyword("")} className="shrink-0 rounded-full p-0.5 text-ink/58 transition hover:text-ink/72">
               <X className="h-4 w-4" />
             </button>
           ) : null}
@@ -212,7 +212,7 @@ export function SpotListPage() {
                 className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition active:scale-[0.95] ${
                   active
                     ? "bg-ink text-white shadow-sm"
-                    : "border border-ink/12 bg-white text-ink/58 hover:border-ink/22 hover:text-ink/80"
+                    : "border border-ink/12 bg-white text-ink/70 hover:border-ink/22 hover:text-ink/80"
                 }`}
               >
                 {cat.label}
@@ -232,19 +232,19 @@ export function SpotListPage() {
               className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold transition active:scale-[0.96] ${
                 showAreaFilter || activeFilterCount > 0
                   ? "border-moss bg-moss/8 text-moss"
-                  : "border-ink/12 bg-white text-ink/50 hover:border-ink/22 hover:text-ink/70"
+                  : "border-ink/12 bg-white text-ink/65 hover:border-ink/22 hover:text-ink/78"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
               エリア
               {activeFilterCount > 0 ? (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-moss text-[9px] font-bold text-white">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-moss text-xs font-bold text-white">
                   {activeFilterCount}
                 </span>
               ) : null}
             </button>
           </div>
-          <div className="text-[11px] font-semibold tracking-[0.2em] text-ink/35">
+          <div className="text-sm font-bold text-ink/72">
             {spots ? `${filteredSpots.length} SPOTS` : "···"}
           </div>
         </div>
@@ -305,9 +305,9 @@ export function SpotListPage() {
       {/* ── Owner CTA ── */}
       <PageShell className="mt-10">
         <div className="rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR OWNERS</div>
+          <div className="text-sm font-bold text-ink/72">FOR OWNERS</div>
           <p className="mt-2 text-base font-bold text-ink">あなたもSPOTを作りませんか？</p>
-          <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/55">
+          <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/68">
             継続型・超低額クラファンで、あなたの活動を応援する人を集めませんか？
           </p>
           <Link href="/owner" className="cta-primary mt-5 inline-flex">

@@ -34,10 +34,10 @@ function ParticipantRows({ spotId, eventId }: { spotId: string; eventId: string 
     });
   }, [spotId, eventId, user]);
 
-  if (loading) return <p className="mt-2 text-xs text-ink/50">読み込み中...</p>;
+  if (loading) return <p className="mt-2 text-xs text-ink/65">読み込み中...</p>;
 
   if (!participants || participants.length === 0) {
-    return <p className="mt-2 text-xs text-ink/50">参加者はまだいません。</p>;
+    return <p className="mt-2 text-xs text-ink/65">参加者はまだいません。</p>;
   }
 
   return (
@@ -46,9 +46,9 @@ function ParticipantRows({ spotId, eventId }: { spotId: string; eventId: string 
         <div key={p.uid} className="flex items-center gap-2 rounded-[10px] bg-white px-3 py-2 text-xs">
           <div className="min-w-0 flex-1">
             <span className="font-medium text-ink">{p.displayName || "(名前未設定)"}</span>
-            {p.email ? <span className="ml-2 text-ink/50">{p.email}</span> : null}
+            {p.email ? <span className="ml-2 text-ink/65">{p.email}</span> : null}
           </div>
-          <span className="shrink-0 text-ink/40">{p.joinedAt.slice(0, 10)}</span>
+          <span className="shrink-0 text-ink/60">{p.joinedAt.slice(0, 10)}</span>
         </div>
       ))}
     </div>
@@ -70,12 +70,12 @@ function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-ink truncate">{event.title}</span>
             {isPast ? (
-              <span className="shrink-0 rounded-full bg-ink/10 px-2 py-0.5 text-[10px] text-ink/50">終了</span>
+              <span className="shrink-0 rounded-full bg-ink/10 px-2 py-0.5 text-xs text-ink/65">終了</span>
             ) : (
-              <span className="shrink-0 rounded-full bg-moss/15 px-2 py-0.5 text-[10px] text-moss">開催予定</span>
+              <span className="shrink-0 rounded-full bg-moss/15 px-2 py-0.5 text-xs text-moss">開催予定</span>
             )}
           </div>
-          <div className="mt-0.5 text-xs text-ink/50">
+          <div className="mt-0.5 text-xs text-ink/65">
             {toDateTimeLabel(event.startAt)}
             {event.location ? ` · ${event.location}` : ""}
           </div>
@@ -83,13 +83,13 @@ function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
         <div className="ml-3 flex items-center gap-2 shrink-0">
           <Link
             href={`/spots/${spotId}/events/${event.id}/edit`}
-            className="text-xs text-ink/40 underline hover:text-ink"
+            className="text-xs text-ink/60 underline hover:text-ink"
             onClick={(e) => e.stopPropagation()}
           >
             編集
           </Link>
           <ChevronDown
-            className={`h-4 w-4 text-ink/40 transition-transform ${open ? "rotate-180" : ""}`}
+            className={`h-4 w-4 text-ink/60 transition-transform ${open ? "rotate-180" : ""}`}
           />
         </div>
       </button>
@@ -97,9 +97,9 @@ function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
       {open ? (
         <div className="border-t border-ink/8 px-4 pb-4">
           {event.description ? (
-            <p className="mt-2 text-xs leading-6 text-ink/60">{event.description}</p>
+            <p className="mt-2 text-xs leading-6 text-ink/72">{event.description}</p>
           ) : null}
-          <div className="mt-1 text-[11px] font-semibold tracking-[0.15em] text-ink/40">参加者</div>
+          <div className="mt-1 text-sm font-bold text-ink/72">参加者</div>
           <ParticipantRows spotId={spotId} eventId={event.id} />
         </div>
       ) : null}
@@ -133,15 +133,15 @@ export function EventListPanel({ spotId, defaultOpen = false }: { spotId: string
         onClick={() => setOpen((p) => !p)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold tracking-[0.18em] text-ink/55">イベントと参加者</span>
+          <span className="text-sm font-bold text-ink/72">イベントと参加者</span>
           {events !== null ? (
-            <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-ink/70">
+            <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-ink/78">
               {events.length}件
             </span>
           ) : null}
         </div>
         <ChevronDown
-          className={`h-4 w-4 text-ink/40 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-ink/60 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -154,7 +154,7 @@ export function EventListPanel({ spotId, defaultOpen = false }: { spotId: string
               ))}
             </div>
           ) : sorted.length === 0 ? (
-            <p className="text-sm text-ink/50">まだイベントはありません。</p>
+            <p className="text-sm text-ink/65">まだイベントはありません。</p>
           ) : (
             <div className="space-y-2">
               {sorted.map((event) => (

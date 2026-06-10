@@ -93,7 +93,7 @@ export async function GET(
     return NextResponse.json(
       {
         error: "members_lookup_failed",
-        message: error instanceof Error ? error.message : "ソシオ一覧を取得できませんでした。"
+        message: error instanceof Error ? error.message : "サポーター一覧を取得できませんでした。"
       },
       { status: 500 }
     );

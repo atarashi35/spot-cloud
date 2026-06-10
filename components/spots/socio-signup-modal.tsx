@@ -263,13 +263,13 @@ export function SocioSignupModal({
               <X className="h-4 w-4" />
             </button>
 
-            <span className="chip">SOCIO</span>
+            <span className="chip">SUPPORTER</span>
 
             {/* ─── Step: login ─────────────────────────────── */}
             {step === "login" ? (
               <>
-                <h2 className="mt-5 text-3xl font-bold text-ink">サポーター登録<span className="ml-2 text-base font-normal text-ink/40">（ソシオ）</span></h2>
-                <p className="mt-2 text-sm text-ink/58">
+                <h2 className="mt-5 text-3xl font-extrabold text-ink">サポーター登録</h2>
+                <p className="mt-2 text-sm text-ink/70">
                   加入にはアカウントが必要です。ログインまたは新規登録してください。
                 </p>
 
@@ -286,13 +286,13 @@ export function SocioSignupModal({
 
                 <div className="mt-5 flex items-center gap-3">
                   <div className="h-px flex-1 bg-ink/10" />
-                  <span className="text-xs text-ink/40">または</span>
+                  <span className="text-xs text-ink/60">または</span>
                   <div className="h-px flex-1 bg-ink/10" />
                 </div>
 
                 <div className="mt-5 space-y-3">
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-ink/62">メールアドレス</span>
+                    <span className="text-sm font-medium text-ink/72">メールアドレス</span>
                     <input
                       type="email"
                       className="field h-14"
@@ -327,23 +327,23 @@ export function SocioSignupModal({
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
-                  <h2 className="text-3xl font-bold text-ink">メールを確認</h2>
+                  <h2 className="text-3xl font-extrabold text-ink">メールを確認</h2>
                 </div>
 
                 <div className="mt-8 flex flex-col items-center gap-4 rounded-[20px] bg-mist p-6 text-center">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
-                    <Mail className="h-6 w-6 text-ink/70" />
+                    <Mail className="h-6 w-6 text-ink/78" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-ink">{email}</p>
-                    <p className="mt-2 text-sm leading-7 text-ink/65">
+                    <p className="mt-2 text-[15px] leading-relaxed text-ink/75">
                       上記のアドレスに認証リンクを送信しました。<br />
                       メール内のリンクをクリックするとログインが完了し、加入手続きに進めます。
                     </p>
                   </div>
                 </div>
 
-                <p className="mt-4 text-xs leading-6 text-ink/45">
+                <p className="mt-4 text-xs leading-6 text-ink/65">
                   メールが届かない場合は迷惑メールフォルダをご確認ください。
                   <button
                     type="button"
@@ -359,12 +359,12 @@ export function SocioSignupModal({
             {/* ─── Step: profile ───────────────────────────── */}
             {step === "profile" && user ? (
               <>
-                <h2 className="mt-5 text-3xl font-bold text-ink">加入情報</h2>
-                <p className="mt-2 text-sm text-ink/55">{user.email}</p>
+                <h2 className="mt-5 text-3xl font-extrabold text-ink">加入情報</h2>
+                <p className="mt-2 text-sm text-ink/68">{user.email}</p>
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm font-medium text-ink/62">お名前</span>
+                    <span className="text-sm font-medium text-ink/72">お名前</span>
                     <input
                       className="field h-14"
                       value={name}
@@ -374,7 +374,7 @@ export function SocioSignupModal({
                     />
                   </label>
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm font-medium text-ink/62">所属（任意）</span>
+                    <span className="text-sm font-medium text-ink/72">所属（任意）</span>
                     <input
                       className="field h-14"
                       value={affiliation}
@@ -383,7 +383,7 @@ export function SocioSignupModal({
                     />
                   </label>
                   <div className="space-y-2 sm:col-span-2">
-                    <span className="text-sm font-medium text-ink/62">住所（任意）</span>
+                    <span className="text-sm font-medium text-ink/72">住所（任意）</span>
                     <PostalCodeField
                       onResolved={({ postalCode: pc, prefecture, city, addressLine: al }) => {
                         setPostalCode(pc);
@@ -396,10 +396,10 @@ export function SocioSignupModal({
                       onChange={(e) => setAddressLine(e.target.value)}
                       placeholder="都道府県・市区町村・番地"
                     />
-                    <p className="text-[11px] text-ink/40">特典の送付などに利用します。オーナーのみ閲覧できます。</p>
+                    <p className="text-[13px] text-ink/60">特典の送付などに利用します。オーナーのみ閲覧できます。</p>
                   </div>
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-ink/62">年齢（任意）</span>
+                    <span className="text-sm font-medium text-ink/72">年齢（任意）</span>
                     <select
                       className="field h-14"
                       value={ageRange}
@@ -412,7 +412,7 @@ export function SocioSignupModal({
                     </select>
                   </label>
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-ink/62">性別（任意）</span>
+                    <span className="text-sm font-medium text-ink/72">性別（任意）</span>
                     <select
                       className="field h-14"
                       value={gender}
@@ -439,10 +439,10 @@ export function SocioSignupModal({
                           active ? "border-ink bg-ink text-white" : "border-ink/10 bg-mist text-ink"
                         }`}
                       >
-                        <div className="text-[11px] font-semibold tracking-[0.18em] opacity-65">MONTHLY</div>
+                        <div className="text-[13px] font-semibold tracking-[0.18em] opacity-65">MONTHLY</div>
                         <div className="mt-2 text-4xl font-bold">¥{amount}</div>
                         {benefit && (
-                          <p className={`mt-2.5 text-xs leading-5 ${active ? "text-white/70" : "text-ink/55"}`}>
+                          <p className={`mt-2.5 text-xs leading-5 ${active ? "text-white/80" : "text-ink/68"}`}>
                             {benefit}
                           </p>
                         )}
@@ -471,14 +471,14 @@ export function SocioSignupModal({
           <aside className="border-t border-ink/8 bg-mist/75 p-6 md:border-l md:border-t-0 md:p-8">
             <div className="rounded-[28px] border border-ink/8 bg-white/80 p-5 shadow-sm">
               <span className="chip">SPOT</span>
-              <h3 className="mt-4 text-2xl font-bold text-ink">{spot.name}</h3>
-              <p className="mt-3 text-sm leading-7 text-ink/62">{spot.shortDescription || spot.description}</p>
-              <div className="mt-5 flex items-center justify-between border-t border-ink/8 pt-4 text-sm text-ink/62">
+              <h3 className="mt-4 text-2xl font-extrabold text-ink">{spot.name}</h3>
+              <p className="mt-3 text-[15px] leading-relaxed text-ink/72">{spot.shortDescription || spot.description}</p>
+              <div className="mt-5 flex items-center justify-between border-t border-ink/8 pt-4 text-sm text-ink/72">
                 <span>月額</span>
                 <span className="text-lg font-semibold text-ink">¥{planAmount}</span>
               </div>
             </div>
-            <p className="mt-4 text-xs leading-6 text-ink/45">
+            <p className="mt-4 text-xs leading-6 text-ink/65">
               「支払いへ進む」をクリックすることで、
               <a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>
               および

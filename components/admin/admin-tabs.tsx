@@ -21,7 +21,7 @@ export function AdminTabs() {
             type="button"
             onClick={() => setTab(t.key)}
             className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-              tab === t.key ? "bg-ink text-white shadow-sm" : "text-ink/50 hover:text-ink"
+              tab === t.key ? "bg-ink text-white shadow-sm" : "text-ink/65 hover:text-ink"
             }`}
           >
             {t.label}

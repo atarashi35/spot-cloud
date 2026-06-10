@@ -288,7 +288,7 @@ export function SettingsPageClient() {
       {/* アカウント情報 */}
       <section className="panel px-6 py-8 sm:px-8">
         <span className="chip">ACCOUNT</span>
-        <h2 className="mt-4 text-2xl font-bold text-ink">アカウント情報</h2>
+        <h2 className="mt-4 text-2xl font-extrabold text-ink">アカウント情報</h2>
         {user ? (
           <>
             {/* アバター */}
@@ -302,7 +302,7 @@ export function SettingsPageClient() {
                   />
                 ) : (
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-mist border border-ink/10">
-                    <svg viewBox="0 0 24 24" className="h-8 w-8 text-ink/30" fill="currentColor">
+                    <svg viewBox="0 0 24 24" className="h-8 w-8 text-ink/55" fill="currentColor">
                       <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
                     </svg>
                   </div>
@@ -326,7 +326,7 @@ export function SettingsPageClient() {
               </div>
               <div>
                 <div className="text-sm font-semibold text-ink">プロフィール画像</div>
-                <div className="mt-0.5 text-xs text-ink/50">
+                <div className="mt-0.5 text-xs text-ink/65">
                   {avatarUploading ? "アップロード中..." : "JPG・PNG・WebP / 2MB以内"}
                 </div>
                 {avatarError ? (
@@ -339,7 +339,7 @@ export function SettingsPageClient() {
             <div className="mt-4 rounded-[20px] border border-ink/8 bg-mist px-5 py-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">表示名</div>
+                  <div className="text-sm font-bold text-ink/72">表示名</div>
                   {nameEditing ? (
                     <div className="mt-2 flex flex-col gap-2">
                       <input
@@ -387,13 +387,13 @@ export function SettingsPageClient() {
                     type="button"
                     onClick={startNameEdit}
                     aria-label="表示名を編集"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/10 bg-white text-ink/50 transition hover:border-moss hover:text-moss"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/10 bg-white text-ink/65 transition hover:border-moss hover:text-moss"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
                 ) : null}
               </div>
-              <p className="mt-3 text-[11px] leading-5 text-ink/40">
+              <p className="mt-3 text-[13px] leading-5 text-ink/60">
                 加入SPOTで表示される名前です。メールアドレスは表示されません。
               </p>
             </div>
@@ -401,7 +401,7 @@ export function SettingsPageClient() {
             {/* bio / occupation / specialty */}
             <div className="mt-4 space-y-4 rounded-[20px] border border-ink/8 bg-mist px-5 py-5">
               <div>
-                <label className="block text-xs font-semibold tracking-[0.15em] text-ink/45">
+                <label className="block text-sm font-bold text-ink/72">
                   ひとこと
                 </label>
                 <textarea
@@ -412,11 +412,11 @@ export function SettingsPageClient() {
                   placeholder="好きなことや活動のことなど、自由に"
                   className="mt-2 w-full resize-none rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-moss"
                 />
-                <div className="mt-1 text-right text-[11px] text-ink/35">{bio.length}/100</div>
+                <div className="mt-1 text-right text-[13px] text-ink/58">{bio.length}/100</div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold tracking-[0.15em] text-ink/45">
+                  <label className="block text-sm font-bold text-ink/72">
                     職業
                   </label>
                   <input
@@ -429,7 +429,7 @@ export function SettingsPageClient() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold tracking-[0.15em] text-ink/45">
+                  <label className="block text-sm font-bold text-ink/72">
                     得意なこと
                   </label>
                   <input
@@ -458,7 +458,7 @@ export function SettingsPageClient() {
                   <span className="text-xs text-red-600">{profileError}</span>
                 ) : null}
               </div>
-              <p className="text-[11px] leading-5 text-ink/35">
+              <p className="text-[13px] leading-5 text-ink/58">
                 この情報は加入SPOTのオーナーに共有されます。SNSには公開されません。
               </p>
             </div>
@@ -476,7 +476,7 @@ export function SettingsPageClient() {
                 )}
                 <div>
                   <div className="text-sm font-semibold text-ink">二段階認証（TOTP）</div>
-                  <div className="text-xs leading-5 text-ink/55">
+                  <div className="text-xs leading-5 text-ink/68">
                     {mfaEnrolled
                       ? "設定済み — 認証アプリで保護されています"
                       : <>
@@ -499,7 +499,7 @@ export function SettingsPageClient() {
             </div>
           </>
         ) : (
-          <p className="mt-4 text-sm text-ink/55">ログインするとアカウント情報が表示されます。</p>
+          <p className="mt-4 text-sm text-ink/68">ログインするとアカウント情報が表示されます。</p>
         )}
       </section>
       <MfaEnrollmentModal
@@ -513,19 +513,19 @@ export function SettingsPageClient() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <span className="chip">NOTIFY</span>
-            <h2 className="mt-4 text-2xl font-bold text-ink">通知</h2>
+            <h2 className="mt-4 text-2xl font-extrabold text-ink">通知</h2>
           </div>
           <StatusBadge>準備中</StatusBadge>
         </div>
-        <p className="mt-4 text-sm text-ink/62">
+        <p className="mt-4 text-sm text-ink/72">
           お知らせやイベント更新の通知設定はここに集約します。
         </p>
       </section>
 
       <section className="panel px-6 py-8 sm:px-8">
         <span className="chip">MEMBERSHIP</span>
-        <h2 className="mt-4 text-2xl font-bold text-ink">サポーターシップ管理</h2>
-        <p className="mt-4 text-sm leading-7 text-ink/62">
+        <h2 className="mt-4 text-2xl font-extrabold text-ink">サポーターシップ管理</h2>
+        <p className="mt-4 text-[15px] leading-relaxed text-ink/72">
           プラン・支払い方法の変更や解約はこちらで管理できます。
         </p>
         <div className="mt-6 grid gap-3">
@@ -536,9 +536,9 @@ export function SettingsPageClient() {
               <div className="mt-2 h-3 w-1/4 rounded-full bg-ink/10" />
             </div>
           ) : activeMemberships.length === 0 ? (
-            /* 参加中のソシオなし */
+            /* 参加中のサポーターなし */
             <div className="rounded-[20px] bg-mist px-5 py-5">
-              <p className="text-sm text-ink/55">現在参加中のプランはありません。</p>
+              <p className="text-sm text-ink/68">現在参加中のプランはありません。</p>
               <Link href="/" className="mt-3 inline-block text-sm font-semibold text-moss hover:underline">
                 SPOTを探す →
               </Link>
@@ -556,7 +556,7 @@ export function SettingsPageClient() {
                       {getMembershipStatusLabel(membership.status)}
                     </StatusBadge>
                   </div>
-                  <div className="mt-1 text-xs text-ink/50">
+                  <div className="mt-1 text-xs text-ink/65">
                     {`¥${membership.planAmount.toLocaleString()} / 月`}
                     {nextBillingDates[membership.spotId]
                       ? ` · 次回請求 ${toDateLabel(String(nextBillingDates[membership.spotId]))}`
@@ -584,7 +584,7 @@ export function SettingsPageClient() {
       {invoices.length > 0 ? (
         <section className="panel px-6 py-8 sm:px-8">
           <span className="chip">BILLING</span>
-          <h2 className="mt-4 text-2xl font-bold text-ink">請求履歴</h2>
+          <h2 className="mt-4 text-2xl font-extrabold text-ink">請求履歴</h2>
           <div className="mt-5 divide-y divide-ink/8">
             {invoices.map((inv) => (
               <div key={inv.id} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
@@ -592,7 +592,7 @@ export function SettingsPageClient() {
                   <div className="text-sm font-semibold text-ink">
                     ¥{(inv.amount / 100).toLocaleString()}
                   </div>
-                  <div className="mt-0.5 text-xs text-ink/50">
+                  <div className="mt-0.5 text-xs text-ink/65">
                     {toDateLabel(inv.date)}
                     {inv.status === "paid" ? " · 支払済" : inv.status === "open" ? " · 未払い" : ` · ${inv.status}`}
                   </div>
@@ -602,7 +602,7 @@ export function SettingsPageClient() {
                     href={inv.pdfUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 text-xs font-semibold text-ink/55 hover:text-ink transition-colors"
+                    className="shrink-0 text-xs font-semibold text-ink/68 hover:text-ink transition-colors"
                   >
                     PDF →
                   </a>
@@ -621,7 +621,7 @@ export function SettingsPageClient() {
       {/* 利用情報 */}
       <section className="panel px-6 py-8 sm:px-8">
         <span className="chip">LEGAL</span>
-        <h2 className="mt-4 text-2xl font-bold text-ink">利用情報</h2>
+        <h2 className="mt-4 text-2xl font-extrabold text-ink">利用情報</h2>
         <div className="mt-5 flex flex-col gap-3">
           <Link href="/terms" className="cta-secondary justify-start">利用規約</Link>
           <Link href="/privacy" className="cta-secondary justify-start">プライバシーポリシー</Link>

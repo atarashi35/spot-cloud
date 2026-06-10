@@ -85,7 +85,7 @@ export function AdminSociosClient() {
               type="button"
               onClick={() => setFilter(f.key)}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                filter === f.key ? "bg-ink text-white" : "bg-mist text-ink/55 hover:text-ink"
+                filter === f.key ? "bg-ink text-white" : "bg-mist text-ink/68 hover:text-ink"
               }`}
             >
               {f.label}
@@ -102,7 +102,7 @@ export function AdminSociosClient() {
       </div>
 
       <div className="overflow-hidden rounded-[24px] border border-ink/8 bg-white">
-        <div className="hidden grid-cols-[2fr_2fr_1fr_80px_100px] gap-4 border-b border-ink/8 px-5 py-3 text-[11px] font-semibold tracking-wider text-ink/40 sm:grid">
+        <div className="hidden grid-cols-[2fr_2fr_1fr_80px_100px] gap-4 border-b border-ink/8 px-5 py-3 text-[13px] font-semibold tracking-wider text-ink/60 sm:grid">
           <span>ソシオ</span>
           <span>SPOT</span>
           <span>加入日</span>
@@ -111,7 +111,7 @@ export function AdminSociosClient() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="px-5 py-10 text-center text-sm text-ink/40">該当するソシオがいません</div>
+          <div className="px-5 py-10 text-center text-sm text-ink/60">該当するソシオがいません</div>
         )}
 
         {filtered.map((s, i) => (
@@ -121,19 +121,19 @@ export function AdminSociosClient() {
           >
             <div>
               <p className="font-semibold text-ink">{s.displayName || "—"}</p>
-              <p className="text-xs text-ink/45">{s.email}</p>
+              <p className="text-xs text-ink/65">{s.email}</p>
               {s.affiliation && (
-                <p className="text-xs text-ink/35">{s.affiliation}</p>
+                <p className="text-xs text-ink/58">{s.affiliation}</p>
               )}
             </div>
             <div>
               <p className="text-sm font-semibold text-ink">{s.spotName}</p>
-              <p className="text-xs text-ink/35">{s.spotId}</p>
+              <p className="text-xs text-ink/58">{s.spotId}</p>
             </div>
-            <p className="text-xs text-ink/55">{s.joinedAt.slice(0, 10)}</p>
+            <p className="text-xs text-ink/68">{s.joinedAt.slice(0, 10)}</p>
             <div className="text-center">
               <span className="text-sm font-bold text-ink">¥{s.planAmount}</span>
-              <span className="text-xs text-ink/40">/月</span>
+              <span className="text-xs text-ink/60">/月</span>
             </div>
             <div className="flex justify-center">
               <StatusBadge tone={statusTone(s.status)}>{statusLabel(s.status)}</StatusBadge>
@@ -143,7 +143,7 @@ export function AdminSociosClient() {
       </div>
 
       {socios.length >= 500 && (
-        <p className="text-center text-xs text-ink/40">最新500件を表示しています</p>
+        <p className="text-center text-xs text-ink/60">最新500件を表示しています</p>
       )}
     </div>
   );

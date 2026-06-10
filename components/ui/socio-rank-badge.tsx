@@ -24,13 +24,13 @@ export function SocioRankBadge({
   return (
     <span
       className={`inline-flex items-center rounded-full border shadow-[0_8px_24px_rgba(19,35,28,0.08)] ${toneClassMap[rank.key]} ${
-        compact ? "gap-1.5 px-2.5 py-1 text-[11px]" : "gap-2 px-3 py-1.5 text-xs"
+        compact ? "gap-1.5 px-2.5 py-1 text-[13px]" : "gap-2 px-3 py-1.5 text-xs"
       }`}
     >
       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/70">
         <Gem className="h-3 w-3" />
       </span>
-      <span className="font-semibold tracking-[0.16em]">SOCIO {rank.label}</span>
+      <span className="font-semibold tracking-[0.16em]">SUPPORTER {rank.label}</span>
     </span>
   );
 }

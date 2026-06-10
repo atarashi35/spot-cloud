@@ -147,7 +147,7 @@ export function MfaEnrollmentModal({
 
       {/* 準備中 */}
       {step === "loading" && (
-        <div className="py-8 text-center text-ink/60">準備中...</div>
+        <div className="py-8 text-center text-ink/72">準備中...</div>
       )}
 
       {/* 再認証 — Google */}
@@ -155,7 +155,7 @@ export function MfaEnrollmentModal({
         <div className="space-y-5 pb-2">
           <div className="rounded-[16px] bg-mist px-4 py-4">
             <p className="text-sm font-semibold text-ink">本人確認が必要です</p>
-            <p className="mt-1 text-sm text-ink/60">
+            <p className="mt-1 text-sm text-ink/72">
               セキュリティのため、二段階認証の設定にはGoogleアカウントで再度ログインしてください。
             </p>
           </div>
@@ -176,12 +176,12 @@ export function MfaEnrollmentModal({
         <div className="space-y-5 pb-2">
           <div className="rounded-[16px] bg-mist px-4 py-4">
             <p className="text-sm font-semibold text-ink">本人確認が必要です</p>
-            <p className="mt-1 text-sm text-ink/60">
+            <p className="mt-1 text-sm text-ink/72">
               セキュリティのため、パスワードを入力して本人確認を行ってください。
             </p>
           </div>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-ink/62">パスワード</span>
+            <span className="text-sm font-medium text-ink/72">パスワード</span>
             <input
               type="password"
               className="field h-12"
@@ -207,7 +207,7 @@ export function MfaEnrollmentModal({
       {/* QRスキャン */}
       {step === "scan" && (
         <div className="space-y-5 pb-2">
-          <div className="rounded-[16px] bg-mist px-4 py-4 text-sm leading-6 text-ink/65">
+          <div className="rounded-[16px] bg-mist px-4 py-4 text-[15px] leading-6 text-ink/75">
             以下のいずれかの認証アプリでQRコードをスキャンしてください。
             <ul className="mt-2 space-y-1">
               <li>・<span className="font-semibold text-ink/75">iCloudキーチェーン</span>（iPhone / Mac に標準搭載）</li>
@@ -234,11 +234,11 @@ export function MfaEnrollmentModal({
       {/* コード確認 */}
       {step === "verify" && (
         <div className="space-y-5 pb-2">
-          <p className="text-sm text-ink/70">
+          <p className="text-sm text-ink/78">
             認証アプリに表示されている6桁のコードを入力してください。
           </p>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-ink/62">確認コード</span>
+            <span className="text-sm font-medium text-ink/72">確認コード</span>
             <input
               type="text"
               inputMode="numeric"
@@ -263,7 +263,7 @@ export function MfaEnrollmentModal({
           </button>
           <button
             type="button"
-            className="w-full text-sm text-ink/50 hover:text-ink"
+            className="w-full text-sm text-ink/65 hover:text-ink"
             onClick={() => setStep("scan")}
           >
             ← QRコードに戻る
@@ -277,7 +277,7 @@ export function MfaEnrollmentModal({
           <div className="py-4">
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">✓</div>
             <h3 className="text-lg font-bold text-ink">二段階認証を設定しました</h3>
-            <p className="mt-2 text-sm text-ink/60">
+            <p className="mt-2 text-sm text-ink/72">
               次回ログインから認証アプリのコードが必要になります。
             </p>
           </div>

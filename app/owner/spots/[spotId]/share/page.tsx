@@ -12,8 +12,8 @@ export default async function SpotSharePage({
     <div className="shell">
       <section className="panel px-6 py-8 sm:px-8">
         <SpotBreadcrumb spotId={spotId} current="QR・シェア" />
-        <h1 className="mt-4 text-3xl font-bold text-ink">QRコード・リンク共有</h1>
-        <p className="mt-3 text-sm leading-7 text-ink/60">
+        <h1 className="mt-4 text-3xl font-extrabold text-ink">QRコード・リンク共有</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink/72">
           チラシやSNSに掲載して、SPOTを知ってもらいましょう。
         </p>
         <SpotSharePanel spotId={spotId} />

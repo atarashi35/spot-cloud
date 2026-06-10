@@ -139,15 +139,15 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
         onClick={() => setOpen((p) => !p)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold tracking-[0.18em] text-ink/55">サポーター一覧</span>
+          <span className="text-sm font-bold text-ink/72">サポーター一覧</span>
           {members !== null ? (
-            <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-ink/70">
+            <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-ink/78">
               {payingCount}人
             </span>
           ) : null}
         </div>
         <ChevronDown
-          className={`h-4 w-4 text-ink/40 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-ink/60 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -164,7 +164,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                   className={`rounded-full px-3 py-1 transition ${
                     filter === f
                       ? "bg-ink text-white"
-                      : "text-ink/55 hover:text-ink"
+                      : "text-ink/68 hover:text-ink"
                   }`}
                 >
                   {f === "paying" ? "加入中" : "全員"}
@@ -175,7 +175,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
               <button
                 type="button"
                 onClick={() => exportCsv(filter === "paying" ? displayed : members, spotName)}
-                className="flex items-center gap-1.5 text-xs text-ink/50 hover:text-ink transition"
+                className="flex items-center gap-1.5 text-xs text-ink/65 hover:text-ink transition"
               >
                 <Download className="h-3.5 w-3.5" />
                 CSV
@@ -194,7 +194,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
             ) : error ? (
               <p className="text-sm text-red-700">{error}</p>
             ) : displayed.length === 0 ? (
-              <p className="text-sm text-ink/50">
+              <p className="text-sm text-ink/65">
                 {filter === "paying" ? "現在加入中のサポーターはいません。" : "まだサポーターはいません。"}
               </p>
             ) : (
@@ -206,11 +206,11 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                         <div className="font-medium text-ink text-sm truncate">
                           {m.displayName || "(名前未設定)"}
                         </div>
-                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink/55">
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink/68">
                           <span className="truncate">{m.email}</span>
                           {editingUid === m.uid ? null : (
                             <>
-                              <span className="text-ink/25">/</span>
+                              <span className="text-ink/52">/</span>
                               <span>{m.affiliation?.trim() ? `所属: ${m.affiliation}` : "所属未設定"}</span>
                             </>
                           )}
@@ -233,7 +233,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                             </button>
                             <button
                               type="button"
-                              className="rounded-full border border-ink/10 px-3 py-2 text-xs font-semibold text-ink/60 transition hover:text-ink"
+                              className="rounded-full border border-ink/10 px-3 py-2 text-xs font-semibold text-ink/72 transition hover:text-ink"
                               onClick={() => {
                                 setEditingUid(null);
                                 setDraftAffiliation("");
@@ -249,7 +249,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                         {editingUid !== m.uid ? (
                           <button
                             type="button"
-                            className="flex items-center gap-1 rounded-full border border-ink/10 px-2.5 py-1 text-[11px] font-semibold text-ink/55 transition hover:text-ink"
+                            className="flex items-center gap-1 rounded-full border border-ink/10 px-2.5 py-1 text-[13px] font-semibold text-ink/68 transition hover:text-ink"
                             onClick={() => {
                               setEditingUid(m.uid);
                               setDraftAffiliation(m.affiliation ?? "");
@@ -259,15 +259,15 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                             所属編集
                           </button>
                         ) : null}
-                        <span className="text-xs font-semibold text-ink/70">¥{m.planAmount}</span>
+                        <span className="text-xs font-semibold text-ink/78">¥{m.planAmount}</span>
                         <StatusBadge tone={STATUS_TONE[m.status]}>
                           {STATUS_LABEL[m.status]}
                         </StatusBadge>
                       </div>
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-ink/45">
+                    <div className="mt-2 flex flex-wrap gap-3 text-[13px] text-ink/65">
                       {m.occupation ? <span>{m.occupation}</span> : null}
-                      {m.specialty ? <span className="text-ink/35">✦ {m.specialty}</span> : null}
+                      {m.specialty ? <span className="text-ink/58">✦ {m.specialty}</span> : null}
                       {m.ageRange ? <span>{m.ageRange}</span> : null}
                       {m.gender ? <span>{m.gender}</span> : null}
                       {m.address ? <span>📮 {m.address}</span> : null}

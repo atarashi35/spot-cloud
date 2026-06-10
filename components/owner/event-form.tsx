@@ -181,7 +181,7 @@ export function EventForm(props: EventFormProps) {
   }
 
   if (!authReady || allowed === null) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">権限を確認中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">権限を確認中です。</div>;
   }
 
   if (!user || !allowed) {
@@ -194,14 +194,14 @@ export function EventForm(props: EventFormProps) {
   }
 
   if (loading) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">イベント内容を読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">イベント内容を読み込み中です。</div>;
   }
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       {/* タイトル */}
       <label className="space-y-2">
-        <span className="text-sm font-medium text-ink/62">イベント名</span>
+        <span className="text-sm font-medium text-ink/72">イベント名</span>
         <input
           className="field"
           value={title}
@@ -213,7 +213,7 @@ export function EventForm(props: EventFormProps) {
 
       {/* 開始日時 */}
       <label className="space-y-2">
-        <span className="text-sm font-medium text-ink/62">開始日時</span>
+        <span className="text-sm font-medium text-ink/72">開始日時</span>
         <input
           className="field"
           value={startAt}
@@ -225,7 +225,7 @@ export function EventForm(props: EventFormProps) {
 
       {/* 場所（郵便番号自動入力） */}
       <div className="space-y-2">
-        <span className="text-sm font-medium text-ink/62">場所</span>
+        <span className="text-sm font-medium text-ink/72">場所</span>
         <div className="flex gap-2">
           <input
             className="field w-36"
@@ -235,7 +235,7 @@ export function EventForm(props: EventFormProps) {
             maxLength={8}
           />
           {zipLoading ? (
-            <span className="self-center text-xs text-ink/50">検索中...</span>
+            <span className="self-center text-xs text-ink/65">検索中...</span>
           ) : null}
           {zipError ? (
             <span className="self-center text-xs text-red-600">{zipError}</span>
@@ -257,7 +257,7 @@ export function EventForm(props: EventFormProps) {
 
       {/* 内容 */}
       <label className="space-y-2">
-        <span className="text-sm font-medium text-ink/62">内容</span>
+        <span className="text-sm font-medium text-ink/72">内容</span>
         <textarea
           className="field min-h-32"
           value={description}
@@ -269,7 +269,7 @@ export function EventForm(props: EventFormProps) {
 
       {/* 画像 */}
       <div className="space-y-2">
-        <span className="text-sm font-medium text-ink/62">画像（任意）</span>
+        <span className="text-sm font-medium text-ink/72">画像（任意）</span>
         <ImageUploader
           value={imageUrl}
           onChange={setImageUrl}
@@ -279,7 +279,7 @@ export function EventForm(props: EventFormProps) {
 
       {/* 公開設定 */}
       <div className="rounded-[20px] border border-ink/10 p-4">
-        <p className="mb-3 text-xs font-semibold tracking-[0.15em] text-ink/50">公開設定</p>
+        <p className="mb-3 text-sm font-bold text-ink/72">公開設定</p>
         <div className="flex gap-2">
           {([false, true] as const).map((val) => (
             <button
@@ -287,7 +287,7 @@ export function EventForm(props: EventFormProps) {
               type="button"
               onClick={() => setIsPublic(val)}
               className={`flex-1 rounded-[16px] px-4 py-3 text-sm font-medium transition ${
-                isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/60 hover:text-ink"
+                isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
               }`}
             >
               {val ? "🌐 公開（誰でも閲覧可）" : "🔒 サポーター限定"}
@@ -297,7 +297,7 @@ export function EventForm(props: EventFormProps) {
       </div>
 
       {/* 参加ボタン */}
-      <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/68">
+      <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/78">
         <input
           type="checkbox"
           checked={hasJoinButton}

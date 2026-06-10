@@ -121,7 +121,7 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="flex aspect-square flex-col items-center justify-center gap-1 rounded-[16px] border-2 border-dashed border-ink/15 bg-mist text-xs text-ink/45 transition hover:border-ink/30 hover:text-ink/65 disabled:cursor-not-allowed"
+            className="flex aspect-square flex-col items-center justify-center gap-1 rounded-[16px] border-2 border-dashed border-ink/15 bg-mist text-xs text-ink/65 transition hover:border-ink/30 hover:text-ink/75 disabled:cursor-not-allowed"
           >
             {uploading ? (
               <>
@@ -139,9 +139,9 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
       </div>
 
       {/* 枚数表示 */}
-      <p className="text-xs text-ink/40">
+      <p className="text-xs text-ink/60">
         {values.length} / {max} 枚
-        {!canAdd && <span className="ml-2 font-medium text-ink/55">上限に達しました</span>}
+        {!canAdd && <span className="ml-2 font-medium text-ink/68">上限に達しました</span>}
       </p>
 
       {/* 進捗バー */}

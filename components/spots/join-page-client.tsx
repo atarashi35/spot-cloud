@@ -33,7 +33,7 @@ export function JoinPageClient({
   }, [spotId]);
 
   if (status === "loading") {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">加入ページを読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">加入ページを読み込み中です。</div>;
   }
 
   if (status === "error") {

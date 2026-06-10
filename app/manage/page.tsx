@@ -8,7 +8,7 @@ export default function ManagePage() {
     <PageShell className="space-y-8">
       <Card className="px-6 py-8 sm:px-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <h1 className="text-3xl font-bold text-ink">運営中のSPOT</h1>
+          <h1 className="text-3xl font-extrabold text-ink">運営中のSPOT</h1>
           <Link href="/owner/spots/new" className="cta-primary">
             SPOTを登録
           </Link>

@@ -199,7 +199,7 @@ export function OwnerConsoleClient() {
   // ─── ガード ────────────────────────────────────────────────────────
 
   if (!authReady) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">認証状態を確認中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">認証状態を確認中です。</div>;
   }
 
   if (!user) {
@@ -221,7 +221,7 @@ export function OwnerConsoleClient() {
   }
 
   if (!spots) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">SPOTを読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">SPOTを読み込み中です。</div>;
   }
 
   if (spots.length === 0) {
@@ -288,26 +288,26 @@ export function OwnerConsoleClient() {
         <section className="panel px-6 py-6 sm:px-8">
           <div className="flex flex-wrap items-center gap-6">
             <div>
-              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">TOTAL SOCIO</div>
-              <div className="mt-1 text-3xl font-bold text-ink">
+              <div className="text-sm font-bold text-ink/72">TOTAL SUPPORTERS</div>
+              <div className="mt-1 text-3xl font-extrabold text-ink">
                 {revenueLoaded ? totalSocio : "---"}
-                <span className="ml-1 text-base font-normal text-ink/50">人</span>
+                <span className="ml-1 text-base font-normal text-ink/65">人</span>
               </div>
             </div>
             <div className="h-10 w-px bg-ink/10" />
             <div>
-              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">振込予定額</div>
-              <div className="mt-1 text-3xl font-bold text-moss">
+              <div className="text-sm font-bold text-ink/72">振込予定額</div>
+              <div className="mt-1 text-3xl font-extrabold text-moss">
                 {revenueLoaded ? `¥${totalNet.toLocaleString()}` : "---"}
               </div>
-              <div className="mt-0.5 text-xs text-ink/45">
+              <div className="mt-0.5 text-xs text-ink/65">
                 {revenueLoaded ? "全SPOT合計（手数料控除後）" : "Stripe確認中..."}
               </div>
             </div>
             <div className="h-10 w-px bg-ink/10" />
             <div>
-              <div className="text-xs font-semibold tracking-[0.18em] text-ink/50">SPOTS</div>
-              <div className="mt-1 text-3xl font-bold text-ink">{spots.length}</div>
+              <div className="text-sm font-bold text-ink/72">SPOTS</div>
+              <div className="mt-1 text-3xl font-extrabold text-ink">{spots.length}</div>
             </div>
           </div>
         </section>
@@ -344,7 +344,7 @@ export function OwnerConsoleClient() {
                   className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
                     spot.isPublished
                       ? "border-moss/30 bg-moss/10 text-moss hover:bg-moss/20"
-                      : "border-ink/15 bg-white text-ink/55 hover:border-ink/30"
+                      : "border-ink/15 bg-white text-ink/68 hover:border-ink/30"
                   }`}
                 >
                   {togglingId === spot.id ? "..." : spot.isPublished ? "公開中" : "非公開"}
@@ -352,10 +352,10 @@ export function OwnerConsoleClient() {
               </div>
 
               {/* SPOT名・説明 */}
-              <Link href={`/spots/${spot.id}`} className="mt-4 block text-2xl font-bold text-ink hover:text-moss transition-colors">
+              <Link href={`/spots/${spot.id}`} className="mt-4 block text-2xl font-extrabold text-ink hover:text-moss transition-colors">
                 {spot.name}
               </Link>
-              <p className="mt-2 text-sm leading-7 text-ink/62">{spot.shortDescription}</p>
+              <p className="mt-2 text-[15px] leading-relaxed text-ink/72">{spot.shortDescription}</p>
 
               {/* 収益パネル */}
               {revenue === undefined ? (
@@ -363,7 +363,7 @@ export function OwnerConsoleClient() {
                 <div className="mt-4 h-24 animate-pulse rounded-[16px] bg-mist" />
               ) : revenue === null ? (
                 /* Stripe未設定 or エラー */
-                <div className="mt-4 rounded-[16px] bg-mist px-4 py-4 text-sm text-ink/50">
+                <div className="mt-4 rounded-[16px] bg-mist px-4 py-4 text-sm text-ink/65">
                   収益情報を取得できませんでした（Stripe未設定の可能性があります）
                 </div>
               ) : (
@@ -372,14 +372,14 @@ export function OwnerConsoleClient() {
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex flex-wrap items-end gap-6">
                       <div>
-                        <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">SOCIO</div>
-                        <div className="mt-1 text-2xl font-bold text-ink">
+                        <div className="text-sm font-bold text-ink/72">SUPPORTERS</div>
+                        <div className="mt-1 text-2xl font-extrabold text-ink">
                           {revenue.socioCount}
-                          <span className="ml-1 text-sm font-normal text-ink/50">人</span>
+                          <span className="ml-1 text-sm font-normal text-ink/65">人</span>
                         </div>
                         {rankProgress.nextRank ? (
                           <div className="mt-2 w-full max-w-[260px]">
-                            <div className="flex items-center justify-between text-[11px] text-ink/50">
+                            <div className="flex items-center justify-between text-[13px] text-ink/65">
                               <span>{rankProgress.nextRank.label} まであと {rankProgress.remainingCount} 人</span>
                               <span>{rankProgress.nextRank.minCount}人</span>
                             </div>
@@ -405,20 +405,20 @@ export function OwnerConsoleClient() {
                       <div className="hidden h-10 w-px bg-ink/15 sm:block" />
 
                       <div>
-                        <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">今月売上</div>
-                        <div className="mt-1 text-2xl font-bold text-ink">
+                        <div className="text-sm font-bold text-ink/72">今月売上</div>
+                        <div className="mt-1 text-2xl font-extrabold text-ink">
                           ¥{revenue.grossMonthly.toLocaleString()}
-                          <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
+                          <span className="ml-1 text-sm font-normal text-ink/65">/月</span>
                         </div>
                       </div>
 
                       <div className="hidden h-10 w-px bg-ink/15 sm:block" />
 
                       <div>
-                        <div className="text-xs font-semibold tracking-[0.15em] text-ink/45">振込予定額</div>
-                        <div className="mt-1 text-2xl font-bold text-moss">
+                        <div className="text-sm font-bold text-ink/72">振込予定額</div>
+                        <div className="mt-1 text-2xl font-extrabold text-moss">
                           ¥{revenue.netMonthly.toLocaleString()}
-                          <span className="ml-1 text-sm font-normal text-ink/50">/月</span>
+                          <span className="ml-1 text-sm font-normal text-ink/65">/月</span>
                         </div>
                       </div>
                     </div>
@@ -436,7 +436,7 @@ export function OwnerConsoleClient() {
                             [spot.id]: !prev[spot.id]
                           }))
                         }
-                        className="flex items-center gap-1 text-xs text-ink/40 hover:text-ink/60 transition"
+                        className="flex items-center gap-1 text-xs text-ink/60 hover:text-ink/72 transition"
                       >
                         <ChevronDown
                           className={`h-3 w-3 transition-transform ${openBreakdowns[spot.id] ? "rotate-180" : ""}`}
@@ -444,7 +444,7 @@ export function OwnerConsoleClient() {
                         内訳を{openBreakdowns[spot.id] ? "閉じる" : "見る"}
                       </button>
                       {openBreakdowns[spot.id] ? (
-                        <div className="mt-2 text-xs text-ink/45 space-y-0.5">
+                        <div className="mt-2 text-xs text-ink/65 space-y-0.5">
                           <div className="flex justify-between">
                             <span>決済総額</span>
                             <span>¥{revenue.grossMonthly.toLocaleString()}</span>
@@ -457,7 +457,7 @@ export function OwnerConsoleClient() {
                             <span>SPOT利用料 ({revenue.platformFeePercent}%)</span>
                             <span>−¥{revenue.platformFee.toLocaleString()}</span>
                           </div>
-                          <div className="flex justify-between font-semibold text-ink/60 pt-0.5 border-t border-ink/8">
+                          <div className="flex justify-between font-semibold text-ink/72 pt-0.5 border-t border-ink/8">
                             <span>振込予定額</span>
                             <span>¥{revenue.netMonthly.toLocaleString()}</span>
                           </div>
@@ -476,30 +476,30 @@ export function OwnerConsoleClient() {
               {content ? (
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
-                    <div className="font-semibold tracking-[0.15em] text-ink/45">
+                    <div className="font-semibold tracking-[0.15em] text-ink/65">
                       お知らせ {content.postCount}件
                     </div>
                     {content.latestPost ? (
                       <>
                         <div className="mt-1 font-semibold text-ink">{content.latestPost.title}</div>
-                        <div className="mt-0.5 text-ink/50">{toDateLabel(content.latestPost.publishDate)}</div>
+                        <div className="mt-0.5 text-ink/65">{toDateLabel(content.latestPost.publishDate)}</div>
                       </>
                     ) : (
-                      <div className="mt-1 text-ink/40">まだ投稿がありません</div>
+                      <div className="mt-1 text-ink/60">まだ投稿がありません</div>
                     )}
                   </div>
                   <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
-                    <div className="font-semibold tracking-[0.15em] text-ink/45">次のイベント</div>
+                    <div className="font-semibold tracking-[0.15em] text-ink/65">次のイベント</div>
                     {content.nextEvent ? (
                       <>
                         <div className="mt-1 font-semibold text-ink">{content.nextEvent.title}</div>
-                        <div className="mt-0.5 text-ink/50">
+                        <div className="mt-0.5 text-ink/65">
                           {toEventLabel(content.nextEvent.startAt)}
                           {content.nextEvent.location ? ` · ${content.nextEvent.location}` : ""}
                         </div>
                       </>
                     ) : (
-                      <div className="mt-1 text-ink/40">予定されているイベントはありません</div>
+                      <div className="mt-1 text-ink/60">予定されているイベントはありません</div>
                     )}
                   </div>
                 </div>
@@ -507,7 +507,7 @@ export function OwnerConsoleClient() {
                 <div className="mt-4 h-14 animate-pulse rounded-[16px] bg-mist" />
               )}
 
-              {/* 最近加入したソシオ */}
+              {/* 最近加入したサポーター */}
               <RecentSociosPanel
                 spotId={spot.id}
                 spotShareHref={`/owner/spots/${spot.id}/share`}
@@ -549,19 +549,19 @@ export function OwnerConsoleClient() {
 
               {/* セカンダリリンク（低頻度） */}
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <a href={`/manage/${spot.id}/socios`} className="text-xs text-ink/45 hover:text-ink transition-colors">
+                <a href={`/manage/${spot.id}/socios`} className="text-xs text-ink/65 hover:text-ink transition-colors">
                   サポーター一覧{revenue ? `（${socioCount}人）` : ""}
                 </a>
-                <span className="text-ink/20">·</span>
-                <Link href={`/owner/spots/${spot.id}/edit`} className="text-xs text-ink/45 hover:text-ink transition-colors">
+                <span className="text-ink/40">·</span>
+                <Link href={`/owner/spots/${spot.id}/edit`} className="text-xs text-ink/65 hover:text-ink transition-colors">
                   SPOT編集
                 </Link>
-                <span className="text-ink/20">·</span>
-                <Link href={`/owner/spots/${spot.id}/share`} className="text-xs text-ink/45 hover:text-ink transition-colors">
+                <span className="text-ink/40">·</span>
+                <Link href={`/owner/spots/${spot.id}/share`} className="text-xs text-ink/65 hover:text-ink transition-colors">
                   QRコード
                 </Link>
-                <span className="text-ink/20">·</span>
-                <Link href={`/owner/spots/${spot.id}/payout`} className={`text-xs transition-colors ${connectReady ? "text-ink/45 hover:text-ink" : "font-semibold text-amber-600 hover:text-amber-700"}`}>
+                <span className="text-ink/40">·</span>
+                <Link href={`/owner/spots/${spot.id}/payout`} className={`text-xs transition-colors ${connectReady ? "text-ink/65 hover:text-ink" : "font-semibold text-amber-600 hover:text-amber-700"}`}>
                   受取設定{!connectReady ? "（未設定）" : ""}
                 </Link>
               </div>

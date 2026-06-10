@@ -46,7 +46,7 @@ export default function LawPage() {
             {items.map((item) => (
               <div key={item.label} className="grid gap-2 py-5 sm:grid-cols-[200px_1fr]">
                 <dt className="text-sm font-semibold text-ink">{item.label}</dt>
-                <dd className="text-sm leading-7 text-ink/68">{item.value}</dd>
+                <dd className="text-[15px] leading-relaxed text-ink/78">{item.value}</dd>
               </div>
             ))}
           </dl>

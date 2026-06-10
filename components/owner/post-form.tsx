@@ -136,7 +136,7 @@ export function PostForm(props: PostFormProps) {
   }
 
   if (!authReady || allowed === null) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">権限を確認中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">権限を確認中です。</div>;
   }
 
   if (!user || !allowed) {
@@ -149,7 +149,7 @@ export function PostForm(props: PostFormProps) {
   }
 
   if (loading) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">投稿内容を読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">投稿内容を読み込み中です。</div>;
   }
 
   return (
@@ -157,7 +157,7 @@ export function PostForm(props: PostFormProps) {
       <input className="field" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="タイトル" required />
       <textarea className="field min-h-40" value={body} onChange={(event) => setBody(event.target.value)} placeholder="本文" required />
       <div>
-        <label className="mb-2 block text-sm font-medium text-ink/62">
+        <label className="mb-2 block text-sm font-medium text-ink/72">
           画像・PDF（任意・最大5件）
         </label>
         <AttachmentsUploader
@@ -169,7 +169,7 @@ export function PostForm(props: PostFormProps) {
       <input className="field" value={publishDate} onChange={(event) => setPublishDate(event.target.value)} type="date" required />
       {/* 公開設定 */}
       <div className="rounded-[20px] border border-ink/10 p-4">
-        <p className="mb-3 text-xs font-semibold tracking-[0.15em] text-ink/50">公開設定</p>
+        <p className="mb-3 text-sm font-bold text-ink/72">公開設定</p>
         <div className="flex gap-2">
           {([false, true] as const).map((val) => (
             <button
@@ -177,7 +177,7 @@ export function PostForm(props: PostFormProps) {
               type="button"
               onClick={() => setIsPublic(val)}
               className={`flex-1 rounded-[16px] px-4 py-3 text-sm font-medium transition ${
-                isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/60 hover:text-ink"
+                isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
               }`}
             >
               {val ? "🌐 公開（誰でも閲覧可）" : "🔒 サポーター限定"}

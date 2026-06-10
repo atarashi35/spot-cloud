@@ -199,7 +199,7 @@ export function AccountPageClient() {
   // ─── ガード ────────────────────────────────────────────────────────
 
   if (!authReady) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">読み込み中です。</div>;
   }
 
   if (!user) {
@@ -221,7 +221,7 @@ export function AccountPageClient() {
   }
 
   if (!memberships) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">サポート情報を読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">サポート情報を読み込み中です。</div>;
   }
 
   const activeList = memberships.filter((m) => m.status !== "canceled");
@@ -233,7 +233,7 @@ export function AccountPageClient() {
       {/* サポーター会員証 */}
       {user ? (
         <section className="space-y-3">
-          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">MY SUPPORTER CARD</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">MY SUPPORTER CARD</h2>
           <div className="mx-auto max-w-sm space-y-3">
             <SocioCard
               uid={user.uid}
@@ -259,14 +259,14 @@ export function AccountPageClient() {
       {/* 今後のイベント（全SPOT横断） */}
       {upcomingEvents.length > 0 ? (
         <section className="space-y-3">
-          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">今後のイベント</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">今後のイベント</h2>
           <div className="panel divide-y divide-ink/8 overflow-hidden px-6 sm:px-8">
             {upcomingEvents.map((ev) => (
               <div key={`${ev.spotId}-${ev.eventId}`} className="flex items-start justify-between gap-4 py-4">
                 <div>
                   <div className="text-xs font-semibold text-moss">{toEventLabel(ev.startAt)}</div>
                   <div className="mt-1 text-sm font-semibold text-ink">{ev.title}</div>
-                  <div className="mt-0.5 text-xs text-ink/50">
+                  <div className="mt-0.5 text-xs text-ink/65">
                     {ev.spotName}{ev.location ? ` · ${ev.location}` : ""}
                   </div>
                 </div>
@@ -298,14 +298,14 @@ export function AccountPageClient() {
       {/* 応援中のSPOT */}
       {activeList.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">応援中のSPOT</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">応援中のSPOT</h2>
           {activeList.map((membership) => {
             const preview = previews[membership.spotId];
             return (
               <article key={membership.spotId} className="panel px-6 py-6 sm:px-8">
                 {/* ヘッダー行 */}
                 <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-xl font-bold text-ink">{spotNames[membership.spotId] ?? membership.spotName}</h3>
+                  <h3 className="text-2xl font-extrabold text-ink">{spotNames[membership.spotId] ?? membership.spotName}</h3>
                   <StatusBadge tone={getMembershipTone(membership.status)}>
                     {getMembershipStatusLabel(membership.status)}
                   </StatusBadge>
@@ -321,23 +321,23 @@ export function AccountPageClient() {
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
                     {preview.latestPost ? (
                       <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
-                        <div className="font-semibold tracking-[0.15em] text-ink/45">最新のお知らせ</div>
+                        <div className="font-semibold tracking-[0.15em] text-ink/65">最新のお知らせ</div>
                         <div className="mt-1 font-semibold text-ink">{preview.latestPost.title}</div>
-                        <div className="mt-0.5 text-ink/50">{toDateLabel(preview.latestPost.publishDate)}</div>
+                        <div className="mt-0.5 text-ink/65">{toDateLabel(preview.latestPost.publishDate)}</div>
                       </div>
                     ) : (
-                      <div className="rounded-[16px] bg-mist px-4 py-3 text-xs text-ink/40">
+                      <div className="rounded-[16px] bg-mist px-4 py-3 text-xs text-ink/60">
                         まだお知らせはありません
                       </div>
                     )}
                     {preview.nextEvent ? (
                       <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
-                        <div className="font-semibold tracking-[0.15em] text-ink/45">次のイベント</div>
+                        <div className="font-semibold tracking-[0.15em] text-ink/65">次のイベント</div>
                         <div className="mt-1 font-semibold text-ink">{preview.nextEvent.title}</div>
-                        <div className="mt-0.5 text-ink/50">{toEventLabel(preview.nextEvent.startAt)}</div>
+                        <div className="mt-0.5 text-ink/65">{toEventLabel(preview.nextEvent.startAt)}</div>
                       </div>
                     ) : (
-                      <div className="rounded-[16px] bg-mist px-4 py-3 text-xs text-ink/40">
+                      <div className="rounded-[16px] bg-mist px-4 py-3 text-xs text-ink/60">
                         予定されているイベントはありません
                       </div>
                     )}
@@ -370,7 +370,7 @@ export function AccountPageClient() {
       {/* 過去のサポート */}
       {canceledList.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="px-2 text-xs font-semibold tracking-[0.18em] text-ink/50">過去のサポート</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">過去のサポート</h2>
           {canceledList.map((membership) => (
             <article
               key={membership.spotId}
@@ -379,7 +379,7 @@ export function AccountPageClient() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold text-ink/55">{membership.spotName}</h3>
+                    <h3 className="text-lg font-semibold text-ink/68">{membership.spotName}</h3>
                     <StatusBadge tone="neutral">解約済み</StatusBadge>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-3">

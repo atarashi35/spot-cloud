@@ -30,7 +30,7 @@ export function SpotsGridClient() {
   }
 
   if (!spots) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">SPOT を読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">SPOT を読み込み中です。</div>;
   }
 
   return (

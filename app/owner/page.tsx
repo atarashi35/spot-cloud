@@ -93,11 +93,11 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
       >
         <span className="text-[15px] font-semibold text-ink">{q}</span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-ink/35 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-ink/58 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <div className="pb-5 text-sm leading-7 text-ink/65">{a}</div>
+        <div className="pb-5 text-[15px] leading-relaxed text-ink/75">{a}</div>
       )}
     </div>
   );
@@ -150,18 +150,18 @@ export default function OwnerPage() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-moss opacity-75" style={{animation:"ping 1.5s cubic-bezier(0,0,0.2,1) infinite"}} />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-moss" />
                 </span>
-                <span className="text-sm font-semibold text-white/70">組織・団体・プロジェクトのファンクラブ</span>
+                <span className="text-sm font-semibold text-white/80">組織・団体・プロジェクトのファンクラブ</span>
               </div>
-              <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
+              <h1 className="hero-animate-2 mt-5 text-[clamp(2.4rem,6vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight">
                 <span className="block text-white/90">あなたの活動を応援する</span>
                 <span className="hero-gradient-text block">サポーターを、募集できます。</span>
               </h1>
-              <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
+              <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/78 sm:text-base">
                 サポーターは、月100〜500円から参加できます。
               </p>
               <div className="hero-animate-3 mt-6 inline-flex items-center gap-3 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5">
-                <span className="text-sm font-semibold text-white/70">初期費用・月額費用</span>
-                <span className="text-2xl font-bold tracking-tight text-white sm:text-3xl">0円</span>
+                <span className="text-sm font-semibold text-white/80">初期費用・月額費用</span>
+                <span className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">0円</span>
               </div>
               <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
                 <Link
@@ -186,33 +186,42 @@ export default function OwnerPage() {
       {/* ── 料金（リスクのなさ）── */}
       <PageShell className="py-14">
         <div ref={pricingRef} className="reveal overflow-hidden rounded-[28px] border border-ink/8 bg-white px-8 py-10 sm:px-10 sm:py-12">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">PRICING</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
+          <div className="text-sm font-bold text-ink/72">PRICING</div>
+          <h2 className="mt-3 text-2xl font-extrabold text-ink sm:text-3xl">
             始めるのに、費用はかかりません。
           </h2>
 
           {/* 固定費 + 手数料 */}
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {/* 0円カード×2 — tealで強調（安心材料） */}
             {[
-              { label: "初期費用", value: "0円", sub: null },
-              { label: "月額費用", value: "0円", sub: null },
+              { label: "初期費用", value: "0円" },
+              { label: "月額費用", value: "0円" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border-2 border-teal-600/30 bg-teal-50 px-5 py-5">
+                <div className="text-sm font-semibold text-teal-700">{item.label}</div>
+                <div className="mt-2 text-4xl font-extrabold leading-none text-teal-600">{item.value}</div>
+              </div>
+            ))}
+            {/* 手数料カード×2 — 目立たせない（補足情報） */}
+            {[
               { label: "Stripe 決済手数料", value: "3.6%", sub: "決済額の 3.6%（Stripeへ）" },
               { label: "SPOT サービス利用料", value: "10%", sub: "決済手数料控除後の純額の 10%" },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-ink/8 bg-mist/60 px-5 py-4">
-                <div className="text-xs font-semibold text-ink/45">{item.label}</div>
-                <div className="mt-2 text-xl font-bold text-ink">{item.value}</div>
-                {item.sub && <div className="mt-1 text-xs leading-5 text-ink/45">{item.sub}</div>}
+                <div className="text-sm font-semibold text-ink/60">{item.label}</div>
+                <div className="mt-2 text-2xl font-extrabold text-ink/70">{item.value}</div>
+                <div className="mt-1.5 text-[13px] leading-5 text-ink/55">{item.sub}</div>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs leading-6 text-ink/40">
+          <p className="mt-4 text-xs leading-6 text-ink/60">
             手数料はサポーターの決済が発生した場合のみ。固定費・月額費用はかかりません。
           </p>
 
           {/* 振込額 */}
           <div className="mt-8 border-t border-ink/8 pt-7">
-            <p className="text-sm font-semibold text-ink">サポーター1人あたりの振込額（目安）</p>
+            <p className="text-sm font-bold text-ink/72">サポーター1人あたりの振込額（目安）</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {[
                 { from: "¥100", to: "約 ¥87" },
@@ -220,40 +229,42 @@ export default function OwnerPage() {
                 { from: "¥500", to: "約 ¥434" },
               ].map((row) => (
                 <div key={row.from} className="flex items-center gap-3 rounded-2xl bg-mist px-5 py-3.5">
-                  <span className="text-base font-bold text-ink">{row.from}</span>
-                  <span className="text-ink/30">→</span>
-                  <span className="text-base font-bold text-ink">{row.to}</span>
-                  <span className="ml-auto text-xs text-ink/40">/月</span>
+                  <span className="text-xl font-extrabold text-ink">{row.from}</span>
+                  <span className="text-ink/55">→</span>
+                  <span className="text-xl font-extrabold text-ink">{row.to}</span>
+                  <span className="ml-auto text-sm text-ink/65">/月</span>
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-xs leading-6 text-ink/40">
+            <p className="mt-3 text-xs leading-6 text-ink/60">
               振込額は概算です。実際の金額はStripeの処理により若干異なる場合があります。
             </p>
           </div>
 
           {/* 100人いたら（具体例） */}
-          <div className="mt-7 flex flex-col gap-4 rounded-[20px] bg-ink px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-semibold text-white/70">
-              例えば、<span className="text-white">100人</span>のサポーターがいれば
+          <div className="mt-7 flex flex-col gap-4 rounded-[20px] bg-ink px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[15px] font-semibold text-white/80">
+              例えば、<span className="font-extrabold text-white">100人</span>のサポーターがいれば
             </p>
-            <div className="flex items-end gap-6">
+            <div className="flex items-end gap-8">
               <div>
-                <div className="flex items-end gap-1.5">
-                  <span className="text-[2.5rem] font-bold leading-none tracking-tight text-white">¥8,700</span>
-                  <span className="mb-1 text-xs font-semibold text-white/45">/月</span>
+                <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">月間振込</div>
+                <div className="mt-1 flex items-end gap-1.5">
+                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥8,700</span>
+                  <span className="mb-1 text-sm font-semibold text-teal-400/70">/月</span>
                 </div>
               </div>
-              <div className="h-9 w-px bg-white/12" />
+              <div className="h-10 w-px bg-white/10" />
               <div>
-                <div className="flex items-end gap-1.5">
-                  <span className="text-[2.5rem] font-bold leading-none tracking-tight text-white">¥104,400</span>
-                  <span className="mb-1 text-xs font-semibold text-white/45">/年</span>
+                <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">年間振込</div>
+                <div className="mt-1 flex items-end gap-1.5">
+                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥104,400</span>
+                  <span className="mb-1 text-sm font-semibold text-teal-400/70">/年</span>
                 </div>
               </div>
             </div>
           </div>
-          <p className="mt-3 text-xs leading-6 text-ink/40">
+          <p className="mt-3 text-xs leading-6 text-ink/60">
             月100円プラン・100人の場合の目安振込額。継続的に、毎月。
           </p>
         </div>
@@ -262,16 +273,25 @@ export default function OwnerPage() {
       {/* ── 価値訴求 3列 ── */}
       <PageShell>
         <div ref={valuesHeadRef} className="reveal mb-8 text-center">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">WHAT YOU CAN DO</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">サポーターと共に育てる、3つのこと。</h2>
+          <div className="text-sm font-bold text-ink/72">WHAT YOU CAN DO</div>
+          <h2 className="mt-3 text-2xl font-extrabold text-ink sm:text-3xl">サポーターと共に育てる、3つのこと。</h2>
         </div>
         <div ref={valuesRef} className="grid gap-4 sm:grid-cols-3">
-          {values.map((v) => (
-            <Card key={v.eyebrow} className="px-6 py-7 sm:px-7">
-              <div className="text-[11px] font-semibold tracking-[0.2em] text-moss">{v.eyebrow}</div>
-              <h3 className="mt-3 whitespace-pre-line text-xl font-bold leading-tight text-ink">{v.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-ink/65">{v.body}</p>
-            </Card>
+          {values.map((v, i) => (
+            i === 0 ? (
+              /* 最初のカードだけ反転（サポーターが集まる = 最重要訴求） */
+              <div key={v.eyebrow} className="flex flex-col rounded-[24px] bg-ink px-6 py-7 sm:px-7">
+                <div className="text-sm font-bold text-teal-400">{v.eyebrow}</div>
+                <h3 className="mt-3 whitespace-pre-line text-2xl font-extrabold leading-tight text-white">{v.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-white/80">{v.body}</p>
+              </div>
+            ) : (
+              <Card key={v.eyebrow} className="px-6 py-7 sm:px-7">
+                <div className="text-sm font-bold text-moss">{v.eyebrow}</div>
+                <h3 className="mt-3 whitespace-pre-line text-2xl font-extrabold leading-tight text-ink">{v.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-ink/72">{v.body}</p>
+              </Card>
+            )
           ))}
         </div>
       </PageShell>
@@ -279,18 +299,18 @@ export default function OwnerPage() {
       {/* ── なぜ（よくある疑問に答える） ── */}
       <PageShell className="mt-14">
         <div ref={whyHeadRef} className="reveal mb-8 text-center">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">WHY SPOT</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">よくある疑問。</h2>
+          <div className="text-sm font-bold text-ink/72">WHY SPOT</div>
+          <h2 className="mt-3 text-2xl font-extrabold text-ink sm:text-3xl">よくある疑問。</h2>
         </div>
         <div ref={whyRef} className="grid gap-4 lg:grid-cols-2">
 
           {/* なぜ月100円 */}
           <Card className="px-6 py-7 sm:px-8">
-            <div className="text-base font-bold text-moss">Q. なんで月100円なの？</div>
-            <h3 className="mt-3 text-lg font-bold leading-snug text-ink">
+            <div className="text-sm font-bold text-moss">Q. なんで月100円なの？</div>
+            <h3 className="mt-3 text-xl font-extrabold leading-snug text-ink">
               お金の大きさで、<br className="hidden sm:block" />声の大きさが変わらないように。
             </h3>
-            <p className="mt-4 text-sm leading-7 text-ink/65">
+            <p className="mt-4 text-[15px] leading-relaxed text-ink/75">
               もし高い金額ほど発言力が増す仕組みなら、活動は一部の人の声に偏ってしまいます。
               SPOTはあえて少額に揃え、金額に関わらずサポーターは<strong className="text-ink/80">全員1票</strong>。
               誰もが気軽に、そして対等に参加できます。少額でも、続けば大きな力になります。
@@ -299,21 +319,21 @@ export default function OwnerPage() {
 
           {/* クラファンとの違い */}
           <Card className="px-6 py-7 sm:px-8">
-            <div className="text-base font-bold text-moss">Q. 従来のクラファンと何が違うの？</div>
-            <h3 className="mt-3 text-lg font-bold leading-snug text-ink">
+            <div className="text-sm font-bold text-moss">Q. 従来のクラファンと何が違うの？</div>
+            <h3 className="mt-3 text-xl font-extrabold leading-snug text-ink">
               「集めて終わり」ではなく、<br className="hidden sm:block" />「続けて育てる」継続型。
             </h3>
             <div className="mt-4 overflow-hidden rounded-2xl border border-ink/8">
-              <div className="grid grid-cols-[68px_1fr_1fr] bg-mist text-[11px] font-semibold text-ink/45">
-                <div className="px-3 py-2.5" />
-                <div className="px-3 py-2.5">従来のクラファン</div>
-                <div className="px-3 py-2.5 text-moss">SPOT</div>
+              <div className="grid grid-cols-[68px_1fr_1fr] text-[13px] font-semibold">
+                <div className="bg-mist px-3 py-2.5 text-ink/60" />
+                <div className="bg-mist px-3 py-2.5 text-ink/60">従来のクラファン</div>
+                <div className="bg-teal-600 px-3 py-2.5 text-white">SPOT</div>
               </div>
               {comparison.map((row) => (
-                <div key={row.axis} className="grid grid-cols-[68px_1fr_1fr] border-t border-ink/8 text-xs">
-                  <div className="px-3 py-3 font-semibold text-ink/55">{row.axis}</div>
-                  <div className="px-3 py-3 leading-5 text-ink/50">{row.cf}</div>
-                  <div className="bg-moss/5 px-3 py-3 font-semibold leading-5 text-ink">{row.spot}</div>
+                <div key={row.axis} className="grid grid-cols-[68px_1fr_1fr] border-t border-ink/8 text-[13px]">
+                  <div className="px-3 py-3 font-semibold text-ink/60">{row.axis}</div>
+                  <div className="px-3 py-3 leading-5 text-ink/60">{row.cf}</div>
+                  <div className="bg-teal-50 px-3 py-3 font-bold leading-5 text-teal-700">{row.spot}</div>
                 </div>
               ))}
             </div>
@@ -325,20 +345,20 @@ export default function OwnerPage() {
       {/* ── STEP ── */}
       <PageShell className="mt-14">
         <div ref={stepsHeadRef} className="reveal mb-8 text-center">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">HOW TO START</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">はじめ方は、3ステップ。</h2>
+          <div className="text-sm font-bold text-ink/72">HOW TO START</div>
+          <h2 className="mt-3 text-2xl font-extrabold text-ink sm:text-3xl">はじめ方は、3ステップ。</h2>
         </div>
         <div ref={stepsRef} className="grid gap-4 lg:grid-cols-3">
           {steps.map((step, index) => (
             <Card key={step.title} className="px-6 py-6 sm:px-7">
               <div className="flex items-center gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-bold text-white">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-white">
                   {index + 1}
                 </span>
-                <div className="text-[11px] font-semibold tracking-[0.18em] text-ink/42">STEP {index + 1}</div>
+                <div className="text-sm font-bold text-ink/72">STEP {index + 1}</div>
               </div>
-              <h3 className="mt-4 text-lg font-bold text-ink">{step.title}</h3>
-              <p className="mt-2 text-sm leading-7 text-ink/65">{step.body}</p>
+              <h3 className="mt-4 text-xl font-extrabold text-ink">{step.title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-ink/75">{step.body}</p>
             </Card>
           ))}
         </div>
@@ -347,8 +367,8 @@ export default function OwnerPage() {
       {/* ── FAQ ── */}
       <PageShell className="mt-14">
         <div className="mb-8 text-center">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FAQ</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">よくある質問</h2>
+          <div className="text-sm font-bold text-ink/72">FAQ</div>
+          <h2 className="mt-3 text-2xl font-extrabold text-ink sm:text-3xl">よくある質問</h2>
         </div>
         <Card className="px-6 sm:px-8">
           {faqs.map((faq) => (
@@ -362,11 +382,11 @@ export default function OwnerPage() {
         <div ref={bottomCtaRef} className="reveal relative overflow-hidden rounded-[28px] bg-ink px-8 py-10 text-center sm:px-12 sm:py-14">
           <div className="pointer-events-none absolute inset-0 rounded-[28px]" style={GRID_BG} />
           <div className="relative">
-            <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">START FOR FREE</div>
-            <h2 className="mt-3 text-2xl font-bold text-white/90 sm:text-3xl">
+            <div className="text-[13px] font-semibold tracking-[0.24em] text-white/65">START FOR FREE</div>
+            <h2 className="mt-3 text-2xl font-extrabold text-white/90 sm:text-3xl">
               まず、SPOTをひとつ作ってみる。
             </h2>
-            <p className="mt-4 text-sm leading-7 text-white/55">
+            <p className="mt-4 text-[15px] leading-relaxed text-white/75">
               登録は無料。受取設定を完了すると、サポーター募集を本番公開できます。
             </p>
             <div className="mt-8 flex justify-center">
@@ -386,7 +406,7 @@ export default function OwnerPage() {
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="text-sm font-bold text-ink">組織・団体・プロジェクトのファンクラブ</p>
-            <p className="text-xs text-ink/50">月100〜500円でサポーターを集められます</p>
+            <p className="text-xs text-ink/65">月100〜500円でサポーターを集められます</p>
           </div>
           <Link href="/owner/spots/new" className="cta-primary shrink-0">
             無料でSPOTを作る →

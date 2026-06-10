@@ -81,7 +81,7 @@ export function EventJoinButton({ spotId, eventId, participantCount }: EventJoin
       <button type="button" className="cta-primary w-full" onClick={handleClick} disabled={loading || saving}>
         {loading ? "確認中..." : saving ? "更新中..." : joined ? "参加を取り消す" : "参加する"}
       </button>
-      <p className="text-xs text-ink/60">
+      <p className="text-xs text-ink/72">
         {joined ? "参加予定として登録されています。" : "参加予定者に登録すると、運営者が把握できます。"} 現在 {localCount} 人
       </p>
       {error ? <p className="text-xs font-medium text-red-700">{error}</p> : null}

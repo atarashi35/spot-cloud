@@ -8,8 +8,8 @@ export default function AdminPage() {
 
       <div>
         <span className="chip">ADMIN</span>
-        <h1 className="mt-4 text-3xl font-bold text-ink">管理ダッシュボード</h1>
-        <p className="mt-2 text-sm text-ink/55">プラットフォーム全体の状況を確認・管理できます。</p>
+        <h1 className="mt-4 text-3xl font-extrabold text-ink">管理ダッシュボード</h1>
+        <p className="mt-2 text-sm text-ink/68">プラットフォーム全体の状況を確認・管理できます。</p>
       </div>
 
       <AdminStatsCards />

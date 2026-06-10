@@ -138,9 +138,9 @@ function SnsHandleInput({
   return (
     <div className="space-y-1">
       <label className="flex items-center gap-3">
-        <span className="w-36 shrink-0 text-xs font-medium text-ink/55">{label}</span>
+        <span className="w-36 shrink-0 text-xs font-medium text-ink/68">{label}</span>
         <div className="flex flex-1 items-center gap-1">
-          <span className="text-sm text-ink/40">{prefix}</span>
+          <span className="text-sm text-ink/60">{prefix}</span>
           <input
             className="field flex-1 text-sm"
             value={handle}
@@ -150,7 +150,7 @@ function SnsHandleInput({
         </div>
       </label>
       {previewUrl ? (
-        <p className="ml-[9.5rem] truncate text-[11px] text-ink/35">{previewUrl}</p>
+        <p className="ml-[9.5rem] truncate text-[13px] text-ink/58">{previewUrl}</p>
       ) : null}
     </div>
   );
@@ -340,7 +340,7 @@ export function SpotForm(props: SpotFormProps) {
   }
 
   if (!authReady) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">認証状態を確認中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">認証状態を確認中です。</div>;
   }
 
   if (!user) {
@@ -357,7 +357,7 @@ export function SpotForm(props: SpotFormProps) {
   }
 
   if (loading) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">SPOT 情報を読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">SPOT 情報を読み込み中です。</div>;
   }
 
   return (
@@ -371,7 +371,7 @@ export function SpotForm(props: SpotFormProps) {
           required
           aria-invalid={!!error && !name.trim() ? true : undefined}
         />
-        <p className="mt-1.5 text-xs text-ink/45">※お店・屋号・団体名・プロジェクト名など</p>
+        <p className="mt-1.5 text-xs text-ink/65">※お店・屋号・団体名・プロジェクト名など</p>
       </div>
       <select
         className="field"
@@ -455,13 +455,13 @@ export function SpotForm(props: SpotFormProps) {
       <div className="rounded-[20px] bg-mist p-4">
         <label className="block text-sm font-semibold text-ink">カバー画像アップロード</label>
         <input
-          className="mt-3 block w-full text-sm text-ink/70"
+          className="mt-3 block w-full text-sm text-ink/78"
           type="file"
           accept="image/jpeg,image/png,image/webp"
           onChange={handleImageSelect}
           disabled={uploadingImage}
         />
-        <p className="mt-2 text-sm text-ink/60">
+        <p className="mt-2 text-sm text-ink/72">
           {uploadingImage ? "Storage にアップロード中です..." : "PNG / JPEG / WebP を Storage に保存し、そのままカバー画像に設定します。"}
         </p>
         {coverImageUrl ? (
@@ -471,7 +471,7 @@ export function SpotForm(props: SpotFormProps) {
             src={coverImageUrl}
           />
         ) : (
-          <div className="mt-4 flex h-44 items-center justify-center rounded-[20px] border border-dashed border-ink/15 bg-white/70 text-sm text-ink/50">
+          <div className="mt-4 flex h-44 items-center justify-center rounded-[20px] border border-dashed border-ink/15 bg-white/70 text-sm text-ink/65">
             カバー画像プレビュー
           </div>
         )}
@@ -480,7 +480,7 @@ export function SpotForm(props: SpotFormProps) {
       <div className="space-y-3 rounded-[20px] bg-mist p-4">
         <div>
           <label className="block text-sm font-semibold text-ink">ギャラリー</label>
-          <p className="mt-0.5 text-xs text-ink/50">活動の雰囲気が伝わる写真を最大10枚まで追加できます</p>
+          <p className="mt-0.5 text-xs text-ink/65">活動の雰囲気が伝わる写真を最大10枚まで追加できます</p>
         </div>
         <GalleryUploader
           values={galleryImageUrls}
@@ -491,12 +491,12 @@ export function SpotForm(props: SpotFormProps) {
 
       {/* SNS リンク */}
       <div className="space-y-4 rounded-[20px] border border-ink/10 p-4">
-        <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">SNS・外部リンク（任意）</p>
+        <p className="text-sm font-bold text-ink/72">SNS・外部リンク（任意）</p>
 
         {/* ウェブサイト：URL直打ち */}
         <div className="space-y-1">
           <label className="flex items-center gap-3">
-            <span className="w-36 shrink-0 text-xs font-medium text-ink/55">ウェブサイト</span>
+            <span className="w-36 shrink-0 text-xs font-medium text-ink/68">ウェブサイト</span>
             <input
               className="field text-sm"
               type="url"
@@ -551,8 +551,8 @@ export function SpotForm(props: SpotFormProps) {
       {/* 運営メンバー */}
       <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
         <div>
-          <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">運営メンバー（任意）</p>
-          <p className="mt-1 text-xs leading-5 text-ink/40">
+          <p className="text-sm font-bold text-ink/72">運営メンバー（任意）</p>
+          <p className="mt-1 text-xs leading-5 text-ink/60">
             このSPOTを動かしているメンバーを紹介できます。支援者が「誰がやっているか」を知るための情報です。
           </p>
         </div>
@@ -582,7 +582,7 @@ export function SpotForm(props: SpotFormProps) {
               />
               <button
                 type="button"
-                className="shrink-0 rounded-full px-3 py-1.5 text-xs text-ink/40 hover:bg-ink/8 hover:text-ink"
+                className="shrink-0 rounded-full px-3 py-1.5 text-xs text-ink/60 hover:bg-ink/8 hover:text-ink"
                 onClick={() => setTeamMembers((prev) => prev.filter((_, i) => i !== index))}
               >
                 削除
@@ -592,7 +592,7 @@ export function SpotForm(props: SpotFormProps) {
         ))}
         <button
           type="button"
-          className="w-full rounded-[16px] border border-dashed border-ink/20 py-2.5 text-sm text-ink/50 hover:border-ink/40 hover:text-ink/70 transition-colors"
+          className="w-full rounded-[16px] border border-dashed border-ink/20 py-2.5 text-sm text-ink/65 hover:border-ink/40 hover:text-ink/78 transition-colors"
           onClick={() => setTeamMembers((prev) => [...prev, { name: "", role: "", bio: "" }])}
         >
           ＋ メンバーを追加
@@ -602,15 +602,15 @@ export function SpotForm(props: SpotFormProps) {
       {/* サポーター特典 */}
       <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
         <div>
-          <p className="text-xs font-semibold tracking-[0.15em] text-ink/50">サポーター特典（任意）</p>
-          <p className="mt-1 text-xs leading-5 text-ink/40">
+          <p className="text-sm font-bold text-ink/72">サポーター特典（任意）</p>
+          <p className="mt-1 text-xs leading-5 text-ink/60">
             各プランの特典を入力すると、サポーター加入画面に表示されます。<br />
             全員同じ内容でも、金額によって傾斜をつけても構いません。
           </p>
         </div>
         {planOptions.map((amount) => (
           <label key={amount} className="flex items-center gap-3">
-            <span className="w-16 shrink-0 rounded-full bg-ink/8 py-1 text-center text-xs font-bold text-ink/60">
+            <span className="w-16 shrink-0 rounded-full bg-ink/8 py-1 text-center text-xs font-bold text-ink/72">
               ¥{amount}
             </span>
             <input
@@ -628,7 +628,7 @@ export function SpotForm(props: SpotFormProps) {
         ))}
       </div>
 
-      <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/68">
+      <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/78">
         <input
           checked={isPublished}
           onChange={(event) => setIsPublished(event.target.checked)}

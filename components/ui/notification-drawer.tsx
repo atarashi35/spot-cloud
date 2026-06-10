@@ -84,7 +84,7 @@ export function NotificationDrawer() {
       >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -97,7 +97,7 @@ export function NotificationDrawer() {
             {unreadCount > 0 && (
               <button
                 type="button"
-                className="text-xs text-ink/50 hover:text-ink transition-colors"
+                className="text-xs text-ink/65 hover:text-ink transition-colors"
                 onClick={() => void handleMarkAllRead()}
               >
                 すべて既読
@@ -107,7 +107,7 @@ export function NotificationDrawer() {
 
           <div className="max-h-[420px] overflow-y-auto">
             {notifications.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-ink/40">通知はありません</p>
+              <p className="px-4 py-8 text-center text-sm text-ink/60">通知はありません</p>
             ) : (
               notifications.map((n) => (
                 <Link
@@ -121,8 +121,8 @@ export function NotificationDrawer() {
                   )}
                   <div className={!n.isRead ? "" : "ml-5"}>
                     <p className="text-sm font-semibold text-ink">{n.title}</p>
-                    {n.body && <p className="mt-0.5 text-xs text-ink/55 line-clamp-2">{n.body}</p>}
-                    <p className="mt-1 text-xs text-ink/35">{n.spotName} · {timeAgo(n.createdAt)}</p>
+                    {n.body && <p className="mt-0.5 text-xs text-ink/68 line-clamp-2">{n.body}</p>}
+                    <p className="mt-1 text-xs text-ink/58">{n.spotName} · {timeAgo(n.createdAt)}</p>
                   </div>
                 </Link>
               ))

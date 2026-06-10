@@ -62,11 +62,11 @@ export function AdminConsoleClient() {
     }
   }
 
-  if (!authReady) return <div className="text-sm text-ink/60">管理権限を確認中です。</div>;
+  if (!authReady) return <div className="text-sm text-ink/72">管理権限を確認中です。</div>;
   if (!user) return <EmptyState title="ログインが必要です" description="管理者メールでログインしてください。" />;
   if (error === "forbidden") return <EmptyState title="管理権限がありません" description="ADMIN_EMAILS に登録されたメールでログインしてください。" />;
   if (error) return <EmptyState title="取得できませんでした" description={error} />;
-  if (!spots) return <div className="text-sm text-ink/60">読み込み中です。</div>;
+  if (!spots) return <div className="text-sm text-ink/72">読み込み中です。</div>;
 
   const filtered = spots.filter((s) => {
     if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -96,7 +96,7 @@ export function AdminConsoleClient() {
               type="button"
               onClick={() => setFilter(f.key)}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                filter === f.key ? "bg-ink text-white" : "bg-mist text-ink/55 hover:text-ink"
+                filter === f.key ? "bg-ink text-white" : "bg-mist text-ink/68 hover:text-ink"
               }`}
             >
               {f.label}
@@ -115,7 +115,7 @@ export function AdminConsoleClient() {
       {/* テーブル */}
       <div className="overflow-hidden rounded-[24px] border border-ink/8 bg-white">
         {/* ヘッダー */}
-        <div className="hidden grid-cols-[2fr_1fr_60px_80px_100px_180px] gap-4 border-b border-ink/8 px-5 py-3 text-[11px] font-semibold tracking-wider text-ink/40 sm:grid">
+        <div className="hidden grid-cols-[2fr_1fr_60px_80px_100px_180px] gap-4 border-b border-ink/8 px-5 py-3 text-[13px] font-semibold tracking-wider text-ink/60 sm:grid">
           <span>SPOT名</span>
           <span>カテゴリ</span>
           <span className="text-center">ソシオ</span>
@@ -125,7 +125,7 @@ export function AdminConsoleClient() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="px-5 py-10 text-center text-sm text-ink/40">該当するSPOTがありません</div>
+          <div className="px-5 py-10 text-center text-sm text-ink/60">該当するSPOTがありません</div>
         )}
 
         {filtered.map((spot) => (
@@ -136,16 +136,16 @@ export function AdminConsoleClient() {
             {/* SPOT名 */}
             <div>
               <p className="font-semibold text-ink">{spot.name}</p>
-              <p className="text-xs text-ink/40">{spot.createdAt.slice(0, 10)} 登録</p>
+              <p className="text-xs text-ink/60">{spot.createdAt.slice(0, 10)} 登録</p>
             </div>
 
             {/* カテゴリ */}
-            <span className="text-sm text-ink/65">{spot.category}</span>
+            <span className="text-sm text-ink/75">{spot.category}</span>
 
             {/* ソシオ数 */}
             <div className="text-center">
               <span className="text-base font-bold text-ink">{spot.socioCount}</span>
-              <span className="text-xs text-ink/40"> 人</span>
+              <span className="text-xs text-ink/60"> 人</span>
             </div>
 
             {/* Stripe */}
@@ -173,7 +173,7 @@ export function AdminConsoleClient() {
               <Link
                 href={`/spots/${spot.id}`}
                 target="_blank"
-                className="flex items-center gap-1 rounded-full border border-ink/12 px-3 py-1.5 text-xs font-semibold text-ink/60 transition hover:border-ink/30 hover:text-ink"
+                className="flex items-center gap-1 rounded-full border border-ink/12 px-3 py-1.5 text-xs font-semibold text-ink/72 transition hover:border-ink/30 hover:text-ink"
               >
                 <ExternalLink className="h-3 w-3" />
                 確認
@@ -182,7 +182,7 @@ export function AdminConsoleClient() {
                 type="button"
                 disabled={pendingSpotId === spot.id}
                 onClick={() => updateSpotStatus(spot.id, { isPublished: !spot.isPublished })}
-                className="rounded-full border border-ink/12 px-3 py-1.5 text-xs font-semibold text-ink/60 transition hover:border-ink/30 hover:text-ink disabled:opacity-40"
+                className="rounded-full border border-ink/12 px-3 py-1.5 text-xs font-semibold text-ink/72 transition hover:border-ink/30 hover:text-ink disabled:opacity-40"
               >
                 {pendingSpotId === spot.id ? "…" : spot.isPublished ? "非公開" : "公開"}
               </button>

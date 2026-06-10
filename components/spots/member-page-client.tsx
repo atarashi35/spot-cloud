@@ -48,7 +48,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
   }, [authReady, spotId, user]);
 
   if (!authReady || loading) {
-    return <div className="panel px-6 py-8 text-sm text-ink/60">限定ページを読み込み中です。</div>;
+    return <div className="panel px-6 py-8 text-sm text-ink/72">限定ページを読み込み中です。</div>;
   }
 
   if (error) {
@@ -86,7 +86,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
             title="このページはサポーター限定です"
-            description="加入済みユーザーのみ閲覧可能です。まずは 100円 / 300円 / 500円 のいずれかで所属してください。"
+            description="加入済みユーザーのみ閲覧可能です。まずは 100円 / 300円 / 500円 のいずれかでサポーターになってください。"
           />
           <Link href={`/spots/${spot.id}/join`} className="cta-primary mt-6">
             加入ページへ
@@ -102,24 +102,24 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
         <span className="chip">MEMBER PAGE</span>
         <div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-ink">{spot.name} の限定ページ</h1>
-            <p className="mt-3 text-sm leading-7 text-ink/68">
-              お知らせ、限定イベント、所属情報をここに集約します。
+            <h1 className="text-3xl font-extrabold text-ink">{spot.name} の限定ページ</h1>
+            <p className="mt-3 text-[15px] leading-relaxed text-ink/78">
+              お知らせ、限定イベント、サポート情報をここに集約します。
             </p>
           </div>
-          <div className="rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/70">
+          <div className="rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/78">
             加入プラン: <span className="font-bold text-ink">¥{membership?.planAmount ?? 500}</span>
           </div>
         </div>
 
         {/* ウォレットCTA */}
         <div className="mt-6 border-t border-ink/8 pt-6">
-          <p className="mb-3 text-xs font-semibold tracking-[0.18em] text-ink/45">SOCIO CARD</p>
+          <p className="mb-3 text-sm font-bold text-ink/72">SUPPORTER CARD</p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex-1"><AppleWalletButton /></div>
             <div className="flex-1"><GoogleWalletButton /></div>
           </div>
-          <p className="mt-2 text-xs text-ink/40 text-center">
+          <p className="mt-2 text-xs text-ink/60 text-center">
             カードは <Link href="/account" className="underline hover:text-ink">マイページ</Link> でも確認できます
           </p>
         </div>
@@ -128,7 +128,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="panel px-6 py-6 sm:px-8">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl font-bold text-ink">お知らせ</h2>
+            <h2 className="text-2xl font-extrabold text-ink">お知らせ</h2>
             {isOwner ? (
               <Link href={`/spots/${spotId}/posts/new`} className="cta-secondary">
                 投稿を作成
@@ -144,14 +144,14 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
             ) : (
               posts.map((post) => (
                 <article key={post.id} className="rounded-[20px] bg-mist p-5">
-                  <div className="text-xs font-semibold tracking-[0.18em] text-ink/55">
+                  <div className="text-sm font-bold text-ink/72">
                     {post.publishDate}
                   </div>
                   <h3 className="mt-2 text-lg font-bold text-ink">{post.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-ink/68 line-clamp-3">{post.body}</p>
+                  <p className="mt-3 text-[15px] leading-relaxed text-ink/78 line-clamp-3">{post.body}</p>
                   <Link
                     href={`/spots/${spotId}/posts/${post.id}`}
-                    className="mt-3 inline-block text-xs font-semibold text-ink/55 hover:text-ink transition-colors"
+                    className="mt-3 inline-block text-xs font-semibold text-ink/68 hover:text-ink transition-colors"
                   >
                     続きを読む →
                   </Link>
@@ -164,7 +164,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
         <div className="space-y-6">
           <section className="panel px-6 py-6">
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-2xl font-bold text-ink">イベント</h2>
+              <h2 className="text-2xl font-extrabold text-ink">イベント</h2>
               {isOwner ? (
                 <Link href={`/spots/${spotId}/events/new`} className="cta-secondary">
                   イベント作成
@@ -180,20 +180,20 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
               ) : (
                 events.map((event) => (
                   <article key={event.id} className="rounded-[20px] bg-mist p-5">
-                    <div className="text-xs font-semibold tracking-[0.18em] text-ink/55">
+                    <div className="text-sm font-bold text-ink/72">
                       {new Date(event.startAt).toLocaleString("ja-JP")}
                     </div>
                     <h3 className="mt-2 text-lg font-bold text-ink">{event.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-ink/68 line-clamp-2">{event.description}</p>
+                    <p className="mt-3 text-[15px] leading-relaxed text-ink/78 line-clamp-2">{event.description}</p>
                     {event.location ? (
-                      <p className="mt-2 text-sm font-medium text-ink/65">場所: {event.location}</p>
+                      <p className="mt-2 text-sm font-medium text-ink/75">場所: {event.location}</p>
                     ) : null}
                     {event.hasJoinButton && !isOwner ? (
                       <EventJoinButton spotId={spotId} eventId={event.id} participantCount={event.participantCount} />
                     ) : null}
                     <Link
                       href={`/spots/${spotId}/events/${event.id}`}
-                      className="mt-3 inline-block text-xs font-semibold text-ink/55 hover:text-ink transition-colors"
+                      className="mt-3 inline-block text-xs font-semibold text-ink/68 hover:text-ink transition-colors"
                     >
                       詳細を見る →
                     </Link>
@@ -204,7 +204,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
           </section>
 
           <section className="panel px-6 py-6">
-            <div className="flex flex-wrap gap-3 text-sm text-ink/68">
+            <div className="flex flex-wrap gap-3 text-sm text-ink/78">
               <div className="rounded-[20px] bg-mist px-4 py-3">
                 加入ステータス: {membership?.status ?? "active"}
               </div>

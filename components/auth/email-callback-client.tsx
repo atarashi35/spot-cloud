@@ -107,14 +107,14 @@ export function EmailCallbackClient() {
   if (status === "need_email") {
     return (
       <div className="panel mx-auto max-w-md px-8 py-10">
-        <span className="chip">SOCIO</span>
-        <h1 className="mt-5 text-2xl font-bold text-ink">メールアドレスを確認</h1>
-        <p className="mt-3 text-sm leading-7 text-ink/65">
+        <span className="chip">SUPPORTER</span>
+        <h1 className="mt-5 text-2xl font-extrabold text-ink">メールアドレスを確認</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink/75">
           別のデバイスでリンクを開いたため、認証に使ったメールアドレスの入力が必要です。
         </p>
         <div className="mt-6 space-y-3">
           <label className="space-y-2">
-            <span className="text-sm font-medium text-ink/62">メールアドレス</span>
+            <span className="text-sm font-medium text-ink/72">メールアドレス</span>
             <input
               type="email"
               className="field h-14"
@@ -144,8 +144,8 @@ export function EmailCallbackClient() {
     return (
       <div className="panel mx-auto max-w-md px-8 py-10">
         <span className="chip">エラー</span>
-        <h1 className="mt-5 text-2xl font-bold text-ink">認証エラー</h1>
-        <p className="mt-3 text-sm leading-7 text-ink/65">{errorMsg}</p>
+        <h1 className="mt-5 text-2xl font-extrabold text-ink">認証エラー</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink/75">{errorMsg}</p>
         <button
           type="button"
           className="cta-secondary mt-6"
@@ -160,7 +160,7 @@ export function EmailCallbackClient() {
 
   return (
     <div className="panel mx-auto max-w-md px-8 py-10 text-center">
-      <p className="text-sm text-ink/60">
+      <p className="text-sm text-ink/72">
         {status === "success" ? "ログイン完了。移動しています…" : "認証を確認しています…"}
       </p>
     </div>
