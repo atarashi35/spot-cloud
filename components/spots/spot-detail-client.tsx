@@ -21,7 +21,7 @@ import { getUserMembership } from "@/lib/firestore/memberships";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { EMAIL_JOIN_PENDING_KEY, EmailJoinPending } from "@/lib/auth/email-link";
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
-import { PlanAmount, Spot, UserMembership, planOptions } from "@/lib/types";
+import { PlanAmount, Spot, UserMembership, isSignupPlan, planOptions } from "@/lib/types";
 import { isSvgAssetUrl } from "@/lib/utils";
 import { AppleWalletButton } from "@/components/account/apple-wallet-button";
 import { GoogleWalletButton } from "@/components/account/google-wallet-button";
@@ -143,9 +143,9 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       if (pending.spotId !== spotId) return;
 
       sessionStorage.removeItem(EMAIL_JOIN_PENDING_KEY);
-      const plan = (planOptions.includes(pending.planAmount as PlanAmount)
+      const plan = (isSignupPlan(Number(pending.planAmount))
         ? pending.planAmount
-        : 100) as PlanAmount;
+        : 500) as PlanAmount;
       setEmailJoinPlan(plan);
       setSignupModalOpen(true);
     } catch {
@@ -302,7 +302,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         spot={spot}
         open={signupModalOpen}
         onClose={() => { setSignupModalOpen(false); setEmailJoinPlan(null); }}
-        defaultPlan={emailJoinPlan ?? membership?.planAmount ?? 100}
+        defaultPlan={
+          emailJoinPlan ??
+          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : 500)
+        }
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
 
@@ -578,7 +581,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
                 {/* 価格 + ボタン */}
                 <div className="mt-auto pt-6">
-                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 100〜500円</p>
+                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 300円〜1,000円</p>
                   <button
                     type="button"
                     className="cta-primary w-full"
@@ -790,7 +793,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
-            <p className="text-xs text-ink/65">月100〜500円で参加できます</p>
+            <p className="text-xs text-ink/65">月300円から参加できます</p>
           </div>
           <button
             type="button"

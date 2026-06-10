@@ -186,7 +186,7 @@ export function SpotListPage() {
             SPOTを探す
           </h1>
           <p className="mt-2 text-sm text-ink/68">
-            気になる活動を見つけて、月100〜500円で応援会員になろう。
+            気になる活動を見つけて、月300円から応援会員になろう。
           </p>
         </div>
       </div>

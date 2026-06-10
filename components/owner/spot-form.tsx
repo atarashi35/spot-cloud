@@ -177,7 +177,7 @@ export function SpotForm(props: SpotFormProps) {
   const [twitter, setTwitter] = useState("");
   const [line, setLine] = useState("");
   const [youtube, setYoutube] = useState("");
-  const [planBenefits, setPlanBenefits] = useState<Record<PlanAmount, string>>({ 100: "", 300: "", 500: "" });
+  const [planBenefits, setPlanBenefits] = useState<Record<300 | 500 | 1000, string>>({ 300: "", 500: "", 1000: "" });
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
@@ -228,9 +228,9 @@ export function SpotForm(props: SpotFormProps) {
         setLine(spot.socialLinks?.line ?? "");
         setYoutube(spot.socialLinks?.youtube ?? "");
         setPlanBenefits({
-          100: spot.planBenefits?.[100] ?? "",
           300: spot.planBenefits?.[300] ?? "",
           500: spot.planBenefits?.[500] ?? "",
+          1000: spot.planBenefits?.[1000] ?? "",
         });
         setTeamMembers(spot.teamMembers ?? []);
       })
@@ -274,9 +274,9 @@ export function SpotForm(props: SpotFormProps) {
             phone: normalizedPhone, email: normalizedEmail,
             socialLinks: { website, instagram, twitter, line, youtube },
             planBenefits: {
-              ...(planBenefits[100].trim() ? { 100: planBenefits[100].trim() } : {}),
               ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
               ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
+              ...(planBenefits[1000].trim() ? { 1000: planBenefits[1000].trim() } : {}),
             },
             teamMembers: teamMembers.filter((m) => m.name.trim()),
           },
@@ -293,9 +293,9 @@ export function SpotForm(props: SpotFormProps) {
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
         planBenefits: {
-          ...(planBenefits[100].trim() ? { 100: planBenefits[100].trim() } : {}),
           ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
           ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
+          ...(planBenefits[1000].trim() ? { 1000: planBenefits[1000].trim() } : {}),
         },
         teamMembers: teamMembers.filter((m) => m.name.trim()),
       });
@@ -608,9 +608,9 @@ export function SpotForm(props: SpotFormProps) {
               value={planBenefits[amount]}
               onChange={(e) => setPlanBenefits((prev) => ({ ...prev, [amount]: e.target.value }))}
               placeholder={
-                amount === 100 ? "例：限定投稿が届く" :
-                amount === 300 ? "例：イベント優先案内あり" :
-                "例：コーヒー1杯サービス"
+                amount === 300 ? "例：限定投稿が届く" :
+                amount === 500 ? "例：イベント先行案内あり" :
+                "例：店頭でドリンク1杯サービス"
               }
               maxLength={40}
             />

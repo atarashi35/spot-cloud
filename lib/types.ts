@@ -1,6 +1,17 @@
-export type PlanAmount = 100 | 300 | 500;
+/**
+ * ¥100 はレガシープラン。新規受付は停止済みで、既存会員の表示互換のためだけに型に残している。
+ * 新規受付プランは planOptions（300/500/1000）。
+ */
+export type PlanAmount = 100 | 300 | 500 | 1000;
 
-export const planOptions = [100, 300, 500] as const satisfies readonly PlanAmount[];
+export const planOptions = [300, 500, 1000] as const satisfies readonly PlanAmount[];
+
+export type SignupPlanAmount = (typeof planOptions)[number];
+
+/** 新規受付プランかどうか（レガシー¥100を弾く） */
+export function isSignupPlan(value: number): value is SignupPlanAmount {
+  return (planOptions as readonly number[]).includes(value);
+}
 
 export type SpotCategory =
   | "本屋・書店"
@@ -39,9 +50,9 @@ export type SocialLinks = {
 };
 
 export type PlanBenefits = {
-  100?: string;
   300?: string;
   500?: string;
+  1000?: string;
 };
 
 export type TeamMember = {

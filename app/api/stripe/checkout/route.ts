@@ -7,7 +7,7 @@ import {
   getStripePriceId,
   stripe
 } from "@/lib/stripe/config";
-import { PlanAmount, SocioAgeRange, SocioGender, planOptions } from "@/lib/types";
+import { PlanAmount, SocioAgeRange, SocioGender, isSignupPlan } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     };
     const planAmount = body.planAmount as PlanAmount | undefined;
 
-    if (!body.spotId || !planAmount || !planOptions.includes(planAmount)) {
+    if (!body.spotId || !planAmount || !isSignupPlan(planAmount)) {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
     }
 
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "price_not_configured",
-          message: "STRIPE_PRICE_ID_100 / 300 / 500 を .env.local に設定してください。"
+          message: "STRIPE_PRICE_ID_300 / 500 / 1000 を .env.local に設定してください。"
         },
         { status: 500 }
       );

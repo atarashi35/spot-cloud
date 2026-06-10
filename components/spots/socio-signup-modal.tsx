@@ -41,7 +41,7 @@ export function SocioSignupModal({
   spot,
   open,
   onClose,
-  defaultPlan = 100,
+  defaultPlan = 500,
   initialStep
 }: {
   spot: Spot;
