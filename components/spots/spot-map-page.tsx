@@ -45,16 +45,16 @@ export function SpotMapPage() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-moss opacity-75" style={{animation:"ping 1.5s cubic-bezier(0,0,0.2,1) infinite"}} />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-moss" />
                 </span>
-                <span className="text-[11px] font-semibold tracking-[0.2em] text-white/60">継続型・超低額クラファン</span>
+                <span className="text-[11px] font-semibold tracking-[0.2em] text-white/60">好きな活動を、まるごと応援。</span>
               </div>
 
               <h1 className="hero-animate-2 mt-6 text-[clamp(2.6rem,8vw,5.5rem)] font-bold leading-[1.08] tracking-tight">
-                <span className="block text-white/90">好きな活動を</span>
-                <span className="hero-gradient-text block">月100〜500円で応援できる。</span>
+                <span className="block text-white/90">月100〜500円で</span>
+                <span className="hero-gradient-text block">箱推し、しよう。</span>
               </h1>
 
               <p className="hero-animate-3 mt-6 text-[15px] leading-relaxed text-white/70 sm:text-base">
-                気になるSPOTを見つけて、サポーターになれます。
+                気になるSPOTを見つけて、活動をまるごと応援できます。
               </p>
 
               <div className="hero-animate-4 mt-10 flex flex-wrap items-center gap-3">

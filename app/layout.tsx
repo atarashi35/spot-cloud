@@ -29,21 +29,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: { default: "SPOT｜継続型・超低額クラファン", template: "%s | SPOT" },
-  description: "好きな活動を月100〜500円で継続的に応援できる、継続型・超低額クラファンサービス。",
+  title: { default: "SPOT｜組織・団体のファンクラブ作成サービス", template: "%s | SPOT" },
+  description: "組織・団体・プロジェクトのためのファンクラブ作成サービス。月100〜500円でサポーターを集められます。",
   metadataBase: new URL("https://spotcloud.app"),
   openGraph: {
     siteName: "SPOT",
-    title: "SPOT｜継続型・超低額クラファン",
-    description: "好きな活動を月100〜500円で継続的に応援できる、継続型・超低額クラファンサービス。",
+    title: "SPOT｜組織・団体のファンクラブ作成サービス",
+    description: "組織・団体・プロジェクトのためのファンクラブ作成サービス。月100〜500円でサポーターを集められます。",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "ja_JP",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "SPOT｜継続型・超低額クラファン",
-    description: "好きな活動を月100〜500円で継続的に応援できる、継続型・超低額クラファンサービス。",
+    title: "SPOT｜組織・団体のファンクラブ作成サービス",
+    description: "組織・団体・プロジェクトのためのファンクラブ作成サービス。月100〜500円でサポーターを集められます。",
     images: ["/og-image.png"]
   }
 };
