@@ -17,7 +17,7 @@ import { getAdminDb } from "@/lib/firebase/admin";
  * Stripe Subscription → MembershipStatus のマッピング
  *
  * cancel_at_period_end = true の場合は "canceling" 扱い。
- * ソシオはまだ請求中なので socioCount から除外しない。
+ * 応援会員はまだ請求中なので socioCount から除外しない。
  * 期末に subscription.deleted が飛んで "canceled" になる。
  */
 function mapSubscriptionToMembershipStatus(

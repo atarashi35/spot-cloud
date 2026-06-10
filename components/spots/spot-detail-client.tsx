@@ -198,7 +198,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
       const token = await currentUser.getIdToken();
 
-      // ── 1. sync-checkout: Stripe セッションから直接サポーターシップを作成 ──
+      // ── 1. sync-checkout: Stripe セッションから直接応援会員シップを作成 ──
       // Webhook に依存しないフォールバック（ローカル開発・Webhook 遅延対策）
       if (sessionId) {
         try {
@@ -283,7 +283,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   }
 
   const membershipStatus = membership?.status;
-  // canceling（解約予定）も期末まで有効なためサポーターズエリアに入れる
+  // canceling（解約予定）も期末まで有効なため応援会員ズエリアに入れる
   const canViewMembersArea = Boolean(
     isOwner || membershipStatus === "active" || membershipStatus === "canceling"
   );
@@ -310,11 +310,11 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       <ModalShell
         open={showWelcomeBanner}
         onClose={() => setShowWelcomeBanner(false)}
-        title="🎉 サポーターになりました"
+        title="🎉 応援会員になりました"
         size="sm"
       >
         <div className="space-y-5">
-          {/* サポーター会員証プレビュー */}
+          {/* 応援会員会員証プレビュー */}
           {user && membership && (
             <div className="flex justify-center">
               <div className="w-full max-w-[320px]">
@@ -394,7 +394,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-[2.2rem] font-extrabold tabular-nums leading-none text-teal-600">{spot.socioCount}</span>
-                <span className="text-sm font-semibold text-teal-700/80">人のサポーター</span>
+                <span className="text-sm font-semibold text-teal-700/80">人の応援会員</span>
               </div>
               <div className="h-5 w-px bg-ink/15" />
               <MetricPill label="エリア" value={`${spot.prefecture}${spot.city ? ` / ${spot.city}` : ""}`} />
@@ -464,7 +464,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <>
                 <h2 className="text-2xl font-extrabold text-ink">運営中のSPOT</h2>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <StatusBadge tone="success">サポーター限定を表示中</StatusBadge>
+                  <StatusBadge tone="success">応援会員限定を表示中</StatusBadge>
                 </div>
                 <Link href="/manage" className="cta-secondary mt-5 w-full">
                   管理画面へ
@@ -510,7 +510,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
                 {canAcceptMembership ? (
                   <button type="button" className="cta-primary mt-5 w-full" onClick={() => setSignupModalOpen(true)}>
-                    サポーターになる
+                    応援会員になる
                   </button>
                 ) : (
                   <div className="mt-5 rounded-[20px] bg-white px-4 py-4 text-sm text-ink/75">
@@ -528,7 +528,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             ) : (
               /* ── 未加入・募集中（メイン訴求）── bg-ink 反転パネル */
               <div className="flex h-full flex-col">
-                {/* サポーター数 */}
+                {/* 応援会員数 */}
                 {spot.socioCount > 0 ? (
                   <div>
                     <p className="text-sm font-bold text-teal-400">SUPPORTERS</p>
@@ -540,7 +540,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 ) : (
                   <div className="inline-flex items-center gap-2 self-start rounded-full bg-teal-400/15 px-3 py-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                    <span className="text-sm font-semibold text-teal-400">サポーター募集中</span>
+                    <span className="text-sm font-semibold text-teal-400">応援会員募集中</span>
                   </div>
                 )}
 
@@ -584,7 +584,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     className="cta-primary w-full"
                     onClick={() => setSignupModalOpen(true)}
                   >
-                    サポーターになる
+                    応援会員になる
                   </button>
                 </div>
               </div>
@@ -696,10 +696,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[20px] bg-white/80 backdrop-blur-[3px]">
-                            <p className="text-sm font-bold text-ink/72">サポーター限定コンテンツです</p>
+                            <p className="text-sm font-bold text-ink/72">応援会員限定コンテンツです</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="cta-primary">
-                                サポーターになる
+                                応援会員になる
                               </button>
                             )}
                           </div>
@@ -756,10 +756,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[20px] bg-white/80 backdrop-blur-[3px]">
-                            <p className="text-sm font-bold text-ink/72">サポーター限定コンテンツです</p>
+                            <p className="text-sm font-bold text-ink/72">応援会員限定コンテンツです</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="cta-primary">
-                                サポーターになる
+                                応援会員になる
                               </button>
                             )}
                           </div>
@@ -785,7 +785,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onSignupClick={() => setSignupModalOpen(true)}
       />
 
-      {/* ── スティッキー サポーターになるCTA ─────────────────────────────── */}
+      {/* ── スティッキー 応援会員になるCTA ─────────────────────────────── */}
       {showStickyJoin && (
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
@@ -797,7 +797,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             className="cta-primary shrink-0"
             onClick={() => setSignupModalOpen(true)}
           >
-            サポーターになる
+            応援会員になる
           </button>
         </div>
       )}

@@ -233,7 +233,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
               {ready ? "受取準備完了" : inReview ? "審査中" : !connected ? "未設定" : "設定中"}
             </StatusBadge>
             <p className="text-sm font-semibold text-ink">
-              {ready ? "サポーター募集を開始できます" : inReview ? "審査中です（3〜4営業日）" : !connected ? "口座登録がまだです" : "設定の続きがあります"}
+              {ready ? "応援会員募集を開始できます" : inReview ? "審査中です（3〜4営業日）" : !connected ? "口座登録がまだです" : "設定の続きがあります"}
             </p>
           </div>
           {showCta && (

@@ -1,5 +1,5 @@
 /**
- * Google Wallet ソシオカード生成
+ * Google Wallet 応援会員カード生成
  *
  * GenericPass (旧 Generic Object) を使用して
  * "Add to Google Wallet" URLを生成する

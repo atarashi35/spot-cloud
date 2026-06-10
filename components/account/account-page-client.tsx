@@ -230,7 +230,7 @@ export function AccountPageClient() {
   return (
     <div className="space-y-6">
 
-      {/* サポーター会員証 */}
+      {/* 応援会員会員証 */}
       {user ? (
         <section className="space-y-3">
           <h2 className="px-2 text-sm font-bold text-ink/72">MY SUPPORTER CARD</h2>

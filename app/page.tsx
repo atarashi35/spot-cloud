@@ -1,19 +1,19 @@
-import { SpotMapPage } from "@/components/spots/spot-map-page";
+import { TopLanding } from "@/components/landing/top-landing";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "SPOT｜好きな活動を、まるごと応援。",
-  description: "好きな組織・団体・プロジェクトのサポーターになろう。月100〜500円で参加でき、限定コンテンツや投票に参加できます。",
+  title: "SPOT｜あなたの店に、応援会員を。",
+  description: "街の小さな文化拠点（本屋・ミニシアター・ライブハウス・劇場・ギャラリー・神社）のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
   openGraph: {
-    title: "SPOT｜好きな活動を、まるごと応援。",
-    description: "好きな組織・団体・プロジェクトのサポーターになろう。月100〜500円で参加でき、限定コンテンツや投票に参加できます。",
+    title: "SPOT｜あなたの店に、応援会員を。",
+    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
   },
   twitter: {
-    title: "SPOT｜好きな活動を、まるごと応援。",
-    description: "好きな組織・団体・プロジェクトのサポーターになろう。月100〜500円で参加でき、限定コンテンツや投票に参加できます。",
+    title: "SPOT｜あなたの店に、応援会員を。",
+    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
   },
 };
 
 export default function HomePage() {
-  return <SpotMapPage />;
+  return <TopLanding />;
 }

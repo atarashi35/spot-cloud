@@ -41,12 +41,32 @@ const tonePalette = [
 ] as const;
 
 function normalizeSpotCategory(value: unknown): SpotCategory {
-  if (value === "神社") {
-    return "寺社仏閣";
+  const raw = String(value ?? "");
+
+  // 旧カテゴリ → 新カテゴリの読み替え（既存データ互換）
+  const legacyMap: Record<string, SpotCategory> = {
+    "神社": "神社・寺院",
+    "寺社仏閣": "神社・寺院",
+    "アート": "ギャラリー・アート",
+    "音楽・ライブ": "ライブハウス・音楽",
+    "文化施設": "ミニシアター・映画館"
+  };
+
+  if (legacyMap[raw]) {
+    return legacyMap[raw];
   }
 
-  const category = String(value ?? "") as SpotCategory;
-  return category || "その他";
+  const valid: SpotCategory[] = [
+    "本屋・書店",
+    "ミニシアター・映画館",
+    "ライブハウス・音楽",
+    "劇場・パフォーマンス",
+    "ギャラリー・アート",
+    "神社・寺院",
+    "その他"
+  ];
+
+  return valid.includes(raw as SpotCategory) ? (raw as SpotCategory) : "その他";
 }
 
 function parseTimestamp(value: unknown) {

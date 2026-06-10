@@ -125,7 +125,7 @@ export default async function SocioVerificationPage({
           <span className="chip border-white/15 bg-white/10 text-white/80">SUPPORTER CARD</span>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">会員証の確認</h1>
           <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/72 sm:text-base">
-            このページは SPOT のサポーター会員証に紐づく確認ページです。現在の加入状況を表示しています。
+            このページは SPOT の応援会員会員証に紐づく確認ページです。現在の加入状況を表示しています。
           </p>
         </div>
 

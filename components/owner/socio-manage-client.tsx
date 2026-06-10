@@ -25,11 +25,11 @@ export function SocioManageClient({ spotId }: { spotId: string }) {
       <Breadcrumb items={[
         { label: "管理", href: "/manage" },
         { label: spotName ?? "…", href: "/manage" },
-        { label: "サポーター管理" },
+        { label: "応援会員管理" },
       ]} />
       <div>
         <h1 className="text-2xl font-extrabold text-ink">{spotName ?? "…"}</h1>
-        <p className="mt-1 text-sm text-ink/68">サポーター管理</p>
+        <p className="mt-1 text-sm text-ink/68">応援会員管理</p>
       </div>
       <SocioListPanel spotId={spotId} spotName={spotName ?? spotId} defaultOpen />
     </div>

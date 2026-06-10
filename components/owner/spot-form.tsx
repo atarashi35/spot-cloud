@@ -65,22 +65,12 @@ const prefectures = [
 ] as const;
 
 const categories: SpotCategory[] = [
-  "カフェ",
-  "飲食・レストラン",
-  "バー・居酒屋",
-  "スポーツ",
-  "音楽・ライブ",
-  "アート",
-  "クリエイター",
-  "プロジェクト",
-  "文化施設",
-  "学び・教室",
-  "ワークスペース",
-  "自然・アウトドア",
-  "市民団体",
-  "商店街",
-  "寺社仏閣",
-  "自治会",
+  "本屋・書店",
+  "ミニシアター・映画館",
+  "ライブハウス・音楽",
+  "劇場・パフォーマンス",
+  "ギャラリー・アート",
+  "神社・寺院",
   "その他"
 ];
 
@@ -171,7 +161,7 @@ export function SpotForm(props: SpotFormProps) {
   const router = useRouter();
   const { authReady, user } = useAuth();
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<SpotCategory>("カフェ");
+  const [category, setCategory] = useState<SpotCategory>("本屋・書店");
   const [postalCode, setPostalCode] = useState("");
   const [prefecture, setPrefecture] = useState<(typeof prefectures)[number]>("東京都");
   const [city, setCity] = useState("");
@@ -599,12 +589,12 @@ export function SpotForm(props: SpotFormProps) {
         </button>
       </div>
 
-      {/* サポーター特典 */}
+      {/* 応援会員特典 */}
       <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
         <div>
-          <p className="text-sm font-bold text-ink/72">サポーター特典（任意）</p>
+          <p className="text-sm font-bold text-ink/72">応援会員特典（任意）</p>
           <p className="mt-1 text-xs leading-5 text-ink/60">
-            各プランの特典を入力すると、サポーター加入画面に表示されます。<br />
+            各プランの特典を入力すると、応援会員加入画面に表示されます。<br />
             全員同じ内容でも、金額によって傾斜をつけても構いません。
           </p>
         </div>

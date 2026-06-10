@@ -12,15 +12,15 @@ type Props = {
 
 export function PaymentFailedEmail({ spotName, displayName, portalUrl }: Props) {
   return (
-    <EmailLayout preview={`${spotName}のサポーター料金の支払いに失敗しました`}>
+    <EmailLayout preview={`${spotName}の応援会員料金の支払いに失敗しました`}>
       <Heading style={h1}>お支払いに失敗しました</Heading>
       <Text style={text}>
         {displayName ? `${displayName}さん、` : ""}
-        <strong>{spotName}</strong> のサポーター料金のお支払いが正常に処理されませんでした。
+        <strong>{spotName}</strong> の応援会員料金のお支払いが正常に処理されませんでした。
       </Text>
       <Text style={text}>
         カード情報をご確認いただき、更新をお願いします。
-        お支払いが完了しない場合、サポーター資格が失効する場合があります。
+        お支払いが完了しない場合、応援会員資格が失効する場合があります。
       </Text>
       <Button href={portalUrl || `${baseUrl}/dashboard`} style={buttonDanger}>
         支払い情報を更新する

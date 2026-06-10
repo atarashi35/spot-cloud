@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!authorization?.startsWith("Bearer ")) {
       return NextResponse.json(
-        { error: "auth_required", message: "サポーター登録にはログインが必要です。" },
+        { error: "auth_required", message: "応援会員登録にはログインが必要です。" },
         { status: 401 }
       );
     }

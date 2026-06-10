@@ -524,7 +524,7 @@ export function SettingsPageClient() {
 
       <section className="panel px-6 py-8 sm:px-8">
         <span className="chip">MEMBERSHIP</span>
-        <h2 className="mt-4 text-2xl font-extrabold text-ink">サポーターシップ管理</h2>
+        <h2 className="mt-4 text-2xl font-extrabold text-ink">応援会員シップ管理</h2>
         <p className="mt-4 text-[15px] leading-relaxed text-ink/72">
           プラン・支払い方法の変更や解約はこちらで管理できます。
         </p>
@@ -536,7 +536,7 @@ export function SettingsPageClient() {
               <div className="mt-2 h-3 w-1/4 rounded-full bg-ink/10" />
             </div>
           ) : activeMemberships.length === 0 ? (
-            /* 参加中のサポーターなし */
+            /* 参加中の応援会員なし */
             <div className="rounded-[20px] bg-mist px-5 py-5">
               <p className="text-sm text-ink/68">現在参加中のプランはありません。</p>
               <Link href="/" className="mt-3 inline-block text-sm font-semibold text-moss hover:underline">

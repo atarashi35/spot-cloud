@@ -22,7 +22,7 @@ async function send(to: string | string[], subject: string, element: React.React
   await resend.emails.send({ from: FROM_ADDRESS, to, subject, html });
 }
 
-// SPOTのアクティブソシオのメールアドレスを取得
+// SPOTのアクティブ応援会員のメールアドレスを取得
 async function getActiveSocioEmails(spotId: string): Promise<{ email: string; displayName: string }[]> {
   const db = getAdminDb();
   const [activeSnap, cancelingSnap] = await Promise.all([
@@ -45,7 +45,7 @@ async function getOwnerEmail(spotId: string): Promise<string | null> {
   return String(userRecord.data()?.email ?? "") || null;
 }
 
-// ─── ソシオ向け ──────────────────────────────────────────────────────────────
+// ─── 応援会員向け ──────────────────────────────────────────────────────────────
 
 export async function sendSocioWelcome(params: {
   to: string;
@@ -56,7 +56,7 @@ export async function sendSocioWelcome(params: {
 }) {
   await send(
     params.to,
-    `${params.spotName}のソシオ登録が完了しました`,
+    `${params.spotName}の応援会員登録が完了しました`,
     SocioWelcomeEmail(params) as unknown as React.ReactElement
   );
 }
@@ -70,7 +70,7 @@ export async function sendSocioCanceling(params: {
 }) {
   await send(
     params.to,
-    `${params.spotName}のソシオ解約手続きを受け付けました`,
+    `${params.spotName}の応援会員解約手続きを受け付けました`,
     SocioCancelingEmail(params) as unknown as React.ReactElement
   );
 }
@@ -102,7 +102,7 @@ export async function sendOwnerNewSocio(params: {
   if (!ownerEmail) return;
   await send(
     ownerEmail,
-    `【${params.spotName}】新しいソシオが加入しました`,
+    `【${params.spotName}】新しい応援会員が加入しました`,
     OwnerNewSocioEmail({ ...params }) as unknown as React.ReactElement
   );
 }
@@ -117,7 +117,7 @@ export async function sendOwnerSocioLeft(params: {
   if (!ownerEmail) return;
   await send(
     ownerEmail,
-    `【${params.spotName}】ソシオが解約しました`,
+    `【${params.spotName}】応援会員が解約しました`,
     OwnerSocioLeftEmail({ ...params }) as unknown as React.ReactElement
   );
 }
@@ -138,7 +138,7 @@ export async function sendOwnerOpinion(params: {
   );
 }
 
-// ─── ソシオ全員向け ───────────────────────────────────────────────────────────
+// ─── 応援会員全員向け ───────────────────────────────────────────────────────────
 
 export async function sendSociosNewPost(params: {
   spotId: string;

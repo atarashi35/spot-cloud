@@ -117,7 +117,7 @@ export function SiteHeader() {
                     <div className="text-sm font-semibold text-ink">
                       {resolveDisplayName(profileDisplayName, visibleUser.displayName, visibleUser.email)}
                     </div>
-                    <div className="mt-1 text-xs text-ink/68">サポーター</div>
+                    <div className="mt-1 text-xs text-ink/68">応援会員</div>
                   </div>
                   <div className="py-2">
                     <Link href="/spots" className="menu-link" onClick={() => setMenuOpen(false)}>

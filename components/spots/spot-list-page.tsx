@@ -12,22 +12,12 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "all", label: "すべて" },
-  { value: "カフェ", label: "カフェ" },
-  { value: "飲食・レストラン", label: "飲食・レストラン" },
-  { value: "バー・居酒屋", label: "バー・居酒屋" },
-  { value: "スポーツ", label: "スポーツ" },
-  { value: "音楽・ライブ", label: "音楽・ライブ" },
-  { value: "アート", label: "アート" },
-  { value: "クリエイター", label: "クリエイター" },
-  { value: "プロジェクト", label: "プロジェクト" },
-  { value: "文化施設", label: "文化施設" },
-  { value: "学び・教室", label: "学び・教室" },
-  { value: "ワークスペース", label: "ワークスペース" },
-  { value: "自然・アウトドア", label: "自然・アウトドア" },
-  { value: "市民団体", label: "市民団体" },
-  { value: "商店街", label: "商店街" },
-  { value: "寺社仏閣", label: "寺社仏閣" },
-  { value: "自治会", label: "自治会" },
+  { value: "本屋・書店", label: "本屋・書店" },
+  { value: "ミニシアター・映画館", label: "ミニシアター・映画館" },
+  { value: "ライブハウス・音楽", label: "ライブハウス・音楽" },
+  { value: "劇場・パフォーマンス", label: "劇場・パフォーマンス" },
+  { value: "ギャラリー・アート", label: "ギャラリー・アート" },
+  { value: "神社・寺院", label: "神社・寺院" },
   { value: "その他", label: "その他" },
 ];
 
@@ -196,7 +186,7 @@ export function SpotListPage() {
             SPOTを探す
           </h1>
           <p className="mt-2 text-sm text-ink/68">
-            気になる活動を見つけて、月100〜500円でサポーターになろう。
+            気になる活動を見つけて、月100〜500円で応援会員になろう。
           </p>
         </div>
       </div>

@@ -11,8 +11,8 @@
  *   振込予定額   = 決済総額 - Stripe手数料 - SPOT利用料
  *
  * レスポンス:
- *   socioCount       - アクティブなソシオ数（解約予定含む）
- *   cancelingCount   - 解約予定のソシオ数
+ *   socioCount       - アクティブな応援会員数（解約予定含む）
+ *   cancelingCount   - 解約予定の応援会員数
  *   grossMonthly     - 月額決済総額
  *   estimatedStripeFee - 推定Stripe手数料（3.6%ベース、実際は変動あり）
  *   platformFee      - SPOT利用料

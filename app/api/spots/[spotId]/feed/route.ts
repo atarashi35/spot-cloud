@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ spot
     } catch { /* 未ログインとして扱う */ }
   }
 
-  // ソシオ or オーナー判定
+  // 応援会員 or オーナー判定
   let canViewAll = false;
   if (uid) {
     const spotSnap = await db.doc(`spots/${spotId}`).get();

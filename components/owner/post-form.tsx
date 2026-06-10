@@ -86,7 +86,7 @@ export function PostForm(props: PostFormProps) {
           throw new Error(data.error ?? "投稿の保存に失敗しました。");
         }
         const { postId } = (await res.json()) as { postId: string };
-        // ソシオへ通知（fire-and-forget）
+        // 応援会員へ通知（fire-and-forget）
         void user.getIdToken().then(async (tok) => {
           await fetch("/api/notify", {
             method: "POST",
@@ -180,7 +180,7 @@ export function PostForm(props: PostFormProps) {
                 isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
               }`}
             >
-              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 サポーター限定"}
+              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 応援会員限定"}
             </button>
           ))}
         </div>

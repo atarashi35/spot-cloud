@@ -358,7 +358,7 @@ export function VoicesSection({
   return (
     <section className="panel px-6 py-8 sm:px-8">
       <h3 className="text-2xl font-extrabold text-ink">みんなの声</h3>
-      <p className="mt-1 text-sm text-ink/65">サポーターだけが参加できる投票・意見コーナーです。</p>
+      <p className="mt-1 text-sm text-ink/65">応援会員だけが参加できる投票・意見コーナーです。</p>
 
       <div className="relative mt-6 space-y-4">
         {/* コンテンツ */}
@@ -373,7 +373,7 @@ export function VoicesSection({
               <OpenQuestionCard key={vote.id} vote={vote} spotId={spotId} uid={uid} amount={amount} votingEligible={votingEligible} votingUnlocksAt={votingUnlocksAt} />
             );
           })}
-          {/* 意見ボックス: サポーターのみ（オーナーは管理画面で見る） */}
+          {/* 意見ボックス: 応援会員のみ（オーナーは管理画面で見る） */}
           {opinionBoxEnabled && uid && amount && !isOwner ? (
             <OpinionBox spotId={spotId} uid={uid} amount={amount} />
           ) : null}
@@ -391,7 +391,7 @@ export function VoicesSection({
           )}
         </div>
 
-        {/* 非サポーター向けオーバーレイ */}
+        {/* 非応援会員向けオーバーレイ */}
         {!canParticipate && !isOwner && loaded && hasContent && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-white/70 backdrop-blur-[3px]">
             <p className="text-sm font-bold text-ink/72">SUPPORTERS ONLY</p>

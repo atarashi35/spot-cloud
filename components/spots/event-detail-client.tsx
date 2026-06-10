@@ -85,8 +85,8 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
-            title="このイベントはサポーター限定です"
-            description="加入済みサポーターのみ閲覧できます。"
+            title="このイベントは応援会員限定です"
+            description="加入済み応援会員のみ閲覧できます。"
           />
           <Link href={`/spots/${spotId}/join`} className="cta-primary mt-6">
             加入ページへ

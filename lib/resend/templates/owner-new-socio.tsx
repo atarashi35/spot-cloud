@@ -17,10 +17,10 @@ export function OwnerNewSocioEmail({
   spotName, spotId, socioName, socioAffiliation, planAmount, totalSocios,
 }: Props) {
   return (
-    <EmailLayout preview={`新しいサポーターが加入しました — ${spotName}`}>
-      <Heading style={h1}>新しいサポーターが加入しました 🎉</Heading>
+    <EmailLayout preview={`新しい応援会員が加入しました — ${spotName}`}>
+      <Heading style={h1}>新しい応援会員が加入しました 🎉</Heading>
       <Text style={text}>
-        <strong>{spotName}</strong> に新しいサポーターが加入しました。
+        <strong>{spotName}</strong> に新しい応援会員が加入しました。
       </Text>
       <div style={card}>
         <Text style={cardRow}><span style={label}>名前</span>{socioName || "—"}</Text>
@@ -28,7 +28,7 @@ export function OwnerNewSocioEmail({
           <Text style={cardRow}><span style={label}>所属</span>{socioAffiliation}</Text>
         )}
         <Text style={cardRow}><span style={label}>プラン</span>¥{planAmount.toLocaleString()} / 月</Text>
-        <Text style={cardRow}><span style={label}>累計サポーター数</span>{totalSocios} 人</Text>
+        <Text style={cardRow}><span style={label}>累計応援会員数</span>{totalSocios} 人</Text>
       </div>
       <Button href={`${baseUrl}/owner/spots/${spotId}`} style={button}>
         管理画面を開く

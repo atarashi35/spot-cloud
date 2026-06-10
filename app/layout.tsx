@@ -29,21 +29,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: { default: "SPOT｜小さなファンクラブ作成サービス", template: "%s | SPOT" },
-  description: "組織・団体・プロジェクトのための小さなファンクラブサービス。月100〜500円でサポーターを集めたり、応援したりできます。初期費用・月額費用は0円。",
+  title: { default: "SPOT｜あなたの店に、応援会員を。", template: "%s | SPOT" },
+  description: "街の小さな文化拠点（本屋・ミニシアター・ライブハウス・劇場・ギャラリー・神社）のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
   metadataBase: new URL("https://spotcloud.app"),
   openGraph: {
     siteName: "SPOT",
-    title: "SPOT｜小さなファンクラブ作成サービス",
-    description: "組織・団体・プロジェクトのための小さなファンクラブサービス。月100〜500円でサポーターを集めたり、応援したりできます。初期費用・月額費用は0円。",
+    title: "SPOT｜あなたの店に、応援会員を。",
+    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "ja_JP",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "SPOT｜小さなファンクラブ作成サービス",
-    description: "組織・団体・プロジェクトのための小さなファンクラブサービス。月100〜500円でサポーターを集めたり、応援したりできます。初期費用・月額費用は0円。",
+    title: "SPOT｜あなたの店に、応援会員を。",
+    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
     images: ["/og-image.png"]
   }
 };

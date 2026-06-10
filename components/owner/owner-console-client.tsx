@@ -507,7 +507,7 @@ export function OwnerConsoleClient() {
                 <div className="mt-4 h-14 animate-pulse rounded-[16px] bg-mist" />
               )}
 
-              {/* 最近加入したサポーター */}
+              {/* 最近加入した応援会員 */}
               <RecentSociosPanel
                 spotId={spot.id}
                 spotShareHref={`/owner/spots/${spot.id}/share`}
@@ -550,7 +550,7 @@ export function OwnerConsoleClient() {
               {/* セカンダリリンク（低頻度） */}
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <a href={`/manage/${spot.id}/socios`} className="text-xs text-ink/65 hover:text-ink transition-colors">
-                  サポーター一覧{revenue ? `（${socioCount}人）` : ""}
+                  応援会員一覧{revenue ? `（${socioCount}人）` : ""}
                 </a>
                 <span className="text-ink/40">·</span>
                 <Link href={`/owner/spots/${spot.id}/edit`} className="text-xs text-ink/65 hover:text-ink transition-colors">

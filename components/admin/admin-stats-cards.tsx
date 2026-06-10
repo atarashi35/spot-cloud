@@ -73,14 +73,14 @@ export function AdminStatsCards() {
         sub={`公開中 ${stats.published} / 停止 ${stats.suspended}`}
       />
       <KpiCard
-        label="総ソシオ数"
+        label="総応援会員数"
         value={stats.totalSocios.toLocaleString()}
         sub={`Stripe連携 ${stats.stripeConnected}/${stats.total} SPOT`}
       />
       <KpiCard
         label="今月のGMV"
         value={revenue ? `¥${revenue.current.gmv.toLocaleString()}` : "—"}
-        sub="ソシオ決済総額"
+        sub="応援会員決済総額"
         accent
       />
       <KpiCard

@@ -11,7 +11,7 @@ import {
 type EventJoinButtonProps = {
   spotId: string;
   eventId: string;
-  /** イベントドキュメントに保持されている参加人数（他ソシオのデータを取得しないための安全な代替） */
+  /** イベントドキュメントに保持されている参加人数（他応援会員のデータを取得しないための安全な代替） */
   participantCount: number;
 };
 
@@ -30,7 +30,7 @@ export function EventJoinButton({ spotId, eventId, participantCount }: EventJoin
       return;
     }
 
-    // 自分の参加状態のみ取得（他ソシオのデータは取得しない）
+    // 自分の参加状態のみ取得（他応援会員のデータは取得しない）
     void getEventParticipation(spotId, eventId, user.uid)
       .then((participation) => {
         setJoined(Boolean(participation));

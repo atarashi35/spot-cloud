@@ -367,7 +367,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, showAction
               )}
             </div>
 
-            {/* フッター：SPOTS数 + サポーターID */}
+            {/* フッター：SPOTS数 + 応援会員ID */}
             <div className="mt-auto flex items-end justify-between pt-3 border-t border-white/8">
               <div>
                 <span className="font-bold text-white tabular-nums" style={{ fontSize: 20, lineHeight: 1 }}>

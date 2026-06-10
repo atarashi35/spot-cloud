@@ -21,7 +21,7 @@ export function SociosNewEventEmail({
     <EmailLayout preview={`${spotName}で新しいイベントが開催されます`}>
       <Heading style={h1}>{spotName}のイベント情報</Heading>
       <Text style={text}>
-        {displayName ? `${displayName}さん、` : ""}サポーターとして参加されている <strong>{spotName}</strong> で新しいイベントが企画されました。
+        {displayName ? `${displayName}さん、` : ""}応援会員として参加されている <strong>{spotName}</strong> で新しいイベントが企画されました。
       </Text>
       <div style={card}>
         <Text style={eventTitleStyle}>{eventTitle}</Text>

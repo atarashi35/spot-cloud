@@ -14,7 +14,7 @@ export function AdminTabs() {
       <div className="flex gap-1 rounded-full border border-ink/10 bg-mist p-1 w-fit">
         {([
           { key: "spots", label: "SPOT管理" },
-          { key: "socios", label: "ソシオ一覧" },
+          { key: "socios", label: "応援会員一覧" },
         ] as { key: Tab; label: string }[]).map((t) => (
           <button
             key={t.key}

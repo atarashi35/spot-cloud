@@ -57,7 +57,7 @@ export async function POST(
 
     console.log(`[posts API] written: postId=${ref.id}`);
 
-    // ソシオへのメール通知（公開投稿のみ・失敗しても応答は返す）
+    // 応援会員へのメール通知（公開投稿のみ・失敗しても応答は返す）
     if (payload.isPublic) {
       void sendSociosNewPost({
         spotId,

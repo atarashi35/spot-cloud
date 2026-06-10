@@ -112,7 +112,7 @@ export function VoteForm({
             rows={2}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="詳細や背景を書くとサポーターに伝わりやすいです"
+            placeholder="詳細や背景を書くと応援会員に伝わりやすいです"
           />
         </div>
 

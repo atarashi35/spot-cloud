@@ -17,7 +17,7 @@ export function OwnerOpinionEmail({ spotName, spotId, question, answer, socioNam
     <EmailLayout preview={`${spotName}に新しい意見が届きました`}>
       <Heading style={h1}>新しい意見が届きました</Heading>
       <Text style={text}>
-        <strong>{spotName}</strong> のサポーターから意見が投稿されました。
+        <strong>{spotName}</strong> の応援会員から意見が投稿されました。
       </Text>
       <div style={card}>
         <Text style={questionText}>{question}</Text>

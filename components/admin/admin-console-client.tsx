@@ -118,7 +118,7 @@ export function AdminConsoleClient() {
         <div className="hidden grid-cols-[2fr_1fr_60px_80px_100px_180px] gap-4 border-b border-ink/8 px-5 py-3 text-[13px] font-semibold tracking-wider text-ink/60 sm:grid">
           <span>SPOT名</span>
           <span>カテゴリ</span>
-          <span className="text-center">ソシオ</span>
+          <span className="text-center">応援会員</span>
           <span className="text-center">Stripe</span>
           <span className="text-center">状態</span>
           <span className="text-right">操作</span>
@@ -142,7 +142,7 @@ export function AdminConsoleClient() {
             {/* カテゴリ */}
             <span className="text-sm text-ink/75">{spot.category}</span>
 
-            {/* ソシオ数 */}
+            {/* 応援会員数 */}
             <div className="text-center">
               <span className="text-base font-bold text-ink">{spot.socioCount}</span>
               <span className="text-xs text-ink/60"> 人</span>

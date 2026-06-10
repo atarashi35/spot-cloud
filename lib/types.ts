@@ -3,26 +3,16 @@ export type PlanAmount = 100 | 300 | 500;
 export const planOptions = [100, 300, 500] as const satisfies readonly PlanAmount[];
 
 export type SpotCategory =
-  | "カフェ"
-  | "飲食・レストラン"
-  | "バー・居酒屋"
-  | "スポーツ"
-  | "音楽・ライブ"
-  | "アート"
-  | "クリエイター"
-  | "プロジェクト"
-  | "文化施設"
-  | "学び・教室"
-  | "ワークスペース"
-  | "自然・アウトドア"
-  | "市民団体"
-  | "商店街"
-  | "寺社仏閣"
-  | "自治会"
+  | "本屋・書店"
+  | "ミニシアター・映画館"
+  | "ライブハウス・音楽"
+  | "劇場・パフォーマンス"
+  | "ギャラリー・アート"
+  | "神社・寺院"
   | "その他";
 
 /**
- * active    : 有効なソシオ
+ * active    : 有効な応援会員
  * canceling : 解約予定（cancel_at_period_end=true）。期末まで請求は続く
  * past_due  : 支払い失敗・未払い
  * canceled  : 解約済み
@@ -107,7 +97,7 @@ export interface SpotMembership {
    */
   canceledAt?: string;
   address?: string;
-  // ソシオプロフィール（users/{uid} から結合）
+  // 応援会員プロフィール（users/{uid} から結合）
   avatarUrl?: string;
   occupation?: string;
   specialty?: string;
@@ -138,7 +128,7 @@ export interface SpotPost {
   imageUrl?: string;
   attachments?: PostAttachment[];
   publishDate: string;
-  /** true: 誰でも閲覧可、false/undefined: ソシオ限定 */
+  /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
   isPublic: boolean;
   createdBy: string;
   createdAt: string;
@@ -154,10 +144,10 @@ export interface SpotEvent {
   endAt?: string;
   location?: string;
   imageUrl?: string;
-  /** true: 誰でも閲覧可、false/undefined: ソシオ限定 */
+  /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
   isPublic: boolean;
   hasJoinButton: boolean;
-  /** 参加登録人数（ソシオには人数のみ公開。名前・メールは非公開） */
+  /** 参加登録人数（応援会員には人数のみ公開。名前・メールは非公開） */
   participantCount: number;
   createdBy: string;
   createdAt: string;

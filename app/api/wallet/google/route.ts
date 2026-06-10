@@ -61,12 +61,12 @@ export async function GET(request: NextRequest) {
         ? profile.profileDisplayName.trim()
         : null;
 
-    // 優先順位: プロフィール設定名 > Google名 > メール@前 > "サポーター"
+    // 優先順位: プロフィール設定名 > Google名 > メール@前 > "応援会員"
     const displayName =
       profileDisplayName ??
       (authDisplayName.trim() || null) ??
       (authEmail.includes("@") ? authEmail.split("@")[0] : null) ??
-      "サポーター";
+      "応援会員";
 
     const cardData = buildSocioCardData(uid, displayName, memberships);
     const walletUrl = generateGoogleWalletUrl(cardData);

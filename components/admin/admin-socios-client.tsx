@@ -103,7 +103,7 @@ export function AdminSociosClient() {
 
       <div className="overflow-hidden rounded-[24px] border border-ink/8 bg-white">
         <div className="hidden grid-cols-[2fr_2fr_1fr_80px_100px] gap-4 border-b border-ink/8 px-5 py-3 text-[13px] font-semibold tracking-wider text-ink/60 sm:grid">
-          <span>ソシオ</span>
+          <span>応援会員</span>
           <span>SPOT</span>
           <span>加入日</span>
           <span className="text-center">プラン</span>
@@ -111,7 +111,7 @@ export function AdminSociosClient() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="px-5 py-10 text-center text-sm text-ink/60">該当するソシオがいません</div>
+          <div className="px-5 py-10 text-center text-sm text-ink/60">該当する応援会員がいません</div>
         )}
 
         {filtered.map((s, i) => (
