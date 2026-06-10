@@ -118,16 +118,13 @@ export default function OwnerPage() {
     return () => observer.disconnect();
   }, []);
 
-  const definitionRef = useScrollReveal<HTMLDivElement>({ threshold: 0.15 });
   const valuesHeadRef = useScrollReveal<HTMLDivElement>();
   const valuesRef     = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
-  const questionRef   = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
   const whyHeadRef    = useScrollReveal<HTMLDivElement>();
   const whyRef        = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
   const stepsHeadRef  = useScrollReveal<HTMLDivElement>();
   const stepsRef      = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
   const pricingRef    = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
-  const hundredRef    = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
   const bottomCtaRef  = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
 
   return (
@@ -152,12 +149,16 @@ export default function OwnerPage() {
                 継続型・超低額クラファン
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
-                <span className="block text-white/90">月100〜500円で</span>
-                <span className="hero-gradient-text block">あなたのサポーターを<br className="sm:hidden" />募集できます。</span>
+                <span className="block text-white/90">月100〜500円で応援してくれる</span>
+                <span className="hero-gradient-text block">サポーターを、集められます。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
                 組織・団体・プロジェクトのための、小さなファンクラブです。
               </p>
+              <div className="hero-animate-3 mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold text-white/70">
+                <span className="h-1.5 w-1.5 rounded-full bg-moss" />
+                初期費用・月額費用 0円
+              </div>
               <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
                 <Link
                   href="/owner/spots/new"
@@ -178,29 +179,79 @@ export default function OwnerPage() {
         </div>
       </div>
 
-      {/* ── 一言定義（何ができるか） ── */}
+      {/* ── 料金（リスクのなさ）── */}
       <PageShell className="py-14">
-        <div ref={definitionRef} className="reveal rounded-[28px] bg-mist px-8 py-10 sm:px-12 sm:py-12">
-          <p className="text-lg font-bold leading-relaxed text-ink sm:text-2xl">
-            SPOTは、月100〜500円で応援してくれる<br className="hidden sm:block" />
-            サポーターを集められる、継続型・超低額クラファンです。
-          </p>
-          <p className="mt-5 max-w-xl text-sm leading-8 text-ink/65 sm:text-[15px]">
-            組織・団体・プロジェクトのためのSPOTをつくり、活動を支えてくれる人と
-            お知らせ・イベント・アンケートでつながり続けられます。
-          </p>
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
+        <div ref={pricingRef} className="reveal overflow-hidden rounded-[28px] border border-ink/8 bg-white px-8 py-10 sm:px-10 sm:py-12">
+          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">PRICING</div>
+          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
+            始めるのに、費用はかかりません。
+          </h2>
+
+          {/* 固定費 + 手数料 */}
+          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { label: "初期費用", value: "0円" },
-              { label: "月額費用", value: "0円" },
-              { label: "サポーター", value: "月100〜500円" },
+              { label: "初期費用", value: "0円", sub: null },
+              { label: "月額費用", value: "0円", sub: null },
+              { label: "Stripe 決済手数料", value: "3.6%", sub: "決済額の 3.6%（Stripeへ）" },
+              { label: "SPOT サービス利用料", value: "10%", sub: "決済手数料控除後の純額の 10%" },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-ink/8 bg-white px-5 py-4">
+              <div key={item.label} className="rounded-2xl border border-ink/8 bg-mist/60 px-5 py-4">
                 <div className="text-xs font-semibold text-ink/45">{item.label}</div>
-                <div className="mt-1.5 text-xl font-bold text-ink">{item.value}</div>
+                <div className="mt-2 text-xl font-bold text-ink">{item.value}</div>
+                {item.sub && <div className="mt-1 text-xs leading-5 text-ink/45">{item.sub}</div>}
               </div>
             ))}
           </div>
+          <p className="mt-4 text-xs leading-6 text-ink/40">
+            手数料はサポーターの決済が発生した場合のみ。固定費・月額費用はかかりません。
+          </p>
+
+          {/* 振込額 */}
+          <div className="mt-8 border-t border-ink/8 pt-7">
+            <p className="text-sm font-semibold text-ink">サポーター1人あたりの振込額（目安）</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {[
+                { from: "¥100", to: "約 ¥87" },
+                { from: "¥300", to: "約 ¥260" },
+                { from: "¥500", to: "約 ¥434" },
+              ].map((row) => (
+                <div key={row.from} className="flex items-center gap-3 rounded-2xl bg-mist px-5 py-3.5">
+                  <span className="text-base font-bold text-ink">{row.from}</span>
+                  <span className="text-ink/30">→</span>
+                  <span className="text-base font-bold text-ink">{row.to}</span>
+                  <span className="ml-auto text-xs text-ink/40">/月</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs leading-6 text-ink/40">
+              振込額は概算です。実際の金額はStripeの処理により若干異なる場合があります。
+            </p>
+          </div>
+
+          {/* 100人いたら（具体例） */}
+          <div className="mt-7 flex flex-col gap-4 rounded-[20px] bg-ink px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-semibold text-white/70">
+              例えば、<span className="text-white">100人</span>のサポーターがいれば
+            </p>
+            <div className="flex items-end gap-6">
+              <div>
+                <div className="flex items-end gap-1.5">
+                  <span className="text-[2.5rem] font-bold leading-none tracking-tight text-white">¥8,700</span>
+                  <span className="mb-1 text-xs font-semibold text-white/45">/月</span>
+                </div>
+              </div>
+              <div className="h-9 w-px bg-white/12" />
+              <div>
+                <div className="flex items-end gap-1.5">
+                  <span className="text-[2.5rem] font-bold leading-none tracking-tight text-white">¥104,400</span>
+                  <span className="mb-1 text-xs font-semibold text-white/45">/年</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="mt-3 text-xs leading-6 text-ink/40">
+            月100円プラン・100人の場合の目安振込額。継続的に、毎月。
+          </p>
         </div>
       </PageShell>
 
@@ -267,21 +318,6 @@ export default function OwnerPage() {
         </div>
       </PageShell>
 
-      {/* ── 問い（誰向けか） ── */}
-      <PageShell className="mt-14">
-        <div ref={questionRef} className="reveal rounded-[28px] border border-ink/8 bg-white px-8 py-12 text-center sm:px-12 sm:py-16">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR ANYONE</div>
-          <h2 className="mt-4 text-2xl font-bold leading-snug text-ink sm:text-3xl">
-            あなたなら、<br className="sm:hidden" />
-            SPOTを何に使いますか？
-          </h2>
-          <p className="mx-auto mt-5 max-w-md text-sm leading-8 text-ink/60">
-            組織・団体・プロジェクト、活動の数だけ使い道があります。
-            支えてくれる人がいるなら、SPOTは始められます。
-          </p>
-        </div>
-      </PageShell>
-
       {/* ── STEP ── */}
       <PageShell className="mt-14">
         <div ref={stepsHeadRef} className="reveal mb-8 text-center">
@@ -304,57 +340,6 @@ export default function OwnerPage() {
         </div>
       </PageShell>
 
-      {/* ── 料金 ── */}
-      <PageShell className="mt-14">
-        <div ref={pricingRef} className="reveal overflow-hidden rounded-[28px] border border-ink/8 bg-white px-8 py-10 sm:px-10 sm:py-12">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">PRICING</div>
-          <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
-            始めるのに、費用はかかりません。
-          </h2>
-
-          {/* 固定費 + 手数料 */}
-          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: "初期費用", value: "0円", sub: null },
-              { label: "月額費用", value: "0円", sub: null },
-              { label: "Stripe 決済手数料", value: "3.6%", sub: "決済額の 3.6%（Stripeへ）" },
-              { label: "SPOT サービス利用料", value: "10%", sub: "決済手数料控除後の純額の 10%" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-ink/8 bg-mist/60 px-5 py-4">
-                <div className="text-xs font-semibold text-ink/45">{item.label}</div>
-                <div className="mt-2 text-xl font-bold text-ink">{item.value}</div>
-                {item.sub && <div className="mt-1 text-xs leading-5 text-ink/45">{item.sub}</div>}
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 text-xs leading-6 text-ink/40">
-            手数料はサポーターの決済が発生した場合のみ。固定費・月額費用はかかりません。
-          </p>
-
-          {/* 振込額 */}
-          <div className="mt-8 border-t border-ink/8 pt-7">
-            <p className="text-sm font-semibold text-ink">サポーター1人あたりの振込額（目安）</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {[
-                { from: "¥100", to: "約 ¥87" },
-                { from: "¥300", to: "約 ¥260" },
-                { from: "¥500", to: "約 ¥434" },
-              ].map((row) => (
-                <div key={row.from} className="flex items-center gap-3 rounded-2xl bg-mist px-5 py-3.5">
-                  <span className="text-base font-bold text-ink">{row.from}</span>
-                  <span className="text-ink/30">→</span>
-                  <span className="text-base font-bold text-ink">{row.to}</span>
-                  <span className="ml-auto text-xs text-ink/40">/月</span>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-xs leading-6 text-ink/40">
-              振込額は概算です。実際の金額はStripeの処理により若干異なる場合があります。
-            </p>
-          </div>
-        </div>
-      </PageShell>
-
       {/* ── FAQ ── */}
       <PageShell className="mt-14">
         <div className="mb-8 text-center">
@@ -366,78 +351,6 @@ export default function OwnerPage() {
             <FaqItem key={faq.q} q={faq.q} a={faq.a} />
           ))}
         </Card>
-      </PageShell>
-
-      {/* ── 100人のサポーター ── */}
-      <PageShell className="mt-14">
-        <div ref={hundredRef} className="reveal relative overflow-hidden rounded-[28px] bg-ink">
-          <div className="pointer-events-none absolute inset-0" style={GRID_BG} />
-          <div className="relative grid lg:grid-cols-[1fr_1px_1fr]">
-
-            {/* 左：数字 */}
-            <div className="px-8 py-10 sm:px-10 sm:py-14">
-              <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">IF 100 SUPPORTERS</div>
-              <p className="mt-5 text-base font-semibold text-white/70">
-                100人のサポーターがいると。
-              </p>
-              <div className="mt-6 space-y-4">
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.16em] text-white/35">月収入</div>
-                  <div className="mt-1.5 flex items-end gap-2">
-                    <span className="text-[3rem] font-bold leading-none tracking-tight text-white sm:text-[3.5rem]">¥8,700</span>
-                    <span className="mb-1 text-sm font-semibold text-white/45">/ 月</span>
-                  </div>
-                </div>
-                <div className="h-px bg-white/10" />
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.16em] text-white/35">年収入</div>
-                  <div className="mt-1.5 flex items-end gap-2">
-                    <span className="text-[3rem] font-bold leading-none tracking-tight text-white sm:text-[3.5rem]">¥104,400</span>
-                    <span className="mb-1 text-sm font-semibold text-white/45">/ 年</span>
-                  </div>
-                </div>
-              </div>
-              <p className="mt-6 text-sm leading-7 text-white/40">
-                月100円プラン・100人の場合の目安振込額。継続的に、毎月。
-              </p>
-            </div>
-
-            {/* 区切り線 */}
-            <div className="hidden bg-white/8 lg:block" />
-
-            {/* 右：使い道 */}
-            <div className="px-8 py-10 sm:px-10 sm:py-14">
-              <div className="text-[11px] font-semibold tracking-[0.24em] text-white/40">WHAT YOU CAN DO</div>
-              <p className="mt-5 text-base font-semibold text-white/85">こんなことに活用できます。</p>
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                {[
-                  "イベントの景品代",
-                  "チラシ・印刷代",
-                  "活動備品の購入",
-                  "ドリンク・軽食代",
-                  "会場費の一部",
-                  "次の企画の原資",
-                ].map((item) => (
-                  <div key={item} className="flex items-center rounded-2xl border border-white/12 bg-white/8 px-4 py-3.5">
-                    <span className="text-sm font-medium text-white/80">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </PageShell>
-
-      {/* ── 世界観（最後に少しだけ） ── */}
-      <PageShell className="mt-14">
-        <div className="px-2 text-center">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">OUR THOUGHT</div>
-          <p className="mx-auto mt-4 max-w-xl text-lg font-bold leading-relaxed text-ink/80 sm:text-xl">
-            応援は、お金だけじゃない。<br />
-            続く関係そのものが、活動を支えていく。
-          </p>
-        </div>
       </PageShell>
 
       {/* ── 底部CTA ── */}
