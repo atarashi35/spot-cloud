@@ -150,7 +150,7 @@ export default function OwnerPage() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-moss opacity-75" style={{animation:"ping 1.5s cubic-bezier(0,0,0.2,1) infinite"}} />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-moss" />
                 </span>
-                <span className="text-sm font-semibold text-white/80">組織・団体・プロジェクトのファンクラブ</span>
+                <span className="text-sm font-semibold text-white/80">組織・団体・プロジェクトのための、小さなファンクラブ</span>
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2.4rem,6vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight">
                 <span className="block text-white/90">あなたの活動を応援する</span>
@@ -321,7 +321,7 @@ export default function OwnerPage() {
           <Card className="px-6 py-7 sm:px-8">
             <div className="text-sm font-bold text-moss">Q. 従来のクラファンと何が違うの？</div>
             <h3 className="mt-3 text-xl font-extrabold leading-snug text-ink">
-              「集めて終わり」ではなく、<br className="hidden sm:block" />「続けて育てる」継続型。
+              「集めて終わり」ではなく、<br className="hidden sm:block" />「続けて育てる」ファンクラブ形式。
             </h3>
             <div className="mt-4 overflow-hidden rounded-2xl border border-ink/8">
               <div className="grid grid-cols-[68px_1fr_1fr] text-[13px] font-semibold">
@@ -405,7 +405,7 @@ export default function OwnerPage() {
       {showStickyCta && (
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
-            <p className="text-sm font-bold text-ink">組織・団体・プロジェクトのファンクラブ</p>
+            <p className="text-sm font-bold text-ink">組織・団体・プロジェクトのための、小さなファンクラブ</p>
             <p className="text-xs text-ink/65">月100〜500円でサポーターを集められます</p>
           </div>
           <Link href="/owner/spots/new" className="cta-primary shrink-0">

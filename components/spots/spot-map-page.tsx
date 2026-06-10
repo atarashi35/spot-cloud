@@ -141,7 +141,7 @@ export function SpotMapPage() {
           <div className="flex flex-col rounded-[24px] border border-ink/8 bg-white p-6">
             <p className="text-sm font-bold text-moss">Q. 従来のクラファンと何が違う？</p>
             <p className="mt-3 text-xl font-extrabold leading-snug text-ink">
-              「集めて終わり」ではなく、「続けて育てる」継続型。
+              「集めて終わり」ではなく、「続けて育てる」ファンクラブ形式。
             </p>
             <div className="mt-3 overflow-hidden rounded-2xl border border-ink/8 text-[13px]">
               <div className="grid grid-cols-3 font-semibold">
