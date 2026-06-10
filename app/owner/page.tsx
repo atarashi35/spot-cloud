@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/ui/page-shell";
@@ -104,6 +104,20 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
 }
 
 export default function OwnerPage() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyCta(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const definitionRef = useScrollReveal<HTMLDivElement>({ threshold: 0.15 });
   const valuesHeadRef = useScrollReveal<HTMLDivElement>();
   const valuesRef     = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 100 });
@@ -120,7 +134,7 @@ export default function OwnerPage() {
     <div className="pb-20">
 
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden bg-ink px-6 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-20">
+      <div ref={heroRef} className="relative overflow-hidden bg-ink px-6 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-20">
         <div className="pointer-events-none absolute inset-0" style={GRID_BG} />
 
         {/* 背景：ロゴアニメーション（モバイルのみ・薄く重ねる） */}
@@ -450,6 +464,18 @@ export default function OwnerPage() {
         </div>
       </PageShell>
 
+      {/* ── スティッキー CTA ── */}
+      {showStickyCta && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-ink">継続型・超低額クラファン</p>
+            <p className="text-xs text-ink/50">月100〜500円でサポーターを集められます</p>
+          </div>
+          <Link href="/owner/spots/new" className="cta-primary shrink-0">
+            SPOTを作る →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
