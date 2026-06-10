@@ -109,6 +109,29 @@ export function AccountPageClient() {
   const [membershipError, setMembershipError] = useState<string | null>(null);
   const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [memberNumbers, setMemberNumbers] = useState<Record<string, number | null>>({});
+
+  // 会員証に表示する会員番号（spotごとのjoinedAt順通し番号）を取得
+  useEffect(() => {
+    if (!user || !memberships) return;
+    const targets = memberships.filter((m) => m.status === "active" || m.status === "canceling");
+    if (targets.length === 0) return;
+
+    let cancelled = false;
+    void user.getIdToken().then((token) =>
+      Promise.all(
+        targets.map((m) =>
+          fetch(`/api/spots/${m.spotId}/socio-number`, { headers: { authorization: `Bearer ${token}` } })
+            .then((r) => r.json() as Promise<{ number: number | null }>)
+            .then((d) => [m.spotId, d.number] as const)
+            .catch(() => [m.spotId, null] as const)
+        )
+      ).then((entries) => {
+        if (!cancelled) setMemberNumbers(Object.fromEntries(entries));
+      })
+    );
+    return () => { cancelled = true; };
+  }, [user, memberships]);
 
   useEffect(() => {
     if (!user) {
@@ -239,6 +262,7 @@ export function AccountPageClient() {
               displayName={resolveDisplayName(profileDisplayName, user.displayName, user.email)}
               avatarUrl={avatarUrl}
               memberships={memberships}
+              memberNumbers={memberNumbers}
             />
             {!profileDisplayName ? (
               <Link

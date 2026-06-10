@@ -5,7 +5,6 @@ export type SocioCardData = {
   uid: string;
   displayName: string;
   spotCount: number;
-  verifyUrl: string;
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId">[];
 };
 
@@ -14,15 +13,11 @@ export function buildSocioCardData(
   displayName: string,
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId" | "status">[]
 ): SocioCardData {
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (typeof window !== "undefined" ? window.location.origin : "https://spotcloud.app");
   const active = memberships.filter((m) => m.status !== "canceled");
   return {
     uid,
     displayName,
     spotCount: active.length,
-    verifyUrl: `${base}/verify/socio/${uid}`,
     memberships: active,
   };
 }

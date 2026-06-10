@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useCallback, useMemo, useState, useEffect } from "react";
-import QRCode from "react-qr-code";
 import type { UserMembership } from "@/lib/types";
 import { buildSocioCardData, buildShareContent } from "@/lib/socio-card-data";
 export type { SocioCardData } from "@/lib/socio-card-data";
@@ -111,6 +110,17 @@ function toYM(iso: string) {
   return `${d.getFullYear()}年${d.getMonth() + 1}月〜`;
 }
 
+/** 「SINCE 2026.06」表記用 */
+function toSince(iso: string) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/** 会員番号の表示。3桁ゼロ埋め（1000人を超えたらそのまま） */
+function formatMemberNo(n: number) {
+  return `No.${n < 1000 ? String(n).padStart(3, "0") : String(n)}`;
+}
+
 // ─── コンポーネント ──────────────────────────────────────────────────────────
 
 type Props = {
@@ -118,13 +128,15 @@ type Props = {
   displayName: string;
   avatarUrl?: string | null;
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId" | "status">[];
+  /** spotId → 会員番号（joinedAt順の通し番号）。/api/spots/[spotId]/socio-number から取得して渡す */
+  memberNumbers?: Record<string, number | null>;
   /** LPデモなど閲覧専用の埋め込みでは false にして保存・コピー導線を隠す */
   showActions?: boolean;
   /** 暗い背景に埋め込む場合のヒント文字色の上書き */
   hintClassName?: string;
 };
 
-export function SocioCard({ uid, displayName, avatarUrl, memberships, showActions = true, hintClassName = "text-ink/58" }: Props) {
+export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumbers, showActions = true, hintClassName = "text-ink/58" }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
 
@@ -143,6 +155,12 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, showAction
   const dotCSS = useMemo(() => buildDotCSS(dots), [dots]);
 
   const spotsLabel = data.spotCount === 1 ? "SPOT" : "SPOTS";
+
+  // 表面に大きく表示する主会員情報（最初の有効な所属）
+  const primaryMembership = data.memberships[0] ?? null;
+  const primaryNumber = primaryMembership
+    ? memberNumbers?.[primaryMembership.spotId] ?? null
+    : null;
 
   // ─── tilt（表面のみ有効） ──────────────────────────────────────────────────
 
@@ -286,16 +304,34 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, showAction
                 <div className="rounded-full" style={{ width: 10, height: 10, background: "#e8261a", boxShadow: "0 0 8px rgba(232,38,26,0.7)" }} />
                 <span className="font-bold tracking-[0.22em] text-white" style={{ fontSize: 13 }}>SPOT</span>
               </div>
-              <span className="font-semibold tracking-[0.25em] text-white/70" style={{ fontSize: 11 }}>SUPPORTER</span>
+              <span className="font-semibold tracking-[0.2em] text-white/70" style={{ fontSize: 11 }}>応援会員証</span>
             </div>
 
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
-                <div className="font-bold text-white tabular-nums" style={{ fontSize: 28, lineHeight: 1, letterSpacing: "-0.01em" }}>
-                  {data.spotCount}
-                  <span className="ml-1.5 font-semibold text-white/70" style={{ fontSize: 13, letterSpacing: "0.15em" }}>{spotsLabel}</span>
-                </div>
-                <div className="mt-2 flex items-center gap-2 min-w-0">
+                {primaryMembership ? (
+                  <>
+                    <div className="truncate font-bold text-white" style={{ fontSize: 19, lineHeight: 1.25 }}>
+                      {primaryMembership.spotName}
+                    </div>
+                    <div className="mt-1.5 flex items-baseline gap-3">
+                      <span className="font-bold text-white tabular-nums" style={{ fontSize: 22, lineHeight: 1, letterSpacing: "0.02em" }}>
+                        {primaryNumber !== null && primaryNumber !== undefined
+                          ? formatMemberNo(primaryNumber)
+                          : "MEMBER"}
+                      </span>
+                      <span className="font-semibold tracking-[0.18em] text-white/60" style={{ fontSize: 10 }}>
+                        SINCE {toSince(primaryMembership.joinedAt)}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="font-bold text-white tabular-nums" style={{ fontSize: 28, lineHeight: 1 }}>
+                    {data.spotCount}
+                    <span className="ml-1.5 font-semibold text-white/70" style={{ fontSize: 13, letterSpacing: "0.15em" }}>{spotsLabel}</span>
+                  </div>
+                )}
+                <div className="mt-2.5 flex items-center gap-2 min-w-0">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
@@ -315,9 +351,9 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, showAction
                   </div>
                 </div>
               </div>
-              {showActions && (
-                <div className="shrink-0 rounded-[8px] bg-white p-1.5">
-                  <QRCode value={data.verifyUrl} size={52} bgColor="#ffffff" fgColor="#111111" level="M" />
+              {data.spotCount > 1 && (
+                <div className="shrink-0 rounded-full px-2.5 py-1" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                  <span className="font-bold text-white/80 tabular-nums" style={{ fontSize: 11 }}>+{data.spotCount - 1} SPOT</span>
                 </div>
               )}
             </div>
@@ -353,16 +389,19 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, showAction
                 <p className="text-xs text-white/60">まだSPOTに参加していません</p>
               ) : (
                 <ul className="space-y-1.5">
-                  {data.memberships.map((m) => (
-                    <li key={m.spotId} className="flex items-baseline justify-between gap-3">
-                      <span className="truncate font-semibold text-white/85" style={{ fontSize: 12 }}>
-                        {m.spotName}
-                      </span>
-                      <span className="shrink-0 text-white/55" style={{ fontSize: 10 }}>
-                        {toYM(m.joinedAt)}
-                      </span>
-                    </li>
-                  ))}
+                  {data.memberships.map((m) => {
+                    const n = memberNumbers?.[m.spotId];
+                    return (
+                      <li key={m.spotId} className="flex items-baseline justify-between gap-3">
+                        <span className="truncate font-semibold text-white/85" style={{ fontSize: 12 }}>
+                          {m.spotName}
+                        </span>
+                        <span className="shrink-0 text-white/55 tabular-nums" style={{ fontSize: 10 }}>
+                          {n !== null && n !== undefined ? `${formatMemberNo(n)} · ` : ""}{toYM(m.joinedAt)}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

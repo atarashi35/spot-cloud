@@ -330,6 +330,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     spotId: membership.spotId,
                     status: membership.status,
                   }]}
+                  memberNumbers={socioNumber !== null ? { [membership.spotId]: socioNumber } : undefined}
                 />
               </div>
             </div>
