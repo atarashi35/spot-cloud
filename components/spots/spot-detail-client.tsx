@@ -25,6 +25,8 @@ import { PlanAmount, Spot, UserMembership, planOptions } from "@/lib/types";
 import { isSvgAssetUrl } from "@/lib/utils";
 import { AppleWalletButton } from "@/components/account/apple-wallet-button";
 import { GoogleWalletButton } from "@/components/account/google-wallet-button";
+import { SocioCard } from "@/components/account/socio-card";
+import { ModalShell } from "@/components/ui/modal-shell";
 
 type FeedPost = {
   id: string; isPublic: boolean; publishDate: string;
@@ -302,37 +304,46 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
 
-      {showWelcomeBanner && (
-        <div className="rounded-[24px] border border-moss/25 bg-gradient-to-br from-moss/8 to-moss/4 px-6 py-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-moss">
-                <span className="text-lg">🎉</span>
-                <span className="text-sm font-bold tracking-wide">サポーターになりました</span>
+      {/* ── ウェルカムモーダル ── */}
+      <ModalShell
+        open={showWelcomeBanner}
+        onClose={() => setShowWelcomeBanner(false)}
+        title="🎉 サポーターになりました"
+        size="sm"
+      >
+        <div className="space-y-5">
+          {/* サポーター会員証プレビュー */}
+          {user && membership && (
+            <div className="flex justify-center">
+              <div className="w-full max-w-[320px]">
+                <SocioCard
+                  uid={user.uid}
+                  displayName={user.displayName ?? loadUserProfileCache()?.name ?? ""}
+                  avatarUrl={user.photoURL}
+                  memberships={[{
+                    spotName: membership.spotName,
+                    joinedAt: membership.joinedAt,
+                    spotId: membership.spotId,
+                    status: membership.status,
+                  }]}
+                />
               </div>
-              <p className="mt-1 text-xs text-ink/60">
-                サポーター会員証をウォレットに追加して、いつでも証明できるようにしましょう。
-              </p>
             </div>
-            <button
-              type="button"
-              className="shrink-0 text-xs text-ink/35 hover:text-ink"
-              onClick={() => setShowWelcomeBanner(false)}
-            >
-              ✕
-            </button>
-          </div>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          )}
+          {/* ウォレットボタン */}
+          <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex-1"><AppleWalletButton /></div>
             <div className="flex-1"><GoogleWalletButton /></div>
           </div>
-          <div className="mt-3 text-center">
-            <Link href="/account" className="text-xs text-ink/45 hover:text-ink underline">
-              サポーター会員証を確認する →
+          <p className="text-center text-xs text-ink/45">
+            会員証はいつでも{" "}
+            <Link href="/account" className="underline hover:text-ink" onClick={() => setShowWelcomeBanner(false)}>
+              マイページ
             </Link>
-          </div>
+            {" "}から確認できます。
+          </p>
         </div>
-      )}
+      </ModalShell>
 
       {showOwnerCta && (
         <div className="flex items-center justify-between gap-4 rounded-[20px] border border-moss/20 bg-moss/8 px-5 py-4">
