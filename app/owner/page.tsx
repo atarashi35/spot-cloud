@@ -473,7 +473,7 @@ export default function OwnerPage() {
             <p className="text-xs text-ink/50">月100〜500円でサポーターを集められます</p>
           </div>
           <Link href="/owner/spots/new" className="cta-primary shrink-0">
-            SPOTを作る →
+            無料でSPOTを作る →
           </Link>
         </div>
       )}
