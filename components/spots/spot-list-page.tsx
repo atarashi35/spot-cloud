@@ -335,11 +335,11 @@ export function SpotListPage() {
       <PageShell className="mt-10">
         <div className="rounded-[28px] border border-dashed border-ink/15 bg-white/60 px-6 py-8 text-center">
           <div className="text-sm font-bold text-ink/72">FOR OWNERS</div>
-          <p className="mt-2 text-base font-bold text-ink">あなたもSPOTを作りませんか？</p>
+          <p className="mt-2 text-base font-bold text-ink">あなたの店にも、応援会員を。</p>
           <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/68">
-            小さなファンクラブで、あなたの活動を応援する人を集めませんか？
+            月300円から、常連さんが店を続ける力になります。初期費用・月額費用は0円。
           </p>
-          <Link href="/owner" className="cta-primary mt-5 inline-flex">
+          <Link href="/" className="cta-primary mt-5 inline-flex">
             SPOTを作る
           </Link>
         </div>
