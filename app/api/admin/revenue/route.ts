@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe/config";
+import { stripe, BILLING_APPLICATION_FEE_PERCENT, STRIPE_PROCESSING_FEE_RATE } from "@/lib/stripe/config";
 import { verifyAdminToken } from "@/lib/server/admin";
 
 export async function GET(request: NextRequest) {
@@ -28,10 +28,15 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      const platformFee = fees.data.reduce((sum, f) => sum + f.amount, 0);
-      // GMV = application_fee / BILLING_APPLICATION_FEE_PERCENT
-      const feeRate = Number(process.env.BILLING_APPLICATION_FEE_PERCENT ?? "13.24") / 100;
-      const gmv = feeRate > 0 ? Math.round(platformFee / feeRate) : 0;
+      // application_fee.amount = Stripe が連結アカウントから徴収した gross application fee
+      const grossApplicationFee = fees.data.reduce((sum, f) => sum + f.amount, 0);
+      // GMV を逆算
+      const feeRate = BILLING_APPLICATION_FEE_PERCENT / 100;
+      const gmv = feeRate > 0 ? Math.round(grossApplicationFee / feeRate) : 0;
+      // 純プラットフォーム収益 = gross application fee − Stripe 処理手数料
+      // （Stripe が application fee から自身の処理手数料を差し引いた後の残高に一致）
+      const stripeFee = Math.round(gmv * STRIPE_PROCESSING_FEE_RATE);
+      const platformFee = grossApplicationFee - stripeFee;
 
       months.push({ label, gmv, platformFee });
     }
