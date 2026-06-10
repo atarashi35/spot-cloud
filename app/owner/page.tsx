@@ -152,12 +152,11 @@ export default function OwnerPage() {
                 継続型・超低額クラファン
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
-                <span className="block text-white/90">あなたの活動を、</span>
-                <span className="hero-gradient-text block">毎月応援してくれる<br className="sm:hidden" />人を集めよう。</span>
+                <span className="block text-white/90">月100〜500円で</span>
+                <span className="hero-gradient-text block">あなたのサポーターを<br className="sm:hidden" />募集できます。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
-                月100〜500円でサポーターを募集できます。<br />
-                SPOTは、活動を続けるための小さなファンクラブ作成サービスです。
+                組織・団体・プロジェクトのための、小さなファンクラブです。
               </p>
               <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
                 <Link
