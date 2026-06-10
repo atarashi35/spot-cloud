@@ -97,7 +97,7 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
         />
       </button>
       {open && (
-        <p className="pb-5 text-sm leading-7 text-ink/65">{a}</p>
+        <div className="pb-5 text-sm leading-7 text-ink/65">{a}</div>
       )}
     </div>
   );
