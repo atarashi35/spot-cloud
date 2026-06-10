@@ -14,7 +14,7 @@ import { AppNotification } from "@/lib/types";
 function notifHref(n: AppNotification): string {
   if (n.type === "new_post" && n.resourceId) return `/spots/${n.spotId}/posts/${n.resourceId}`;
   if (n.type === "new_event" && n.resourceId) return `/spots/${n.spotId}/events/${n.resourceId}`;
-  return `/spots/${n.spotId}/member`;
+  return `/spots/${n.spotId}`;
 }
 
 function timeAgo(iso: string) {

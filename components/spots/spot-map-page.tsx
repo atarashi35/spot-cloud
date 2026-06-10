@@ -5,8 +5,10 @@ import { SocioCard } from "@/components/account/socio-card";
 import { LogoAnimation } from "@/components/ui/logo-animation";
 import { PageShell } from "@/components/ui/page-shell";
 import { SpotCard } from "@/components/spot-card";
+import { listUpcomingPublicEventsFromFirestore } from "@/lib/firestore/events";
+import { listRecentPublicPostsFromFirestore } from "@/lib/firestore/posts";
 import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
-import { Spot } from "@/lib/types";
+import { Spot, SpotEvent, SpotPost } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
@@ -21,14 +23,19 @@ const demoMemberships = [
 
 export function SpotMapPage() {
   const [spots, setSpots] = useState<Spot[] | null>(null);
+  const [recentPosts, setRecentPosts] = useState<SpotPost[] | null>(null);
+  const [upcomingEvents, setUpcomingEvents] = useState<SpotEvent[] | null>(null);
 
   useEffect(() => {
     void listPublishedSpotsFromFirestore().then(setSpots).catch(() => setSpots([]));
+    void listRecentPublicPostsFromFirestore(4).then(setRecentPosts).catch(() => setRecentPosts([]));
+    void listUpcomingPublicEventsFromFirestore(4).then(setUpcomingEvents).catch(() => setUpcomingEvents([]));
   }, []);
 
   const preview = spots?.slice(0, PREVIEW_COUNT) ?? null;
 
   const proofRef = useScrollReveal<HTMLDivElement>({ threshold: 0.25 });
+  const activityRef = useScrollReveal<HTMLDivElement>({ threshold: 0.15 });
   const aboutHeadingRef = useScrollReveal<HTMLDivElement>({ threshold: 0.3 });
   const aboutRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 90 });
   const counterRef = useScrollReveal<HTMLDivElement>({ threshold: 0.3 });
@@ -220,6 +227,126 @@ export function SpotMapPage() {
           </div>
         </PageShell>
       )}
+
+      {/* ── 最近の動き ── */}
+      {(() => {
+        const spotNameMap = new Map(spots?.map((s) => [s.id, s.name]) ?? []);
+        const publishedSpotIds = new Set(spots?.map((s) => s.id) ?? []);
+
+        // 公開済みSPOTの投稿・イベントのみ表示
+        const posts = recentPosts?.filter((p) => publishedSpotIds.has(p.spotId)) ?? [];
+        const events = upcomingEvents?.filter((e) => publishedSpotIds.has(e.spotId)) ?? [];
+
+        // 全データ取得後に投稿・イベントが両方0件なら非表示
+        if (spots !== null && recentPosts !== null && upcomingEvents !== null && posts.length === 0 && events.length === 0) return null;
+
+        return (
+          <PageShell className="py-12">
+            <div ref={activityRef} className="reveal space-y-10">
+              <div className="px-1">
+                <div className="text-sm font-bold text-ink/65">ACTIVITY</div>
+                <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">最近の動き</h2>
+              </div>
+
+              {/* 最新の投稿 */}
+              {(recentPosts === null || posts.length > 0) && (
+                <div>
+                  <h3 className="mb-3 px-1 text-sm font-bold text-ink/65">最新の投稿</h3>
+                  {recentPosts === null ? (
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      {[1,2,3,4].map((i) => (
+                        <div key={i} className="h-52 animate-pulse rounded-2xl bg-mist" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      {posts.map((post) => {
+                        const thumb = post.attachments?.find((a) => a.type === "image")?.url ?? post.imageUrl;
+                        return (
+                          <Link
+                            key={post.id}
+                            href={`/spots/${post.spotId}/posts/${post.id}`}
+                            className="group flex flex-col overflow-hidden rounded-2xl border border-ink/8 bg-white transition hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(19,35,28,0.08)]"
+                          >
+                            {thumb ? (
+                              <div className="h-36 w-full overflow-hidden bg-mist">
+                                <img src={thumb} alt="" className="h-full w-full object-cover transition group-hover:scale-[1.03]" />
+                              </div>
+                            ) : (
+                              <div className="h-36 w-full bg-mist" />
+                            )}
+                            <div className="flex flex-col p-4">
+                              <span className="text-xs font-semibold text-moss truncate">
+                                {spotNameMap.get(post.spotId) ?? "SPOT"}
+                              </span>
+                              <span className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-ink group-hover:text-moss transition-colors">
+                                {post.title}
+                              </span>
+                              <span className="mt-2 text-xs text-ink/50">
+                                {new Date(post.publishDate).toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}
+                              </span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 直近のイベント */}
+              {(upcomingEvents === null || events.length > 0) && (
+                <div>
+                  <h3 className="mb-3 px-1 text-sm font-bold text-ink/65">直近のイベント</h3>
+                  {upcomingEvents === null ? (
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      {[1,2,3,4].map((i) => (
+                        <div key={i} className="h-52 animate-pulse rounded-2xl bg-mist" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      {events.map((event) => {
+                        const start = new Date(event.startAt);
+                        return (
+                          <Link
+                            key={event.id}
+                            href={`/spots/${event.spotId}`}
+                            className="group flex flex-col overflow-hidden rounded-2xl border border-ink/8 bg-white transition hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(19,35,28,0.08)]"
+                          >
+                            {event.imageUrl ? (
+                              <div className="h-36 w-full overflow-hidden bg-mist">
+                                <img src={event.imageUrl} alt="" className="h-full w-full object-cover transition group-hover:scale-[1.03]" />
+                              </div>
+                            ) : (
+                              <div className="flex h-36 w-full items-center justify-center bg-mist">
+                                <span className="text-2xl">📅</span>
+                              </div>
+                            )}
+                            <div className="flex flex-col p-4">
+                              <span className="text-xs font-semibold text-moss truncate">
+                                {spotNameMap.get(event.spotId) ?? "SPOT"}
+                              </span>
+                              <span className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-ink group-hover:text-moss transition-colors">
+                                {event.title}
+                              </span>
+                              <span className="mt-2 text-xs text-ink/50">
+                                {start.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}
+                                {" "}
+                                {start.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
+                              </span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </PageShell>
+        );
+      })()}
 
       {/* ── SPOT プレビュー ── */}
       <PageShell className="py-10">

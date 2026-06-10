@@ -4,10 +4,13 @@ import {
   Timestamp,
   addDoc,
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   serverTimestamp,
   where
@@ -65,6 +68,21 @@ function mapPost(spotId: string, id: string, data: Record<string, unknown>): Spo
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
   };
+}
+
+export async function listRecentPublicPostsFromFirestore(maxCount = 4): Promise<SpotPost[]> {
+  const q = query(
+    collectionGroup(getFirestoreDb(), "posts"),
+    where("isPublic", "==", true),
+    orderBy("publishDate", "desc"),
+    limit(maxCount)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((item) => {
+    // パス: spots/{spotId}/posts/{postId}
+    const spotId = item.ref.parent.parent?.id ?? "";
+    return mapPost(spotId, item.id, item.data());
+  });
 }
 
 export async function listSpotPostsFromFirestore(spotId: string, opts?: { publicOnly?: boolean }) {

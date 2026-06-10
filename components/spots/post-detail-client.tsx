@@ -162,8 +162,8 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
       </article>
 
       <div className="text-sm">
-        <Link href={`/spots/${spotId}/member`} className="text-ink/68 hover:text-ink transition-colors">
-          ← {spot.name} の限定ページに戻る
+        <Link href={`/spots/${spotId}`} className="text-ink/68 hover:text-ink transition-colors">
+          ← {spot.name} に戻る
         </Link>
       </div>
     </div>

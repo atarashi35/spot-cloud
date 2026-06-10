@@ -84,6 +84,15 @@ service cloud.firestore {
       }
     }
 
+    // collectionGroup クエリ用（公開投稿・イベントをトップページで横断取得）
+    match /{path=**}/posts/{postId} {
+      allow read: if resource.data.isPublic == true;
+    }
+
+    match /{path=**}/events/{eventId} {
+      allow read: if resource.data.isPublic == true;
+    }
+
     match /users/{uid} {
       // profileDisplayName など自分のプロフィールフィールドの読み書き
       allow read, write: if signedIn() && request.auth.uid == uid;

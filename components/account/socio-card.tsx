@@ -315,9 +315,11 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, showAction
                   </div>
                 </div>
               </div>
-              <div className="shrink-0 rounded-[8px] bg-white p-1.5">
-                <QRCode value={data.verifyUrl} size={52} bgColor="#ffffff" fgColor="#111111" level="M" />
-              </div>
+              {showActions && (
+                <div className="shrink-0 rounded-[8px] bg-white p-1.5">
+                  <QRCode value={data.verifyUrl} size={52} bgColor="#ffffff" fgColor="#111111" level="M" />
+                </div>
+              )}
             </div>
           </div>
         </div>

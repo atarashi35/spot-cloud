@@ -30,7 +30,9 @@ import { ModalShell } from "@/components/ui/modal-shell";
 
 type FeedPost = {
   id: string; isPublic: boolean; publishDate: string;
-  title: string; body: string; imageUrl: string | null; masked: boolean;
+  title: string; body: string; imageUrl: string | null;
+  attachments: { url: string; type: string }[];
+  masked: boolean;
 };
 type FeedEvent = {
   id: string; isPublic: boolean; startAt: string;
@@ -667,14 +669,15 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     <p className="text-[15px] text-ink/65">投稿はありません。</p>
                   ) : allPosts.map((post) => {
                     const isLocked = locked && !post.isPublic;
+                    const thumb = post.attachments?.find((a) => a.type === "image")?.url ?? post.imageUrl;
                     return (
                       <article key={post.id} className="relative overflow-hidden rounded-[20px] border border-ink/8 bg-white">
-                        {post.imageUrl ? (
-                          <div className="relative h-44 w-full">
-                            <Image src={post.imageUrl} alt={post.title} fill className={`object-cover ${isLocked ? "blur-sm" : ""}`} sizes="(max-width:768px) 100vw, 50vw" />
+                        {thumb ? (
+                          <div className="relative h-44 w-full overflow-hidden">
+                            <Image src={thumb} alt={post.title} fill className={`object-cover transition group-hover:scale-[1.02] ${isLocked ? "blur-sm" : ""}`} sizes="(max-width:768px) 100vw, 50vw" />
                           </div>
                         ) : null}
-                        <div className={`p-5 ${isLocked ? "blur-[2px] select-none" : ""} ${isLocked && !post.imageUrl ? "min-h-[160px]" : ""}`}>
+                        <div className={`p-5 ${isLocked ? "blur-[2px] select-none" : ""} ${isLocked && !thumb ? "min-h-[160px]" : ""}`}>
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold text-ink/65">{post.publishDate}</span>
                             {!post.isPublic && (
@@ -718,7 +721,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     return (
                       <article key={event.id} className="relative overflow-hidden rounded-[20px] border border-ink/8 bg-white">
                         {event.imageUrl ? (
-                          <div className="relative h-44 w-full">
+                          <div className="relative h-44 w-full overflow-hidden">
                             <Image src={event.imageUrl} alt={event.title} fill className={`object-cover ${isLocked ? "blur-sm" : ""}`} sizes="(max-width:768px) 100vw, 50vw" />
                           </div>
                         ) : null}

@@ -52,6 +52,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ spot
       title: masked ? "" : String(data.title ?? ""),
       body: masked ? "" : String(data.body ?? ""),
       imageUrl: masked ? null : (data.imageUrl || null),
+      attachments: masked ? [] : (Array.isArray(data.attachments) ? data.attachments : []),
       masked,
     };
   });

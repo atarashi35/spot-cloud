@@ -4,11 +4,14 @@ import {
   Timestamp,
   addDoc,
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
   increment,
+  limit,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -61,6 +64,22 @@ function mapEvent(spotId: string, id: string, data: Record<string, unknown>): Sp
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
   };
+}
+
+export async function listUpcomingPublicEventsFromFirestore(maxCount = 4): Promise<SpotEvent[]> {
+  const now = new Date().toISOString();
+  const q = query(
+    collectionGroup(getFirestoreDb(), "events"),
+    where("isPublic", "==", true),
+    where("startAt", ">=", now),
+    orderBy("startAt", "asc"),
+    limit(maxCount)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((item) => {
+    const spotId = item.ref.parent.parent?.id ?? "";
+    return mapEvent(spotId, item.id, item.data());
+  });
 }
 
 export async function listSpotEventsFromFirestore(spotId: string, opts?: { publicOnly?: boolean }) {

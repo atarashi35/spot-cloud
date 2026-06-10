@@ -9,3 +9,4 @@ tsconfig.tsbuildinfo
 
 # wallet secrets
 secrets/
+.DS_Store
