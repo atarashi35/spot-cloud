@@ -149,11 +149,11 @@ export default function OwnerPage() {
                 継続型・超低額クラファン
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
-                <span className="block text-white/90">月100〜500円で応援してくれる</span>
-                <span className="hero-gradient-text block">サポーターを、集められます。</span>
+                <span className="block text-white/90">あなたの活動を応援する</span>
+                <span className="hero-gradient-text block">サポーターを、募集できます。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
-                組織・団体・プロジェクトのための、小さなファンクラブです。
+                サポーターは、月100〜500円から参加できます。
               </p>
               <div className="hero-animate-3 mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold text-white/70">
                 <span className="h-1.5 w-1.5 rounded-full bg-moss" />
