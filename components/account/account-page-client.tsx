@@ -13,8 +13,7 @@ import { listSpotPostsFromFirestore } from "@/lib/firestore/posts";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { UserMembership } from "@/lib/types";
 import { SocioCard } from "@/components/account/socio-card";
-import { AppleWalletButton } from "@/components/account/apple-wallet-button";
-import { GoogleWalletButton } from "@/components/account/google-wallet-button";
+import { FEATURE_EVENTS } from "@/lib/flags";
 import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
 
@@ -250,14 +249,12 @@ export function AccountPageClient() {
                 <span className="text-xs font-normal text-moss/70">カードに表示される名前を変更できます →</span>
               </Link>
             ) : null}
-            <AppleWalletButton />
-            <GoogleWalletButton />
           </div>
         </section>
       ) : null}
 
-      {/* 今後のイベント（全SPOT横断） */}
-      {upcomingEvents.length > 0 ? (
+      {/* 今後のイベント（全SPOT横断）（凍結中: FEATURE_EVENTS） */}
+      {FEATURE_EVENTS && upcomingEvents.length > 0 ? (
         <section className="space-y-3">
           <h2 className="px-2 text-sm font-bold text-ink/72">今後のイベント</h2>
           <div className="panel divide-y divide-ink/8 overflow-hidden px-6 sm:px-8">

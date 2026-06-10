@@ -1,7 +1,9 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { notFound } from "next/navigation";
 import { Loader2, Trash2 } from "lucide-react";
+import { FEATURE_VOICES } from "@/lib/flags";
 import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { VoteForm } from "@/components/owner/vote-form";
@@ -60,6 +62,11 @@ function OpenQuestionResults({ responses }: { responses: VoteResponse[] }) {
 }
 
 export default function VoicesManagePage({ params }: { params: Promise<{ spotId: string }> }) {
+  // 凍結中（FEATURE_VOICES）。フラグは定数のためフックの実行順は変わらない
+  if (!FEATURE_VOICES) {
+    notFound();
+  }
+
   const { spotId } = use(params);
   const { user } = useAuth();
   const [spot, setSpot] = useState<Spot | null>(null);

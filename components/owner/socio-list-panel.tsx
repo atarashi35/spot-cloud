@@ -23,15 +23,13 @@ const STATUS_TONE: Record<SpotMembership["status"], "success" | "warning" | "neu
 };
 
 function exportCsv(members: SpotMembership[], spotName: string) {
-  const header = ["お名前", "所属", "メール", "プラン", "ステータス", "年齢", "性別", "住所", "加入日"];
+  const header = ["お名前", "所属", "メール", "プラン", "ステータス", "住所", "加入日"];
   const rows = members.map((m) => [
     m.displayName,
     m.affiliation ?? "",
     m.email,
     `¥${m.planAmount}`,
     STATUS_LABEL[m.status],
-    m.ageRange ?? "",
-    m.gender ?? "",
     m.address ?? "",
     m.joinedAt.slice(0, 10)
   ]);
@@ -268,8 +266,6 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                     <div className="mt-2 flex flex-wrap gap-3 text-[13px] text-ink/65">
                       {m.occupation ? <span>{m.occupation}</span> : null}
                       {m.specialty ? <span className="text-ink/58">✦ {m.specialty}</span> : null}
-                      {m.ageRange ? <span>{m.ageRange}</span> : null}
-                      {m.gender ? <span>{m.gender}</span> : null}
                       {m.address ? <span>📮 {m.address}</span> : null}
                       <span>加入 {m.joinedAt.slice(0, 10)}</span>
                     </div>

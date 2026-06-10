@@ -12,23 +12,10 @@ import { resolveDisplayName } from "@/lib/user-profile";
 import { PostalCodeField } from "@/components/forms/postal-code-field";
 import {
   PlanAmount,
-  SocioAgeRange,
-  SocioGender,
   Spot,
   SpotCategory,
   planOptions
 } from "@/lib/types";
-
-const ageRangeOptions: SocioAgeRange[] = [
-  "10代以下",
-  "20代",
-  "30代",
-  "40代",
-  "50代",
-  "60代以上"
-];
-
-const genderOptions: SocioGender[] = ["女性", "男性", "その他", "回答しない"];
 
 type Step = "login" | "email_sent" | "profile";
 
@@ -58,8 +45,6 @@ export function SocioSignupModal({
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [affiliation, setAffiliation] = useState("");
-  const [ageRange, setAgeRange] = useState("");
-  const [gender, setGender] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [addressLine, setAddressLine] = useState("");
 
@@ -77,8 +62,6 @@ export function SocioSignupModal({
 
     if (user) {
       const cached = loadUserProfileCache();
-      setAgeRange(cached?.ageRange ?? "");
-      setGender(cached?.gender ?? "");
       setAffiliation("");
       setEmail(user.email ?? "");
       setStep("profile");
@@ -94,8 +77,6 @@ export function SocioSignupModal({
       setEmail("");
       setName("");
       setAffiliation("");
-      setAgeRange("");
-      setGender("");
       setStep(initialStep ?? "login");
     }
   }, [open, defaultPlan, user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -202,7 +183,7 @@ export function SocioSignupModal({
     setError(null);
 
     // 次回以降のモーダルで自動入力できるようにキャッシュ保存
-    saveUserProfileCache({ name: name.trim(), ageRange, gender });
+    saveUserProfileCache({ name: name.trim() });
 
     try {
       const idToken = await user.getIdToken();
@@ -218,8 +199,6 @@ export function SocioSignupModal({
           planAmount,
           name: name.trim(),
           affiliation: affiliation.trim() || undefined,
-          ageRange: ageRange || undefined,
-          gender: gender || undefined,
           address: addressLine.trim() ? `〒${postalCode} ${addressLine.trim()}` : undefined,
         })
       });
@@ -394,32 +373,6 @@ export function SocioSignupModal({
                     />
                     <p className="text-[13px] text-ink/60">特典の送付などに利用します。オーナーのみ閲覧できます。</p>
                   </div>
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-ink/72">年齢（任意）</span>
-                    <select
-                      className="field h-14"
-                      value={ageRange}
-                      onChange={(e) => setAgeRange(e.target.value)}
-                    >
-                      <option value="">選択しない</option>
-                      {ageRangeOptions.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-ink/72">性別（任意）</span>
-                    <select
-                      className="field h-14"
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                    >
-                      <option value="">選択しない</option>
-                      {genderOptions.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
-                  </label>
                 </div>
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">

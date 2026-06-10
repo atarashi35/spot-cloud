@@ -7,8 +7,6 @@ export const USER_PROFILE_CACHE_KEY = "spot_user_profile";
 
 export type UserProfileCache = {
   name: string;
-  ageRange: string;
-  gender: string;
 };
 
 export function saveUserProfileCache(profile: UserProfileCache) {

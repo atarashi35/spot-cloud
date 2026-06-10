@@ -23,8 +23,7 @@ import { EMAIL_JOIN_PENDING_KEY, EmailJoinPending } from "@/lib/auth/email-link"
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
 import { PlanAmount, Spot, UserMembership, isSignupPlan, planOptions } from "@/lib/types";
 import { isSvgAssetUrl } from "@/lib/utils";
-import { AppleWalletButton } from "@/components/account/apple-wallet-button";
-import { GoogleWalletButton } from "@/components/account/google-wallet-button";
+import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { SocioCard } from "@/components/account/socio-card";
 import { ModalShell } from "@/components/ui/modal-shell";
 
@@ -335,11 +334,6 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
             </div>
           )}
-          {/* ウォレットボタン */}
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="flex-1"><AppleWalletButton /></div>
-            <div className="flex-1"><GoogleWalletButton /></div>
-          </div>
           <p className="text-center text-xs text-ink/65">
             会員証はいつでも{" "}
             <Link href="/account" className="underline hover:text-ink" onClick={() => setShowWelcomeBanner(false)}>
@@ -568,8 +562,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   <ul className="space-y-3">
                     {[
                       "限定の投稿が読める",
-                      "限定イベントに参加できる",
-                      "このSPOTの活動を支える",
+                      "番号入りの会員証を持てる",
+                      "このSPOTの継続を支える",
                     ].map((text) => (
                       <li key={text} className="flex items-center gap-2.5 text-[15px] text-white/80">
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-400/20 text-xs font-bold text-teal-400">✓</span>
@@ -656,14 +650,14 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       {/* ── 統合フィード ─────────────────────────────────────────────── */}
       {(() => {
         const allPosts = posts;
-        const allEvents = events;
+        const allEvents = FEATURE_EVENTS ? events : [];
         if (allPosts.length === 0 && allEvents.length === 0 && !isOwner) return null;
 
         const locked = !canViewMembersArea;
 
         return (
           <section className="panel px-6 py-8 sm:px-8">
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className={`grid gap-6 ${FEATURE_EVENTS ? "lg:grid-cols-[1.1fr_0.9fr]" : ""}`}>
               {/* 投稿列 */}
               <div className="rounded-[28px] bg-white/60 p-6">
                 <h3 className="text-2xl font-extrabold text-ink">投稿</h3>
@@ -713,7 +707,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
               </div>
 
-              {/* イベント列 */}
+              {/* イベント列（凍結中: FEATURE_EVENTS） */}
+              {FEATURE_EVENTS && (
               <div className="rounded-[28px] bg-white/60 p-6">
                 <h3 className="text-2xl font-extrabold text-ink">イベント</h3>
                 <div className="mt-4 space-y-4">
@@ -772,11 +767,13 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   })}
                 </div>
               </div>
+              )}
             </div>
           </section>
         );
       })()}
-      {/* ── みんなの声 ────────────────────────────────────────────────── */}
+      {/* ── みんなの声（凍結中: FEATURE_VOICES） ─────────────────────── */}
+      {FEATURE_VOICES && (
       <VoicesSection
         spotId={spotId}
         uid={canViewMembersArea || isOwner ? user?.uid : undefined}
@@ -787,6 +784,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         isOwner={isOwner}
         onSignupClick={() => setSignupModalOpen(true)}
       />
+      )}
 
       {/* ── スティッキー 応援会員になるCTA ─────────────────────────────── */}
       {showStickyJoin && (

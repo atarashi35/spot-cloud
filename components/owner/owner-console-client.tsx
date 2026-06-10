@@ -16,6 +16,7 @@ import {
   setSpotPublished
 } from "@/lib/firestore/spots";
 import { getSocioRankProgress } from "@/lib/socio-rank";
+import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { Spot } from "@/lib/types";
 import { RecentSociosPanel } from "@/components/owner/recent-socios-panel";
 import { OpinionBoxPanel } from "@/components/owner/opinion-box-panel";
@@ -525,7 +526,7 @@ export function OwnerConsoleClient() {
               />
 
               {/* プライマリアクション（高頻度） */}
-              <div className="mt-6 grid grid-cols-3 gap-2">
+              <div className={`mt-6 grid gap-2 ${FEATURE_EVENTS || FEATURE_VOICES ? "grid-cols-3" : "grid-cols-2"}`}>
                 <button
                   type="button"
                   onClick={() => setPostModal({ spotId: spot.id, mode: "create" })}
@@ -534,17 +535,27 @@ export function OwnerConsoleClient() {
                   <span className="text-xs font-semibold">投稿</span>
                 </button>
                 <a
+                  href={`/manage/${spot.id}/pop`}
+                  className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
+                >
+                  <span className="text-xs font-semibold">店頭POP</span>
+                </a>
+                {FEATURE_EVENTS && (
+                <a
                   href={`/manage/${spot.id}/events`}
                   className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
                   <span className="text-xs font-semibold">イベント</span>
                 </a>
+                )}
+                {FEATURE_VOICES && (
                 <a
                   href={`/manage/${spot.id}/voices`}
                   className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
                   <span className="text-xs font-semibold">アンケート</span>
                 </a>
+                )}
               </div>
 
               {/* セカンダリリンク（低頻度） */}
