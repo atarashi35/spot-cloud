@@ -146,7 +146,7 @@ export default function OwnerPage() {
             {/* 左：コピー */}
             <div>
               <div className="hero-animate-1 inline-flex items-center rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-white/50">
-                継続型・超低額クラファン
+                組織・団体・プロジェクトのファンクラブ
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
                 <span className="block text-white/90">あなたの活動を応援する</span>
@@ -381,7 +381,7 @@ export default function OwnerPage() {
       {showStickyCta && (
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
-            <p className="text-sm font-bold text-ink">継続型・超低額クラファン</p>
+            <p className="text-sm font-bold text-ink">組織・団体・プロジェクトのファンクラブ</p>
             <p className="text-xs text-ink/50">月100〜500円でサポーターを集められます</p>
           </div>
           <Link href="/owner/spots/new" className="cta-primary shrink-0">
