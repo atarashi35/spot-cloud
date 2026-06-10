@@ -151,12 +151,6 @@ export default function OwnerPage() {
                 >
                   SPOTを作る →
                 </Link>
-                <Link
-                  href="/manage"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-moss hover:bg-moss hover:text-white active:scale-[0.97]"
-                >
-                  運営中のSPOTを見る
-                </Link>
               </div>
             </div>
 
