@@ -17,7 +17,7 @@ export function SociosNewPostEmail({ spotName, spotId, postTitle, postBody, disp
     <EmailLayout preview={`${spotName}から新しいお知らせが届きました`}>
       <Heading style={h1}>{spotName}からのお知らせ</Heading>
       <Text style={text}>
-        {displayName ? `${displayName}さん、` : ""}ソシオとして参加されている <strong>{spotName}</strong> から新しいお知らせが届きました。
+        {displayName ? `${displayName}さん、` : ""}サポーターとして参加されている <strong>{spotName}</strong> から新しいお知らせが届きました。
       </Text>
       <div style={card}>
         <Text style={postTitleStyle}>{postTitle}</Text>

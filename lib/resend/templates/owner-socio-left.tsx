@@ -13,13 +13,13 @@ type Props = {
 
 export function OwnerSocioLeftEmail({ spotName, spotId, socioName, totalSocios }: Props) {
   return (
-    <EmailLayout preview={`ソシオが解約しました — ${spotName}`}>
-      <Heading style={h1}>ソシオが解約しました</Heading>
+    <EmailLayout preview={`サポーターが解約しました — ${spotName}`}>
+      <Heading style={h1}>サポーターが解約しました</Heading>
       <Text style={text}>
-        <strong>{spotName}</strong> のソシオ <strong>{socioName || "メンバー"}</strong> さんが解約しました。
+        <strong>{spotName}</strong> のサポーター <strong>{socioName || "メンバー"}</strong> さんが解約しました。
       </Text>
       <Text style={text}>
-        現在のソシオ数：<strong>{totalSocios} 人</strong>
+        現在のサポーター数：<strong>{totalSocios} 人</strong>
       </Text>
       <Button href={`${baseUrl}/owner/spots/${spotId}`} style={button}>
         管理画面を開く

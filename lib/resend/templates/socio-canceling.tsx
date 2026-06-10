@@ -13,14 +13,14 @@ type Props = {
 
 export function SocioCancelingEmail({ spotName, spotId, displayName, periodEnd }: Props) {
   return (
-    <EmailLayout preview={`${spotName}のソシオ解約手続きを受け付けました`}>
+    <EmailLayout preview={`${spotName}のサポーター解約手続きを受け付けました`}>
       <Heading style={h1}>解約手続きを受け付けました</Heading>
       <Text style={text}>
         {displayName ? `${displayName}さん、` : ""}
-        <strong>{spotName}</strong> のソシオ解約手続きを受け付けました。
+        <strong>{spotName}</strong> のサポーター解約手続きを受け付けました。
       </Text>
       <Text style={text}>
-        現在の請求期間が終了する <strong>{periodEnd}</strong> まで引き続きソシオとして参加できます。
+        現在の請求期間が終了する <strong>{periodEnd}</strong> まで引き続きサポーターとして参加できます。
         期日以降は自動的に解約となります。
       </Text>
       <Button href={`${baseUrl}/spots/${spotId}`} style={button}>
