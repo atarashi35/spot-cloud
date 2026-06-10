@@ -145,8 +145,12 @@ export default function OwnerPage() {
 
             {/* 左：コピー */}
             <div>
-              <div className="hero-animate-1 inline-flex items-center rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-white/50">
-                組織・団体・プロジェクトのファンクラブ
+              <div className="hero-animate-1 relative inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-2">
+                <span className="hero-pulse relative flex h-2 w-2 shrink-0">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-moss opacity-75" style={{animation:"ping 1.5s cubic-bezier(0,0,0.2,1) infinite"}} />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-moss" />
+                </span>
+                <span className="text-sm font-semibold text-white/70">組織・団体・プロジェクトのファンクラブ</span>
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
                 <span className="block text-white/90">あなたの活動を応援する</span>

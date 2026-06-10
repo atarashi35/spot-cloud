@@ -40,22 +40,18 @@ export function SpotMapPage() {
 
             {/* 左：コピー */}
             <div>
-              <div className="hero-animate-1 relative inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5">
+              <div className="hero-animate-1 relative inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-2">
                 <span className="hero-pulse relative flex h-2 w-2 shrink-0">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-moss opacity-75" style={{animation:"ping 1.5s cubic-bezier(0,0,0.2,1) infinite"}} />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-moss" />
                 </span>
-                <span className="text-[11px] font-semibold tracking-[0.2em] text-white/60">好きな活動を、まるごと応援。</span>
+                <span className="text-sm font-semibold text-white/70">好きな活動を、まるごと応援。</span>
               </div>
 
               <h1 className="hero-animate-2 mt-6 text-[clamp(2.6rem,8vw,5.5rem)] font-bold leading-[1.08] tracking-tight">
                 <span className="block text-white/90">月100〜500円で</span>
                 <span className="hero-gradient-text block">箱推し、しよう。</span>
               </h1>
-
-              <p className="hero-animate-3 mt-6 text-[15px] leading-relaxed text-white/70 sm:text-base">
-                気になるSPOTを見つけて、活動をまるごと応援できます。
-              </p>
 
               <div className="hero-animate-4 mt-10 flex flex-wrap items-center gap-3">
                 <Link href="/spots" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]">
