@@ -562,7 +562,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 ) : (
                   <ul className="space-y-3">
                     {[
-                      "限定のお知らせが読める",
+                      "限定の投稿が読める",
                       "限定イベントに参加できる",
                       "このSPOTの活動を支える",
                     ].map((text) => (
@@ -659,12 +659,12 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         return (
           <section className="panel px-6 py-8 sm:px-8">
             <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              {/* お知らせ列 */}
+              {/* 投稿列 */}
               <div className="rounded-[28px] bg-white/60 p-6">
-                <h3 className="text-2xl font-extrabold text-ink">お知らせ</h3>
+                <h3 className="text-2xl font-extrabold text-ink">投稿</h3>
                 <div className="mt-4 space-y-4">
                   {allPosts.length === 0 ? (
-                    <p className="text-[15px] text-ink/65">お知らせはありません。</p>
+                    <p className="text-[15px] text-ink/65">投稿はありません。</p>
                   ) : allPosts.map((post) => {
                     const isLocked = locked && !post.isPublic;
                     return (

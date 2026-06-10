@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SocioCard } from "@/components/account/socio-card";
 import { LogoAnimation } from "@/components/ui/logo-animation";
 import { PageShell } from "@/components/ui/page-shell";
 import { SpotCard } from "@/components/spot-card";
@@ -11,6 +12,13 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const PREVIEW_COUNT = 6;
 
+// ヒーロー直下のデモカード用ダミーデータ（実在しない架空のSPOT）
+const demoMemberships = [
+  { spotId: "demo-coffee", spotName: "つばめ珈琲店", joinedAt: "2025-04-01T00:00:00.000Z", status: "active" as const },
+  { spotId: "demo-fc", spotName: "まちかどFC", joinedAt: "2025-09-01T00:00:00.000Z", status: "active" as const },
+  { spotId: "demo-gallery", spotName: "路地裏ギャラリー", joinedAt: "2026-01-01T00:00:00.000Z", status: "active" as const },
+];
+
 export function SpotMapPage() {
   const [spots, setSpots] = useState<Spot[] | null>(null);
 
@@ -20,6 +28,7 @@ export function SpotMapPage() {
 
   const preview = spots?.slice(0, PREVIEW_COUNT) ?? null;
 
+  const proofRef = useScrollReveal<HTMLDivElement>({ threshold: 0.25 });
   const aboutHeadingRef = useScrollReveal<HTMLDivElement>({ threshold: 0.3 });
   const aboutRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 90 });
   const counterRef = useScrollReveal<HTMLDivElement>({ threshold: 0.3 });
@@ -79,6 +88,31 @@ export function SpotMapPage() {
               <LogoAnimation className="h-[320px] w-[320px] opacity-20" />
             </div>
 
+          </div>
+        </div>
+      </div>
+
+      {/* ── 応援の証（デモカード） ── */}
+      <div className="bg-white px-4 py-20 sm:px-6 lg:px-8">
+        <div ref={proofRef} className="reveal mx-auto max-w-6xl">
+          <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-16">
+            <div>
+              <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                応援は、カードに残る。
+              </h2>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-ink/68">
+                応援するSPOTが増えると、数字と星が増えていきます。
+              </p>
+            </div>
+            <div className="mx-auto mt-10 w-full max-w-md lg:mt-0">
+              <SocioCard
+                uid="demo-supporter"
+                displayName="あなたの名前"
+                memberships={demoMemberships}
+                showActions={false}
+                hintClassName="text-ink/50"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -153,7 +187,7 @@ export function SpotMapPage() {
                 ["かたち", "一度きりの資金集め", "毎月続くファンクラブ"],
                 ["目的", "目標額を達成する", "続く関係をつくる"],
                 ["終わり方", "達成したら終了", "ずっと続いていく"],
-                ["関係", "支援したら終わり", "投票・お知らせで関わり続ける"],
+                ["関係", "支援したら終わり", "投票・投稿で関わり続ける"],
               ].map(([row, cfCol, spotCol]) => (
                 <div key={row} className="grid grid-cols-3 border-t border-ink/8">
                   <span className="px-4 py-3 font-semibold text-ink/60">{row}</span>

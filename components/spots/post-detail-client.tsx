@@ -55,7 +55,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
   if (!post || !spot) {
     return (
       <div className="shell">
-        <EmptyState title="お知らせが見つかりません" description="このお知らせは存在しないか、削除された可能性があります。" />
+        <EmptyState title="投稿が見つかりません" description="この投稿は存在しないか、削除された可能性があります。" />
       </div>
     );
   }
@@ -68,7 +68,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
-            title="このお知らせはサポーター限定です"
+            title="この投稿はサポーター限定です"
             description="加入済みサポーターのみ閲覧できます。"
           />
           <Link href={`/spots/${spotId}/join`} className="cta-primary mt-6">
@@ -84,7 +84,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
       <nav className="text-sm text-ink/68">
         <Link href={`/spots/${spotId}`} className="hover:text-ink transition-colors">{spot.name}</Link>
         <span className="mx-2">/</span>
-        <span>お知らせ</span>
+        <span>投稿</span>
       </nav>
 
       <article className="panel px-6 py-8 sm:px-8">

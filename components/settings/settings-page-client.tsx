@@ -518,7 +518,7 @@ export function SettingsPageClient() {
           <StatusBadge>準備中</StatusBadge>
         </div>
         <p className="mt-4 text-sm text-ink/72">
-          お知らせやイベント更新の通知設定はここに集約します。
+          投稿やイベント更新の通知設定はここに集約します。
         </p>
       </section>
 

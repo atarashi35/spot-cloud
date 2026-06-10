@@ -70,7 +70,7 @@ function toEventLabel(iso: string) {
 }
 
 
-/** SPOT ごとの直近お知らせ・イベントを並列取得 */
+/** SPOT ごとの直近投稿・イベントを並列取得 */
 async function fetchSpotPreview(user: User, spotId: string): Promise<SpotPreview & { currentName: string | null }> {
   const now = new Date();
   void user;
@@ -321,13 +321,13 @@ export function AccountPageClient() {
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
                     {preview.latestPost ? (
                       <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
-                        <div className="font-semibold tracking-[0.15em] text-ink/65">最新のお知らせ</div>
+                        <div className="font-semibold tracking-[0.15em] text-ink/65">最新の投稿</div>
                         <div className="mt-1 font-semibold text-ink">{preview.latestPost.title}</div>
                         <div className="mt-0.5 text-ink/65">{toDateLabel(preview.latestPost.publishDate)}</div>
                       </div>
                     ) : (
                       <div className="rounded-[16px] bg-mist px-4 py-3 text-xs text-ink/60">
-                        まだお知らせはありません
+                        まだ投稿はありません
                       </div>
                     )}
                     {preview.nextEvent ? (

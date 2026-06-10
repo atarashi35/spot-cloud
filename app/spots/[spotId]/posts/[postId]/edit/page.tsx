@@ -11,7 +11,7 @@ export default async function EditPostPage({
     <div className="shell">
       <section className="mx-auto max-w-3xl panel px-6 py-8 sm:px-8">
         <span className="chip">EDIT POST</span>
-        <h1 className="mt-4 text-3xl font-extrabold text-ink">お知らせを編集</h1>
+        <h1 className="mt-4 text-3xl font-extrabold text-ink">投稿を編集</h1>
         <PostForm spotId={spotId} mode="edit" postId={postId} />
       </section>
     </div>

@@ -258,11 +258,11 @@ export function OwnerConsoleClient() {
   return (
     <div className="space-y-6">
 
-      {/* お知らせモーダル */}
+      {/* 投稿モーダル */}
       <ModalShell
         open={postModal !== null}
         onClose={() => setPostModal(null)}
-        title={postModal?.mode === "edit" ? "お知らせを編集" : "お知らせを作成"}
+        title={postModal?.mode === "edit" ? "投稿を編集" : "投稿を作成"}
         size="lg"
       >
         {postModal !== null ? (
@@ -477,7 +477,7 @@ export function OwnerConsoleClient() {
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
                     <div className="font-semibold tracking-[0.15em] text-ink/65">
-                      お知らせ {content.postCount}件
+                      投稿 {content.postCount}件
                     </div>
                     {content.latestPost ? (
                       <>
@@ -531,7 +531,7 @@ export function OwnerConsoleClient() {
                   onClick={() => setPostModal({ spotId: spot.id, mode: "create" })}
                   className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
-                  <span className="text-xs font-semibold">お知らせ</span>
+                  <span className="text-xs font-semibold">投稿</span>
                 </button>
                 <a
                   href={`/manage/${spot.id}/events`}

@@ -618,7 +618,7 @@ export function SpotForm(props: SpotFormProps) {
               value={planBenefits[amount]}
               onChange={(e) => setPlanBenefits((prev) => ({ ...prev, [amount]: e.target.value }))}
               placeholder={
-                amount === 100 ? "例：限定お知らせが届く" :
+                amount === 100 ? "例：限定投稿が届く" :
                 amount === 300 ? "例：イベント優先案内あり" :
                 "例：コーヒー1杯サービス"
               }

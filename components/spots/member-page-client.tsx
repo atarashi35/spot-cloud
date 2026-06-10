@@ -104,7 +104,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
           <div>
             <h1 className="text-3xl font-extrabold text-ink">{spot.name} の限定ページ</h1>
             <p className="mt-3 text-[15px] leading-relaxed text-ink/78">
-              お知らせ、限定イベント、サポート情報をここに集約します。
+              投稿、限定イベント、サポート情報をここに集約します。
             </p>
           </div>
           <div className="rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/78">
@@ -128,7 +128,7 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="panel px-6 py-6 sm:px-8">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl font-extrabold text-ink">お知らせ</h2>
+            <h2 className="text-2xl font-extrabold text-ink">投稿</h2>
             {isOwner ? (
               <Link href={`/spots/${spotId}/posts/new`} className="cta-secondary">
                 投稿を作成
@@ -138,8 +138,8 @@ export function MemberPageClient({ spotId }: { spotId: string }) {
           <div className="mt-6 space-y-4">
             {posts.length === 0 ? (
               <EmptyState
-                title="まだお知らせはありません"
-                description="最初のお知らせを作成すると、このエリアにサポーター向けの告知が表示されます。"
+                title="まだ投稿はありません"
+                description="最初の投稿を作成すると、このエリアにサポーター向けの告知が表示されます。"
               />
             ) : (
               posts.map((post) => (

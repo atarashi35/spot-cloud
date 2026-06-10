@@ -118,9 +118,13 @@ type Props = {
   displayName: string;
   avatarUrl?: string | null;
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId" | "status">[];
+  /** LPデモなど閲覧専用の埋め込みでは false にして保存・コピー導線を隠す */
+  showActions?: boolean;
+  /** 暗い背景に埋め込む場合のヒント文字色の上書き */
+  hintClassName?: string;
 };
 
-export function SocioCard({ uid, displayName, avatarUrl, memberships }: Props) {
+export function SocioCard({ uid, displayName, avatarUrl, memberships, showActions = true, hintClassName = "text-ink/58" }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
 
@@ -380,7 +384,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships }: Props) {
       </div>
 
       {/* ヒント */}
-      <p className="text-center text-xs text-ink/58">
+      <p className={`text-center text-xs ${hintClassName}`}>
         {isFlipped ? "タップして表面に戻す" : "タップして裏面を見る"}
       </p>
 
@@ -405,6 +409,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships }: Props) {
       </div>
 
       {/* アクションボタン */}
+      {showActions ? (
       <div className="flex gap-3">
         <button
           type="button"
@@ -421,6 +426,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships }: Props) {
           リンクをコピー
         </button>
       </div>
+      ) : null}
     </div>
   );
 }

@@ -31,6 +31,23 @@ const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "その他", label: "その他" },
 ];
 
+type SortOption = "recommended" | "popular" | "newest";
+
+const sortOptions: Array<{ value: SortOption; label: string }> = [
+  { value: "recommended", label: "おすすめ" },
+  { value: "popular", label: "人気順" },
+  { value: "newest", label: "新着順" },
+];
+
+function sortSpotList(list: Spot[], sort: SortOption) {
+  if (sort === "recommended") return list;
+  return [...list].sort((left, right) =>
+    sort === "popular"
+      ? right.socioCount - left.socioCount
+      : right.createdAt.localeCompare(left.createdAt)
+  );
+}
+
 function normalizeText(value: string) {
   return value.trim().toLocaleLowerCase("ja-JP");
 }
@@ -109,6 +126,7 @@ export function SpotListPage() {
   const [prefecture, setPrefecture] = useState("all");
   const [city, setCity] = useState("all");
   const [category, setCategory] = useState<"all" | SpotCategory>("all");
+  const [sort, setSort] = useState<SortOption>("recommended");
   const [showAreaFilter, setShowAreaFilter] = useState(false);
   const gridRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 60 });
   const deferredKeyword = useDeferredValue(keyword);
@@ -162,6 +180,8 @@ export function SpotListPage() {
       );
     });
   }, [spots, deferredKeyword, prefecture, city, category]);
+
+  const sortedSpots = useMemo(() => sortSpotList(filteredSpots, sort), [filteredSpots, sort]);
 
   const activeFilterCount = [prefecture !== "all", city !== "all"].filter(Boolean).length;
 
@@ -243,6 +263,25 @@ export function SpotListPage() {
                 </span>
               ) : null}
             </button>
+            <div className="flex items-center gap-1.5">
+              {sortOptions.map((option) => {
+                const active = sort === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setSort(option.value)}
+                    className={`rounded-full border px-3 py-2 text-xs font-semibold transition active:scale-[0.96] ${
+                      active
+                        ? "border-ink bg-ink text-white shadow-sm"
+                        : "border-ink/12 bg-white text-ink/65 hover:border-ink/22 hover:text-ink/78"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div className="text-sm font-bold text-ink/72">
             {spots ? `${filteredSpots.length} SPOTS` : "···"}
@@ -295,7 +334,7 @@ export function SpotListPage() {
           />
         ) : (
           <div ref={gridRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredSpots.map((spot) => (
+            {sortedSpots.map((spot) => (
               <SpotCard key={spot.id} spot={spot} />
             ))}
           </div>
