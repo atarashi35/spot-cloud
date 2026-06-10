@@ -152,18 +152,19 @@ export default function OwnerPage() {
                 継続型・超低額クラファン
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-[1.15] tracking-tight">
-                <span className="hero-gradient-text block">超低額ファンクラブ作成サービス。</span>
+                <span className="block text-white/90">あなたの活動を、</span>
+                <span className="hero-gradient-text block">毎月応援してくれる<br className="sm:hidden" />人を集めよう。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
-                月100〜500円でサポーターを集められます。<br />
-                あなたなら SPOT を何に使いますか？
+                月100〜500円でサポーターを募集できます。<br />
+                SPOTは、活動を続けるための小さなファンクラブ作成サービスです。
               </p>
               <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
                 <Link
                   href="/owner/spots/new"
                   className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]"
                 >
-                  SPOTを作る →
+                  無料でSPOTを作る →
                 </Link>
               </div>
             </div>
@@ -221,21 +222,6 @@ export default function OwnerPage() {
         </div>
       </PageShell>
 
-      {/* ── 問い（誰向けか） ── */}
-      <PageShell className="mt-14">
-        <div ref={questionRef} className="reveal rounded-[28px] border border-ink/8 bg-white px-8 py-12 text-center sm:px-12 sm:py-16">
-          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR ANYONE</div>
-          <h2 className="mt-4 text-2xl font-bold leading-snug text-ink sm:text-3xl">
-            あなたなら、<br className="sm:hidden" />
-            SPOTを何に使いますか？
-          </h2>
-          <p className="mx-auto mt-5 max-w-md text-sm leading-8 text-ink/60">
-            組織・団体・プロジェクト、活動の数だけ使い道があります。
-            支えてくれる人がいるなら、SPOTは始められます。
-          </p>
-        </div>
-      </PageShell>
-
       {/* ── なぜ（よくある疑問に答える） ── */}
       <PageShell className="mt-14">
         <div ref={whyHeadRef} className="reveal mb-8 text-center">
@@ -279,6 +265,21 @@ export default function OwnerPage() {
             </div>
           </Card>
 
+        </div>
+      </PageShell>
+
+      {/* ── 問い（誰向けか） ── */}
+      <PageShell className="mt-14">
+        <div ref={questionRef} className="reveal rounded-[28px] border border-ink/8 bg-white px-8 py-12 text-center sm:px-12 sm:py-16">
+          <div className="text-[11px] font-semibold tracking-[0.24em] text-ink/38">FOR ANYONE</div>
+          <h2 className="mt-4 text-2xl font-bold leading-snug text-ink sm:text-3xl">
+            あなたなら、<br className="sm:hidden" />
+            SPOTを何に使いますか？
+          </h2>
+          <p className="mx-auto mt-5 max-w-md text-sm leading-8 text-ink/60">
+            組織・団体・プロジェクト、活動の数だけ使い道があります。
+            支えてくれる人がいるなら、SPOTは始められます。
+          </p>
         </div>
       </PageShell>
 
