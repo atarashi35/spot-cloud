@@ -155,9 +155,9 @@ export default function OwnerPage() {
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/60 sm:text-base">
                 サポーターは、月100〜500円から参加できます。
               </p>
-              <div className="hero-animate-3 mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold text-white/70">
-                <span className="h-1.5 w-1.5 rounded-full bg-moss" />
-                初期費用・月額費用 0円
+              <div className="hero-animate-3 mt-6 inline-flex items-center gap-3 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5">
+                <span className="text-sm font-semibold text-white/70">初期費用・月額費用</span>
+                <span className="text-2xl font-bold tracking-tight text-white sm:text-3xl">0円</span>
               </div>
               <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
                 <Link
