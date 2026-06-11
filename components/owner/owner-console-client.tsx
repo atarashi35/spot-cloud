@@ -569,7 +569,7 @@ export function OwnerConsoleClient() {
                 </Link>
                 <span className="text-ink/40">·</span>
                 <Link href={`/owner/spots/${spot.id}/share`} className="text-xs text-ink/65 hover:text-ink transition-colors">
-                  QRコード
+                  SNS・シェア
                 </Link>
                 <span className="text-ink/40">·</span>
                 <Link href={`/owner/spots/${spot.id}/payout`} className={`text-xs transition-colors ${connectReady ? "text-ink/65 hover:text-ink" : "font-semibold text-amber-600 hover:text-amber-700"}`}>

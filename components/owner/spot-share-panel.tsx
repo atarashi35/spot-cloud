@@ -149,7 +149,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
     ctx.textAlign = "center";
     ctx.font = "600 22px 'Helvetica Neue', Arial, sans-serif";
     ctx.fillStyle = "#111111";
-    ctx.fillText("¥100 / ¥300 / ¥500 /月", W / 2, 650);
+    ctx.fillText("¥300 / ¥500 / ¥1,000 /月", W / 2, 650);
 
     ctx.font = "14px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
     ctx.fillStyle = "#888888";
@@ -264,7 +264,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
             <div ref={flyerQrRef} className="my-4 flex justify-center">
               <QRCode value={signupUrl} size={90} />
             </div>
-            <p className="text-center text-[8px] font-semibold text-ink">¥100 / ¥300 / ¥500 /月</p>
+            <p className="text-center text-[8px] font-semibold text-ink">¥300 / ¥500 / ¥1,000 /月</p>
             <p className="mt-1 text-center text-[7px] text-ink/65">QRコードをスキャンして応援会員登録</p>
             <div className="my-3 h-px bg-ink/10" />
             <p className="text-center text-[7px] text-ink/60">spotcloud.app</p>

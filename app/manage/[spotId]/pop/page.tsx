@@ -25,56 +25,89 @@ function buildJoinUrl(spotId: string) {
 function PopCard({ spot }: { spot: Spot }) {
   return (
     <div
-      className="pop-print flex flex-col bg-white"
-      style={{ width: "105mm", height: "148mm", padding: "9mm 8mm 7mm" }}
+      className="pop-print flex flex-col overflow-hidden bg-white"
+      style={{ width: "105mm", height: "148mm" }}
     >
-      {/* 上部ラベル */}
-      <p className="text-center font-semibold text-neutral-400" style={{ fontSize: "2.8mm", letterSpacing: "0.12em" }}>
-        SPOT公式
-      </p>
-
-      {/* メインコピー: SPOT名 */}
-      <h1 className="mt-1.5 text-center font-extrabold leading-tight text-neutral-900" style={{ fontSize: "7.8mm" }}>
-        {spot.name}
-      </h1>
-      <p className="mt-1 text-center font-bold text-neutral-700" style={{ fontSize: "4.2mm" }}>
-        の応援会員になれます
-      </p>
-      <p className="mt-1.5 text-center font-medium text-neutral-500" style={{ fontSize: "3.2mm", lineHeight: 1.5 }}>
-        月300円から、店を続ける力になる。
-      </p>
-
-      {/* 価格チップ */}
-      <div className="mt-3 flex items-center justify-center" style={{ gap: "2mm" }}>
-        {planOptions.map((amount) => (
-          <span
-            key={amount}
-            className="rounded-full border border-neutral-300 font-bold text-neutral-800"
-            style={{ fontSize: "3.2mm", padding: "1.2mm 3mm" }}
-          >
-            月{amount.toLocaleString()}円
-          </span>
-        ))}
-      </div>
-
-      {/* QR */}
-      <div className="mt-5 flex flex-col items-center">
-        <div className="rounded-lg border border-neutral-200 bg-white" style={{ padding: "3mm" }}>
-          <QRCode value={buildJoinUrl(spot.id)} size={120} bgColor="#ffffff" fgColor="#111111" level="M" />
+      {/* ── 上部ダーク帯（店名ヒーロー） ── */}
+      <div
+        className="flex flex-shrink-0 flex-col justify-between"
+        style={{ background: "#111111", padding: "5.5mm 7mm 6mm", height: "62mm" }}
+      >
+        {/* ブランドライン */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center" style={{ gap: "1.5mm" }}>
+            <span style={{ width: "2.5mm", height: "2.5mm", borderRadius: "50%", background: "#e8261a", boxShadow: "0 0 4px rgba(232,38,26,0.7)", display: "inline-block" }} />
+            <span style={{ fontSize: "2.6mm", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.65)" }}>SPOT</span>
+          </div>
+          <span style={{ fontSize: "2.3mm", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>応援会員POP</span>
         </div>
-        <p className="mt-2 text-center font-semibold text-neutral-700" style={{ fontSize: "3.2mm" }}>
-          スマホで読み取り、その場で入会できます
-        </p>
-        <p className="mt-0.5 text-center text-neutral-500" style={{ fontSize: "2.6mm" }}>
-          番号入りのデジタル会員証と、店からの限定投稿が届きます。解約はいつでも。
-        </p>
+
+        {/* 店名 + キャッチ */}
+        <div>
+          <h1
+            style={{
+              fontSize: "9.5mm",
+              fontWeight: 900,
+              color: "#ffffff",
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+              wordBreak: "break-all",
+            }}
+          >
+            {spot.name}
+          </h1>
+          <p style={{ fontSize: "4.3mm", fontWeight: 700, color: "rgba(255,255,255,0.72)", marginTop: "2mm", lineHeight: 1.25 }}>
+            の応援会員に<br />なりませんか？
+          </p>
+        </div>
       </div>
 
-      {/* フッター */}
-      <div className="mt-3 flex items-center justify-center gap-1.5 border-t border-neutral-200" style={{ paddingTop: "2.5mm" }}>
-        <span className="rounded-full" style={{ width: "2mm", height: "2mm", background: "#e8261a" }} />
-        <span className="font-bold tracking-[0.2em] text-neutral-800" style={{ fontSize: "2.8mm" }}>SPOT</span>
-        <span className="text-neutral-400" style={{ fontSize: "2.4mm" }}>spotcloud.app</span>
+      {/* ── 下部白帯（QRヒーロー） ── */}
+      <div className="flex flex-1 flex-col items-center justify-between" style={{ padding: "5mm 7mm 0" }}>
+
+        {/* 価格チップ */}
+        <div className="flex items-center" style={{ gap: "2mm" }}>
+          {planOptions.map((amount) => (
+            <span
+              key={amount}
+              style={{
+                fontSize: "3mm",
+                fontWeight: 700,
+                color: "#333",
+                border: "1px solid #ccc",
+                borderRadius: "100px",
+                padding: "1mm 2.8mm",
+              }}
+            >
+              月{amount.toLocaleString()}円
+            </span>
+          ))}
+        </div>
+
+        {/* QR */}
+        <div className="flex flex-col items-center" style={{ gap: "2.5mm" }}>
+          <div style={{ border: "1.5px solid #e0e0e0", borderRadius: "3mm", padding: "3.5mm", background: "#fff" }}>
+            <QRCode value={buildJoinUrl(spot.id)} size={140} bgColor="#ffffff" fgColor="#111111" level="M" />
+          </div>
+          <p style={{ fontSize: "3.2mm", fontWeight: 700, color: "#222", textAlign: "center", lineHeight: 1.4 }}>
+            スマホで読み取り、その場で入会
+          </p>
+          <p style={{ fontSize: "2.6mm", color: "#888", textAlign: "center", lineHeight: 1.5 }}>
+            番号入りのデジタル会員証が届きます。解約はいつでも。
+          </p>
+        </div>
+
+        {/* フッター */}
+        <div
+          className="flex w-full items-center justify-between"
+          style={{ borderTop: "1px solid #e8e8e8", padding: "2.5mm 0" }}
+        >
+          <div className="flex items-center" style={{ gap: "1.5mm" }}>
+            <span style={{ width: "2mm", height: "2mm", borderRadius: "50%", background: "#e8261a", display: "inline-block" }} />
+            <span style={{ fontSize: "2.8mm", fontWeight: 800, letterSpacing: "0.2em", color: "#111" }}>SPOT</span>
+          </div>
+          <span style={{ fontSize: "2.3mm", color: "#aaa" }}>spotcloud.app</span>
+        </div>
       </div>
     </div>
   );

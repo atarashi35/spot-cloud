@@ -13,16 +13,11 @@ import { PostalCodeField } from "@/components/forms/postal-code-field";
 import {
   PlanAmount,
   Spot,
-  SpotCategory,
   planOptions
 } from "@/lib/types";
 
 type Step = "login" | "email_sent" | "profile";
 
-const affiliationPlaceholderByCategory: Partial<Record<SpotCategory, string>> = {
-  "神社・寺院": "例: 氏子・崇敬会",
-  "ライブハウス・音楽": "例: 常連・出演者"
-};
 
 export function SocioSignupModal({
   spot,
@@ -44,7 +39,6 @@ export function SocioSignupModal({
   const [planAmount, setPlanAmount] = useState<PlanAmount>(defaultPlan);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [affiliation, setAffiliation] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [addressLine, setAddressLine] = useState("");
 
@@ -62,7 +56,6 @@ export function SocioSignupModal({
 
     if (user) {
       const cached = loadUserProfileCache();
-      setAffiliation("");
       setEmail(user.email ?? "");
       setStep("profile");
       // アプリ設定の表示名を優先（キャッシュ→Firestore→Auth名の順）
@@ -76,7 +69,6 @@ export function SocioSignupModal({
     } else {
       setEmail("");
       setName("");
-      setAffiliation("");
       setStep(initialStep ?? "login");
     }
   }, [open, defaultPlan, user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -198,7 +190,6 @@ export function SocioSignupModal({
           spotId: spot.id,
           planAmount,
           name: name.trim(),
-          affiliation: affiliation.trim() || undefined,
           address: addressLine.trim() ? `〒${postalCode} ${addressLine.trim()}` : undefined,
         })
       });
@@ -219,8 +210,6 @@ export function SocioSignupModal({
 
   if (!open) return null;
 
-  const affiliationPlaceholder = affiliationPlaceholderByCategory[spot.category] ?? "例: チームA / 1班";
-
   return (
     <div className="fixed inset-0 z-[140] overflow-y-auto bg-ink/35 backdrop-blur-sm">
       <button
@@ -238,7 +227,7 @@ export function SocioSignupModal({
               <X className="h-4 w-4" />
             </button>
 
-            <span className="chip">SUPPORTER</span>
+            <span className="chip">応援会員</span>
 
             {/* ─── Step: login ─────────────────────────────── */}
             {step === "login" ? (
@@ -346,15 +335,6 @@ export function SocioSignupModal({
                       onChange={(e) => setName(e.target.value)}
                       placeholder="お名前"
                       aria-invalid={!!error && !name ? true : undefined}
-                    />
-                  </label>
-                  <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm font-medium text-ink/72">所属（任意）</span>
-                    <input
-                      className="field h-14"
-                      value={affiliation}
-                      onChange={(e) => setAffiliation(e.target.value)}
-                      placeholder={affiliationPlaceholder}
                     />
                   </label>
                   <div className="space-y-2 sm:col-span-2">
