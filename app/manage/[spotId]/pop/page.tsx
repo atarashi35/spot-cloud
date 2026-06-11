@@ -28,18 +28,19 @@ function PopCard({ spot }: { spot: Spot }) {
       className="pop-print flex flex-col bg-white"
       style={{ width: "105mm", height: "148mm", padding: "9mm 8mm 7mm" }}
     >
-      {/* 店名 */}
-      <p className="text-center font-semibold text-neutral-500" style={{ fontSize: "3.2mm", letterSpacing: "0.08em" }}>
-        {spot.name}
+      {/* 上部ラベル */}
+      <p className="text-center font-semibold text-neutral-400" style={{ fontSize: "2.8mm", letterSpacing: "0.12em" }}>
+        SPOT公式
       </p>
 
-      {/* メインコピー */}
-      <h1 className="mt-2 text-center font-extrabold leading-tight text-neutral-900" style={{ fontSize: "7.2mm" }}>
-        この店の
-        <br />
-        応援会員になれます
+      {/* メインコピー: SPOT名 */}
+      <h1 className="mt-1.5 text-center font-extrabold leading-tight text-neutral-900" style={{ fontSize: "7.8mm" }}>
+        {spot.name}
       </h1>
-      <p className="mt-2 text-center font-medium text-neutral-600" style={{ fontSize: "3.4mm", lineHeight: 1.6 }}>
+      <p className="mt-1 text-center font-bold text-neutral-700" style={{ fontSize: "4.2mm" }}>
+        の応援会員になれます
+      </p>
+      <p className="mt-1.5 text-center font-medium text-neutral-500" style={{ fontSize: "3.2mm", lineHeight: 1.5 }}>
         月300円から、店を続ける力になる。
       </p>
 
@@ -57,7 +58,7 @@ function PopCard({ spot }: { spot: Spot }) {
       </div>
 
       {/* QR */}
-      <div className="mt-auto flex flex-col items-center">
+      <div className="mt-5 flex flex-col items-center">
         <div className="rounded-lg border border-neutral-200 bg-white" style={{ padding: "3mm" }}>
           <QRCode value={buildJoinUrl(spot.id)} size={120} bgColor="#ffffff" fgColor="#111111" level="M" />
         </div>
