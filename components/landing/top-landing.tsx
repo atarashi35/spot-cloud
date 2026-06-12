@@ -17,18 +17,18 @@ const GRID_BG = {
 const values = [
   {
     eyebrow: "毎月つづく応援",
-    title: "常連さんが、\n店を続ける力になる。",
+    title: "ファンや常連さんが、\n続ける力になる。",
     body: "応援会員は月300円・500円・1,000円。売上の波に左右されない、毎月つづく支えになります。",
   },
   {
-    eyebrow: "入会はレジ横で",
+    eyebrow: "入会はその場で",
     title: "POPを置くだけで、\nその場で入会。",
-    body: "店頭POPを自動生成。レジ横に置けば、お客さんがスマホで読み取ってその場で応援会員になれます。",
+    body: "POPを自動生成。レジ横や受付・会場に置けば、スマホで読み取ってその場で応援会員になれます。",
   },
   {
     eyebrow: "会員証が誇りに",
-    title: "番号入りの会員証が、\n常連の証になる。",
-    body: "応援会員には通し番号と加入月入りのデジタル会員証。早く入った人ほど若い番号。店との関係がかたちになります。",
+    title: "番号入りの会員証が、\n応援の証になる。",
+    body: "応援会員には通し番号と加入月入りのデジタル会員証。早く入った人ほど若い番号。場所との関係がかたちになります。",
   },
 ];
 
@@ -42,14 +42,14 @@ const steps = [
     body: "受取口座の設定です。完了後、応援会員の募集を本番公開できます。",
   },
   {
-    title: "POPをレジ横に置く",
-    body: "自動生成された店頭POPを印刷して、レジ横へ。常連さんに一言添えれば、そこから始まります。",
+    title: "POPを目立つ場所に置く",
+    body: "自動生成されたPOPを印刷して、レジ横や受付・会場へ。一言添えれば、そこから始まります。",
   },
 ];
 
 const comparison = [
   { axis: "かたち", cf: "一度きりの支援", spot: "毎月つづく会員制" },
-  { axis: "目的", cf: "目標額を集める", spot: "店を続けること" },
+  { axis: "目的", cf: "目標額を集める", spot: "場所や活動を続けること" },
   { axis: "終わり方", cf: "達成したら終了", spot: "ずっと続いていく" },
   { axis: "関係", cf: "支援したら終わり", spot: "会員証を持って通い続ける" },
 ];
@@ -69,8 +69,8 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     ),
   },
   {
-    q: "どんな店・場所で使えますか？",
-    a: "本屋・書店、ミニシアター、ライブハウス、劇場、ギャラリー、神社・寺院など、「続いてほしい」と思われている街の文化拠点のための仕組みです。個人経営でも法人でも利用できます。",
+    q: "どんな場所・活動で使えますか？",
+    a: "本屋・書店、ミニシアター、ライブハウス、劇場、ギャラリー、神社・寺院、文化プロジェクトなど、「続いてほしい」と思われている街の文化拠点のための仕組みです。個人経営でも法人でも団体でも利用できます。",
   },
   {
     q: "応援会員の月額金額は？",
@@ -78,7 +78,7 @@ const faqs: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "応援会員は何ができますか？",
-    a: "番号入りのデジタル会員証を持ち、店からの限定投稿を受け取れます。何より「この店を支えている」という関係そのものが価値です。",
+    a: "番号入りのデジタル会員証を持ち、限定投稿を受け取れます。何より「この場所を支えている」という関係そのものが価値です。",
   },
   {
     q: "会員はいつでも解約できますか？",
@@ -161,8 +161,8 @@ export function TopLanding() {
                 <span className="hero-gradient-text block">応援会員を。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/78 sm:text-base">
-                常連さんが月300円から、店を続ける力になります。
-                本屋・ミニシアター・ライブハウス・劇場・ギャラリー・神社のための仕組みです。
+                ファンや常連さんが月300円から、続ける力になります。
+                本屋・ミニシアター・ライブハウス・劇場・ギャラリー・神社・文化プロジェクトのための仕組みです。
               </p>
               <div className="hero-animate-3 mt-6 inline-flex items-center gap-3 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5">
                 <span className="text-sm font-semibold text-white/80">初期費用・月額費用</span>
@@ -277,7 +277,7 @@ export function TopLanding() {
       <PageShell>
         <div ref={valuesHeadRef} className="reveal mb-8 text-center">
           <div className="text-sm font-bold text-ink/72">WHAT YOU CAN DO</div>
-          <h2 className="mt-3 text-2xl font-extrabold text-ink sm:text-3xl">店と常連をつなぐ、3つのこと。</h2>
+          <h2 className="mt-3 text-2xl font-extrabold text-ink sm:text-3xl">場所と応援する人をつなぐ、3つのこと。</h2>
         </div>
         <div ref={valuesRef} className="grid gap-4 sm:grid-cols-3">
           {values.map((v, i) => (
@@ -314,7 +314,7 @@ export function TopLanding() {
             </h3>
             <p className="mt-4 text-[15px] leading-relaxed text-ink/75">
               寄付は一度で終わりますが、応援会員は毎月続きます。
-              会員は番号入りの会員証を持ち、店の限定投稿を受け取り、「自分はこの店を支えている」と言える関係になります。
+              会員は番号入りの会員証を持ち、限定投稿を受け取り、「自分はこの場所を支えている」と言える関係になります。
               どのプランでも会員の権利は<strong className="text-ink/80">全員同じ</strong>。
               金額の大きさで扱いが変わることはありません。
             </p>
@@ -409,7 +409,7 @@ export function TopLanding() {
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="text-sm font-bold text-ink">街の小さな文化拠点のための、応援会員制度</p>
-            <p className="text-xs text-ink/65">月300円から、常連が店を支える会員になれます</p>
+            <p className="text-xs text-ink/65">月300円から、場所や活動を支える会員になれます</p>
           </div>
           <Link href="/owner/spots/new" className="cta-primary shrink-0">
             無料でSPOTを作る →

@@ -611,7 +611,7 @@ export function SpotForm(props: SpotFormProps) {
               placeholder={
                 amount === 300 ? "例：限定投稿が届く" :
                 amount === 500 ? "例：イベント先行案内あり" :
-                "例：店頭でドリンク1杯サービス"
+                "例：ドリンク1杯サービス"
               }
               maxLength={40}
             />
