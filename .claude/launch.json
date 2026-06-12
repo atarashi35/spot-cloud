@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "proposal-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "4321", "docs/sales"],
+      "port": 4321
+    }
+  ]
+}

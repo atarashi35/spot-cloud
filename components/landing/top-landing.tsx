@@ -35,7 +35,7 @@ const values = [
 const steps = [
   {
     title: "SPOTを登録する",
-    body: "店の紹介とカバー画像を登録して、あなたの店のページを公開します。",
+    body: "場所の紹介とカバー画像を登録して、あなたの場所のページを公開します。",
   },
   {
     title: "受取設定を行う",
@@ -157,7 +157,7 @@ export function TopLanding() {
                 <span className="text-sm font-semibold text-white/80">街の小さな文化拠点のための、応援会員制度</span>
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2.4rem,6vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight">
-                <span className="block text-white/90">あなたの店に、</span>
+                <span className="block text-white/90">あなたの場所に、</span>
                 <span className="hero-gradient-text block">応援会員を。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/78 sm:text-base">
@@ -387,7 +387,7 @@ export function TopLanding() {
           <div className="relative">
             <div className="text-[13px] font-semibold tracking-[0.24em] text-white/65">START FOR FREE</div>
             <h2 className="mt-3 text-2xl font-extrabold text-white/90 sm:text-3xl">
-              まず、あなたの店のSPOTを作ってみる。
+              まず、あなたの場所のSPOTを作ってみる。
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-white/75">
               登録は無料。受取設定を完了すると、応援会員の募集を本番公開できます。

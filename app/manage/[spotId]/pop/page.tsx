@@ -15,6 +15,14 @@ import { Spot, planOptions } from "@/lib/types";
  * レジ横が応援会員獲得の唯一の配布チャネルなので、このページが営業の本体。
  */
 
+function getNameFontSize(name: string): string {
+  const len = name.length;
+  if (len <= 8)  return "20mm";
+  if (len <= 14) return "14mm";
+  if (len <= 20) return "10mm";
+  return "7.5mm";
+}
+
 function buildJoinUrl(spotId: string) {
   const base =
     process.env.NEXT_PUBLIC_APP_URL ??
@@ -46,7 +54,7 @@ function PopCard({ spot }: { spot: Spot }) {
         <div>
           <h1
             style={{
-              fontSize: "20mm",
+              fontSize: getNameFontSize(spot.name),
               fontWeight: 900,
               color: "#ffffff",
               lineHeight: 1.05,

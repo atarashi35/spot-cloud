@@ -362,7 +362,7 @@ export function SpotForm(props: SpotFormProps) {
           required
           aria-invalid={!!error && !name.trim() ? true : undefined}
         />
-        <p className="mt-1.5 text-xs text-ink/65">※お店・屋号・団体名・プロジェクト名など</p>
+        <p className="mt-1.5 text-xs text-ink/65">※場所・屋号・団体名・プロジェクト名など</p>
       </div>
       <select
         className="field"

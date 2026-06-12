@@ -2,14 +2,14 @@ import { TopLanding } from "@/components/landing/top-landing";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "SPOT｜あなたの店に、応援会員を。",
+  title: "SPOT｜あなたの場所に、応援会員を。",
   description: "街の小さな文化拠点（本屋・ミニシアター・ライブハウス・劇場・ギャラリー・神社）のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
   openGraph: {
-    title: "SPOT｜あなたの店に、応援会員を。",
+    title: "SPOT｜あなたの場所に、応援会員を。",
     description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
   },
   twitter: {
-    title: "SPOT｜あなたの店に、応援会員を。",
+    title: "SPOT｜あなたの場所に、応援会員を。",
     description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。常連さんが月300円から、店を続ける力になります。",
   },
 };
