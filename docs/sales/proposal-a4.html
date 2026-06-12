@@ -5,145 +5,262 @@
 <title>SPOT 提案資料（A4・1枚）</title>
 <style>
   @page { size: A4 portrait; margin: 0; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body {
     font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
     color: #1a1a1a;
     width: 210mm; height: 297mm;
-    padding: 16mm 18mm;
     display: flex; flex-direction: column;
+    background: #fff;
   }
-  .brand { display: flex; align-items: center; gap: 6px; }
-  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: #e8261a; }
-  .brand-name { font-weight: 800; letter-spacing: 0.2em; font-size: 13px; }
-  h1 { font-size: 30px; font-weight: 800; line-height: 1.3; margin-top: 10mm; }
-  .lead { margin-top: 4mm; font-size: 13px; line-height: 1.8; color: #444; }
+
+  /* ── ヘッダー帯 ── */
+  .header {
+    background: #111111;
+    padding: 10mm 16mm 11mm;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .header-logo svg { width: 108px; height: auto; }
+  .header-tag {
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.10em;
+    color: rgba(255,255,255,0.50); text-align: right;
+  }
+  .header-dot {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; background: #e8261a;
+    box-shadow: 0 0 6px rgba(232,38,26,0.7);
+    margin-right: 6px; vertical-align: middle;
+  }
+
+  /* ── ボディ ── */
+  .body { flex: 1; display: flex; flex-direction: column; padding: 9mm 16mm 9mm; justify-content: space-between; }
+
+  h1 { font-size: 38px; font-weight: 900; line-height: 1.2; letter-spacing: -0.02em; }
+  h1 span { color: #e8261a; }
+  .lead { margin-top: 3.5mm; font-size: 14.5px; line-height: 1.85; color: #555; }
+
+  /* ── フロー ── */
   .flow {
-    margin-top: 8mm; display: flex; align-items: center; justify-content: space-between;
-    background: #f5f5f2; border-radius: 14px; padding: 7mm 8mm;
+    display: flex; align-items: stretch; gap: 0;
+    border: 1px solid #e5e5e0; border-radius: 14px; overflow: hidden;
   }
-  .flow-item { text-align: center; flex: 1; }
-  .flow-label { font-size: 10px; color: #777; font-weight: 700; letter-spacing: 0.1em; }
-  .flow-value { font-size: 17px; font-weight: 800; margin-top: 1.5mm; }
-  .flow-arrow { font-size: 18px; color: #999; flex: 0 0 auto; padding: 0 3mm; }
-  .points { margin-top: 8mm; display: flex; gap: 5mm; }
-  .point { flex: 1; border: 1px solid #e5e5e0; border-radius: 12px; padding: 5mm; }
-  .point-title { font-size: 13px; font-weight: 800; }
-  .point-body { margin-top: 2mm; font-size: 11px; line-height: 1.7; color: #555; }
-  .pricing { margin-top: 8mm; }
-  .pricing-title { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; color: #555; }
-  table { width: 100%; border-collapse: collapse; margin-top: 3mm; font-size: 12px; }
-  th, td { border: 1px solid #e0e0da; padding: 3mm 4mm; text-align: center; }
-  th { background: #f5f5f2; font-size: 11px; color: #555; }
-  td strong { font-size: 14px; }
-  .note { margin-top: 2mm; font-size: 9.5px; color: #888; line-height: 1.6; }
-  .steps { margin-top: 8mm; display: flex; gap: 5mm; }
-  .step { flex: 1; }
+  .flow-item { flex: 1; padding: 6mm 7mm; text-align: center; background: #fafaf8; }
+  .flow-item + .flow-item { border-left: 1px solid #e5e5e0; }
+  .flow-label { font-size: 12px; font-weight: 700; letter-spacing: 0.10em; color: #999; }
+  .flow-value { font-size: 18px; font-weight: 800; margin-top: 1.5mm; color: #111; }
+  .flow-sub { font-size: 11.5px; color: #888; margin-top: 1mm; }
+  .flow-arrow-wrap {
+    display: flex; align-items: center; padding: 0 2mm;
+    background: #fafaf8; border-left: 1px solid #e5e5e0;
+  }
+  .flow-arrow { font-size: 16px; color: #ccc; }
+
+  /* ── 3ポイント ── */
+  .points { display: flex; gap: 5mm; }
+  .point {
+    flex: 1; border: 1px solid #e8e8e4; border-radius: 12px;
+    padding: 6mm 5.5mm; position: relative; overflow: hidden;
+  }
+  .point::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3.5px; height: 100%; background: #e8261a;
+  }
+  .point-title { font-size: 14px; font-weight: 800; padding-left: 1.5mm; }
+  .point-body { margin-top: 2mm; font-size: 12.5px; line-height: 1.75; color: #555; padding-left: 1.5mm; }
+
+  /* ── 料金 ── */
+  .pricing { }
+  .section-label {
+    font-size: 12px; font-weight: 800; letter-spacing: 0.10em;
+    color: #999; text-transform: uppercase; margin-bottom: 2.5mm;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { border: 1px solid #e5e5e0; padding: 3.5mm 4mm; text-align: center; }
+  th { background: #111; color: #fff; font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; }
+  td:first-child { text-align: left; color: #666; font-size: 12.5px; }
+  td strong { font-size: 17px; font-weight: 800; }
+  .note { margin-top: 2mm; font-size: 11px; color: #aaa; line-height: 1.6; }
+
+  /* ── ステップ ── */
+  .steps { display: flex; gap: 5mm; background: #fafaf8; border: 1px solid #e5e5e0; border-radius: 14px; padding: 6mm 7mm; }
+  .step { flex: 1; display: flex; gap: 3.5mm; align-items: flex-start; }
   .step-no {
-    display: inline-flex; width: 7mm; height: 7mm; border-radius: 50%;
-    background: #1a1a1a; color: #fff; font-weight: 800; font-size: 11px;
-    align-items: center; justify-content: center;
+    flex-shrink: 0;
+    display: inline-flex; width: 8mm; height: 8mm; border-radius: 50%;
+    background: #111; color: #fff; font-weight: 800; font-size: 13px;
+    align-items: center; justify-content: center; margin-top: 0.5mm;
   }
-  .step-title { font-size: 12px; font-weight: 800; margin-top: 2mm; }
-  .step-body { font-size: 10.5px; color: #555; line-height: 1.6; margin-top: 1mm; }
+  .step-title { font-size: 14.5px; font-weight: 800; }
+  .step-body { font-size: 12.5px; color: #666; line-height: 1.65; margin-top: 1.5mm; }
+
+  /* ── ケーススタディ ── */
   .case {
-    margin-top: 8mm; background: #13231c; color: #fff; border-radius: 14px; padding: 6mm 8mm;
-    display: flex; justify-content: space-between; align-items: center;
+    background: #13231c; color: #fff; border-radius: 14px;
+    padding: 9mm 12mm; display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
   }
-  .case-text { font-size: 12px; line-height: 1.7; }
-  .case-text strong { font-size: 13px; }
-  .case-num { text-align: right; }
-  .case-num .big { font-size: 24px; font-weight: 800; color: #2dd4bf; }
-  .case-num .small { font-size: 10px; color: rgba(255,255,255,0.6); }
+  .case-text { font-size: 14.5px; line-height: 1.80; }
+  .case-text strong { font-size: 16px; display: block; margin-bottom: 1mm; }
+  .case-num { text-align: right; flex-shrink: 0; padding-left: 10mm; }
+  .case-num .big { font-size: 30px; font-weight: 900; color: #2dd4bf; white-space: nowrap; }
+  .case-num .small { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 1.5mm; }
+
+  /* ── フッター ── */
   .footer {
-    margin-top: auto; border-top: 1px solid #e5e5e0; padding-top: 4mm;
-    display: flex; justify-content: space-between; align-items: center; font-size: 9px; color: #777;
-    white-space: nowrap;
+    margin-top: auto; border-top: 1.5px solid #ccc;
+    padding: 4.5mm 16mm;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: #444; flex-shrink: 0;
   }
 </style>
 </head>
 <body>
 
-  <div class="brand"><span class="brand-dot"></span><span class="brand-name">SPOT</span></div>
-
-  <h1>あなたの店に、応援会員を。</h1>
-  <p class="lead">
-    常連さんが月300円から、店を続ける力になる仕組みです。<br>
-    レジ横にPOPを置くだけ。初期費用・月額費用は0円です。
-  </p>
-
-  <div class="flow">
-    <div class="flow-item">
-      <div class="flow-label">常連さん</div>
-      <div class="flow-value">月500円で入会</div>
+  <!-- ヘッダー帯 -->
+  <div class="header">
+    <div class="header-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 334 100">
+        <circle fill="#e8261a" cx="47.29" cy="50" r="5.2"/>
+        <circle fill="rgba(255,255,255,0.5)" cx="64.52" cy="50" r="3.8"/>
+        <circle fill="rgba(255,255,255,0.5)" cx="55.9" cy="64.96" r="3.8"/>
+        <circle fill="rgba(255,255,255,0.5)" cx="38.67" cy="64.96" r="3.8"/>
+        <circle fill="rgba(255,255,255,0.5)" cx="30.06" cy="50" r="3.8"/>
+        <circle fill="rgba(255,255,255,0.5)" cx="38.67" cy="35.04" r="3.8"/>
+        <circle fill="rgba(255,255,255,0.5)" cx="55.9" cy="35.04" r="3.8"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="81.75" cy="50" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="77.05" cy="67.23" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="64.52" cy="79.76" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="47.29" cy="84.46" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="30.06" cy="79.76" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="17.53" cy="67.23" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="12.83" cy="50" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="17.53" cy="32.77" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="30.06" cy="20.24" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="47.29" cy="15.54" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="64.52" cy="20.24" r="2.4"/>
+        <circle fill="rgba(255,255,255,0.28)" cx="77.05" cy="32.77" r="2.4"/>
+        <path fill="#ffffff" d="M130.07,36.91h-6.1c-.54-4.12-2.48-6.17-5.81-6.17-2.16,0-3.77.51-4.85,1.54s-1.62,2.57-1.62,4.63c0,1.52.59,2.97,1.76,4.34l13.01,14.55c2.4,2.7,3.6,5.59,3.6,8.67v3.01c0,3.33-1.2,6.21-3.6,8.64s-5.29,3.64-8.67,3.64h-6.1c-4.07,0-7.13-1.02-9.19-3.05-2.06-2.03-3.09-5.11-3.09-9.22h6.17v1.03c0,1.67.64,2.94,1.91,3.82,1.27.88,2.67,1.32,4.19,1.32,2.16,0,3.71-.53,4.67-1.58s1.43-2.58,1.43-4.59c0-1.57-.59-3.01-1.76-4.34l-13.01-14.55c-2.4-2.65-3.6-5.54-3.6-8.67v-3.01c0-3.33,1.2-6.21,3.6-8.64s5.29-3.64,8.67-3.64h6.1c7.69,0,11.78,4.09,12.27,12.27h.02Z"/>
+        <path fill="#ffffff" d="M155.5,79.76V24.63h24.55c3.33,0,6.2,1.21,8.6,3.64,2.4,2.43,3.6,5.3,3.6,8.64v6.1c0,3.33-1.2,6.21-3.6,8.64-2.4,2.43-5.27,3.64-8.6,3.64h-12.28v24.48h-12.27ZM167.78,49.11h6.1c1.71,0,3.17-.6,4.37-1.8s1.8-2.63,1.8-4.3v-6.1c0-1.71-.6-3.17-1.8-4.37s-2.66-1.8-4.37-1.8h-6.1v18.38h0Z"/>
+        <path fill="#ffffff" d="M230.03,24.63h12.27c3.33,0,6.2,1.21,8.6,3.64,2.4,2.43,3.6,5.3,3.6,8.64v30.58c0,3.33-1.2,6.21-3.6,8.64-2.4,2.43-5.27,3.64-8.6,3.64h-12.27c-3.33,0-6.21-1.2-8.64-3.6s-3.64-5.29-3.64-8.67v-30.58c0-3.38,1.21-6.27,3.64-8.67s5.3-3.6,8.64-3.6v-.02ZM230.03,36.91v30.58c0,1.67.6,3.11,1.8,4.34s2.63,1.84,4.3,1.84,3.17-.61,4.37-1.84c1.2-1.22,1.8-2.67,1.8-4.34v-30.58c0-1.71-.6-3.17-1.8-4.37s-2.66-1.8-4.37-1.8-3.1.6-4.3,1.8c-1.2,1.2-1.8,2.66-1.8,4.37Z"/>
+        <path fill="#ffffff" d="M286.19,79.76V30.73h-12.28v-6.1h36.75v6.1h-12.28v49.03h-12.2.01Z"/>
+      </svg>
     </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-item">
-      <div class="flow-label">SPOTが自動で</div>
-      <div class="flow-value">毎月集金・名簿化</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-item">
-      <div class="flow-label">お店へ</div>
-      <div class="flow-value">毎月 約434円/人</div>
-    </div>
-  </div>
-
-  <div class="points">
-    <div class="point">
-      <div class="point-title">💴 リスクゼロで始められる</div>
-      <div class="point-body">初期費用0円・月額0円。費用が発生するのは、会員から会費を受け取ったときの手数料のみ。</div>
-    </div>
-    <div class="point">
-      <div class="point-title">🏷 レジ横で完結</div>
-      <div class="point-body">自動生成される店頭POPを印刷して置くだけ。お客さんはQRを読み取り、その場で入会できます。</div>
-    </div>
-    <div class="point">
-      <div class="point-title">🎫 会員証が常連の誇りに</div>
-      <div class="point-body">会員には通し番号と加入月入りのデジタル会員証。早く入った人ほど若い番号。SNSでシェアされます。</div>
+    <div class="header-tag">
+      <span class="header-dot"></span>街の小さな文化拠点のための、応援会員制度
     </div>
   </div>
 
-  <div class="pricing">
-    <div class="pricing-title">料金 — 固定費なし。会費の約87%がお店に届きます</div>
-    <table>
-      <tr><th>会員の月額</th><th>月300円</th><th>月500円</th><th>月1,000円</th></tr>
-      <tr><td>お店への振込（目安）</td><td><strong>約260円</strong></td><td><strong>約434円</strong></td><td><strong>約868円</strong></td></tr>
-    </table>
-    <p class="note">内訳: Stripe決済手数料3.6% + SPOT利用料（決済手数料控除後の純額の10%）。これ以外の費用はありません。振込額は概算です。</p>
-  </div>
+  <!-- ボディ -->
+  <div class="body">
 
-  <div class="steps">
-    <div class="step">
-      <span class="step-no">1</span>
-      <div class="step-title">店のページを登録</div>
-      <div class="step-body">店の紹介と写真を登録。5分で完了します。</div>
+    <div class="hero">
+      <h1>あなたの店に、<span>応援会員</span>を。</h1>
+      <p class="lead">
+        常連さんが月300円から、店を続ける力になる仕組みです。<br>
+        レジ横にPOPを置くだけ。初期費用・月額費用は0円です。
+      </p>
     </div>
-    <div class="step">
-      <span class="step-no">2</span>
-      <div class="step-title">受取口座を設定</div>
-      <div class="step-body">振込先の口座を設定すると本番公開できます。</div>
-    </div>
-    <div class="step">
-      <span class="step-no">3</span>
-      <div class="step-title">POPをレジ横へ</div>
-      <div class="step-body">印刷して置くだけ。お会計の一言から始まります。</div>
-    </div>
-  </div>
 
-  <div class="case">
-    <div class="case-text">
-      <strong>例えば、応援会員が100人いれば。</strong><br>
-      月500円プランの場合、毎月の安定した支えになります。
+    <!-- フロー -->
+    <div class="flow">
+      <div class="flow-item">
+        <div class="flow-label">常連さんが</div>
+        <div class="flow-value">月500円で入会</div>
+        <div class="flow-sub">QRを読み取るだけ</div>
+      </div>
+      <div class="flow-arrow-wrap"><span class="flow-arrow">→</span></div>
+      <div class="flow-item">
+        <div class="flow-label">SPOTが自動で</div>
+        <div class="flow-value">毎月集金・名簿化</div>
+        <div class="flow-sub">振込・管理ゼロ</div>
+      </div>
+      <div class="flow-arrow-wrap"><span class="flow-arrow">→</span></div>
+      <div class="flow-item">
+        <div class="flow-label">お店へ</div>
+        <div class="flow-value">約434円 / 人</div>
+        <div class="flow-sub">毎月自動振込</div>
+      </div>
     </div>
-    <div class="case-num">
-      <div class="big">月 約43,380円</div>
-      <div class="small">年間 約520,560円の振込</div>
-    </div>
-  </div>
 
+    <!-- 3ポイント -->
+    <div class="points">
+      <div class="point">
+        <div class="point-title">リスクゼロで始められる</div>
+        <div class="point-body">初期費用0円・月額0円。費用が発生するのは、会員から会費を受け取ったときの手数料のみ。</div>
+      </div>
+      <div class="point">
+        <div class="point-title">レジ横で完結</div>
+        <div class="point-body">自動生成される店頭POPを印刷して置くだけ。お客さんはQRを読み取り、その場で入会できます。</div>
+      </div>
+      <div class="point">
+        <div class="point-title">会員証が常連の誇りに</div>
+        <div class="point-body">会員には通し番号と加入月入りのデジタル会員証。早く入った人ほど若い番号。SNSでシェアされます。</div>
+      </div>
+    </div>
+
+    <!-- 料金 -->
+    <div class="pricing">
+      <div class="section-label">料金 — 固定費なし。会費の約87%がお店に届きます</div>
+      <table>
+        <tr>
+          <th>会員の月額</th>
+          <th>月300円</th>
+          <th>月500円</th>
+          <th>月1,000円</th>
+        </tr>
+        <tr>
+          <td>お店への振込（目安）</td>
+          <td><strong>約260円</strong></td>
+          <td><strong>約434円</strong></td>
+          <td><strong>約868円</strong></td>
+        </tr>
+      </table>
+      <p class="note">内訳: Stripe決済手数料3.6% + SPOT利用料（決済手数料控除後の純額の10%）。振込額は概算です。</p>
+    </div>
+
+    <!-- ステップ -->
+    <div class="steps">
+      <div class="step">
+        <span class="step-no">1</span>
+        <div>
+          <div class="step-title">店のページを登録</div>
+          <div class="step-body">店の紹介と写真を登録。5分で完了します。</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-no">2</span>
+        <div>
+          <div class="step-title">受取口座を設定</div>
+          <div class="step-body">振込先の口座を設定すると本番公開できます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-no">3</span>
+        <div>
+          <div class="step-title">POPをレジ横へ</div>
+          <div class="step-body">印刷して置くだけ。お会計の一言から始まります。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ケース -->
+    <div class="case">
+      <div class="case-text">
+        <strong>例えば、応援会員が100人いれば。</strong>
+        月500円プランの場合、毎月の安定した支えになります。
+      </div>
+      <div class="case-num">
+        <div class="big">月 約43,380円</div>
+        <div class="small">年間 約520,560円の振込</div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- フッター -->
   <div class="footer">
-    <span>SPOT — 街の小さな文化拠点のための、応援会員制度</span>
+    <span>SPOT — 応援会員制度</span>
     <span>連絡先: 新諒平　080-3724-3935　／　spotcloud2026@gmail.com　／　spotcloud.app</span>
   </div>
 
