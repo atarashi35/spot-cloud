@@ -42,12 +42,9 @@ function PopCard({ spot }: { spot: Spot }) {
         style={{ background: "#111111", padding: "11mm 14mm 12mm", height: "120mm" }}
       >
         {/* ブランドライン */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center" style={{ gap: "2.5mm" }}>
-            <span style={{ width: "4.5mm", height: "4.5mm", borderRadius: "50%", background: "#e8261a", boxShadow: "0 0 6px rgba(232,38,26,0.7)", display: "inline-block" }} />
-            <span style={{ fontSize: "5mm", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.65)" }}>SPOT</span>
-          </div>
-          <span style={{ fontSize: "4mm", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>応援会員POP</span>
+        <div className="flex items-center" style={{ gap: "2.5mm" }}>
+          <span style={{ width: "4.5mm", height: "4.5mm", borderRadius: "50%", background: "#e8261a", boxShadow: "0 0 6px rgba(232,38,26,0.7)", display: "inline-block" }} />
+          <span style={{ fontSize: "5mm", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.65)" }}>SPOT</span>
         </div>
 
         {/* 店名 + キャッチ */}
