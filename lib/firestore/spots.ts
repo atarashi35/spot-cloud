@@ -63,6 +63,7 @@ function normalizeSpotCategory(value: unknown): SpotCategory {
     "劇場・パフォーマンス",
     "ギャラリー・アート",
     "神社・寺院",
+    "文化プロジェクト",
     "その他"
   ];
 
