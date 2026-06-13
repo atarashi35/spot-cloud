@@ -579,7 +579,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 300円</p>
                   <button
                     type="button"
-                    className="cta-primary w-full"
+                    className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
                     onClick={() => setSignupModalOpen(true)}
                   >
                     応援会員になる
