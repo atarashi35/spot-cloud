@@ -144,7 +144,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       sessionStorage.removeItem(EMAIL_JOIN_PENDING_KEY);
       const plan = (isSignupPlan(Number(pending.planAmount))
         ? pending.planAmount
-        : 500) as PlanAmount;
+        : planOptions[0]) as PlanAmount;
       setEmailJoinPlan(plan);
       setSignupModalOpen(true);
     } catch {
@@ -303,7 +303,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onClose={() => { setSignupModalOpen(false); setEmailJoinPlan(null); }}
         defaultPlan={
           emailJoinPlan ??
-          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : 500)
+          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : planOptions[0])
         }
         initialStep={emailJoinPlan ? "profile" : undefined}
       />

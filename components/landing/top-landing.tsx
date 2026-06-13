@@ -18,7 +18,7 @@ const values = [
   {
     eyebrow: "毎月つづく応援",
     title: "ファンや常連さんが、\n続ける力になる。",
-    body: "応援会員は月300円・500円・1,000円。売上の波に左右されない、毎月つづく支えになります。",
+    body: "応援会員は月300円。売上の波に左右されない、毎月つづく支えになります。",
   },
   {
     eyebrow: "入会はその場で",
@@ -74,7 +74,7 @@ const faqs: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "応援会員の月額金額は？",
-    a: "月300円・500円・1,000円の3プランです。どのプランでも応援会員の権利は同じ。金額は応援の気持ちの大きさであって、扱いの差ではありません。",
+    a: "月300円です（ベータ版）。会員は気軽に応援でき、運営側も返礼を気にせず受け取れる金額として設定しています。",
   },
   {
     q: "応援会員は何ができますか？",
@@ -225,11 +225,9 @@ export function TopLanding() {
           {/* 振込額 */}
           <div className="mt-8 border-t border-ink/8 pt-7">
             <p className="text-sm font-bold text-ink/72">応援会員1人あたりの振込額（目安）</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid gap-3">
               {[
                 { from: "¥300", to: "約 ¥260" },
-                { from: "¥500", to: "約 ¥434" },
-                { from: "¥1,000", to: "約 ¥868" },
               ].map((row) => (
                 <div key={row.from} className="flex items-center gap-3 rounded-2xl bg-mist px-5 py-3.5">
                   <span className="text-xl font-extrabold text-ink">{row.from}</span>
@@ -253,7 +251,7 @@ export function TopLanding() {
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">月間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥43,380</span>
+                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥26,028</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/月</span>
                 </div>
               </div>
@@ -261,14 +259,14 @@ export function TopLanding() {
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">年間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥520,560</span>
+                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥312,336</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/年</span>
                 </div>
               </div>
             </div>
           </div>
           <p className="mt-3 text-xs leading-6 text-ink/60">
-            月500円プラン・100人の場合の目安振込額。継続的に、毎月。
+            月300円プラン・100人の場合の目安振込額。継続的に、毎月。
           </p>
         </div>
       </PageShell>

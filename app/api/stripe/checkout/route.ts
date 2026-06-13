@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "price_not_configured",
-          message: "STRIPE_PRICE_ID_300 / 500 / 1000 を .env.local に設定してください。"
+          message: "STRIPE_PRICE_ID_300 を .env.local に設定してください。"
         },
         { status: 500 }
       );

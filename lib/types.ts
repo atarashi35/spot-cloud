@@ -1,14 +1,15 @@
 /**
- * ¥100 はレガシープラン。新規受付は停止済みで、既存会員の表示互換のためだけに型に残している。
- * 新規受付プランは planOptions（300/500/1000）。
+ * 新規受付は ¥300 一択（ベータ版）。
+ * ¥100/500/1000 はレガシープラン。新規受付は停止済みで、既存会員の表示互換のためだけに型に残している。
+ * フリー枠（お気持ち金額）はベータ後の検証材料。
  */
 export type PlanAmount = 100 | 300 | 500 | 1000;
 
-export const planOptions = [300, 500, 1000] as const satisfies readonly PlanAmount[];
+export const planOptions = [300] as const satisfies readonly PlanAmount[];
 
 export type SignupPlanAmount = (typeof planOptions)[number];
 
-/** 新規受付プランかどうか（レガシー¥100を弾く） */
+/** 新規受付プランかどうか（レガシー金額を弾く） */
 export function isSignupPlan(value: number): value is SignupPlanAmount {
   return (planOptions as readonly number[]).includes(value);
 }

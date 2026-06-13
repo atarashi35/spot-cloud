@@ -12,7 +12,7 @@ import {
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SpotCategory, planOptions, PlanAmount, TeamMember } from "@/lib/types";
+import { SpotCategory, TeamMember } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -178,7 +178,6 @@ export function SpotForm(props: SpotFormProps) {
   const [twitter, setTwitter] = useState("");
   const [line, setLine] = useState("");
   const [youtube, setYoutube] = useState("");
-  const [planBenefits, setPlanBenefits] = useState<Record<300 | 500 | 1000, string>>({ 300: "", 500: "", 1000: "" });
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
@@ -228,11 +227,6 @@ export function SpotForm(props: SpotFormProps) {
         setTwitter(spot.socialLinks?.twitter ?? "");
         setLine(spot.socialLinks?.line ?? "");
         setYoutube(spot.socialLinks?.youtube ?? "");
-        setPlanBenefits({
-          300: spot.planBenefits?.[300] ?? "",
-          500: spot.planBenefits?.[500] ?? "",
-          1000: spot.planBenefits?.[1000] ?? "",
-        });
         setTeamMembers(spot.teamMembers ?? []);
       })
       .catch((cause: Error) => {
@@ -274,11 +268,6 @@ export function SpotForm(props: SpotFormProps) {
             city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
             phone: normalizedPhone, email: normalizedEmail,
             socialLinks: { website, instagram, twitter, line, youtube },
-            planBenefits: {
-              ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
-              ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
-              ...(planBenefits[1000].trim() ? { 1000: planBenefits[1000].trim() } : {}),
-            },
             teamMembers: teamMembers.filter((m) => m.name.trim()),
           },
           user.uid
@@ -293,11 +282,6 @@ export function SpotForm(props: SpotFormProps) {
         city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
-        planBenefits: {
-          ...(planBenefits[300].trim() ? { 300: planBenefits[300].trim() } : {}),
-          ...(planBenefits[500].trim() ? { 500: planBenefits[500].trim() } : {}),
-          ...(planBenefits[1000].trim() ? { 1000: planBenefits[1000].trim() } : {}),
-        },
         teamMembers: teamMembers.filter((m) => m.name.trim()),
       });
       router.push("/manage");
@@ -588,35 +572,6 @@ export function SpotForm(props: SpotFormProps) {
         >
           ＋ メンバーを追加
         </button>
-      </div>
-
-      {/* 応援会員特典 */}
-      <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
-        <div>
-          <p className="text-sm font-bold text-ink/72">応援会員特典（任意）</p>
-          <p className="mt-1 text-xs leading-5 text-ink/60">
-            各プランの特典を入力すると、応援会員加入画面に表示されます。<br />
-            全員同じ内容でも、金額によって傾斜をつけても構いません。
-          </p>
-        </div>
-        {planOptions.map((amount) => (
-          <label key={amount} className="flex items-center gap-3">
-            <span className="w-16 shrink-0 rounded-full bg-ink/8 py-1 text-center text-xs font-bold text-ink/72">
-              ¥{amount}
-            </span>
-            <input
-              className="field text-sm"
-              value={planBenefits[amount]}
-              onChange={(e) => setPlanBenefits((prev) => ({ ...prev, [amount]: e.target.value }))}
-              placeholder={
-                amount === 300 ? "例：限定投稿が届く" :
-                amount === 500 ? "例：イベント先行案内あり" :
-                "例：ドリンク1杯サービス"
-              }
-              maxLength={40}
-            />
-          </label>
-        ))}
       </div>
 
       <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/78">

@@ -23,7 +23,7 @@ export function SocioSignupModal({
   spot,
   open,
   onClose,
-  defaultPlan = 500,
+  defaultPlan = planOptions[0],
   initialStep
 }: {
   spot: Spot;
@@ -355,10 +355,11 @@ export function SocioSignupModal({
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <div className={`mt-6 grid gap-3 ${planOptions.length > 1 ? "sm:grid-cols-3" : ""}`}>
                   {planOptions.map((amount) => {
                     const active = amount === planAmount;
                     const benefit = spot.planBenefits?.[amount];
+                    const single = planOptions.length === 1;
                     return (
                       <button
                         key={amount}
@@ -366,14 +367,21 @@ export function SocioSignupModal({
                         onClick={() => setPlanAmount(amount)}
                         className={`rounded-[20px] border p-5 text-left transition ${
                           active ? "border-ink bg-ink text-white" : "border-ink/10 bg-mist text-ink"
-                        }`}
+                        } ${single ? "flex items-center justify-between" : ""}`}
                       >
-                        <div className="text-[13px] font-semibold tracking-[0.18em] opacity-65">MONTHLY</div>
-                        <div className="mt-2 text-4xl font-bold">¥{amount}</div>
-                        {benefit && (
-                          <p className={`mt-2.5 text-xs leading-5 ${active ? "text-white/80" : "text-ink/68"}`}>
-                            {benefit}
-                          </p>
+                        <div>
+                          <div className="text-[13px] font-semibold tracking-[0.18em] opacity-65">MONTHLY</div>
+                          <div className="mt-2 text-4xl font-bold">¥{amount}</div>
+                          {benefit && (
+                            <p className={`mt-2.5 text-xs leading-5 ${active ? "text-white/80" : "text-ink/68"}`}>
+                              {benefit}
+                            </p>
+                          )}
+                        </div>
+                        {single && (
+                          <span className={`text-sm font-medium ${active ? "text-white/75" : "text-ink/60"}`}>
+                            応援会員になる
+                          </span>
                         )}
                       </button>
                     );
