@@ -351,7 +351,7 @@ export function SocioSignupModal({
                       onChange={(e) => setAddressLine(e.target.value)}
                       placeholder="都道府県・市区町村・番地"
                     />
-                    <p className="text-[13px] text-ink/60">特典の送付などに利用します。オーナーのみ閲覧できます。</p>
+                    <p className="text-[13px] text-ink/60">オーナーのみ閲覧できます。</p>
                   </div>
                 </div>
 

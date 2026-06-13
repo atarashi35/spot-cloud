@@ -576,7 +576,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
                 {/* 価格 + ボタン */}
                 <div className="mt-auto pt-6">
-                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 300円〜1,000円</p>
+                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 300円</p>
                   <button
                     type="button"
                     className="cta-primary w-full"
