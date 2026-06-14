@@ -17,7 +17,8 @@ const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "ライブハウス・音楽", label: "ライブハウス・音楽" },
   { value: "劇場・パフォーマンス", label: "劇場・パフォーマンス" },
   { value: "ギャラリー・アート", label: "ギャラリー・アート" },
-  { value: "神社・寺院", label: "神社・寺院" },
+  { value: "伝統文化・芸能", label: "伝統文化・芸能" },
+  { value: "カフェ・バー", label: "カフェ・バー" },
   { value: "その他", label: "その他" },
 ];
 

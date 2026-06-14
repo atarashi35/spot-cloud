@@ -45,8 +45,9 @@ function normalizeSpotCategory(value: unknown): SpotCategory {
 
   // 旧カテゴリ → 新カテゴリの読み替え（既存データ互換）
   const legacyMap: Record<string, SpotCategory> = {
-    "神社": "神社・寺院",
-    "寺社仏閣": "神社・寺院",
+    "神社": "伝統文化・芸能",
+    "寺社仏閣": "伝統文化・芸能",
+    "神社・寺院": "伝統文化・芸能",
     "アート": "ギャラリー・アート",
     "音楽・ライブ": "ライブハウス・音楽",
     "文化施設": "ミニシアター・映画館"
@@ -62,7 +63,8 @@ function normalizeSpotCategory(value: unknown): SpotCategory {
     "ライブハウス・音楽",
     "劇場・パフォーマンス",
     "ギャラリー・アート",
-    "神社・寺院",
+    "伝統文化・芸能",
+    "カフェ・バー",
     "文化プロジェクト",
     "その他"
   ];

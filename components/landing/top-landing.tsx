@@ -70,7 +70,7 @@ const faqs: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "どんな場所・活動で使えますか？",
-    a: "本屋・書店、ミニシアター、ライブハウス、劇場、ギャラリー、神社・寺院、文化プロジェクトなど、「続いてほしい」と思われている街の文化拠点のための仕組みです。個人経営でも法人でも団体でも利用できます。",
+    a: "本屋・書店、ミニシアター、ライブハウス、劇場、ギャラリー、伝統文化・芸能、カフェ・バー、文化プロジェクトなど、「続いてほしい」と思われている街の文化拠点のための仕組みです。個人経営でも法人でも団体でも利用できます。",
   },
   {
     q: "応援会員の月額金額は？",
@@ -162,7 +162,7 @@ export function TopLanding() {
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/78 sm:text-base">
                 ファンや常連さんが月300円から、続ける力になります。
-                本屋・ミニシアター・ライブハウス・劇場・ギャラリー・神社・文化プロジェクトのための仕組みです。
+                本屋・ミニシアター・ライブハウス・劇場・ギャラリー・伝統文化・カフェ・バー・文化プロジェクトのための仕組みです。
               </p>
               <div className="hero-animate-3 mt-6 inline-flex items-center gap-3 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5">
                 <span className="text-sm font-semibold text-white/80">初期費用・月額費用</span>
