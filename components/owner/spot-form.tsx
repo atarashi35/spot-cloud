@@ -65,12 +65,12 @@ const prefectures = [
 ] as const;
 
 const categories: SpotCategory[] = [
-  "本屋・書店",
-  "ミニシアター・映画館",
   "ライブハウス・音楽",
   "劇場・パフォーマンス",
+  "ミニシアター・映画館",
   "ギャラリー・アート",
   "伝統文化・芸能",
+  "本屋・書店",
   "カフェ・バー",
   "文化プロジェクト",
   "その他"
@@ -163,7 +163,7 @@ export function SpotForm(props: SpotFormProps) {
   const router = useRouter();
   const { authReady, user } = useAuth();
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<SpotCategory>("本屋・書店");
+  const [category, setCategory] = useState<SpotCategory>("ライブハウス・音楽");
   const [postalCode, setPostalCode] = useState("");
   const [prefecture, setPrefecture] = useState<(typeof prefectures)[number]>("東京都");
   const [city, setCity] = useState("");

@@ -19,12 +19,12 @@ export function isSignupPlan(value: number): value is SignupPlanAmount {
 }
 
 export type SpotCategory =
-  | "本屋・書店"
-  | "ミニシアター・映画館"
   | "ライブハウス・音楽"
   | "劇場・パフォーマンス"
+  | "ミニシアター・映画館"
   | "ギャラリー・アート"
   | "伝統文化・芸能"
+  | "本屋・書店"
   | "カフェ・バー"
   | "文化プロジェクト"
   | "その他";

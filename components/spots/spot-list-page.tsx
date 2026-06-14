@@ -12,13 +12,14 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "all", label: "すべて" },
-  { value: "本屋・書店", label: "本屋・書店" },
-  { value: "ミニシアター・映画館", label: "ミニシアター・映画館" },
   { value: "ライブハウス・音楽", label: "ライブハウス・音楽" },
   { value: "劇場・パフォーマンス", label: "劇場・パフォーマンス" },
+  { value: "ミニシアター・映画館", label: "ミニシアター・映画館" },
   { value: "ギャラリー・アート", label: "ギャラリー・アート" },
   { value: "伝統文化・芸能", label: "伝統文化・芸能" },
+  { value: "本屋・書店", label: "本屋・書店" },
   { value: "カフェ・バー", label: "カフェ・バー" },
+  { value: "文化プロジェクト", label: "文化プロジェクト" },
   { value: "その他", label: "その他" },
 ];
 
