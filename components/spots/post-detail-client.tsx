@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { FileText, Film } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { Spot, SpotPost } from "@/lib/types";
+import { toVideoEmbedUrl } from "@/lib/utils";
 
 export function PostDetailClient({ spotId, postId }: { spotId: string; postId: string }) {
   const { authReady, user } = useAuth();
@@ -144,20 +145,32 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
                 ))}
               </div>
             )}
-            {/* 動画プレーヤー */}
-            {post.attachments!.filter((a) => a.type === "video").map((att, i) => (
-              <div key={`v${i}`} className="overflow-hidden rounded-[20px] bg-black">
-                <video
-                  src={att.url}
-                  controls
-                  controlsList="nodownload"
-                  className="w-full"
-                  preload="metadata"
+            {/* 動画（YouTube / Vimeo 埋め込み） */}
+            {post.attachments!.filter((a) => a.type === "video").map((att, i) => {
+              const embed = toVideoEmbedUrl(att.url);
+              return embed ? (
+                <div key={`v${i}`} className="aspect-video overflow-hidden rounded-[20px] bg-black">
+                  <iframe
+                    src={embed}
+                    title={att.name || "動画"}
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <a
+                  key={`v${i}`}
+                  href={att.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-[16px] border border-ink/10 bg-mist px-4 py-3 transition hover:bg-ink/5"
                 >
-                  お使いのブラウザは動画再生に対応していません。
-                </video>
-              </div>
-            ))}
+                  <Film className="h-5 w-5 shrink-0 text-ink/60" />
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink/75">動画を見る</span>
+                </a>
+              );
+            })}
             {/* PDF ダウンロードカード */}
             {post.attachments!.filter((a) => a.type === "pdf").map((att, i) => (
               <a

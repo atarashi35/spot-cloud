@@ -69,3 +69,31 @@ export function splitAddress(address: string) {
     city
   };
 }
+
+/**
+ * YouTube / Vimeo の各種URLを埋め込み用URLに変換する。
+ * 対応外URLは null を返す（呼び出し側でリンク表示にフォールバック）。
+ */
+export function toVideoEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url.trim());
+    const host = u.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") {
+      const id = u.pathname.slice(1).split("/")[0];
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      if (u.pathname.startsWith("/embed/")) return `https://www.youtube.com${u.pathname}`;
+      const v = u.searchParams.get("v");
+      return v ? `https://www.youtube.com/embed/${v}` : null;
+    }
+    if (host === "vimeo.com") {
+      const id = u.pathname.split("/").filter(Boolean)[0];
+      return id && /^\d+$/.test(id) ? `https://player.vimeo.com/video/${id}` : null;
+    }
+    if (host === "player.vimeo.com") return u.href;
+    return null;
+  } catch {
+    return null;
+  }
+}

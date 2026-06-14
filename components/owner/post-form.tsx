@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AttachmentsUploader } from "@/components/ui/attachments-uploader";
 import { PostAttachment, SignupPlanAmount } from "@/lib/types";
+import { toVideoEmbedUrl } from "@/lib/utils";
 import {
   createSpotPostInFirestore,
   deleteSpotPostInFirestore,
@@ -24,6 +25,8 @@ export function PostForm(props: PostFormProps) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [attachments, setAttachments] = useState<PostAttachment[]>([]);
+  // 動画はYouTube/Vimeoの外部リンクで扱う（ストレージコスト回避）
+  const [videoUrl, setVideoUrl] = useState("");
   const [publishDate, setPublishDate] = useState(new Date().toISOString().slice(0, 10));
   const [isPublic, setIsPublic] = useState(false);
   // undefined: 全会員 / 500: ¥500以上 / 1000: ¥1,000以上
@@ -49,7 +52,10 @@ export function PostForm(props: PostFormProps) {
         if (post) {
           setTitle(post.title);
           setBody(post.body);
-          setAttachments(post.attachments ?? []);
+          // 動画リンク(type:video)は専用入力へ、画像/PDFはアップローダーへ振り分け
+          const atts = post.attachments ?? [];
+          setVideoUrl(atts.find((a) => a.type === "video")?.url ?? "");
+          setAttachments(atts.filter((a) => a.type !== "video"));
           setPublishDate(post.publishDate);
           setIsPublic(post.isPublic);
           setMinPlanAmount(post.minPlanAmount);
@@ -71,6 +77,16 @@ export function PostForm(props: PostFormProps) {
       return;
     }
 
+    // 動画リンクの検証＋添付へのマージ
+    const trimmedVideo = videoUrl.trim();
+    if (trimmedVideo && !toVideoEmbedUrl(trimmedVideo)) {
+      setError("動画リンクはYouTubeまたはVimeoのURLを入力してください。");
+      return;
+    }
+    const mergedAttachments: PostAttachment[] = trimmedVideo
+      ? [...attachments, { url: trimmedVideo, type: "video", name: "動画" }]
+      : attachments;
+
     setSaving(true);
     setError(null);
 
@@ -82,7 +98,7 @@ export function PostForm(props: PostFormProps) {
         const res = await fetch(`/api/spots/${props.spotId}/posts`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ title, body, attachments, publishDate, isPublic, minPlanAmount: isPublic ? undefined : minPlanAmount })
+          body: JSON.stringify({ title, body, attachments: mergedAttachments, publishDate, isPublic, minPlanAmount: isPublic ? undefined : minPlanAmount })
         });
         if (!res.ok) {
           const data = (await res.json()) as { error?: string };
@@ -99,7 +115,7 @@ export function PostForm(props: PostFormProps) {
         });
       } else {
         await updateSpotPostInFirestore(props.spotId, props.postId, {
-          title, body, attachments, publishDate, isPublic,
+          title, body, attachments: mergedAttachments, publishDate, isPublic,
           minPlanAmount: isPublic ? undefined : minPlanAmount
         });
       }
@@ -169,6 +185,21 @@ export function PostForm(props: PostFormProps) {
           onChange={setAttachments}
           storagePath={`spots/${props.spotId}/posts`}
         />
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-ink/72">
+          動画リンク（任意・YouTube / Vimeo）
+        </label>
+        <input
+          className="field"
+          value={videoUrl}
+          onChange={(event) => setVideoUrl(event.target.value)}
+          placeholder="https://youtu.be/... または https://vimeo.com/..."
+          inputMode="url"
+        />
+        <p className="mt-1.5 text-xs text-ink/60">
+          動画は限定公開などにしたYouTube/Vimeoのリンクを貼ってください。投稿の公開設定に応じて表示されます。
+        </p>
       </div>
       <input className="field" value={publishDate} onChange={(event) => setPublishDate(event.target.value)} type="date" required />
       {/* 公開設定 */}
