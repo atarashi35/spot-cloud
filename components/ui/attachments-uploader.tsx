@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, ImagePlus, Loader2, X } from "lucide-react";
+import { FileText, Film, ImagePlus, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { getFirebaseStorage } from "@/lib/firebase/client";
@@ -9,6 +9,7 @@ import { PostAttachment } from "@/lib/types";
 const MAX_FILES = 5;
 const MAX_IMAGE_MB = 10;
 const MAX_PDF_MB = 20;
+const MAX_VIDEO_MB = 500;
 
 // ─── 画像圧縮 ──────────────────────────────────────────────────────────────────
 
@@ -39,13 +40,15 @@ async function compressImage(file: File, maxPx = 1200, quality = 0.78): Promise<
 
 // ─── ファイル種別判定 ──────────────────────────────────────────────────────────
 
-function detectType(file: File): "image" | "pdf" | null {
+function detectType(file: File): "image" | "pdf" | "video" | null {
   if (file.type.startsWith("image/") && file.type !== "image/svg+xml") return "image";
   if (file.type === "application/pdf") return "pdf";
+  if (file.type.startsWith("video/")) return "video";
   // 拡張子でも判定（type が空のケース）
   const ext = file.name.split(".").pop()?.toLowerCase();
   if (ext === "pdf") return "pdf";
   if (["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(ext ?? "")) return "image";
+  if (["mp4", "mov", "webm", "m4v"].includes(ext ?? "")) return "video";
   return null;
 }
 
@@ -66,6 +69,13 @@ function AttachmentPreview({
           alt={attachment.name}
           className="h-24 w-full object-cover"
         />
+      ) : attachment.type === "video" ? (
+        <div className="flex h-24 flex-col items-center justify-center gap-1.5 px-2">
+          <Film className="h-7 w-7 text-ink/60" />
+          <span className="line-clamp-2 text-center text-xs leading-tight text-ink/68">
+            {attachment.name}
+          </span>
+        </div>
       ) : (
         <div className="flex h-24 flex-col items-center justify-center gap-1.5 px-2">
           <FileText className="h-7 w-7 text-ink/60" />
@@ -118,11 +128,11 @@ export function AttachmentsUploader({ value, onChange, storagePath }: Props) {
       const fileType = detectType(file);
 
       if (!fileType) {
-        setError("対応していないファイル形式です（JPEG・PNG・WebP・PDF）。");
+        setError("対応していないファイル形式です（JPEG・PNG・WebP・PDF・動画MP4/MOV/WebM）。");
         continue;
       }
 
-      const maxMb = fileType === "pdf" ? MAX_PDF_MB : MAX_IMAGE_MB;
+      const maxMb = fileType === "pdf" ? MAX_PDF_MB : fileType === "video" ? MAX_VIDEO_MB : MAX_IMAGE_MB;
       if (file.size > maxMb * 1024 * 1024) {
         setError(`ファイルサイズは ${maxMb}MB 以下にしてください。`);
         continue;
@@ -132,18 +142,27 @@ export function AttachmentsUploader({ value, onChange, storagePath }: Props) {
         const storage = getFirebaseStorage();
         let uploadBlob: Blob;
         let filename: string;
+        let contentType: string;
 
         if (fileType === "image") {
           uploadBlob = await compressImage(file);
           filename = `${Date.now()}_${done}.jpg`;
-        } else {
+          contentType = "image/jpeg";
+        } else if (fileType === "pdf") {
           uploadBlob = file;
           filename = `${Date.now()}_${done}.pdf`;
+          contentType = "application/pdf";
+        } else {
+          // video — 圧縮せずそのままアップロード、拡張子を維持
+          uploadBlob = file;
+          const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
+          filename = `${Date.now()}_${done}.${ext}`;
+          contentType = file.type || "video/mp4";
         }
 
         const storageRef = ref(storage, `${storagePath}/${filename}`);
         const task = uploadBytesResumable(storageRef, uploadBlob, {
-          contentType: fileType === "pdf" ? "application/pdf" : "image/jpeg",
+          contentType,
         });
 
         task.on("state_changed", (snap) => {
@@ -209,7 +228,7 @@ export function AttachmentsUploader({ value, onChange, storagePath }: Props) {
               </div>
               <span>クリックまたはドラッグ＆ドロップ</span>
               <span className="text-xs text-ink/58">
-                画像（JPEG・PNG・WebP）またはPDF・最大{MAX_FILES}枚
+                画像・PDF・動画（MP4/MOV/WebP・最大{MAX_VIDEO_MB}MB）・最大{MAX_FILES}件
                 {value.length > 0 ? `（あと${remaining}枚）` : ""}
               </span>
             </>

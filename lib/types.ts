@@ -133,7 +133,7 @@ export interface UserMembership {
 
 export interface PostAttachment {
   url: string;
-  type: "image" | "pdf";
+  type: "image" | "pdf" | "video";
   name: string; // 表示用ファイル名
 }
 

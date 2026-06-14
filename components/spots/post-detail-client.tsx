@@ -6,34 +6,49 @@ import { FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
-import { getUserMembership } from "@/lib/firestore/memberships";
-import { getSpotPostFromFirestore } from "@/lib/firestore/posts";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
-import { Spot, SpotPost, UserMembership } from "@/lib/types";
+import { Spot, SpotPost } from "@/lib/types";
 
 export function PostDetailClient({ spotId, postId }: { spotId: string; postId: string }) {
   const { authReady, user } = useAuth();
   const [spot, setSpot] = useState<Spot | null>(null);
   const [post, setPost] = useState<SpotPost | null>(null);
-  const [membership, setMembership] = useState<UserMembership | null>(null);
+  // 認可で弾かれたとき、ゲート表示に使う最低プラン金額
+  const [forbidden, setForbidden] = useState<{ minPlanAmount?: 500 | 1000 } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authReady) return;
 
-    void Promise.all([
-      getSpotFromFirestore(spotId),
-      getSpotPostFromFirestore(spotId, postId),
-      user ? getUserMembership(user.uid, spotId) : Promise.resolve(null)
-    ])
-      .then(([nextSpot, nextPost, nextMembership]) => {
+    async function load() {
+      try {
+        const nextSpot = await getSpotFromFirestore(spotId);
         setSpot(nextSpot);
-        setPost(nextPost);
-        setMembership(nextMembership);
-      })
-      .catch((cause: Error) => setError(cause.message))
-      .finally(() => setLoading(false));
+
+        // 投稿はサーバー側で認可してから取得（限定コンテンツは未認可者に返らない）
+        const token = user ? await user.getIdToken() : null;
+        const res = await fetch(`/api/spots/${spotId}/posts/${postId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        if (res.status === 403) {
+          const data = (await res.json()) as { minPlanAmount?: 500 | 1000 };
+          setForbidden({ minPlanAmount: data.minPlanAmount });
+        } else if (res.ok) {
+          const data = (await res.json()) as { post: SpotPost };
+          setPost(data.post);
+        } else if (res.status === 404) {
+          setPost(null);
+        } else {
+          setError("投稿の読み込みに失敗しました。");
+        }
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "読み込みに失敗しました。");
+      } finally {
+        setLoading(false);
+      }
+    }
+    void load();
   }, [authReady, spotId, postId, user]);
 
   if (!authReady || loading) {
@@ -52,6 +67,25 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
     );
   }
 
+  if (forbidden) {
+    const tierLabel = forbidden.minPlanAmount
+      ? `¥${forbidden.minPlanAmount.toLocaleString()}以上の応援会員限定`
+      : "応援会員限定";
+    return (
+      <div className="shell">
+        <section className="panel px-6 py-8 sm:px-8">
+          <EmptyState
+            title={`この投稿は${tierLabel}です`}
+            description="対象プランの応援会員のみ閲覧できます。"
+          />
+          <Link href={`/spots/${spotId}`} className="cta-primary mt-6">
+            SPOTページへ
+          </Link>
+        </section>
+      </div>
+    );
+  }
+
   if (!post || !spot) {
     return (
       <div className="shell">
@@ -61,28 +95,6 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
   }
 
   const isOwner = user?.uid === spot.ownerUid;
-  const isActiveMember = membership?.status === "active" || membership?.status === "canceling";
-  // オーナーは Infinity、有効会員は加入プラン金額、非会員は 0
-  const viewerPlan = isOwner ? Infinity : (isActiveMember ? membership!.planAmount : 0);
-  const requiredPlan = post.minPlanAmount ?? (isOwner || isActiveMember ? 1 : Infinity);
-  const canView = post.isPublic || viewerPlan >= requiredPlan;
-
-  if (!canView) {
-    const tierLabel = post.minPlanAmount ? `¥${post.minPlanAmount.toLocaleString()}以上の応援会員限定` : "応援会員限定";
-    return (
-      <div className="shell">
-        <section className="panel px-6 py-8 sm:px-8">
-          <EmptyState
-            title={`この投稿は${tierLabel}です`}
-            description="対象プランの応援会員のみ閲覧できます。"
-          />
-          <Link href={`/spots/${spotId}/join`} className="cta-primary mt-6">
-            加入ページへ
-          </Link>
-        </section>
-      </div>
-    );
-  }
 
   return (
     <div className="shell space-y-6">
@@ -132,6 +144,20 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
                 ))}
               </div>
             )}
+            {/* 動画プレーヤー */}
+            {post.attachments!.filter((a) => a.type === "video").map((att, i) => (
+              <div key={`v${i}`} className="overflow-hidden rounded-[20px] bg-black">
+                <video
+                  src={att.url}
+                  controls
+                  controlsList="nodownload"
+                  className="w-full"
+                  preload="metadata"
+                >
+                  お使いのブラウザは動画再生に対応していません。
+                </video>
+              </div>
+            ))}
             {/* PDF ダウンロードカード */}
             {post.attachments!.filter((a) => a.type === "pdf").map((att, i) => (
               <a

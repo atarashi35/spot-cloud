@@ -45,7 +45,7 @@ function parseAttachments(data: Record<string, unknown>): PostAttachment[] {
   // 新フィールド attachments が存在すればそれを使う
   if (Array.isArray(data.attachments)) {
     return (data.attachments as PostAttachment[]).filter(
-      (a) => typeof a.url === "string" && (a.type === "image" || a.type === "pdf")
+      (a) => typeof a.url === "string" && (a.type === "image" || a.type === "pdf" || a.type === "video")
     );
   }
   // 旧フィールド imageUrl との後方互換
