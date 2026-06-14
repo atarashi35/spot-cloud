@@ -355,11 +355,11 @@ export function SocioSignupModal({
                   </div>
                 </div>
 
-                <div className={`mt-6 grid gap-3 ${planOptions.length > 1 ? "sm:grid-cols-3" : ""}`}>
+                <div className={`mt-6 grid gap-3 ${planOptions.length === 2 ? "sm:grid-cols-2" : planOptions.length > 2 ? "sm:grid-cols-3" : ""}`}>
                   {planOptions.map((amount) => {
                     const active = amount === planAmount;
                     const benefit = spot.planBenefits?.[amount];
-                    const single = planOptions.length === 1;
+                    const single = (planOptions.length as number) === 1;
                     return (
                       <button
                         key={amount}
