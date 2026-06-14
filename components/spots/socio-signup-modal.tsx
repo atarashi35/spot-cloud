@@ -13,7 +13,8 @@ import { PostalCodeField } from "@/components/forms/postal-code-field";
 import {
   PlanAmount,
   Spot,
-  planOptions
+  planOptions,
+  defaultPlanAmount
 } from "@/lib/types";
 
 type Step = "login" | "email_sent" | "profile";
@@ -23,7 +24,7 @@ export function SocioSignupModal({
   spot,
   open,
   onClose,
-  defaultPlan = planOptions[0],
+  defaultPlan = defaultPlanAmount,
   initialStep
 }: {
   spot: Spot;

@@ -42,7 +42,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-bold text-ink">第4条（料金・支払い）</h2>
             <p className="mt-3">
-              SPOTへの所属には月額300円（税込）のプランをお申し込みいただきます。
+              SPOTへの所属には月額300円・500円・1,000円（税込）のいずれかのプランをお申し込みいただきます。
               支払いはStripeを通じたクレジットカード決済となります。
               加入手続き完了時に初回課金が発生し、以降は毎月同日に自動更新されます。
             </p>

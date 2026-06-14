@@ -21,7 +21,7 @@ import { getUserMembership } from "@/lib/firestore/memberships";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { EMAIL_JOIN_PENDING_KEY, EmailJoinPending } from "@/lib/auth/email-link";
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
-import { PlanAmount, Spot, UserMembership, isSignupPlan, planOptions } from "@/lib/types";
+import { PlanAmount, Spot, UserMembership, isSignupPlan, planOptions, defaultPlanAmount } from "@/lib/types";
 import { isSvgAssetUrl } from "@/lib/utils";
 import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { SocioCard } from "@/components/account/socio-card";
@@ -144,7 +144,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       sessionStorage.removeItem(EMAIL_JOIN_PENDING_KEY);
       const plan = (isSignupPlan(Number(pending.planAmount))
         ? pending.planAmount
-        : planOptions[0]) as PlanAmount;
+        : defaultPlanAmount) as PlanAmount;
       setEmailJoinPlan(plan);
       setSignupModalOpen(true);
     } catch {
@@ -303,7 +303,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onClose={() => { setSignupModalOpen(false); setEmailJoinPlan(null); }}
         defaultPlan={
           emailJoinPlan ??
-          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : planOptions[0])
+          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : defaultPlanAmount)
         }
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
@@ -576,7 +576,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
                 {/* 価格 + ボタン */}
                 <div className="mt-auto pt-6">
-                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 300円</p>
+                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 300円〜</p>
                   <button
                     type="button"
                     className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"

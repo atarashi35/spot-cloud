@@ -228,6 +228,8 @@ export function TopLanding() {
             <div className="mt-4 grid gap-3">
               {[
                 { from: "¥300", to: "約 ¥260" },
+                { from: "¥500", to: "約 ¥434" },
+                { from: "¥1,000", to: "約 ¥868" },
               ].map((row) => (
                 <div key={row.from} className="flex items-center gap-3 rounded-2xl bg-mist px-5 py-3.5">
                   <span className="text-xl font-extrabold text-ink">{row.from}</span>
@@ -251,7 +253,7 @@ export function TopLanding() {
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">月間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥26,028</span>
+                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥43,380</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/月</span>
                 </div>
               </div>
@@ -259,14 +261,14 @@ export function TopLanding() {
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">年間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥312,336</span>
+                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥520,560</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/年</span>
                 </div>
               </div>
             </div>
           </div>
           <p className="mt-3 text-xs leading-6 text-ink/60">
-            月300円プラン・100人の場合の目安振込額。継続的に、毎月。
+            月500円プラン・100人の場合の目安振込額。継続的に、毎月。
           </p>
         </div>
       </PageShell>
