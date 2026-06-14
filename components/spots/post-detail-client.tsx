@@ -61,15 +61,20 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
   }
 
   const isOwner = user?.uid === spot.ownerUid;
-  const isMember = isOwner || membership?.status === "active";
+  const isActiveMember = membership?.status === "active" || membership?.status === "canceling";
+  // オーナーは Infinity、有効会員は加入プラン金額、非会員は 0
+  const viewerPlan = isOwner ? Infinity : (isActiveMember ? membership!.planAmount : 0);
+  const requiredPlan = post.minPlanAmount ?? (isOwner || isActiveMember ? 1 : Infinity);
+  const canView = post.isPublic || viewerPlan >= requiredPlan;
 
-  if (!post.isPublic && !isMember) {
+  if (!canView) {
+    const tierLabel = post.minPlanAmount ? `¥${post.minPlanAmount.toLocaleString()}以上の応援会員限定` : "応援会員限定";
     return (
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
-            title="この投稿は応援会員限定です"
-            description="加入済み応援会員のみ閲覧できます。"
+            title={`この投稿は${tierLabel}です`}
+            description="対象プランの応援会員のみ閲覧できます。"
           />
           <Link href={`/spots/${spotId}/join`} className="cta-primary mt-6">
             加入ページへ

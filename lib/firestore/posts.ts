@@ -16,7 +16,7 @@ import {
   where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
-import { PostAttachment, SpotPost } from "@/lib/types";
+import { PostAttachment, SpotPost, SignupPlanAmount } from "@/lib/types";
 
 type SpotPostInput = {
   title: string;
@@ -24,6 +24,7 @@ type SpotPostInput = {
   attachments?: PostAttachment[];
   publishDate: string;
   isPublic: boolean;
+  minPlanAmount?: SignupPlanAmount;
 };
 
 function parseTimestamp(value: unknown) {
@@ -64,6 +65,9 @@ function mapPost(spotId: string, id: string, data: Record<string, unknown>): Spo
     attachments: parseAttachments(data),
     publishDate: String(data.publishDate ?? ""),
     isPublic: Boolean(data.isPublic),
+    minPlanAmount: (data.minPlanAmount === 500 || data.minPlanAmount === 1000)
+      ? (data.minPlanAmount as SignupPlanAmount)
+      : undefined,
     createdBy: String(data.createdBy ?? ""),
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
@@ -111,6 +115,7 @@ export async function createSpotPostInFirestore(
     attachments: input.attachments ?? [],
     publishDate: input.publishDate,
     isPublic: input.isPublic,
+    minPlanAmount: input.isPublic ? null : (input.minPlanAmount ?? null),
     createdBy: uid,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -129,6 +134,7 @@ export async function updateSpotPostInFirestore(
     attachments: input.attachments ?? [],
     publishDate: input.publishDate,
     isPublic: input.isPublic,
+    minPlanAmount: input.isPublic ? null : (input.minPlanAmount ?? null),
     updatedAt: serverTimestamp()
   });
 }

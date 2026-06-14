@@ -10,6 +10,7 @@ type Body = {
   attachments?: PostAttachment[];
   publishDate: string;
   isPublic: boolean;
+  minPlanAmount?: 500 | 1000;
 };
 
 export async function POST(
@@ -50,6 +51,9 @@ export async function POST(
       attachments: payload.attachments ?? [],
       publishDate: payload.publishDate,
       isPublic: Boolean(payload.isPublic),
+      minPlanAmount: payload.isPublic
+        ? null
+        : (payload.minPlanAmount === 500 || payload.minPlanAmount === 1000 ? payload.minPlanAmount : null),
       createdBy: decoded.uid,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp()

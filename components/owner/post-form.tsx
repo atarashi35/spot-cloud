@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AttachmentsUploader } from "@/components/ui/attachments-uploader";
-import { PostAttachment } from "@/lib/types";
+import { PostAttachment, SignupPlanAmount } from "@/lib/types";
 import {
   createSpotPostInFirestore,
   deleteSpotPostInFirestore,
@@ -26,6 +26,8 @@ export function PostForm(props: PostFormProps) {
   const [attachments, setAttachments] = useState<PostAttachment[]>([]);
   const [publishDate, setPublishDate] = useState(new Date().toISOString().slice(0, 10));
   const [isPublic, setIsPublic] = useState(false);
+  // undefined: 全会員 / 500: ¥500以上 / 1000: ¥1,000以上
+  const [minPlanAmount, setMinPlanAmount] = useState<SignupPlanAmount | undefined>(undefined);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -50,6 +52,7 @@ export function PostForm(props: PostFormProps) {
           setAttachments(post.attachments ?? []);
           setPublishDate(post.publishDate);
           setIsPublic(post.isPublic);
+          setMinPlanAmount(post.minPlanAmount);
         }
       })
       .catch((cause: Error) => {
@@ -79,7 +82,7 @@ export function PostForm(props: PostFormProps) {
         const res = await fetch(`/api/spots/${props.spotId}/posts`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ title, body, attachments, publishDate, isPublic })
+          body: JSON.stringify({ title, body, attachments, publishDate, isPublic, minPlanAmount: isPublic ? undefined : minPlanAmount })
         });
         if (!res.ok) {
           const data = (await res.json()) as { error?: string };
@@ -96,7 +99,8 @@ export function PostForm(props: PostFormProps) {
         });
       } else {
         await updateSpotPostInFirestore(props.spotId, props.postId, {
-          title, body, attachments, publishDate, isPublic
+          title, body, attachments, publishDate, isPublic,
+          minPlanAmount: isPublic ? undefined : minPlanAmount
         });
       }
       if (props.onSuccess) {
@@ -184,6 +188,29 @@ export function PostForm(props: PostFormProps) {
             </button>
           ))}
         </div>
+
+        {/* 対象プラン（限定投稿のときだけ・任意） */}
+        {!isPublic && (
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-medium text-ink/65">
+              対象プラン（任意・上位プランほど下位限定も閲覧できます）
+            </p>
+            <div className="flex gap-2">
+              {([undefined, 500, 1000] as const).map((amount) => (
+                <button
+                  key={String(amount)}
+                  type="button"
+                  onClick={() => setMinPlanAmount(amount)}
+                  className={`flex-1 rounded-[16px] px-3 py-2.5 text-sm font-medium transition ${
+                    minPlanAmount === amount ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
+                  }`}
+                >
+                  {amount === undefined ? "全会員" : `¥${amount.toLocaleString()}以上`}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
       <div className="flex flex-wrap gap-3">

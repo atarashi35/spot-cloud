@@ -29,6 +29,7 @@ import { ModalShell } from "@/components/ui/modal-shell";
 
 type FeedPost = {
   id: string; isPublic: boolean; publishDate: string;
+  minPlanAmount?: 500 | 1000;
   title: string; body: string; imageUrl: string | null;
   attachments: { url: string; type: string }[];
   masked: boolean;
@@ -666,7 +667,9 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   {allPosts.length === 0 ? (
                     <p className="text-[15px] text-ink/65">投稿はありません。</p>
                   ) : allPosts.map((post) => {
-                    const isLocked = locked && !post.isPublic;
+                    // masked はフィードAPIがプラン閾値込みで判定済み（サーバー権威）
+                    const isLocked = post.masked || (locked && !post.isPublic);
+                    const tierLabel = post.minPlanAmount ? `¥${post.minPlanAmount.toLocaleString()}以上限定` : null;
                     const thumb = post.attachments?.find((a) => a.type === "image")?.url ?? post.imageUrl;
                     return (
                       <article key={post.id} className="relative overflow-hidden rounded-[20px] border border-ink/8 bg-white">
@@ -679,7 +682,9 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold text-ink/65">{post.publishDate}</span>
                             {!post.isPublic && (
-                              <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-700">MEMBERS</span>
+                              <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-700">
+                                {tierLabel ?? "MEMBERS"}
+                              </span>
                             )}
                           </div>
                           <h4 className="mt-2 text-lg font-bold text-ink">{post.title}</h4>
@@ -694,7 +699,9 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[20px] bg-white/80 backdrop-blur-[3px]">
-                            <p className="text-sm font-bold text-ink/72">応援会員限定コンテンツです</p>
+                            <p className="text-sm font-bold text-ink/72">
+                              {tierLabel ? `${tierLabel}コンテンツです` : "応援会員限定コンテンツです"}
+                            </p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="cta-primary">
                                 応援会員になる

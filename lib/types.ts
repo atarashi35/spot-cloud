@@ -148,6 +148,12 @@ export interface SpotPost {
   publishDate: string;
   /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
   isPublic: boolean;
+  /**
+   * 応援会員限定（isPublic=false）のとき、閲覧に必要な最低プラン金額。
+   * undefined: 全会員が閲覧可 / 500: ¥500以上 / 1000: ¥1,000以上。
+   * 上位プランほど下位限定も閲覧できる（閾値方式）。
+   */
+  minPlanAmount?: SignupPlanAmount;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
