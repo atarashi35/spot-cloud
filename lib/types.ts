@@ -5,7 +5,7 @@
  */
 export type PlanAmount = 100 | 300 | 500 | 1000;
 
-export const planOptions = [300, 1000] as const satisfies readonly PlanAmount[];
+export const planOptions = [300, 500, 1000] as const satisfies readonly PlanAmount[];
 
 export type SignupPlanAmount = (typeof planOptions)[number];
 

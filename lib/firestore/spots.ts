@@ -211,6 +211,13 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
   });
 }
 
+export async function updateSpotPlanBenefits(spotId: string, planBenefits: PlanBenefits) {
+  await updateDoc(doc(getFirestoreDb(), "spots", spotId), {
+    planBenefits,
+    updatedAt: serverTimestamp()
+  });
+}
+
 export async function setSpotPublished(spotId: string, isPublished: boolean) {
   await updateDoc(doc(getFirestoreDb(), "spots", spotId), {
     isPublished,

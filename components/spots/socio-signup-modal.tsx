@@ -355,7 +355,7 @@ export function SocioSignupModal({
                   </div>
                 </div>
 
-                <div className={`mt-6 grid gap-3 ${planOptions.length === 2 ? "sm:grid-cols-2" : planOptions.length > 2 ? "sm:grid-cols-3" : ""}`}>
+                <div className={`mt-6 grid gap-3 ${(() => { const n = planOptions.length as number; return n === 2 ? "sm:grid-cols-2" : n > 2 ? "sm:grid-cols-3" : ""; })()}`}>
                   {planOptions.map((amount) => {
                     const active = amount === planAmount;
                     const benefit = spot.planBenefits?.[amount];

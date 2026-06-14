@@ -564,6 +564,10 @@ export function OwnerConsoleClient() {
                   応援会員一覧{revenue ? `（${socioCount}人）` : ""}
                 </a>
                 <span className="text-ink/40">·</span>
+                <a href={`/manage/${spot.id}/benefits`} className="text-xs text-ink/65 hover:text-ink transition-colors">
+                  特典設定
+                </a>
+                <span className="text-ink/40">·</span>
                 <Link href={`/owner/spots/${spot.id}/edit`} className="text-xs text-ink/65 hover:text-ink transition-colors">
                   SPOT編集
                 </Link>
