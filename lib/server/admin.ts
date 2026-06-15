@@ -2,25 +2,29 @@ import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import { getAdminEmails } from "@/lib/auth/admin";
 import { Spot, SpotCategory } from "@/lib/types";
 import { stripe } from "@/lib/stripe/config";
+import { payoutStateFromAccount, PayoutState } from "@/lib/stripe/payout-state";
 
-/** 受取(Connect)の実状態。none=未連携 / review=審査中 / action=要対応 / ready=入金可 */
-export type AdminPayoutState = "none" | "review" | "action" | "ready";
+export type AdminPayoutState = PayoutState;
 export type AdminSpot = Spot & { payoutState: AdminPayoutState };
 
-async function resolvePayoutState(accountId: string | undefined): Promise<AdminPayoutState> {
+const VALID_STATES: AdminPayoutState[] = ["none", "review", "action", "ready"];
+
+/**
+ * 受取状態を解決する。Firestoreにwebhook由来のキャッシュ(cached)があればStripeを叩かず使う。
+ * 無い場合のみライブ照会（self-heal）。
+ */
+async function resolvePayoutState(
+  accountId: string | undefined,
+  cached: unknown
+): Promise<AdminPayoutState> {
   if (!accountId) return "none";
+  if (typeof cached === "string" && VALID_STATES.includes(cached as AdminPayoutState)) {
+    return cached as AdminPayoutState;
+  }
   if (!stripe) return "none";
   try {
     const account = await stripe.accounts.retrieve(accountId);
-    const transfersEnabled =
-      account.capabilities?.transfers === "active" || Boolean(account.payouts_enabled);
-    const ready =
-      Boolean(account.details_submitted) && transfersEnabled &&
-      Boolean(account.payouts_enabled) && (account.requirements?.currently_due?.length ?? 0) === 0;
-    if (ready) return "ready";
-    const reason = account.requirements?.disabled_reason;
-    if (reason === "under_review" || reason === "requirements.pending_verification") return "review";
-    return "action";
+    return payoutStateFromAccount(account);
   } catch {
     return "none";
   }
@@ -110,13 +114,16 @@ export async function verifyAdminToken(authorizationHeader: string | null) {
 
 export async function listAdminSpots(): Promise<AdminSpot[]> {
   const snapshot = await getAdminDb().collection("spots").orderBy("updatedAt", "desc").get();
-  const spots = snapshot.docs.map((item) => mapAdminSpot(item.id, item.data()));
-  // 連携済みアカウントの実ステータスをStripeから取得（best-effort・並列）
+  // 受取状態はキャッシュ優先（webhookで更新）。無い分だけStripeへ照会。
   return Promise.all(
-    spots.map(async (spot) => ({
-      ...spot,
-      payoutState: await resolvePayoutState(spot.stripeConnectedAccountId),
-    }))
+    snapshot.docs.map(async (item) => {
+      const data = item.data();
+      const spot = mapAdminSpot(item.id, data);
+      return {
+        ...spot,
+        payoutState: await resolvePayoutState(spot.stripeConnectedAccountId, data.payoutState),
+      };
+    })
   );
 }
 

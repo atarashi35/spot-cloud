@@ -12,6 +12,7 @@ import {
   sendOwnerSocioLeft,
 } from "@/lib/server/mailer";
 import { getAdminDb } from "@/lib/firebase/admin";
+import { payoutStateFromAccount } from "@/lib/stripe/payout-state";
 
 /**
  * Stripe Subscription → MembershipStatus のマッピング
@@ -281,6 +282,21 @@ export async function POST(request: Request) {
         "canceled"
       );
       return NextResponse.json({ ...result, type: event.type });
+    }
+
+    // 連結アカウントの状態変化（本人確認の完了/要対応など）をFirestoreにキャッシュ
+    if (event.type === "account.updated") {
+      const account = event.data.object as Stripe.Account;
+      const state = payoutStateFromAccount(account);
+      const snap = await getAdminDb()
+        .collection("spots")
+        .where("stripeConnectedAccountId", "==", account.id)
+        .limit(1)
+        .get();
+      if (!snap.empty) {
+        await snap.docs[0].ref.update({ payoutState: state });
+      }
+      return NextResponse.json({ received: true, type: event.type, payoutState: state });
     }
 
     return NextResponse.json({ received: true, type: event.type });
