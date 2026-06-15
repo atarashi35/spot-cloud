@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessageSquare, ToggleLeft, ToggleRight } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { listOpinions, markOpinionRead, setOpinionBoxEnabled } from "@/lib/firestore/votes";
 import { OpinionBoxEntry, Spot } from "@/lib/types";
 
@@ -55,13 +55,25 @@ export function OpinionBoxPanel({ spot, onSpotChange }: Props) {
         <button
           type="button"
           onClick={() => void handleToggle()}
-          className="flex items-center gap-1 text-[13px] font-semibold text-ink/65 hover:text-ink transition-colors"
+          role="switch"
+          aria-checked={spot.opinionBoxEnabled}
+          aria-label="ご意見ボックスのオン・オフ"
+          className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-ink/5"
         >
-          {spot.opinionBoxEnabled ? (
-            <><ToggleRight className="h-4 w-4 text-moss" />オン</>
-          ) : (
-            <><ToggleLeft className="h-4 w-4" />オフ</>
-          )}
+          <span
+            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${
+              spot.opinionBoxEnabled ? "bg-moss" : "bg-ink/20"
+            }`}
+          >
+            <span
+              className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-sm transition-transform ${
+                spot.opinionBoxEnabled ? "translate-x-[22px]" : "translate-x-0.5"
+              }`}
+            />
+          </span>
+          <span className={`text-sm font-bold ${spot.opinionBoxEnabled ? "text-moss" : "text-ink/55"}`}>
+            {spot.opinionBoxEnabled ? "オン" : "オフ"}
+          </span>
         </button>
       </div>
 
