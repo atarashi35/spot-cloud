@@ -120,6 +120,8 @@ export function OwnerConsoleClient() {
   const [summaries, setSummaries] = useState<Record<string, SpotSummary>>({});
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [openBreakdowns, setOpenBreakdowns] = useState<Record<string, boolean>>({});
+  // 実際の会員数（members APIの権威値）。Stripe由来のrevenue.socioCountより優先する。
+  const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
   const [error, setError] = useState<string | null>(null);
   type PostModal = { spotId: string; mode: "create" } | { spotId: string; mode: "edit"; postId: string } | null;
   const [postModal, setPostModal] = useState<PostModal>(null);
@@ -325,7 +327,7 @@ export function OwnerConsoleClient() {
           const content = summary?.content;
           const isAccepting = spot.isPublished && Boolean(spot.stripeConnectedAccountId);
           const connectReady = Boolean(spot.stripeConnectedAccountId);
-          const socioCount = revenue?.socioCount ?? spot.socioCount;
+          const socioCount = memberCounts[spot.id] ?? revenue?.socioCount ?? spot.socioCount;
           const rankProgress = getSocioRankProgress(socioCount);
 
           return (
@@ -526,6 +528,9 @@ export function OwnerConsoleClient() {
                 spotId={spot.id}
                 spotShareHref={`/owner/spots/${spot.id}/share`}
                 spotPublicHref={`/spots/${spot.id}`}
+                onActiveCount={(n) =>
+                  setMemberCounts((prev) => (prev[spot.id] === n ? prev : { ...prev, [spot.id]: n }))
+                }
               />
 
               {/* ご意見ボックス */}
@@ -583,7 +588,7 @@ export function OwnerConsoleClient() {
                 </Link>
                 <a href={`/manage/${spot.id}/socios`} className={MENU_ITEM_CLS}>
                   <Users className="h-4 w-4 shrink-0 text-ink/55" />
-                  <span className="truncate">応援会員一覧{revenue ? `（${socioCount}）` : ""}</span>
+                  <span className="truncate">応援会員一覧（{socioCount}）</span>
                 </a>
                 <a href={`/manage/${spot.id}/benefits`} className={MENU_ITEM_CLS}>
                   <Gift className="h-4 w-4 shrink-0 text-ink/55" />

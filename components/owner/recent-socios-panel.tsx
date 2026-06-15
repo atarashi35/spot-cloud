@@ -54,9 +54,11 @@ type Props = {
   spotId: string;
   spotShareHref: string;
   spotPublicHref: string;
+  /** 有効な応援会員数（active + canceling）を親に通知する */
+  onActiveCount?: (count: number) => void;
 };
 
-export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref }: Props) {
+export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref, onActiveCount }: Props) {
   const { user } = useAuth();
   const [recents, setRecents] = useState<SpotMembership[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,6 +76,7 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref }: Pro
         const active = (data.members ?? []).filter(
           (m) => m.status === "active" || m.status === "canceling"
         );
+        onActiveCount?.(active.length);
         // API は joinedAt desc で返るのでそのまま先頭 5 件
         setRecents(active.slice(0, 5));
       } catch {
