@@ -61,7 +61,7 @@ export function ConnectOnboardingButton({
   return (
     <div className="space-y-2">
       <button type="button" className={className} onClick={startOnboarding} disabled={loading}>
-        {loading ? "Stripeへ移動中..." : (label ?? (connected ? "受取設定を再開する" : "受取設定を始める"))}
+        {loading ? "受取設定の画面を開いています..." : (label ?? (connected ? "受取設定を再開する" : "受取設定を始める"))}
       </button>
       {error ? <p className="text-xs font-medium text-red-700">{error}</p> : null}
     </div>

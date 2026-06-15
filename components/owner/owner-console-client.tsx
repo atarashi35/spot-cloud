@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Pencil, QrCode, Users, Gift, Landmark } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PostForm } from "@/components/owner/post-form";
 import { EmptyState } from "@/components/empty-state";
@@ -20,6 +20,9 @@ import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { Spot } from "@/lib/types";
 import { RecentSociosPanel } from "@/components/owner/recent-socios-panel";
 import { OpinionBoxPanel } from "@/components/owner/opinion-box-panel";
+
+const MENU_ITEM_CLS =
+  "flex items-center justify-center gap-1.5 rounded-[14px] border border-ink/10 bg-mist px-3 py-2.5 text-xs font-medium text-ink/75 transition hover:border-ink/25 hover:text-ink";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
@@ -302,7 +305,7 @@ export function OwnerConsoleClient() {
                 {revenueLoaded ? `¥${totalNet.toLocaleString()}` : "---"}
               </div>
               <div className="mt-0.5 text-xs text-ink/65">
-                {revenueLoaded ? "全SPOT合計（手数料控除後）" : "Stripe確認中..."}
+                {revenueLoaded ? "全SPOT合計（手数料控除後）" : "受取状況を確認中..."}
               </div>
             </div>
             <div className="h-10 w-px bg-ink/10" />
@@ -363,9 +366,9 @@ export function OwnerConsoleClient() {
                 /* ローディング */
                 <div className="mt-4 h-24 animate-pulse rounded-[16px] bg-mist" />
               ) : revenue === null ? (
-                /* Stripe未設定 or エラー */
+                /* 受取設定未完了 or エラー */
                 <div className="mt-4 rounded-[16px] bg-mist px-4 py-4 text-sm text-ink/65">
-                  収益情報を取得できませんでした（Stripe未設定の可能性があります）
+                  収益情報を取得できませんでした（受取設定が未完了の可能性があります）
                 </div>
               ) : (
                 <div className="mt-4 rounded-[16px] bg-mist px-5 py-4">
@@ -451,7 +454,7 @@ export function OwnerConsoleClient() {
                             <span>¥{revenue.grossMonthly.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Stripe手数料 ({Number(revenue.stripeFeePercent.toFixed(2))}%)</span>
+                            <span>決済手数料 ({Number(revenue.stripeFeePercent.toFixed(2))}%)</span>
                             <span>−¥{revenue.estimatedStripeFee.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
@@ -558,27 +561,45 @@ export function OwnerConsoleClient() {
                 )}
               </div>
 
-              {/* セカンダリリンク（低頻度） */}
-              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <a href={`/manage/${spot.id}/socios`} className="text-xs text-ink/65 hover:text-ink transition-colors">
-                  応援会員一覧{revenue ? `（${socioCount}人）` : ""}
+              {/* 管理メニュー（中頻度）— アイコン付きで見つけやすく */}
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <Link href={`/owner/spots/${spot.id}/edit`} className={MENU_ITEM_CLS}>
+                  <Pencil className="h-4 w-4 shrink-0 text-ink/55" />
+                  <span className="truncate">SPOT編集</span>
+                </Link>
+                <Link href={`/owner/spots/${spot.id}/share`} className={MENU_ITEM_CLS}>
+                  <QrCode className="h-4 w-4 shrink-0 text-ink/55" />
+                  <span className="truncate">QRコード</span>
+                </Link>
+                <a href={`/manage/${spot.id}/socios`} className={MENU_ITEM_CLS}>
+                  <Users className="h-4 w-4 shrink-0 text-ink/55" />
+                  <span className="truncate">応援会員一覧{revenue ? `（${socioCount}）` : ""}</span>
                 </a>
-                <span className="text-ink/40">·</span>
-                <a href={`/manage/${spot.id}/benefits`} className="text-xs text-ink/65 hover:text-ink transition-colors">
-                  特典設定
+                <a href={`/manage/${spot.id}/benefits`} className={MENU_ITEM_CLS}>
+                  <Gift className="h-4 w-4 shrink-0 text-ink/55" />
+                  <span className="truncate">特典設定</span>
                 </a>
-                <span className="text-ink/40">·</span>
-                <Link href={`/owner/spots/${spot.id}/edit`} className="text-xs text-ink/65 hover:text-ink transition-colors">
-                  SPOT編集
-                </Link>
-                <span className="text-ink/40">·</span>
-                <Link href={`/owner/spots/${spot.id}/share`} className="text-xs text-ink/65 hover:text-ink transition-colors">
-                  SNS・シェア
-                </Link>
-                <span className="text-ink/40">·</span>
-                <Link href={`/owner/spots/${spot.id}/payout`} className={`text-xs transition-colors ${connectReady ? "text-ink/65 hover:text-ink" : "font-semibold text-amber-600 hover:text-amber-700"}`}>
-                  受取設定{!connectReady ? "（未設定）" : ""}
-                </Link>
+              </div>
+
+              {/* 受取設定（一度設定したら以後ほぼ不要 — 未完了の時だけ目立たせる） */}
+              <div className="mt-2">
+                {connectReady ? (
+                  <Link
+                    href={`/owner/spots/${spot.id}/payout`}
+                    className="inline-flex items-center gap-1.5 text-xs text-ink/55 hover:text-ink transition-colors"
+                  >
+                    <Landmark className="h-3.5 w-3.5" />
+                    受取設定
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/owner/spots/${spot.id}/payout`}
+                    className="flex items-center justify-center gap-2 rounded-[14px] border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+                  >
+                    <Landmark className="h-4 w-4 shrink-0" />
+                    売上を受け取る設定が未完了です（口座登録）
+                  </Link>
+                )}
               </div>
 
             </article>
