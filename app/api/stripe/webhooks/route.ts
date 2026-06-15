@@ -110,13 +110,23 @@ export async function POST(request: Request) {
 
   const payload = await request.text();
 
+  // ① 署名検証（失敗は 400 invalid_signature）
+  let event: Stripe.Event;
   try {
-    const event = stripe.webhooks.constructEvent(
+    event = stripe.webhooks.constructEvent(
       payload,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
     );
+  } catch (error) {
+    return NextResponse.json(
+      { error: "invalid_signature", detail: error instanceof Error ? error.message : "unknown" },
+      { status: 400 }
+    );
+  }
 
+  // ② ハンドラ実行（失敗は 500 handler_error。原因をtypeとともに記録）
+  try {
     // ─── チェックアウト完了 ────────────────────────────────────────────
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -301,12 +311,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true, type: event.type });
   } catch (error) {
+    console.error(`[stripe webhook] handler error type=${event.type}:`, error);
     return NextResponse.json(
       {
-        error: "invalid_signature",
+        error: "handler_error",
+        type: event.type,
         detail: error instanceof Error ? error.message : "unknown"
       },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }
