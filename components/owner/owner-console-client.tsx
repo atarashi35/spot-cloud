@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Pencil, QrCode, Users, Gift, Landmark } from "lucide-react";
+import { ChevronDown, Pencil, QrCode, Users, Gift, Landmark, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PostForm } from "@/components/owner/post-form";
 import { EmptyState } from "@/components/empty-state";
@@ -356,9 +356,19 @@ export function OwnerConsoleClient() {
               </div>
 
               {/* SPOT名・説明 */}
-              <Link href={`/spots/${spot.id}`} className="mt-4 block text-2xl font-extrabold text-ink hover:text-moss transition-colors">
-                {spot.name}
-              </Link>
+              <div className="mt-4 flex items-center gap-2">
+                <Link href={`/spots/${spot.id}`} className="text-2xl font-extrabold text-ink hover:text-moss transition-colors">
+                  {spot.name}
+                </Link>
+                <Link
+                  href={`/owner/spots/${spot.id}/edit`}
+                  aria-label="SPOTを編集"
+                  title="SPOTを編集"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink/45 transition hover:bg-ink/5 hover:text-ink"
+                >
+                  <Settings className="h-4 w-4" />
+                </Link>
+              </div>
               <p className="mt-2 text-[15px] leading-relaxed text-ink/72">{spot.shortDescription}</p>
 
               {/* 収益パネル */}
