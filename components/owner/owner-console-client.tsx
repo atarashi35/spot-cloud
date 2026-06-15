@@ -24,6 +24,40 @@ import { OpinionBoxPanel } from "@/components/owner/opinion-box-panel";
 const MENU_ITEM_CLS =
   "flex items-center justify-center gap-1.5 rounded-[14px] border border-ink/10 bg-mist px-3 py-2.5 text-xs font-medium text-ink/75 transition hover:border-ink/25 hover:text-ink";
 
+// 受取設定の実状態。
+// none=未連携 / review=審査中 / action=本人確認など要対応 / ready=入金可
+type PayoutState = "none" | "review" | "action" | "ready";
+
+async function fetchPayoutState(spotId: string, idToken: string): Promise<PayoutState> {
+  try {
+    const res = await fetch("/api/stripe/connect/status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      body: JSON.stringify({ spotId }),
+    });
+    if (!res.ok) return "none";
+    const s = (await res.json()) as {
+      connected?: boolean;
+      onboardingComplete?: boolean;
+      transfersEnabled?: boolean;
+      payoutsEnabled?: boolean;
+      requirementsDue?: string[];
+      disabledReason?: string | null;
+    };
+    if (!s.connected) return "none";
+    const ready =
+      Boolean(s.onboardingComplete) && Boolean(s.transfersEnabled) &&
+      Boolean(s.payoutsEnabled) && (s.requirementsDue?.length ?? 0) === 0;
+    if (ready) return "ready";
+    if (s.disabledReason === "under_review" || s.disabledReason === "requirements.pending_verification") {
+      return "review";
+    }
+    return "action";
+  } catch {
+    return "none";
+  }
+}
+
 // ─── 型 ───────────────────────────────────────────────────────────────
 
 type SpotRevenue = {
@@ -122,6 +156,8 @@ export function OwnerConsoleClient() {
   const [openBreakdowns, setOpenBreakdowns] = useState<Record<string, boolean>>({});
   // 実際の会員数（members APIの権威値）。Stripe由来のrevenue.socioCountより優先する。
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
+  // 受取（Connect）の実ステータス。アカウントIDの有無ではなく入金可否で判定する。
+  const [payoutStatuses, setPayoutStatuses] = useState<Record<string, PayoutState>>({});
   const [error, setError] = useState<string | null>(null);
   type PostModal = { spotId: string; mode: "create" } | { spotId: string; mode: "edit"; postId: string } | null;
   const [postModal, setPostModal] = useState<PostModal>(null);
@@ -177,6 +213,26 @@ export function OwnerConsoleClient() {
         results.forEach(({ spotId, revenue }) => {
           next[spotId] = { ...next[spotId], revenue };
         });
+        return next;
+      });
+    })();
+  }, [spots, user]);
+
+  // 受取（Connect）の実ステータスを各SPOT分取得
+  useEffect(() => {
+    if (!spots || spots.length === 0 || !user) return;
+
+    void (async () => {
+      const idToken = await user.getIdToken();
+      const results = await Promise.all(
+        spots.map(async (spot) => ({
+          spotId: spot.id,
+          state: await fetchPayoutState(spot.id, idToken),
+        }))
+      );
+      setPayoutStatuses((prev) => {
+        const next = { ...prev };
+        results.forEach(({ spotId, state }) => { next[spotId] = state; });
         return next;
       });
     })();
@@ -325,8 +381,10 @@ export function OwnerConsoleClient() {
           const summary = summaries[spot.id];
           const revenue = summary?.revenue;
           const content = summary?.content;
-          const isAccepting = spot.isPublished && Boolean(spot.stripeConnectedAccountId);
-          const connectReady = Boolean(spot.stripeConnectedAccountId);
+          // 受取の実ステータス（取得前は浅い判定にフォールバック）
+          const payoutState: PayoutState | undefined = payoutStatuses[spot.id];
+          const connectReady = payoutState ? payoutState === "ready" : Boolean(spot.stripeConnectedAccountId);
+          const isAccepting = spot.isPublished && connectReady;
           const socioCount = memberCounts[spot.id] ?? revenue?.socioCount ?? spot.socioCount;
           const rankProgress = getSocioRankProgress(socioCount);
 
@@ -596,15 +654,28 @@ export function OwnerConsoleClient() {
                 </a>
               </div>
 
-              {/* 受取設定（一度設定したら以後ほぼ不要 — 未完了の時だけ目立たせる） */}
+              {/* 受取設定（実ステータスで出し分け — 要対応の時だけ強く出す） */}
               <div className="mt-2">
-                {connectReady ? (
+                {payoutState === "ready" ? (
                   <Link
                     href={`/owner/spots/${spot.id}/payout`}
                     className="inline-flex items-center gap-1.5 text-xs text-ink/55 hover:text-ink transition-colors"
                   >
                     <Landmark className="h-3.5 w-3.5" />
                     受取設定
+                  </Link>
+                ) : payoutState === "review" ? (
+                  <div className="flex items-center justify-center gap-2 rounded-[14px] border border-ink/10 bg-mist px-3 py-2.5 text-xs font-medium text-ink/65">
+                    <Landmark className="h-4 w-4 shrink-0" />
+                    受取設定：審査中（3〜4営業日）
+                  </div>
+                ) : payoutState === "action" ? (
+                  <Link
+                    href={`/owner/spots/${spot.id}/payout`}
+                    className="flex items-center justify-center gap-2 rounded-[14px] border border-red-300 bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                  >
+                    <Landmark className="h-4 w-4 shrink-0" />
+                    本人確認の追加対応が必要です（このままだと入金・新規入会ができません）
                   </Link>
                 ) : (
                   <Link

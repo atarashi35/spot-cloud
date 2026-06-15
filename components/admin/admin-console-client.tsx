@@ -9,10 +9,12 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Spot } from "@/lib/types";
 
 type Filter = "all" | "published" | "unpublished" | "suspended" | "no_stripe";
+type PayoutState = "none" | "review" | "action" | "ready";
+type AdminSpot = Spot & { payoutState?: PayoutState };
 
 export function AdminConsoleClient() {
   const { authReady, user } = useAuth();
-  const [spots, setSpots] = useState<Spot[] | null>(null);
+  const [spots, setSpots] = useState<AdminSpot[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingSpotId, setPendingSpotId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
@@ -32,7 +34,7 @@ export function AdminConsoleClient() {
       const res = await fetch("/api/admin/spots", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json() as { spots?: Spot[]; error?: string };
+      const data = await res.json() as { spots?: AdminSpot[]; error?: string };
       if (!res.ok || !data.spots) throw new Error(data.error ?? "admin_spots_load_failed");
       setSpots(data.spots);
     } catch (cause) {
@@ -148,12 +150,18 @@ export function AdminConsoleClient() {
               <span className="text-xs text-ink/60"> 人</span>
             </div>
 
-            {/* Stripe */}
+            {/* 受取（Stripe実ステータス） */}
             <div className="flex justify-center">
-              {spot.stripeConnectedAccountId ? (
-                <StatusBadge tone="success">連携済</StatusBadge>
-              ) : (
+              {!spot.stripeConnectedAccountId || spot.payoutState === "none" ? (
                 <StatusBadge tone="neutral">未連携</StatusBadge>
+              ) : spot.payoutState === "ready" ? (
+                <StatusBadge tone="success">入金可</StatusBadge>
+              ) : spot.payoutState === "review" ? (
+                <StatusBadge tone="warning">審査中</StatusBadge>
+              ) : spot.payoutState === "action" ? (
+                <StatusBadge tone="danger">要対応</StatusBadge>
+              ) : (
+                <StatusBadge tone="success">連携済</StatusBadge>
               )}
             </div>
 
