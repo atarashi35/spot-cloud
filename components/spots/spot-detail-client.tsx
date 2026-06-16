@@ -83,7 +83,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       return;
     }
 
-    const isOwner = currentUser?.uid === nextSpot.ownerUid;
+    const previewMode = searchParams.get("preview") === "1";
+    const isOwner = !previewMode && currentUser?.uid === nextSpot.ownerUid;
     const canReadProtectedContent = Boolean(
       isOwner ||
       nextMembership?.status === "active" ||
@@ -272,7 +273,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
     );
   }
 
-  const isOwner = user?.uid === spot.ownerUid;
+  const previewMode = searchParams.get("preview") === "1";
+  const isOwner = !previewMode && user?.uid === spot.ownerUid;
   if (spot.isSuspended && !isOwner) {
     return (
       <EmptyState
