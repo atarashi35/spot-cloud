@@ -88,9 +88,9 @@ export default function BenefitsPage({ params }: { params: Promise<{ spotId: str
             <span className="chip">特典設定</span>
             <h1 className="mt-4 text-3xl font-extrabold text-ink">プラン特典（任意）</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/68">
-              プランごとの特典は<strong>設定しなくて構いません</strong>。
-              何も返さず、純粋な応援を受け取るのがSPOTの基本です。
-              用意できるものがあるときだけ、後からここで自由に追加できます。
+              プランごとに特典を設定できます（任意）。
+              何か返したいものがあれば、ここで自由に追加してください。
+              もちろん空欄のままでも問題ありません。
             </p>
           </div>
 
