@@ -7,7 +7,7 @@ import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
-import { Spot, planOptions } from "@/lib/types";
+import { Spot } from "@/lib/types";
 
 /**
  * 店頭POP自動生成ページ。
@@ -33,86 +33,55 @@ function buildJoinUrl(spotId: string) {
 function PopCard({ spot }: { spot: Spot }) {
   return (
     <div
-      className="pop-print flex flex-col overflow-hidden bg-white"
-      style={{ width: "210mm", height: "297mm" }}
+      className="pop-print flex flex-col bg-white"
+      style={{ width: "210mm", height: "297mm", padding: "18mm 18mm 0" }}
     >
-      {/* ── 上部ダーク帯（店名ヒーロー） ── */}
-      <div
-        className="flex flex-shrink-0 flex-col justify-between"
-        style={{ background: "#111111", padding: "11mm 14mm 12mm", height: "120mm" }}
-      >
-        {/* ブランドライン */}
-        <div className="flex items-center" style={{ gap: "2.5mm" }}>
-          <span style={{ width: "4.5mm", height: "4.5mm", borderRadius: "50%", background: "#e8261a", boxShadow: "0 0 6px rgba(232,38,26,0.7)", display: "inline-block" }} />
-          <span style={{ fontSize: "5mm", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.65)" }}>SPOT</span>
-        </div>
+      {/* ロゴ */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/spot_logo_horizontal.svg" alt="SPOT" style={{ height: "9mm", width: "auto", marginBottom: "16mm" }} />
 
-        {/* 店名 + キャッチ */}
-        <div>
-          <h1
-            style={{
-              fontSize: getNameFontSize(spot.name),
-              fontWeight: 900,
-              color: "#ffffff",
-              lineHeight: 1.05,
-              letterSpacing: "-0.02em",
-              wordBreak: "break-all",
-            }}
-          >
-            {spot.name}
-          </h1>
-          <p style={{ fontSize: "8.5mm", fontWeight: 700, color: "rgba(255,255,255,0.72)", marginTop: "4mm", lineHeight: 1.25 }}>
-            の応援会員に<br />なりませんか？
-          </p>
+      {/* メインコピー */}
+      <h1
+        style={{
+          fontSize: getNameFontSize(spot.name),
+          fontWeight: 900,
+          color: "#111111",
+          lineHeight: 1.05,
+          letterSpacing: "-0.02em",
+          wordBreak: "break-all",
+          marginBottom: "4mm",
+        }}
+      >
+        {spot.name}の
+      </h1>
+      <p style={{ fontSize: "18mm", fontWeight: 900, color: "#111111", lineHeight: 1.1, marginBottom: "14mm" }}>
+        応援会員に<br />なりませんか？
+      </p>
+
+      {/* QR */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "10mm" }}>
+        <div style={{ border: "2px solid #e0e0e0", borderRadius: "6mm", padding: "8mm", background: "#fff" }}>
+          <QRCode value={buildJoinUrl(spot.id)} size={300} bgColor="#ffffff" fgColor="#111111" level="M" />
         </div>
       </div>
 
-      {/* ── 下部白帯（QRヒーロー） ── */}
-      <div className="flex flex-1 flex-col items-center justify-between" style={{ padding: "10mm 14mm 0" }}>
+      {/* 価格 */}
+      <p style={{ fontSize: "10mm", fontWeight: 700, color: "#111111", textAlign: "center", marginBottom: "4mm" }}>
+        月300円〜
+      </p>
+      <p style={{ fontSize: "5.5mm", color: "#888888", textAlign: "center", marginBottom: "14mm" }}>
+        QRコードをスキャンして応援会員登録
+      </p>
 
-        {/* 価格チップ */}
-        <div className="flex items-center" style={{ gap: "4mm" }}>
-          {planOptions.map((amount) => (
-            <span
-              key={amount}
-              style={{
-                fontSize: "6mm",
-                fontWeight: 700,
-                color: "#333",
-                border: "1.5px solid #ccc",
-                borderRadius: "100px",
-                padding: "2mm 5mm",
-              }}
-            >
-              月{amount.toLocaleString()}円
-            </span>
-          ))}
+      {/* フッター */}
+      <div
+        style={{ borderTop: "1px solid #e8e8e8", padding: "5mm 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "2.5mm" }}>
+          <span style={{ width: "4mm", height: "4mm", borderRadius: "50%", background: "#e8261a", display: "inline-block" }} />
+          <span style={{ fontSize: "5.5mm", fontWeight: 800, letterSpacing: "0.2em", color: "#111" }}>SPOT</span>
         </div>
-
-        {/* QR */}
-        <div className="flex flex-col items-center" style={{ gap: "5mm" }}>
-          <div style={{ border: "2px solid #e0e0e0", borderRadius: "5mm", padding: "6mm", background: "#fff" }}>
-            <QRCode value={buildJoinUrl(spot.id)} size={280} bgColor="#ffffff" fgColor="#111111" level="M" />
-          </div>
-          <p style={{ fontSize: "6.5mm", fontWeight: 700, color: "#222", textAlign: "center", lineHeight: 1.4 }}>
-            スマホで読み取り、その場で入会
-          </p>
-          <p style={{ fontSize: "5mm", color: "#888", textAlign: "center", lineHeight: 1.5 }}>
-            番号入りのデジタル会員証がその場で発行されます。解約はいつでも。
-          </p>
-        </div>
-
-        {/* フッター */}
-        <div
-          className="flex w-full items-center justify-between"
-          style={{ borderTop: "1px solid #e8e8e8", padding: "5mm 0" }}
-        >
-          <div className="flex items-center" style={{ gap: "2.5mm" }}>
-            <span style={{ width: "4mm", height: "4mm", borderRadius: "50%", background: "#e8261a", display: "inline-block" }} />
-            <span style={{ fontSize: "5.5mm", fontWeight: 800, letterSpacing: "0.2em", color: "#111" }}>SPOT</span>
-          </div>
-          <span style={{ fontSize: "4.5mm", color: "#aaa" }}>spotcloud.app</span>
-        </div>
+        <span style={{ fontSize: "4.5mm", color: "#aaa" }}>spotcloud.app</span>
       </div>
     </div>
   );
