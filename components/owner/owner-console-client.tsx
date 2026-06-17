@@ -397,18 +397,24 @@ export function OwnerConsoleClient() {
                   <span className="chip">{spot.category}</span>
                   <SocioRankBadge socioCount={socioCount} />
                 </div>
-                {/* 公開/非公開 クイック切り替え */}
+                {/* 公開/非公開 スライドトグル */}
                 <button
                   type="button"
+                  role="switch"
+                  aria-checked={spot.isPublished}
+                  aria-label={spot.isPublished ? "公開中（クリックで非公開）" : "非公開（クリックで公開）"}
                   onClick={() => void handleTogglePublished(spot)}
                   disabled={togglingId === spot.id}
-                  className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
-                    spot.isPublished
-                      ? "border-moss/30 bg-moss/10 text-moss hover:bg-moss/20"
-                      : "border-ink/15 bg-white text-ink/68 hover:border-ink/30"
-                  }`}
+                  className="flex items-center gap-2 disabled:opacity-50"
                 >
-                  {togglingId === spot.id ? "..." : spot.isPublished ? "公開中" : "非公開"}
+                  {/* トラック */}
+                  <span className={`relative inline-flex h-6 w-24 items-center rounded-full transition-colors duration-300 ${spot.isPublished ? "bg-moss" : "bg-ink/20"}`}>
+                    {/* ラベル */}
+                    <span className={`absolute text-[10px] font-semibold text-white transition-opacity duration-200 ${spot.isPublished ? "left-2.5 opacity-100" : "opacity-0"}`}>公開中</span>
+                    <span className={`absolute text-[10px] font-semibold text-ink/60 transition-opacity duration-200 ${spot.isPublished ? "opacity-0" : "right-2.5 opacity-100"}`}>非公開</span>
+                    {/* ノブ */}
+                    <span className={`absolute h-5 w-5 rounded-full bg-white shadow transition-transform duration-300 ${spot.isPublished ? "translate-x-[4.25rem]" : "translate-x-0.5"}`} />
+                  </span>
                 </button>
               </div>
 

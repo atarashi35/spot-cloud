@@ -575,14 +575,6 @@ export function SpotForm(props: SpotFormProps) {
         </button>
       </div>
 
-      <label className="flex items-center gap-3 rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/78">
-        <input
-          checked={isPublished}
-          onChange={(event) => setIsPublished(event.target.checked)}
-          type="checkbox"
-        />
-        公開状態にする
-      </label>
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
       <button type="submit" className="cta-primary" disabled={saving}>
         {saving ? "保存中..." : props.mode === "create" ? "SPOT を保存する" : "更新する"}
