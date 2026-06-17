@@ -38,7 +38,7 @@ function PopCard({ spot }: { spot: Spot }) {
     >
       {/* ロゴ */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/spot_logo_horizontal.svg" alt="SPOT" style={{ height: "9mm", width: "auto", marginBottom: "16mm" }} />
+      <img src="/spot_logo_horizontal.svg" alt="SPOT" style={{ height: "14mm", width: "auto", marginBottom: "16mm" }} />
 
       {/* メインコピー */}
       <h1
@@ -75,12 +75,8 @@ function PopCard({ spot }: { spot: Spot }) {
 
       {/* フッター */}
       <div
-        style={{ borderTop: "1px solid #e8e8e8", padding: "5mm 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+        style={{ borderTop: "1px solid #e8e8e8", padding: "5mm 0", textAlign: "center" }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "2.5mm" }}>
-          <span style={{ width: "4mm", height: "4mm", borderRadius: "50%", background: "#e8261a", display: "inline-block" }} />
-          <span style={{ fontSize: "5.5mm", fontWeight: 800, letterSpacing: "0.2em", color: "#111" }}>SPOT</span>
-        </div>
         <span style={{ fontSize: "4.5mm", color: "#aaa" }}>spotcloud.app</span>
       </div>
     </div>
