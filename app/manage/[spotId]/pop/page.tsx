@@ -38,7 +38,7 @@ function PopCard({ spot }: { spot: Spot }) {
     >
       {/* ロゴ */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/spot_logo_horizontal.svg" alt="SPOT" style={{ height: "14mm", width: "auto", marginBottom: "16mm" }} />
+      <img src="/spot_logo_horizontal.svg" alt="SPOT" style={{ height: "14mm", width: "auto", marginBottom: "16mm", display: "block", alignSelf: "flex-start" }} />
 
       {/* メインコピー */}
       <h1
