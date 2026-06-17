@@ -119,18 +119,17 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
     // メインコピー
     ctx.fillStyle = "#111111";
     ctx.font = "bold 48px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
-    ctx.fillText("応援会員として、", 48, 200);
-
     const spotName = spot.name ?? "";
-    const nameText = `${spotName}に`;
+    const nameText = `${spotName}の`;
     ctx.font = "bold 44px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
     if (ctx.measureText(nameText).width > W - 96) {
       ctx.font = "bold 36px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
     }
-    ctx.fillText(nameText, 48, 262);
+    ctx.fillText(nameText, 48, 200);
 
     ctx.font = "bold 48px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
-    ctx.fillText("関わろう。", 48, 324);
+    ctx.fillText("応援会員に", 48, 262);
+    ctx.fillText("なりませんか？", 48, 324);
 
     // QRコード
     const qrSize = 220;
@@ -149,7 +148,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
     ctx.textAlign = "center";
     ctx.font = "600 22px 'Helvetica Neue', Arial, sans-serif";
     ctx.fillStyle = "#111111";
-    ctx.fillText("¥300 / ¥500 / ¥1,000 /月", W / 2, 650);
+    ctx.fillText("月300円〜", W / 2, 650);
 
     ctx.font = "14px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
     ctx.fillStyle = "#888888";
@@ -257,14 +256,14 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/spot_logo_horizontal.svg" alt="SPOT" className="mb-4 h-5 w-auto" />
             <p className="text-[13px] font-bold leading-snug text-ink">
-              応援会員として、<br />
-              <span className="text-xs">{spot.name}に</span><br />
-              関わろう。
+              <span className="text-xs">{spot.name}の</span><br />
+              応援会員に<br />
+              なりませんか？
             </p>
             <div ref={flyerQrRef} className="my-4 flex justify-center">
               <QRCode value={signupUrl} size={90} />
             </div>
-            <p className="text-center text-[8px] font-semibold text-ink">¥300 / ¥500 / ¥1,000 /月</p>
+            <p className="text-center text-[8px] font-semibold text-ink">月300円〜</p>
             <p className="mt-1 text-center text-[7px] text-ink/65">QRコードをスキャンして応援会員登録</p>
             <div className="my-3 h-px bg-ink/10" />
             <p className="text-center text-[7px] text-ink/60">spotcloud.app</p>
