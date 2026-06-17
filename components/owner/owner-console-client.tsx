@@ -395,9 +395,6 @@ export function OwnerConsoleClient() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="chip">{spot.category}</span>
-                  <StatusBadge tone={isAccepting ? "success" : "warning"}>
-                    {isAccepting ? "加入受付中" : "受付前"}
-                  </StatusBadge>
                   <SocioRankBadge socioCount={socioCount} />
                 </div>
                 {/* 公開/非公開 クイック切り替え */}
