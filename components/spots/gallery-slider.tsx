@@ -39,7 +39,7 @@ export function GallerySlider({ images }: Props) {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {images.map((url, i) => (
-            <div key={url} className="relative w-full shrink-0 aspect-[3/2]">
+            <div key={url} className="relative w-full shrink-0 aspect-[3/2] sm:max-h-[480px]">
               <Image
                 src={url}
                 alt={`ギャラリー ${i + 1}`}
