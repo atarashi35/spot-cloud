@@ -27,6 +27,7 @@ export function GallerySlider({ images }: Props) {
   }
 
   return (
+    <div className="sm:mx-auto sm:max-w-[640px]">
     <div className="panel overflow-hidden">
       <div
         className="relative overflow-hidden"
@@ -39,7 +40,7 @@ export function GallerySlider({ images }: Props) {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {images.map((url, i) => (
-            <div key={url} className="relative w-full shrink-0 aspect-[3/2] sm:max-h-[480px]">
+            <div key={url} className="relative w-full shrink-0 aspect-[3/2]">
               <Image
                 src={url}
                 alt={`ギャラリー ${i + 1}`}
@@ -98,6 +99,7 @@ export function GallerySlider({ images }: Props) {
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 }
