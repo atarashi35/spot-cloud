@@ -408,7 +408,7 @@ export function OwnerConsoleClient() {
                   className="flex items-center gap-2 disabled:opacity-50"
                 >
                   {/* トラック */}
-                  <span className={`relative inline-flex h-6 w-24 items-center rounded-full transition-colors duration-300 ${spot.isPublished ? "bg-moss" : "bg-ink/20"}`}>
+                  <span className={`relative inline-flex h-6 w-24 items-center rounded-full transition-colors duration-300 ${spot.isPublished ? "bg-teal" : "bg-ink/20"}`}>
                     {/* ラベル */}
                     <span className={`absolute text-[10px] font-semibold text-white transition-opacity duration-200 ${spot.isPublished ? "left-2.5 opacity-100" : "opacity-0"}`}>公開中</span>
                     <span className={`absolute text-[10px] font-semibold text-ink/60 transition-opacity duration-200 ${spot.isPublished ? "opacity-0" : "right-2.5 opacity-100"}`}>非公開</span>
