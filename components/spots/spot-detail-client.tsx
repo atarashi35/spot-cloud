@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { updateProfile } from "firebase/auth";
-import { Mail, MapPin, Minus, Phone, Plus } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { GallerySlider } from "@/components/spots/gallery-slider";
 import { VoicesSection } from "@/components/spots/voices-section";
@@ -72,7 +72,6 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [showOwnerCta, setShowOwnerCta] = useState(false);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
-  const [ctaKo, setCtaKo] = useState(3);
   const mainCtaRef = useRef<HTMLElement>(null);
 
   async function loadSpotDetail(currentUser = user) {
@@ -308,7 +307,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onClose={() => { setSignupModalOpen(false); setEmailJoinPlan(null); }}
         defaultPlan={
           emailJoinPlan ??
-          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : (ctaKo * 100) as PlanAmount)
+          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : defaultPlanAmount)
         }
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
@@ -543,64 +542,50 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   )}
                 </div>
 
-                {/* ベネフィット — 5/10口閾値キーを持つ場合のみ表示、なければデフォルト */}
-                {([5, 10] as const).some((t) => spot.planBenefits?.[t]) ? (
-                  <ul className="space-y-2.5">
-                    {([5, 10] as const).map((threshold) => {
-                      const benefit = spot.planBenefits?.[threshold];
-                      if (!benefit) return null;
-                      return (
-                        <li key={threshold} className="flex items-start gap-2.5 text-[14px] text-white/80">
-                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-[11px] font-bold text-teal-400">{threshold}口以上</span>
-                          {benefit}
+                {/* ベネフィット — デフォルト常時表示 + 口数特典を下に追加 */}
+                {(() => {
+                  const pb = spot.planBenefits as Record<number, string | undefined> | undefined;
+                  const getBenefit = (ko: 5 | 10) => pb?.[ko] ?? pb?.[ko * 100];
+                  const hasBenefits = ([5, 10] as const).some((t) => getBenefit(t));
+                  return (
+                    <ul className="space-y-2">
+                      {[
+                        "限定の投稿が読める",
+                        "番号入りの会員証を持てる",
+                        "このSPOTの継続を支える",
+                      ].map((text) => (
+                        <li key={text} className="flex items-center gap-2.5 text-[14px] text-white/80">
+                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-teal-400/20 text-[10px] font-bold text-teal-400">✓</span>
+                          {text}
                         </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  <ul className="space-y-2">
-                    {[
-                      "限定の投稿が読める",
-                      "番号入りの会員証を持てる",
-                      "このSPOTの継続を支える",
-                    ].map((text) => (
-                      <li key={text} className="flex items-center gap-2.5 text-[14px] text-white/80">
-                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-teal-400/20 text-[10px] font-bold text-teal-400">✓</span>
-                        {text}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                      ))}
+                      {hasBenefits && (
+                        <>
+                          <li className="my-0.5 h-px bg-white/10 list-none" />
+                          {([5, 10] as const).map((threshold) => {
+                            const benefit = getBenefit(threshold);
+                            if (!benefit) return null;
+                            return (
+                              <li key={threshold} className="flex items-start gap-2.5 text-[14px] text-white/80">
+                                <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-[11px] font-bold text-teal-400">{threshold}口以上</span>
+                                {benefit}
+                              </li>
+                            );
+                          })}
+                        </>
+                      )}
+                    </ul>
+                  );
+                })()}
 
-                {/* 口数ステッパー + CTA */}
-                <div className="mt-auto space-y-3 pt-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-white/40">口数を選ぶ</p>
-                  <div className="flex items-center gap-3 rounded-[16px] bg-white/8 px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => setCtaKo((k) => Math.max(1, k - 1))}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 active:scale-95"
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <div className="flex-1 text-center">
-                      <p className="text-xl font-extrabold text-white">{ctaKo}口</p>
-                      <p className="text-xs text-white/50">¥{(ctaKo * 100).toLocaleString("ja-JP")}/月</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCtaKo((k) => k + 1)}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 active:scale-95"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                {/* CTA */}
+                <div className="mt-auto pt-2">
                   <button
                     type="button"
                     className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
                     onClick={() => setSignupModalOpen(true)}
                   >
-                    {ctaKo}口（¥{(ctaKo * 100).toLocaleString("ja-JP")}）で応援する
+                    応援会員になる
                   </button>
                 </div>
               </div>

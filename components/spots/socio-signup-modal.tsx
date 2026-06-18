@@ -20,7 +20,6 @@ import { amountToKo, koToAmount } from "@/lib/plan";
 
 type Step = "login" | "email_sent" | "profile";
 
-
 export function SocioSignupModal({
   spot,
   open,
@@ -84,14 +83,11 @@ export function SocioSignupModal({
 
   useEffect(() => {
     if (!open) return;
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
+    function handleEscape(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [onClose, open]);
 
-  // ─── 郵便番号ルックアップ ─────────────────────────────────────────
   async function handlePostalLookup() {
     const normalized = postalCode.replace(/[^\d]/g, "");
     if (normalized.length !== 7) return;
@@ -109,7 +105,6 @@ export function SocioSignupModal({
     }
   }
 
-  // ─── Googleで続ける ───────────────────────────────────────────────
   async function handleGoogle() {
     setGoogleLoading(true);
     setError(null);
@@ -122,13 +117,11 @@ export function SocioSignupModal({
     }
   }
 
-  // ─── メールリンク送信 ─────────────────────────────────────────────
   async function handleSendEmailLink() {
     const trimmed = email.trim();
     if (!trimmed) { setError("メールアドレスを入力してください。"); return; }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmed)) { setError("メールアドレスの形式が正しくありません。"); return; }
-
     setLoading(true);
     setError(null);
     const auth = getFirebaseAuth();
@@ -151,13 +144,11 @@ export function SocioSignupModal({
     }
   }
 
-  // ─── Stripe Checkout へ進む ────────────────────────────────────
   async function startCheckout() {
     if (checkoutInFlight.current) return;
     checkoutInFlight.current = true;
     if (!user) { setError("ログインが必要です。"); return; }
     if (!name.trim()) { setError("お名前を入力してください。"); return; }
-
     setLoading(true);
     setError(null);
     saveUserProfileCache({ name: name.trim() });
@@ -187,16 +178,18 @@ export function SocioSignupModal({
 
   const ko = amountToKo(planAmount);
   const monthly = koToAmount(ko);
-  const hasBenefits = ([5, 10] as const).some((t) => spot.planBenefits?.[t]);
+  const pb = spot.planBenefits as Record<number, string | undefined> | undefined;
+  const getBenefit = (ko: 5 | 10) => pb?.[ko] ?? pb?.[ko * 100];
+  const hasBenefits = ([5, 10] as const).some((t) => getBenefit(t));
 
   return (
     <div className="fixed inset-0 z-[140] overflow-y-auto bg-ink/35 backdrop-blur-sm">
       <button type="button" className="absolute inset-0 cursor-default" aria-label="閉じる" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center px-4 py-6">
         <section className="menu-surface relative z-[141] w-full max-w-3xl overflow-hidden p-0">
-          <div className="grid md:grid-cols-2">
+          <div className="grid md:grid-cols-[1.1fr_0.9fr]">
 
-            {/* ── 左カラム: フォーム ── */}
+            {/* ── 左カラム: フォーム → ステッパー → CTA ── */}
             <div className="relative p-6 sm:p-7">
               <button type="button" className="icon-button absolute right-5 top-5" onClick={onClose} aria-label="閉じる">
                 <X className="h-4 w-4" />
@@ -222,15 +215,7 @@ export function SocioSignupModal({
                   <div className="mt-4 space-y-2">
                     <label className="space-y-1.5">
                       <span className="text-sm font-medium text-ink/72">メールアドレス</span>
-                      <input
-                        type="email"
-                        className="field h-11"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") void handleSendEmailLink(); }}
-                        placeholder="you@email.com"
-                        aria-invalid={!!error && !email ? true : undefined}
-                      />
+                      <input type="email" className="field h-11" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void handleSendEmailLink(); }} placeholder="you@email.com" />
                     </label>
                     <button type="button" className="cta-primary w-full" onClick={() => void handleSendEmailLink()} disabled={loading}>
                       {loading ? "送信中..." : "メールで続ける"}
@@ -254,9 +239,7 @@ export function SocioSignupModal({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-ink">{email}</p>
-                      <p className="mt-1.5 text-sm leading-relaxed text-ink/72">
-                        認証リンクを送りました。メール内のリンクをクリックして加入手続きに進んでください。
-                      </p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-ink/72">認証リンクを送りました。メール内のリンクをクリックして加入手続きに進んでください。</p>
                     </div>
                   </div>
                   <p className="mt-3 text-xs leading-5 text-ink/60">
@@ -266,70 +249,58 @@ export function SocioSignupModal({
                 </>
               ) : null}
 
-              {/* Step: profile */}
+              {/* Step: profile — フォーム → ステッパー → ボタンを一直線に */}
               {step === "profile" && user ? (
                 <>
                   <h2 className="mt-4 text-xl font-extrabold text-ink">お申し込み</h2>
                   <p className="mt-0.5 text-sm text-ink/65">{user.email}</p>
 
+                  {/* 名前 + 郵便番号 横並び */}
                   <div className="mt-4 grid grid-cols-2 gap-2.5">
                     <label className="space-y-1.5">
                       <span className="text-sm font-medium text-ink/72">お名前</span>
-                      <input
-                        className="field h-11"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="お名前"
-                        aria-invalid={!!error && !name ? true : undefined}
-                      />
+                      <input className="field h-11" value={name} onChange={(e) => setName(e.target.value)} placeholder="お名前" aria-invalid={!!error && !name ? true : undefined} />
                     </label>
                     <div className="space-y-1.5">
                       <span className="text-sm font-medium text-ink/72">郵便番号</span>
                       <div className="flex gap-1.5">
-                        <input
-                          className="field h-11 min-w-0"
-                          value={postalCode}
-                          onChange={(e) => setPostalCode(e.target.value)}
-                          inputMode="numeric"
-                          maxLength={8}
-                          placeholder="1234567"
-                        />
-                        <button
-                          type="button"
-                          className="cta-secondary h-11 shrink-0 px-3 text-sm"
-                          onClick={() => void handlePostalLookup()}
-                          disabled={postalLoading}
-                        >
+                        <input className="field h-11 min-w-0" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} inputMode="numeric" maxLength={8} placeholder="1234567" />
+                        <button type="button" className="cta-secondary h-11 shrink-0 px-3 text-sm" onClick={() => void handlePostalLookup()} disabled={postalLoading}>
                           {postalLoading ? "…" : "反映"}
                         </button>
                       </div>
                     </div>
                   </div>
-
                   <div className="mt-2">
-                    <input
-                      className="field h-11 w-full"
-                      value={addressLine}
-                      onChange={(e) => setAddressLine(e.target.value)}
-                      placeholder="都道府県・市区町村・番地（任意）"
-                    />
+                    <input className="field h-11 w-full" value={addressLine} onChange={(e) => setAddressLine(e.target.value)} placeholder="都道府県・市区町村・番地（任意）" />
                     <p className="mt-1 text-[11px] text-ink/50">住所はオーナーのみ閲覧できます。</p>
                   </div>
 
-                  <div className="mt-5 space-y-2">
-                    <button
-                      type="button"
-                      className="cta-primary w-full"
-                      onClick={() => void startCheckout()}
-                      disabled={loading}
-                    >
+                  {/* 口数ステッパー */}
+                  <div className="mt-4 flex items-center gap-3 rounded-[14px] bg-mist px-4 py-3">
+                    <button type="button" aria-label="口数を減らす" onClick={() => setPlanAmount((a) => Math.max(MIN_KO * KO_UNIT_AMOUNT, a - KO_UNIT_AMOUNT))} disabled={ko <= MIN_KO} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink disabled:opacity-30">
+                      −
+                    </button>
+                    <div className="flex flex-1 items-baseline justify-center gap-1">
+                      <span className="text-3xl font-extrabold tabular-nums text-ink">{ko}</span>
+                      <span className="text-lg font-semibold text-ink">口</span>
+                    </div>
+                    <button type="button" aria-label="口数を増やす" onClick={() => setPlanAmount((a) => a + KO_UNIT_AMOUNT)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink">
+                      ＋
+                    </button>
+                    <div className="shrink-0 border-l border-ink/10 pl-3 text-right">
+                      <p className="text-base font-bold text-ink">¥{monthly.toLocaleString("ja-JP")}</p>
+                      <p className="text-[11px] text-ink/50">/月</p>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="mt-3 space-y-2">
+                    <button type="button" className="cta-primary w-full" onClick={() => void startCheckout()} disabled={loading}>
                       {loading ? "移動中..." : `${ko}口（¥${monthly.toLocaleString("ja-JP")}）で応援する`}
                     </button>
                     <p className="text-center text-[11px] leading-5 text-ink/50">
-                      「応援する」で
-                      <a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・
-                      <a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>
-                      に同意したものとみなします。
+                      「応援する」で<a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・<a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>に同意
                     </p>
                   </div>
                 </>
@@ -338,70 +309,38 @@ export function SocioSignupModal({
               {error ? <p className="mt-3 text-sm font-medium text-red-700">{error}</p> : null}
             </div>
 
-            {/* ── 右カラム: 口数 + 特典 ── */}
+            {/* ── 右カラム: 特典（静的）── */}
             <aside className="flex flex-col border-t border-ink/8 bg-mist/60 p-6 md:border-l md:border-t-0">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40">口数を選ぶ</p>
-              <div className="mt-3 flex items-center gap-3">
-                <button
-                  type="button"
-                  aria-label="口数を減らす"
-                  onClick={() => setPlanAmount((a) => Math.max(MIN_KO * KO_UNIT_AMOUNT, a - KO_UNIT_AMOUNT))}
-                  disabled={ko <= MIN_KO}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink disabled:opacity-30"
-                >
-                  −
-                </button>
-                <div className="flex flex-1 items-baseline justify-center gap-1">
-                  <span className="text-4xl font-extrabold tabular-nums text-ink">{ko}</span>
-                  <span className="text-xl font-semibold text-ink">口</span>
-                </div>
-                <button
-                  type="button"
-                  aria-label="口数を増やす"
-                  onClick={() => setPlanAmount((a) => a + KO_UNIT_AMOUNT)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink"
-                >
-                  ＋
-                </button>
+              <p className="text-xs font-bold text-ink/55">加入すると</p>
+              <div className="mt-3 space-y-3.5">
+                {[
+                  "番号入りの会員証を受け取れる",
+                  "限定の投稿が読める",
+                  "このSPOTの継続を支える",
+                ].map((text) => (
+                  <div key={text} className="flex items-center gap-3 text-sm font-medium text-ink">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-500/20 text-[11px] font-bold text-teal-600">✓</span>
+                    {text}
+                  </div>
+                ))}
+                {hasBenefits && (
+                  <>
+                    <div className="my-1 h-px bg-ink/10" />
+                    {([5, 10] as const).map((threshold) => {
+                      const benefit = getBenefit(threshold);
+                      if (!benefit) return null;
+                      return (
+                        <div key={threshold} className="flex items-start gap-2.5">
+                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-500/20 px-2 py-0.5 text-xs font-bold text-teal-600">
+                            {threshold}口以上
+                          </span>
+                          <p className="text-sm leading-5 text-ink">{benefit}</p>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
               </div>
-              <p className="mt-2 text-center text-sm font-semibold text-ink/60">
-                ¥{monthly.toLocaleString("ja-JP")} / 月
-              </p>
-
-              <div className="my-4 border-t border-ink/10" />
-
-              {hasBenefits ? (
-                <div className="space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40">特典</p>
-                  {([5, 10] as const).map((threshold) => {
-                    const benefit = spot.planBenefits?.[threshold];
-                    if (!benefit) return null;
-                    const active = ko >= threshold;
-                    return (
-                      <div key={threshold} className={`flex items-start gap-2 transition-opacity ${active ? "opacity-100" : "opacity-30"}`}>
-                        <span className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${active ? "bg-teal-500/15 text-teal-600" : "bg-ink/8 text-ink/50"}`}>
-                          {threshold}口以上
-                        </span>
-                        <p className="text-[13px] leading-5 text-ink/80">{benefit}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40">加入すると</p>
-                  {[
-                    "番号入りの会員証を受け取れる",
-                    "限定の投稿が読める",
-                    "このSPOTの継続を支える",
-                  ].map((text) => (
-                    <div key={text} className="flex items-center gap-2.5 text-[13px] text-ink/75">
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-teal-500/15 text-[10px] font-bold text-teal-600">✓</span>
-                      {text}
-                    </div>
-                  ))}
-                </div>
-              )}
             </aside>
 
           </div>
