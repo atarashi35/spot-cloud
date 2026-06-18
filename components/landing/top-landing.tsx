@@ -18,7 +18,7 @@ const values = [
   {
     eyebrow: "毎月つづく応援",
     title: "ファンや常連さんが、\n続ける力になる。",
-    body: "応援会員は月300円・500円・1,000円。売上の波に左右されない、毎月つづく支えになります。",
+    body: "応援会員は1口100円から、好きな口数で。売上の波に左右されない、毎月つづく支えになります。",
   },
   {
     eyebrow: "入会はその場で",
@@ -74,7 +74,7 @@ const faqs: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "応援会員の月額金額は？",
-    a: "月300円・500円・1,000円の3プランです。どのプランでも会員の権利は同じ。金額は応援の気持ちの大きさであって、扱いの差ではありません。",
+    a: "1口100円から、好きな口数を選べます。何口でも会員の基本的な権利は同じ。口数は応援の気持ちの大きさであって、扱いの差ではありません（オーナーが設定した場合のみ、5口・10口以上で特典が付くことがあります）。",
   },
   {
     q: "応援会員は何ができますか？",
@@ -161,7 +161,7 @@ export function TopLanding() {
                 <span className="hero-gradient-text block">応援会員を。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/78 sm:text-base">
-                ファンや常連さんが月300円から、続ける力になります。
+                ファンや常連さんが1口100円から、続ける力になります。
                 本屋・ミニシアター・ライブハウス・劇場・ギャラリー・伝統文化・カフェ・バー・文化プロジェクトのための仕組みです。
               </p>
               <div className="hero-animate-3 mt-6 inline-flex items-center gap-3 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5">
@@ -224,17 +224,18 @@ export function TopLanding() {
 
           {/* 振込額 */}
           <div className="mt-8 border-t border-ink/8 pt-7">
-            <p className="text-sm font-bold text-ink/72">応援会員1人あたりの振込額（目安）</p>
+            <p className="text-sm font-bold text-ink/72">口数ごとの振込額（目安・会員1人あたり）</p>
             <div className="mt-4 grid gap-3">
               {[
-                { from: "¥300", to: "約 ¥260" },
-                { from: "¥500", to: "約 ¥434" },
-                { from: "¥1,000", to: "約 ¥868" },
+                { from: "1口（¥100）", to: "約 ¥87" },
+                { from: "3口（¥300）", to: "約 ¥260" },
+                { from: "5口（¥500）", to: "約 ¥434" },
+                { from: "10口（¥1,000）", to: "約 ¥868" },
               ].map((row) => (
                 <div key={row.from} className="flex items-center gap-3 rounded-2xl bg-mist px-5 py-3.5">
-                  <span className="text-xl font-extrabold text-ink">{row.from}</span>
+                  <span className="text-lg font-extrabold text-ink">{row.from}</span>
                   <span className="text-ink/55">→</span>
-                  <span className="text-xl font-extrabold text-ink">{row.to}</span>
+                  <span className="text-lg font-extrabold text-ink">{row.to}</span>
                   <span className="ml-auto text-sm text-ink/65">/月</span>
                 </div>
               ))}
@@ -247,13 +248,13 @@ export function TopLanding() {
           {/* 100人いたら（具体例） */}
           <div className="mt-7 flex flex-col gap-4 rounded-[20px] bg-ink px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[15px] font-semibold text-white/80">
-              例えば、<span className="font-extrabold text-white">100人</span>の応援会員がいれば
+              例えば、<span className="font-extrabold text-white">3口</span>の応援会員が<span className="font-extrabold text-white">100人</span>いれば
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">月間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.4rem] font-extrabold leading-none tracking-tight text-teal-400 sm:text-[2.8rem]">¥43,380</span>
+                  <span className="text-[2.4rem] font-extrabold leading-none tracking-tight text-teal-400 sm:text-[2.8rem]">¥26,000</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/月</span>
                 </div>
               </div>
@@ -261,14 +262,14 @@ export function TopLanding() {
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">年間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.4rem] font-extrabold leading-none tracking-tight text-teal-400 sm:text-[2.8rem]">¥520,560</span>
+                  <span className="text-[2.4rem] font-extrabold leading-none tracking-tight text-teal-400 sm:text-[2.8rem]">¥312,000</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/年</span>
                 </div>
               </div>
             </div>
           </div>
           <p className="mt-3 text-xs leading-6 text-ink/60">
-            月500円プラン・100人の場合の目安振込額。継続的に、毎月。
+            3口（月300円）・100人の場合の目安振込額。継続的に、毎月。
           </p>
         </div>
       </PageShell>
@@ -315,8 +316,8 @@ export function TopLanding() {
             <p className="mt-4 text-[15px] leading-relaxed text-ink/75">
               寄付は一度で終わりますが、応援会員は毎月続きます。
               会員は番号入りの会員証を持ち、限定投稿を受け取り、「自分はこの場所を支えている」と言える関係になります。
-              どのプランでも会員の権利は<strong className="text-ink/80">全員同じ</strong>。
-              金額の大きさで扱いが変わることはありません。
+              口数に関わらず会員の基本的な権利は<strong className="text-ink/80">全員同じ</strong>。
+              口数の大きさで扱いが変わることはありません。
             </p>
           </Card>
 
@@ -409,7 +410,7 @@ export function TopLanding() {
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="text-sm font-bold text-ink">街の小さな文化拠点のための、応援会員制度</p>
-            <p className="text-xs text-ink/65">月300円から、場所や活動を支える会員になれます</p>
+            <p className="text-xs text-ink/65">1口100円から、場所や活動を支える会員になれます</p>
           </div>
           <Link href="/owner/spots/new" className="cta-primary shrink-0">
             無料でSPOTを作る →

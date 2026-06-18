@@ -21,7 +21,8 @@ import { getUserMembership } from "@/lib/firestore/memberships";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { EMAIL_JOIN_PENDING_KEY, EmailJoinPending } from "@/lib/auth/email-link";
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
-import { PlanAmount, Spot, UserMembership, isSignupPlan, planOptions, defaultPlanAmount } from "@/lib/types";
+import { PlanAmount, Spot, UserMembership, isSignupPlan, defaultPlanAmount } from "@/lib/types";
+import { amountToKo } from "@/lib/plan";
 import { isSvgAssetUrl } from "@/lib/utils";
 import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { SocioCard } from "@/components/account/socio-card";
@@ -551,12 +552,12 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 {/* ベネフィット */}
                 {spot.planBenefits && Object.values(spot.planBenefits).some(Boolean) ? (
                   <ul className="space-y-3">
-                    {planOptions.map((amount) => {
-                      const benefit = spot.planBenefits?.[amount];
+                    {([5, 10] as const).map((threshold) => {
+                      const benefit = spot.planBenefits?.[threshold];
                       if (!benefit) return null;
                       return (
-                        <li key={amount} className="flex items-start gap-2.5 text-[15px] text-white/80">
-                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-xs font-bold text-teal-400">¥{amount}</span>
+                        <li key={threshold} className="flex items-start gap-2.5 text-[15px] text-white/80">
+                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-xs font-bold text-teal-400">{threshold}口以上</span>
                           {benefit}
                         </li>
                       );
@@ -579,7 +580,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
                 {/* 価格 + ボタン */}
                 <div className="mt-auto pt-6">
-                  <p className="mb-3 text-center text-sm font-semibold text-white/60">月額 300円〜</p>
+                  <p className="mb-3 text-center text-sm font-semibold text-white/60">1口 100円〜</p>
                   <button
                     type="button"
                     className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
@@ -671,7 +672,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   ) : allPosts.map((post) => {
                     // masked はフィードAPIがプラン閾値込みで判定済み（サーバー権威）
                     const isLocked = post.masked || (locked && !post.isPublic);
-                    const tierLabel = post.minPlanAmount ? `¥${post.minPlanAmount.toLocaleString()}以上限定` : null;
+                    const tierLabel = post.minPlanAmount ? `${amountToKo(post.minPlanAmount)}口以上限定` : null;
                     const thumb = post.attachments?.find((a) => a.type === "image")?.url ?? post.imageUrl;
                     return (
                       <article key={post.id} className="relative overflow-hidden rounded-[20px] border border-ink/8 bg-white">
@@ -801,7 +802,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
-            <p className="text-xs text-ink/65">月300円から参加できます</p>
+            <p className="text-xs text-ink/65">1口100円から参加できます</p>
           </div>
           <button
             type="button"

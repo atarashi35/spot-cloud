@@ -15,6 +15,7 @@ import { getUserProfileDoc, saveUserProfileDoc } from "@/lib/firestore/user-prof
 import { resolveDisplayName } from "@/lib/user-profile";
 import { uploadAvatar } from "@/lib/firebase/upload-avatar";
 import { UserMembership } from "@/lib/types";
+import { formatKo } from "@/lib/plan";
 import type { InvoiceItem } from "@/app/api/stripe/invoices/route";
 
 function getMembershipStatusLabel(status: UserMembership["status"]) {
@@ -526,7 +527,7 @@ export function SettingsPageClient() {
         <span className="chip">MEMBERSHIP</span>
         <h2 className="mt-4 text-2xl font-extrabold text-ink">応援会員シップ管理</h2>
         <p className="mt-4 text-[15px] leading-relaxed text-ink/72">
-          プラン・支払い方法の変更や解約はこちらで管理できます。
+          口数・支払い方法の変更や解約はこちらで管理できます。
         </p>
         <div className="mt-6 grid gap-3">
           {memberships === null ? (
@@ -557,7 +558,7 @@ export function SettingsPageClient() {
                     </StatusBadge>
                   </div>
                   <div className="mt-1 text-xs text-ink/65">
-                    {`¥${membership.planAmount.toLocaleString()} / 月`}
+                    {formatKo(membership.planAmount)}
                     {nextBillingDates[membership.spotId]
                       ? ` · 次回請求 ${toDateLabel(String(nextBillingDates[membership.spotId]))}`
                       : ""}

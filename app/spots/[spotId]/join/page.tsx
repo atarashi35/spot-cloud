@@ -1,5 +1,5 @@
 import { JoinPageClient } from "@/components/spots/join-page-client";
-import { planOptions } from "@/lib/types";
+import { defaultPlanAmount, isSignupPlan } from "@/lib/types";
 
 export default async function JoinPage({
   params,
@@ -11,7 +11,8 @@ export default async function JoinPage({
   const { spotId } = await params;
   const { plan } = await searchParams;
 
-  const selectedPlan = planOptions.find((amount) => amount === Number(plan)) ?? 500;
+  const parsedPlan = Number(plan);
+  const selectedPlan = isSignupPlan(parsedPlan) ? parsedPlan : defaultPlanAmount;
 
   return <JoinPageClient spotId={spotId} selectedPlan={selectedPlan} />;
 }

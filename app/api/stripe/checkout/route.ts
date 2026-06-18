@@ -4,10 +4,10 @@ import {
   BILLING_APPLICATION_FEE_PERCENT,
   PLATFORM_FEE_PERCENT,
   STRIPE_PROCESSING_FEE_RATE,
-  getStripePriceId,
   stripe
 } from "@/lib/stripe/config";
-import { PlanAmount, SocioAgeRange, SocioGender, isSignupPlan } from "@/lib/types";
+import { KO_UNIT_AMOUNT, PlanAmount, SocioAgeRange, SocioGender, isSignupPlan } from "@/lib/types";
+import { amountToKo } from "@/lib/plan";
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,18 +48,6 @@ export async function POST(request: NextRequest) {
           message: "STRIPE_SECRET_KEY と price id を設定すると Checkout を開始できます。"
         },
         { status: 503 }
-      );
-    }
-
-    const priceId = getStripePriceId(planAmount);
-
-    if (!priceId) {
-      return NextResponse.json(
-        {
-          error: "price_not_configured",
-          message: "STRIPE_PRICE_ID_300 を .env.local に設定してください。"
-        },
-        { status: 500 }
       );
     }
 
@@ -110,9 +98,22 @@ export async function POST(request: NextRequest) {
 
     const origin = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
 
+    // 口数制：1口 ¥100 を quantity（口数）分。請求書には「¥100 × n」と表示される。
+    const quantity = amountToKo(planAmount);
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [
+        {
+          price_data: {
+            currency: "jpy",
+            unit_amount: KO_UNIT_AMOUNT,
+            recurring: { interval: "month" },
+            product_data: { name: `SPOT応援会員（${spotName}）` }
+          },
+          quantity
+        }
+      ],
       // {CHECKOUT_SESSION_ID} は Stripe がリダイレクト時に実際の ID に置換する
       success_url: `${origin}/spots/${body.spotId}?checkout=success&sid={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/spots/${body.spotId}`,

@@ -67,7 +67,7 @@ export function JoinPageClient({
     return (
       <EmptyState
         title="この SPOT はまだ加入受付前です"
-        description="運営者の受取設定が完了すると、ここからプランを選んで加入できるようになります。"
+        description="運営者の受取設定が完了すると、ここから口数を選んで加入できるようになります。"
       />
     );
   }

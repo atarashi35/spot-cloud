@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SpotMembership } from "@/lib/types";
+import { formatKoLabel, koToAmount, amountToKo } from "@/lib/plan";
 
 type StatusFilter = "paying" | "all";
 
@@ -23,11 +24,12 @@ const STATUS_TONE: Record<SpotMembership["status"], "success" | "warning" | "neu
 };
 
 function exportCsv(members: SpotMembership[], spotName: string) {
-  const header = ["お名前", "メール", "プラン", "ステータス", "住所", "加入日"];
+  const header = ["お名前", "メール", "口数", "月額", "ステータス", "住所", "加入日"];
   const rows = members.map((m) => [
     m.displayName,
     m.email,
-    `¥${m.planAmount}`,
+    formatKoLabel(m.planAmount),
+    `¥${koToAmount(amountToKo(m.planAmount))}`,
     STATUS_LABEL[m.status],
     m.address ?? "",
     m.joinedAt.slice(0, 10)
@@ -158,7 +160,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
                         <div className="mt-1 text-xs text-ink/68 truncate">{m.email}</div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-semibold text-ink/78">¥{m.planAmount}</span>
+                        <span className="text-xs font-semibold text-ink/78">{formatKoLabel(m.planAmount)}</span>
                         <StatusBadge tone={STATUS_TONE[m.status]}>
                           {STATUS_LABEL[m.status]}
                         </StatusBadge>

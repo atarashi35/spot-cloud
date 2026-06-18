@@ -1,21 +1,28 @@
 /**
- * 新規受付プランは ¥300 / ¥500 / ¥1,000（デフォルト ¥500）。
- * ¥100 はレガシープラン。新規受付は停止済みで、既存会員の表示互換のためだけに型に残している。
- * 特典はオンボーディングから分離し、運営中SPOTの「特典設定」から任意で後付け。
- * フリー枠（お気持ち金額）はベータ後の検証材料。
+ * 口数制：1口 = ¥100。会員は1口以上を任意の口数で購入する。
+ * planAmount は「口数 × 100」の月額（円）。既存の固定プラン会員（¥300/¥500/¥1,000）は
+ * そのまま 3口/5口/10口 として解釈される。口数⇔金額の変換は lib/plan.ts を使う。
+ * 特典は口数閾値（5口以上 / 10口以上）でプラットフォーム統一。
  */
-export type PlanAmount = 100 | 300 | 500 | 1000;
+export type PlanAmount = number;
 
-export const planOptions = [300, 500, 1000] as const satisfies readonly PlanAmount[];
+/** 1口の金額（円）。 */
+export const KO_UNIT_AMOUNT = 100;
 
-/** 申込時にデフォルトで選択されるプラン金額。 */
-export const defaultPlanAmount: PlanAmount = 500;
+/** 入会時の最小口数。 */
+export const MIN_KO = 1;
 
-export type SignupPlanAmount = (typeof planOptions)[number];
+/** 入会画面のステッパー初期値（口数）。 */
+export const DEFAULT_KO = 3;
 
-/** 新規受付プランかどうか（レガシー金額を弾く） */
+/** 申込時にデフォルトで選択されるプラン金額（口数換算 × ¥100）。 */
+export const defaultPlanAmount: PlanAmount = DEFAULT_KO * KO_UNIT_AMOUNT;
+
+export type SignupPlanAmount = PlanAmount;
+
+/** 新規受付可能な金額かどうか（¥100以上かつ¥100単位） */
 export function isSignupPlan(value: number): value is SignupPlanAmount {
-  return (planOptions as readonly number[]).includes(value);
+  return Number.isInteger(value) && value >= KO_UNIT_AMOUNT && value % KO_UNIT_AMOUNT === 0;
 }
 
 export type SpotCategory =
@@ -56,10 +63,13 @@ export type SocialLinks = {
   facebook?: string;
 };
 
+/**
+ * 口数閾値ごとの特典。キーは口数（5口以上 / 10口以上）。
+ * プラットフォーム共通の閾値で、各特典の文言はオーナーが設定する。
+ */
 export type PlanBenefits = {
-  300?: string;
-  500?: string;
-  1000?: string;
+  5?: string;
+  10?: string;
 };
 
 export type TeamMember = {
@@ -149,9 +159,9 @@ export interface SpotPost {
   /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
   isPublic: boolean;
   /**
-   * 応援会員限定（isPublic=false）のとき、閲覧に必要な最低プラン金額。
-   * undefined: 全会員が閲覧可 / 500: ¥500以上 / 1000: ¥1,000以上。
-   * 上位プランほど下位限定も閲覧できる（閾値方式）。
+   * 応援会員限定（isPublic=false）のとき、閲覧に必要な最低口数（金額換算）。
+   * undefined: 全会員が閲覧可 / 500: 5口以上 / 1000: 10口以上。
+   * 口数が多いほど下位限定も閲覧できる（閾値方式）。
    */
   minPlanAmount?: SignupPlanAmount;
   createdBy: string;

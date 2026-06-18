@@ -1,5 +1,4 @@
 import Stripe from "stripe";
-import { PlanAmount } from "@/lib/types";
 
 export const stripe =
   process.env.STRIPE_SECRET_KEY &&
@@ -43,17 +42,6 @@ export const STRIPE_PROCESSING_FEE_RATE =
 export const BILLING_APPLICATION_FEE_PERCENT =
   PLATFORM_FEE_PERCENT +
   STRIPE_PROCESSING_FEE_RATE * 100 * (1 - PLATFORM_FEE_PERCENT / 100);
-
-// ¥100はレガシー（新規受付停止）。既存サブスクの更新はサブスク側のPriceで継続される
-const priceIdMap: Partial<Record<PlanAmount, string | undefined>> = {
-  300: process.env.STRIPE_PRICE_ID_300,
-  500: process.env.STRIPE_PRICE_ID_500,
-  1000: process.env.STRIPE_PRICE_ID_1000
-};
-
-export function getStripePriceId(planAmount: PlanAmount) {
-  return priceIdMap[planAmount];
-}
 
 /**
  * 決済額から各費用を計算するユーティリティ

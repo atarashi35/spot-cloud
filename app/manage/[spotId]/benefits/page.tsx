@@ -6,7 +6,10 @@ import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSpotFromFirestore, updateSpotPlanBenefits } from "@/lib/firestore/spots";
-import { Spot, PlanBenefits, planOptions } from "@/lib/types";
+import { Spot, PlanBenefits } from "@/lib/types";
+
+/** 特典の口数閾値（プラットフォーム共通）。 */
+const KO_THRESHOLDS = [5, 10] as const;
 
 /**
  * 特典（任意）の後設定ページ。
@@ -37,9 +40,8 @@ export default function BenefitsPage({ params }: { params: Promise<{ spotId: str
         }
         setSpot(s);
         setBenefits({
-          300: s.planBenefits?.[300] ?? "",
-          500: s.planBenefits?.[500] ?? "",
-          1000: s.planBenefits?.[1000] ?? "",
+          5: s.planBenefits?.[5] ?? "",
+          10: s.planBenefits?.[10] ?? "",
         });
         setStatus("ready");
       })
@@ -52,9 +54,9 @@ export default function BenefitsPage({ params }: { params: Promise<{ spotId: str
     setSaved(false);
     // 空文字は保存しない（未設定として扱う）
     const cleaned: PlanBenefits = {};
-    for (const amount of planOptions) {
-      const value = (benefits[amount] ?? "").trim();
-      if (value) cleaned[amount] = value;
+    for (const threshold of KO_THRESHOLDS) {
+      const value = (benefits[threshold] ?? "").trim();
+      if (value) cleaned[threshold] = value;
     }
     try {
       await updateSpotPlanBenefits(spot.id, cleaned);
@@ -86,24 +88,24 @@ export default function BenefitsPage({ params }: { params: Promise<{ spotId: str
         <>
           <div>
             <span className="chip">特典設定</span>
-            <h1 className="mt-4 text-3xl font-extrabold text-ink">プラン特典（任意）</h1>
+            <h1 className="mt-4 text-3xl font-extrabold text-ink">口数特典（任意）</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/68">
-              プランごとに特典を設定できます（任意）。
+              口数に応じた特典を設定できます（任意）。
               何か返したいものがあれば、ここで自由に追加してください。
               もちろん空欄のままでも問題ありません。
             </p>
           </div>
 
           <div className="space-y-4">
-            {planOptions.map((amount) => (
-              <label key={amount} className="block">
-                <span className="text-sm font-semibold text-ink">月{amount.toLocaleString()}円プランの特典</span>
+            {KO_THRESHOLDS.map((threshold) => (
+              <label key={threshold} className="block">
+                <span className="text-sm font-semibold text-ink">{threshold}口以上の特典</span>
                 <input
                   type="text"
                   className="field mt-2 w-full"
-                  value={benefits[amount] ?? ""}
+                  value={benefits[threshold] ?? ""}
                   onChange={(e) => {
-                    setBenefits((prev) => ({ ...prev, [amount]: e.target.value }));
+                    setBenefits((prev) => ({ ...prev, [threshold]: e.target.value }));
                     setSaved(false);
                   }}
                   placeholder="例：ドリンク1杯サービス（空欄でもOK）"

@@ -15,7 +15,7 @@ const items: { label: string; value: string }[] = [
   },
   {
     label: "料金",
-    value: "月額 300円・500円・1,000円（税込）のいずれか。"
+    value: "1口100円（税込）の口数制。会員が選んだ口数 × 100円を毎月お支払いいただきます（例：3口で月300円）。"
   },
   { label: "支払い方法", value: "クレジットカード（Visa・Mastercard・American Express・JCB）、Apple Pay、Google Pay、PayPay" },
   {

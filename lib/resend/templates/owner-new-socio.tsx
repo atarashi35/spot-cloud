@@ -1,6 +1,7 @@
 import { Button, Heading, Text } from "@react-email/components";
 import * as React from "react";
 import { EmailLayout } from "./layout";
+import { formatKo } from "@/lib/plan";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://spotcloud.app";
 
@@ -27,7 +28,7 @@ export function OwnerNewSocioEmail({
         {socioAffiliation && (
           <Text style={cardRow}><span style={label}>所属</span>{socioAffiliation}</Text>
         )}
-        <Text style={cardRow}><span style={label}>プラン</span>¥{planAmount.toLocaleString()} / 月</Text>
+        <Text style={cardRow}><span style={label}>口数</span>{formatKo(planAmount)}</Text>
         <Text style={cardRow}><span style={label}>累計応援会員数</span>{totalSocios} 人</Text>
       </div>
       <Button href={`${baseUrl}/owner/spots/${spotId}`} style={button}>

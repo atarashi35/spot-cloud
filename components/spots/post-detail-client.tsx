@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { Spot, SpotPost } from "@/lib/types";
+import { amountToKo } from "@/lib/plan";
 import { toVideoEmbedUrl } from "@/lib/utils";
 
 export function PostDetailClient({ spotId, postId }: { spotId: string; postId: string }) {
@@ -70,14 +71,14 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
 
   if (forbidden) {
     const tierLabel = forbidden.minPlanAmount
-      ? `¥${forbidden.minPlanAmount.toLocaleString()}以上の応援会員限定`
+      ? `${amountToKo(forbidden.minPlanAmount)}口以上の応援会員限定`
       : "応援会員限定";
     return (
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
             title={`この投稿は${tierLabel}です`}
-            description="対象プランの応援会員のみ閲覧できます。"
+            description="対象の口数以上の応援会員のみ閲覧できます。"
           />
           <Link href={`/spots/${spotId}`} className="cta-primary mt-6">
             SPOTページへ

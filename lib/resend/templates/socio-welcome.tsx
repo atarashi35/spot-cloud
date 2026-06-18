@@ -1,6 +1,7 @@
 import { Button, Heading, Text } from "@react-email/components";
 import * as React from "react";
 import { EmailLayout } from "./layout";
+import { formatKo } from "@/lib/plan";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://spotcloud.app";
 
@@ -19,7 +20,7 @@ export function SocioWelcomeEmail({ spotName, spotId, planAmount, displayName }:
         {displayName ? `${displayName}さん、` : ""}はじめまして。{"\n"}
         <strong>{spotName}</strong> の応援会員として登録が完了しました。
       </Text>
-      <Text style={plan}>¥{planAmount.toLocaleString()} / 月</Text>
+      <Text style={plan}>{formatKo(planAmount)}</Text>
       <Text style={text}>
         応援会員として、アンケートや意見投稿を通じてこのSPOTに関わることができます。
         オーナーからのお知らせはメールでお届けします。

@@ -11,11 +11,13 @@ import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
 import { PostalCodeField } from "@/components/forms/postal-code-field";
 import {
+  KO_UNIT_AMOUNT,
+  MIN_KO,
   PlanAmount,
   Spot,
-  planOptions,
   defaultPlanAmount
 } from "@/lib/types";
+import { amountToKo, koToAmount } from "@/lib/plan";
 
 type Step = "login" | "email_sent" | "profile";
 
@@ -356,37 +358,53 @@ export function SocioSignupModal({
                   </div>
                 </div>
 
-                <div className={`mt-6 grid gap-3 ${(() => { const n = planOptions.length as number; return n === 2 ? "sm:grid-cols-2" : n > 2 ? "sm:grid-cols-3" : ""; })()}`}>
-                  {planOptions.map((amount) => {
-                    const active = amount === planAmount;
-                    const benefit = spot.planBenefits?.[amount];
-                    const single = (planOptions.length as number) === 1;
-                    return (
-                      <button
-                        key={amount}
-                        type="button"
-                        onClick={() => setPlanAmount(amount)}
-                        className={`rounded-[20px] border p-5 text-left transition ${
-                          active ? "border-ink bg-ink text-white" : "border-ink/10 bg-mist text-ink"
-                        } ${single ? "flex items-center justify-between" : ""}`}
-                      >
-                        <div>
-                          <div className="text-[13px] font-semibold tracking-[0.18em] opacity-65">MONTHLY</div>
-                          <div className="mt-2 text-4xl font-bold">¥{amount}</div>
-                          {benefit && (
-                            <p className={`mt-2.5 text-xs leading-5 ${active ? "text-white/80" : "text-ink/68"}`}>
-                              {benefit}
-                            </p>
-                          )}
+                <div className="mt-6 rounded-[20px] border border-ink/10 bg-mist p-6">
+                  <p className="text-center text-xs font-semibold tracking-[0.2em] text-ink/55">1口 ¥100 / 月</p>
+                  <div className="mt-4 flex items-center justify-center gap-6">
+                    <button
+                      type="button"
+                      aria-label="口数を減らす"
+                      onClick={() => setPlanAmount((a) => Math.max(MIN_KO * KO_UNIT_AMOUNT, a - KO_UNIT_AMOUNT))}
+                      disabled={amountToKo(planAmount) <= MIN_KO}
+                      className="flex h-12 w-12 items-center justify-center rounded-full border border-ink/15 text-2xl font-bold text-ink transition hover:border-ink disabled:opacity-30"
+                    >
+                      −
+                    </button>
+                    <div className="min-w-[100px] text-center">
+                      <div className="text-5xl font-extrabold leading-none text-ink">
+                        {amountToKo(planAmount)}
+                        <span className="ml-1 text-2xl">口</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="口数を増やす"
+                      onClick={() => setPlanAmount((a) => a + KO_UNIT_AMOUNT)}
+                      className="flex h-12 w-12 items-center justify-center rounded-full border border-ink/15 text-2xl font-bold text-ink transition hover:border-ink"
+                    >
+                      ＋
+                    </button>
+                  </div>
+                  <p className="mt-5 text-center text-sm text-ink/72">
+                    月額 <span className="text-2xl font-extrabold text-ink">¥{koToAmount(amountToKo(planAmount)).toLocaleString("ja-JP")}</span>
+                  </p>
+
+                  {(spot.planBenefits?.[5] || spot.planBenefits?.[10]) ? (
+                    <div className="mt-5 space-y-2 border-t border-ink/8 pt-4">
+                      {spot.planBenefits?.[5] ? (
+                        <div className={`flex items-start gap-2 text-xs leading-5 ${amountToKo(planAmount) >= 5 ? "text-ink" : "text-ink/45"}`}>
+                          <span className="font-semibold">5口以上</span>
+                          <span>{spot.planBenefits[5]}</span>
                         </div>
-                        {single && (
-                          <span className={`text-sm font-medium ${active ? "text-white/75" : "text-ink/60"}`}>
-                            応援会員になる
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                      ) : null}
+                      {spot.planBenefits?.[10] ? (
+                        <div className={`flex items-start gap-2 text-xs leading-5 ${amountToKo(planAmount) >= 10 ? "text-ink" : "text-ink/45"}`}>
+                          <span className="font-semibold">10口以上</span>
+                          <span>{spot.planBenefits[10]}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="mt-6">
@@ -412,8 +430,8 @@ export function SocioSignupModal({
               <h3 className="mt-4 text-2xl font-extrabold text-ink">{spot.name}</h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ink/72">{spot.shortDescription || spot.description}</p>
               <div className="mt-5 flex items-center justify-between border-t border-ink/8 pt-4 text-sm text-ink/72">
-                <span>月額</span>
-                <span className="text-lg font-semibold text-ink">¥{planAmount}</span>
+                <span>月額（{amountToKo(planAmount)}口）</span>
+                <span className="text-lg font-semibold text-ink">¥{koToAmount(amountToKo(planAmount)).toLocaleString("ja-JP")}</span>
               </div>
             </div>
             <p className="mt-4 text-xs leading-6 text-ink/65">
