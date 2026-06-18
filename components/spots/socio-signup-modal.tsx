@@ -255,8 +255,8 @@ export function SocioSignupModal({
                   <h2 className="mt-4 text-xl font-extrabold text-ink">お申し込み</h2>
                   <p className="mt-0.5 text-sm text-ink/65">{user.email}</p>
 
-                  {/* 名前 + 郵便番号 横並び */}
-                  <div className="mt-4 grid grid-cols-2 gap-2.5">
+                  {/* 名前 + 郵便番号 */}
+                  <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                     <label className="space-y-1.5">
                       <span className="text-sm font-medium text-ink/72">お名前</span>
                       <input className="field h-11" value={name} onChange={(e) => setName(e.target.value)} placeholder="お名前" aria-invalid={!!error && !name ? true : undefined} />
