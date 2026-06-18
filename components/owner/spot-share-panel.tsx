@@ -188,7 +188,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
           <h2 className="text-xl font-semibold text-ink">SPOT詳細ページへのリンク</h2>
           <p className="mt-1.5 text-xs leading-5 text-ink/68">
             SPOTの紹介ページを見てもらうためのQR。<br />
-            チラシやPOPに掲載するのに最適です。
+            チラシやQRカードに掲載するのに最適です。
           </p>
           <div ref={spotQrRef} className="mt-5 inline-flex rounded-[20px] bg-white p-5 shadow-sm">
             <QRCode value={spotUrl} size={210} />
@@ -247,7 +247,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         <h2 className="text-xl font-semibold text-ink">応援会員募集チラシ</h2>
         <p className="mt-1.5 text-xs leading-5 text-ink/68">
           印刷してそのまま使えるチラシをPNGで保存できます。<br />
-          POP・名刺・チラシに貼り付けてご利用ください。
+          QRカード・名刺・チラシに貼り付けてご利用ください。
         </p>
 
         {/* チラシプレビュー */}

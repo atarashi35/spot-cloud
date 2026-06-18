@@ -626,7 +626,7 @@ export function OwnerConsoleClient() {
                   href={`/manage/${spot.id}/pop`}
                   className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
-                  <span className="text-xs font-semibold">POP</span>
+                  <span className="text-xs font-semibold">QRカード</span>
                 </a>
                 {FEATURE_EVENTS && (
                 <a

@@ -125,7 +125,7 @@ export default function PopPage({ params }: { params: Promise<{ spotId: string }
       `}</style>
 
       <div className="print:hidden">
-        <Breadcrumb items={[{ label: "管理", href: "/dashboard" }, { label: "POP" }]} />
+        <Breadcrumb items={[{ label: "管理", href: "/dashboard" }, { label: "QRカード" }]} />
       </div>
 
       {status === "loading" && (
@@ -145,8 +145,8 @@ export default function PopPage({ params }: { params: Promise<{ spotId: string }
       {status === "ready" && spot && (
         <>
           <div className="print:hidden">
-            <span className="chip">POP</span>
-            <h1 className="mt-4 text-3xl font-extrabold text-ink">目立つ場所に置くPOPを印刷</h1>
+            <span className="chip">QRカード</span>
+            <h1 className="mt-4 text-3xl font-extrabold text-ink">目立つ場所に置くQRカードを印刷</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/68">
               A4サイズで印刷されます。レジ横・受付・会場など、目に入る場所に置いてください。
               声をかけるときに一言添えると、応援会員の入会につながります。
