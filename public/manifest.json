@@ -1,0 +1,18 @@
+{
+  "name": "SPOT",
+  "short_name": "SPOT",
+  "description": "街の小さな文化拠点のための応援会員制度",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f4f4",
+  "theme_color": "#f4f4f4",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/spot_logomark_1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -6,6 +6,13 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "-p", "4321", "docs/sales"],
       "port": 4321
+    },
+    {
+      "name": "spot-cloud",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "autoPort": false
     }
   ]
 }

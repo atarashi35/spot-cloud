@@ -5,6 +5,7 @@ import "@/app/globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { AppProviders } from "@/components/providers/app-providers";
 import { SiteHeader } from "@/components/site-header";
+import { AddToHomeScreenBanner } from "@/components/add-to-home-screen-banner";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -56,6 +57,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable}`}>
       <head>
+        <link rel="manifest" href="/manifest.json" />
         {/* Firebase Storage 画像の接続を事前確立（LCP改善） */}
         <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
         <link rel="preconnect" href="https://storage.googleapis.com" />
@@ -73,6 +75,7 @@ export default function RootLayout({
             <SiteHeader />
             <main className="flex-1">{children}</main>
             <SiteFooter />
+            <AddToHomeScreenBanner />
           </div>
         </AppProviders>
       </body>
