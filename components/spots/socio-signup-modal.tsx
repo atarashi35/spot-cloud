@@ -45,6 +45,7 @@ export function SocioSignupModal({
   const [postalCode, setPostalCode] = useState("");
   const [addressLine, setAddressLine] = useState("");
 
+  const [showAddress, setShowAddress] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -325,88 +326,94 @@ export function SocioSignupModal({
             {/* ─── Step: profile ───────────────────────────── */}
             {step === "profile" && user ? (
               <>
-                <h2 className="mt-5 text-3xl font-extrabold text-ink">加入情報</h2>
-                <p className="mt-2 text-sm text-ink/68">{user.email}</p>
+                <h2 className="mt-3 text-2xl font-extrabold text-ink">加入情報</h2>
+                <p className="mt-1 text-sm text-ink/68">{user.email}</p>
 
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <label className="space-y-2 sm:col-span-2">
+                <div className="mt-4 space-y-3">
+                  <label className="block space-y-1.5">
                     <span className="text-sm font-medium text-ink/72">お名前</span>
                     <input
-                      className="field h-14"
+                      className="field h-11"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="お名前"
                       aria-invalid={!!error && !name ? true : undefined}
                     />
                   </label>
-                  <div className="space-y-2 sm:col-span-2">
-                    <span className="text-sm font-medium text-ink/72">住所（任意）</span>
-                    <PostalCodeField
-                      onResolved={({ postalCode: pc, prefecture, city, addressLine: al }) => {
-                        setPostalCode(pc);
-                        setAddressLine(`${prefecture}${city}${al}`);
-                      }}
-                    />
-                    <input
-                      className="field"
-                      value={addressLine}
-                      onChange={(e) => setAddressLine(e.target.value)}
-                      placeholder="都道府県・市区町村・番地"
-                    />
-                    <p className="text-[13px] text-ink/60">オーナーのみ閲覧できます。</p>
-                  </div>
-                </div>
 
-                <div className="mt-6 rounded-[20px] border border-ink/10 bg-mist p-6">
-                  <p className="text-center text-xs font-semibold tracking-[0.2em] text-ink/55">1口 ¥100 / 月</p>
-                  <div className="mt-4 flex items-center justify-center gap-6">
+                  <div>
                     <button
                       type="button"
-                      aria-label="口数を減らす"
-                      onClick={() => setPlanAmount((a) => Math.max(MIN_KO * KO_UNIT_AMOUNT, a - KO_UNIT_AMOUNT))}
-                      disabled={amountToKo(planAmount) <= MIN_KO}
-                      className="flex h-12 w-12 items-center justify-center rounded-full border border-ink/15 text-2xl font-bold text-ink transition hover:border-ink disabled:opacity-30"
+                      className="text-sm text-ink/50 underline underline-offset-2 hover:text-ink"
+                      onClick={() => setShowAddress((v) => !v)}
                     >
-                      −
+                      {showAddress ? "住所を閉じる" : "住所を追加（任意）"}
                     </button>
-                    <div className="min-w-[100px] text-center">
-                      <div className="text-5xl font-extrabold leading-none text-ink">
-                        {amountToKo(planAmount)}
-                        <span className="ml-1 text-2xl">口</span>
+                    {showAddress && (
+                      <div className="mt-2 space-y-2">
+                        <PostalCodeField
+                          onResolved={({ postalCode: pc, prefecture, city, addressLine: al }) => {
+                            setPostalCode(pc);
+                            setAddressLine(`${prefecture}${city}${al}`);
+                          }}
+                        />
+                        <input
+                          className="field"
+                          value={addressLine}
+                          onChange={(e) => setAddressLine(e.target.value)}
+                          placeholder="都道府県・市区町村・番地"
+                        />
+                        <p className="text-[12px] text-ink/55">オーナーのみ閲覧できます。</p>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label="口数を増やす"
-                      onClick={() => setPlanAmount((a) => a + KO_UNIT_AMOUNT)}
-                      className="flex h-12 w-12 items-center justify-center rounded-full border border-ink/15 text-2xl font-bold text-ink transition hover:border-ink"
-                    >
-                      ＋
-                    </button>
+                    )}
                   </div>
-                  <p className="mt-5 text-center text-sm text-ink/72">
-                    月額 <span className="text-2xl font-extrabold text-ink">¥{koToAmount(amountToKo(planAmount)).toLocaleString("ja-JP")}</span>
-                  </p>
-
-                  {(spot.planBenefits?.[5] || spot.planBenefits?.[10]) ? (
-                    <div className="mt-5 space-y-2 border-t border-ink/8 pt-4">
-                      {spot.planBenefits?.[5] ? (
-                        <div className={`flex items-start gap-2 text-xs leading-5 ${amountToKo(planAmount) >= 5 ? "text-ink" : "text-ink/45"}`}>
-                          <span className="font-semibold">5口以上</span>
-                          <span>{spot.planBenefits[5]}</span>
-                        </div>
-                      ) : null}
-                      {spot.planBenefits?.[10] ? (
-                        <div className={`flex items-start gap-2 text-xs leading-5 ${amountToKo(planAmount) >= 10 ? "text-ink" : "text-ink/45"}`}>
-                          <span className="font-semibold">10口以上</span>
-                          <span>{spot.planBenefits[10]}</span>
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : null}
                 </div>
 
-                <div className="mt-6 space-y-3">
+                {/* コンパクトステッパー */}
+                <div className="mt-4 flex items-center gap-3 rounded-[14px] bg-mist px-4 py-3">
+                  <button
+                    type="button"
+                    aria-label="口数を減らす"
+                    onClick={() => setPlanAmount((a) => Math.max(MIN_KO * KO_UNIT_AMOUNT, a - KO_UNIT_AMOUNT))}
+                    disabled={amountToKo(planAmount) <= MIN_KO}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink disabled:opacity-30"
+                  >
+                    −
+                  </button>
+                  <div className="flex flex-1 items-baseline justify-center gap-1">
+                    <span className="text-3xl font-extrabold tabular-nums text-ink">{amountToKo(planAmount)}</span>
+                    <span className="text-lg font-semibold text-ink">口</span>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="口数を増やす"
+                    onClick={() => setPlanAmount((a) => a + KO_UNIT_AMOUNT)}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink"
+                  >
+                    ＋
+                  </button>
+                  <div className="shrink-0 text-right">
+                    <p className="text-base font-bold text-ink">¥{koToAmount(amountToKo(planAmount)).toLocaleString("ja-JP")}</p>
+                    <p className="text-[11px] text-ink/50">/月</p>
+                  </div>
+                </div>
+
+                {(spot.planBenefits?.[5] || spot.planBenefits?.[10]) ? (
+                  <div className="mt-2 space-y-1 px-1">
+                    {spot.planBenefits?.[5] ? (
+                      <p className={`text-xs leading-5 ${amountToKo(planAmount) >= 5 ? "text-ink" : "text-ink/40"}`}>
+                        <span className="font-semibold">5口以上</span>　{spot.planBenefits[5]}
+                      </p>
+                    ) : null}
+                    {spot.planBenefits?.[10] ? (
+                      <p className={`text-xs leading-5 ${amountToKo(planAmount) >= 10 ? "text-ink" : "text-ink/40"}`}>
+                        <span className="font-semibold">10口以上</span>　{spot.planBenefits[10]}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div className="mt-4 space-y-2">
                   <button
                     type="button"
                     className="cta-primary w-full"
@@ -415,10 +422,9 @@ export function SocioSignupModal({
                   >
                     {loading ? "移動中..." : "支払いへ進む"}
                   </button>
-                  <p className="text-center text-xs leading-6 text-ink/55">
-                    「支払いへ進む」をクリックすることで、
-                    <a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>
-                    および
+                  <p className="text-center text-[11px] leading-5 text-ink/50">
+                    「支払いへ進む」で
+                    <a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・
                     <a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>
                     に同意したものとみなします。
                   </p>
