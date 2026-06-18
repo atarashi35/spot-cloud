@@ -222,9 +222,8 @@ export function SocioSignupModal({
         onClick={onClose}
       />
       <div className="flex min-h-full items-center justify-center px-4 py-6">
-      <section className="menu-surface relative z-[141] w-full max-w-4xl overflow-hidden p-0">
-        <div className="grid gap-0 md:grid-cols-[1.15fr_0.85fr]">
-          <div className="relative p-6 sm:p-8">
+      <section className="menu-surface relative z-[141] w-full max-w-lg overflow-hidden p-0">
+        <div className="relative p-6 sm:p-8">
             {/* 閉じるボタン */}
             <button type="button" className="icon-button absolute right-6 top-6" onClick={onClose} aria-label="閉じる">
               <X className="h-4 w-4" />
@@ -407,7 +406,7 @@ export function SocioSignupModal({
                   ) : null}
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-6 space-y-3">
                   <button
                     type="button"
                     className="cta-primary w-full"
@@ -416,32 +415,18 @@ export function SocioSignupModal({
                   >
                     {loading ? "移動中..." : "支払いへ進む"}
                   </button>
+                  <p className="text-center text-xs leading-6 text-ink/55">
+                    「支払いへ進む」をクリックすることで、
+                    <a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>
+                    および
+                    <a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>
+                    に同意したものとみなします。
+                  </p>
                 </div>
               </>
             ) : null}
 
             {error ? <p className="mt-4 text-sm font-medium text-red-700">{error}</p> : null}
-          </div>
-
-          {/* ─── 右パネル: SPOT情報 ───────────────────────── */}
-          <aside className="border-t border-ink/8 bg-mist/75 p-6 md:border-l md:border-t-0 md:p-8">
-            <div className="rounded-[28px] border border-ink/8 bg-white/80 p-5 shadow-sm">
-              <span className="chip">SPOT</span>
-              <h3 className="mt-4 text-2xl font-extrabold text-ink">{spot.name}</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-ink/72">{spot.shortDescription || spot.description}</p>
-              <div className="mt-5 flex items-center justify-between border-t border-ink/8 pt-4 text-sm text-ink/72">
-                <span>月額（{amountToKo(planAmount)}口）</span>
-                <span className="text-lg font-semibold text-ink">¥{koToAmount(amountToKo(planAmount)).toLocaleString("ja-JP")}</span>
-              </div>
-            </div>
-            <p className="mt-4 text-xs leading-6 text-ink/65">
-              「支払いへ進む」をクリックすることで、
-              <a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>
-              および
-              <a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>
-              に同意したものとみなします。
-            </p>
-          </aside>
         </div>
       </section>
       </div>
