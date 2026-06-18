@@ -9,7 +9,6 @@ import { EMAIL_LINK_STORAGE_KEY, EmailSignInState } from "@/lib/auth/email-link"
 import { loadUserProfileCache, saveUserProfileCache } from "@/lib/user-profile-cache";
 import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
-import { PostalCodeField } from "@/components/forms/postal-code-field";
 import {
   KO_UNIT_AMOUNT,
   MIN_KO,
@@ -45,7 +44,7 @@ export function SocioSignupModal({
   const [postalCode, setPostalCode] = useState("");
   const [addressLine, setAddressLine] = useState("");
 
-  const [showAddress, setShowAddress] = useState(false);
+  const [postalLoading, setPostalLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,6 +156,24 @@ export function SocioSignupModal({
       setError(msg);
     } finally {
       setLoading(false);
+    }
+  }
+
+  // ─── 郵便番号ルックアップ ─────────────────────────────────────
+  async function handlePostalLookup() {
+    const normalized = postalCode.replace(/[^\d]/g, "");
+    if (normalized.length !== 7) return;
+    setPostalLoading(true);
+    try {
+      const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${normalized}`);
+      const data = (await res.json()) as { results?: { address1: string; address2: string; address3: string }[] };
+      if (data.results?.length) {
+        const r = data.results[0];
+        setPostalCode(normalized);
+        setAddressLine(`${r.address1}${r.address2}${r.address3}`);
+      }
+    } finally {
+      setPostalLoading(false);
     }
   }
 
@@ -329,8 +346,9 @@ export function SocioSignupModal({
                 <h2 className="mt-3 text-2xl font-extrabold text-ink">加入情報</h2>
                 <p className="mt-1 text-sm text-ink/68">{user.email}</p>
 
-                <div className="mt-4 space-y-3">
-                  <label className="block space-y-1.5">
+                {/* 名前 + 郵便番号 横並び */}
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <label className="space-y-1.5">
                     <span className="text-sm font-medium text-ink/72">お名前</span>
                     <input
                       className="field h-11"
@@ -340,33 +358,38 @@ export function SocioSignupModal({
                       aria-invalid={!!error && !name ? true : undefined}
                     />
                   </label>
-
-                  <div>
-                    <button
-                      type="button"
-                      className="text-sm text-ink/50 underline underline-offset-2 hover:text-ink"
-                      onClick={() => setShowAddress((v) => !v)}
-                    >
-                      {showAddress ? "住所を閉じる" : "住所を追加（任意）"}
-                    </button>
-                    {showAddress && (
-                      <div className="mt-2 space-y-2">
-                        <PostalCodeField
-                          onResolved={({ postalCode: pc, prefecture, city, addressLine: al }) => {
-                            setPostalCode(pc);
-                            setAddressLine(`${prefecture}${city}${al}`);
-                          }}
-                        />
-                        <input
-                          className="field"
-                          value={addressLine}
-                          onChange={(e) => setAddressLine(e.target.value)}
-                          placeholder="都道府県・市区町村・番地"
-                        />
-                        <p className="text-[12px] text-ink/55">オーナーのみ閲覧できます。</p>
-                      </div>
-                    )}
+                  <div className="space-y-1.5">
+                    <span className="text-sm font-medium text-ink/72">郵便番号（任意）</span>
+                    <div className="flex gap-2">
+                      <input
+                        className="field h-11 min-w-0"
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
+                        inputMode="numeric"
+                        maxLength={8}
+                        placeholder="1234567"
+                      />
+                      <button
+                        type="button"
+                        className="cta-secondary h-11 shrink-0 px-3 text-sm"
+                        onClick={() => void handlePostalLookup()}
+                        disabled={postalLoading}
+                      >
+                        {postalLoading ? "…" : "反映"}
+                      </button>
+                    </div>
                   </div>
+                </div>
+
+                {/* 住所フリー入力 */}
+                <div className="mt-2">
+                  <input
+                    className="field h-11 w-full"
+                    value={addressLine}
+                    onChange={(e) => setAddressLine(e.target.value)}
+                    placeholder="都道府県・市区町村・番地（任意）"
+                  />
+                  <p className="mt-1 text-[11px] text-ink/50">住所はオーナーのみ閲覧できます。</p>
                 </div>
 
                 {/* コンパクトステッパー */}
@@ -398,15 +421,16 @@ export function SocioSignupModal({
                   </div>
                 </div>
 
+                {/* 特典ヒント（常時表示、口数が足りない場合はグレーアウト） */}
                 {(spot.planBenefits?.[5] || spot.planBenefits?.[10]) ? (
-                  <div className="mt-2 space-y-1 px-1">
+                  <div className="mt-2 space-y-1 rounded-[10px] border border-ink/8 px-3 py-2">
                     {spot.planBenefits?.[5] ? (
-                      <p className={`text-xs leading-5 ${amountToKo(planAmount) >= 5 ? "text-ink" : "text-ink/40"}`}>
+                      <p className={`text-xs leading-5 transition-colors ${amountToKo(planAmount) >= 5 ? "text-ink" : "text-ink/35"}`}>
                         <span className="font-semibold">5口以上</span>　{spot.planBenefits[5]}
                       </p>
                     ) : null}
                     {spot.planBenefits?.[10] ? (
-                      <p className={`text-xs leading-5 ${amountToKo(planAmount) >= 10 ? "text-ink" : "text-ink/40"}`}>
+                      <p className={`text-xs leading-5 transition-colors ${amountToKo(planAmount) >= 10 ? "text-ink" : "text-ink/35"}`}>
                         <span className="font-semibold">10口以上</span>　{spot.planBenefits[10]}
                       </p>
                     ) : null}
