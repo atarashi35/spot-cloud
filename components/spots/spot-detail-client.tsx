@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { updateProfile } from "firebase/auth";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Minus, Phone, Plus } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { GallerySlider } from "@/components/spots/gallery-slider";
 import { VoicesSection } from "@/components/spots/voices-section";
@@ -72,6 +72,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [showOwnerCta, setShowOwnerCta] = useState(false);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
+  const [ctaKo, setCtaKo] = useState(3);
   const mainCtaRef = useRef<HTMLElement>(null);
 
   async function loadSpotDetail(currentUser = user) {
@@ -307,7 +308,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onClose={() => { setSignupModalOpen(false); setEmailJoinPlan(null); }}
         defaultPlan={
           emailJoinPlan ??
-          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : defaultPlanAmount)
+          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : (ctaKo * 100) as PlanAmount)
         }
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
@@ -455,11 +456,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             ) : null}
           </div>
           <aside ref={mainCtaRef} className={`flex flex-col rounded-[28px] p-5 ${
-            // 未加入（メイン訴求）状態のみ黒背景で強調、それ以外はmist
             !isOwner && membershipStatus !== "active" && membershipStatus !== "canceling"
             && membershipStatus !== "past_due" && membershipStatus !== "canceled"
             && canAcceptMembership
-              ? "bg-ink"
+              ? "border border-ink/10 bg-white"
               : "bg-mist"
           }`}>
             {isOwner ? (
@@ -528,65 +528,79 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
               </>
             ) : (
-              /* ── 未加入・募集中（メイン訴求）── bg-ink 反転パネル */
-              <div className="flex h-full flex-col">
-                {/* 応援会員数 */}
-                {spot.socioCount > 0 ? (
-                  <div>
-                    <p className="text-sm font-bold text-teal-400">SUPPORTERS</p>
-                    <p className="mt-1 tabular-nums leading-none">
-                      <span className="text-5xl font-extrabold text-teal-400">{spot.socioCount}</span>
-                      <span className="ml-2 text-base font-semibold text-white/65">人が応援中</span>
+              /* ── 未加入・募集中（メイン訴求）── ライトカード */
+              <div className="flex h-full flex-col gap-4">
+                {/* バッジ + 会員数 */}
+                <div className="flex items-center justify-between">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+                    <span className="text-sm font-semibold text-teal-700">応援会員募集中</span>
+                  </div>
+                  {spot.socioCount > 0 && (
+                    <p className="text-sm font-semibold tabular-nums text-teal-600">
+                      {spot.socioCount}人が応援中
                     </p>
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center gap-2 self-start rounded-full bg-teal-400/15 px-3 py-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                    <span className="text-sm font-semibold text-teal-400">応援会員募集中</span>
-                  </div>
-                )}
-
-                {/* 区切り */}
-                <div className="my-5 border-t border-white/10" />
+                  )}
+                </div>
 
                 {/* ベネフィット */}
                 {spot.planBenefits && Object.values(spot.planBenefits).some(Boolean) ? (
-                  <ul className="space-y-3">
+                  <ul className="space-y-2.5">
                     {([5, 10] as const).map((threshold) => {
                       const benefit = spot.planBenefits?.[threshold];
                       if (!benefit) return null;
                       return (
-                        <li key={threshold} className="flex items-start gap-2.5 text-[15px] text-white/80">
-                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-xs font-bold text-teal-400">{threshold}口以上</span>
+                        <li key={threshold} className="flex items-start gap-2.5 text-[14px] text-ink/75">
+                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-500/10 px-2 py-0.5 text-[11px] font-bold text-teal-600">{threshold}口以上</span>
                           {benefit}
                         </li>
                       );
                     })}
                   </ul>
                 ) : (
-                  <ul className="space-y-3">
+                  <ul className="space-y-2">
                     {[
                       "限定の投稿が読める",
                       "番号入りの会員証を持てる",
                       "このSPOTの継続を支える",
                     ].map((text) => (
-                      <li key={text} className="flex items-center gap-2.5 text-[15px] text-white/80">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-400/20 text-xs font-bold text-teal-400">✓</span>
+                      <li key={text} className="flex items-center gap-2.5 text-[14px] text-ink/75">
+                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-teal-500/12 text-[10px] font-bold text-teal-600">✓</span>
                         {text}
                       </li>
                     ))}
                   </ul>
                 )}
 
-                {/* 価格 + ボタン */}
-                <div className="mt-auto pt-6">
-                  <p className="mb-3 text-center text-sm font-semibold text-white/60">1口 100円〜</p>
+                {/* 口数ステッパー + CTA */}
+                <div className="mt-auto space-y-3 pt-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40">口数を選ぶ</p>
+                  <div className="flex items-center gap-3 rounded-[16px] bg-mist px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() => setCtaKo((k) => Math.max(1, k - 1))}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/12 bg-white text-ink transition hover:border-ink/25 active:scale-95"
+                    >
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                    <div className="flex-1 text-center">
+                      <p className="text-xl font-extrabold text-ink">{ctaKo}口</p>
+                      <p className="text-xs text-ink/50">¥{(ctaKo * 100).toLocaleString("ja-JP")}/月</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCtaKo((k) => k + 1)}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/12 bg-white text-ink transition hover:border-ink/25 active:scale-95"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                   <button
                     type="button"
-                    className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
+                    className="w-full rounded-full bg-ink py-3.5 text-center text-[15px] font-bold text-white transition hover:bg-ink/85 active:scale-[0.98]"
                     onClick={() => setSignupModalOpen(true)}
                   >
-                    応援会員になる
+                    {ctaKo}口（¥{(ctaKo * 100).toLocaleString("ja-JP")}）で応援する
                   </button>
                 </div>
               </div>
