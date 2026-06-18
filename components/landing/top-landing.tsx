@@ -249,19 +249,19 @@ export function TopLanding() {
             <p className="text-[15px] font-semibold text-white/80">
               例えば、<span className="font-extrabold text-white">100人</span>の応援会員がいれば
             </p>
-            <div className="flex items-end gap-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">月間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥43,380</span>
+                  <span className="text-[2.4rem] font-extrabold leading-none tracking-tight text-teal-400 sm:text-[2.8rem]">¥43,380</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/月</span>
                 </div>
               </div>
-              <div className="h-10 w-px bg-white/10" />
+              <div className="hidden h-10 w-px bg-white/10 sm:block" />
               <div>
                 <div className="text-xs font-semibold uppercase tracking-widest text-teal-400/70">年間振込</div>
                 <div className="mt-1 flex items-end gap-1.5">
-                  <span className="text-[2.8rem] font-extrabold leading-none tracking-tight text-teal-400">¥520,560</span>
+                  <span className="text-[2.4rem] font-extrabold leading-none tracking-tight text-teal-400 sm:text-[2.8rem]">¥520,560</span>
                   <span className="mb-1 text-sm font-semibold text-teal-400/70">/年</span>
                 </div>
               </div>
