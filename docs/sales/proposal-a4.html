@@ -235,9 +235,13 @@
     <div class="steps">
       <div class="step">
         <span class="step-no">1</span>
-        <div>
+        <div style="flex:1;">
           <div class="step-title">あなたのページを登録</div>
           <div class="step-body">場所や活動の紹介と写真を登録。5分で完了します。</div>
+        </div>
+        <div id="step1-qr" style="flex-shrink:0; margin-left:4mm; display:flex; flex-direction:column; align-items:center; gap:1mm;">
+          <div id="step1-qr-img"></div>
+          <div style="font-size:9px; color:#999;">spotcloud.app/owner</div>
         </div>
       </div>
       <div class="step">
@@ -264,5 +268,16 @@
     <span>連絡先: 新諒平　080-3724-3935　／　spotcloud2026@gmail.com　／　spotcloud.app</span>
   </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  new QRCode(document.getElementById("step1-qr-img"), {
+    text: "https://spotcloud.app/owner",
+    width: 60,
+    height: 60,
+    colorDark: "#111111",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+</script>
 </body>
 </html>
