@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, LogIn, LogOut, MapPin, Settings2, Shield, UserCircle } from "lucide-react";
+import { Building2, LogIn, LogOut, MapPin, Search, Settings2, Shield, UserCircle } from "lucide-react";
 import { LogoHorizontal } from "@/components/ui/logo";
 import { NotificationDrawer } from "@/components/ui/notification-drawer";
 import { useEffect, useRef, useState } from "react";
@@ -94,6 +94,14 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/spots"
+            aria-label="SPOTを探す"
+            title="SPOTを探す"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink/55 transition hover:bg-ink/5 hover:text-ink"
+          >
+            <Search className="h-5 w-5" />
+          </Link>
           {!visibleUser ? (
             <Link href="/owner" className="cta-secondary desktop-only whitespace-nowrap">
               SPOTを作る
