@@ -459,7 +459,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             !isOwner && membershipStatus !== "active" && membershipStatus !== "canceling"
             && membershipStatus !== "past_due" && membershipStatus !== "canceled"
             && canAcceptMembership
-              ? "border border-ink/10 bg-white"
+              ? "bg-ink"
               : "bg-mist"
           }`}>
             {isOwner ? (
@@ -528,30 +528,30 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </div>
               </>
             ) : (
-              /* ── 未加入・募集中（メイン訴求）── ライトカード */
+              /* ── 未加入・募集中（メイン訴求）── bg-ink 反転パネル */
               <div className="flex h-full flex-col gap-4">
                 {/* バッジ + 会員数 */}
                 <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-                    <span className="text-sm font-semibold text-teal-700">応援会員募集中</span>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-teal-400/15 px-3 py-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                    <span className="text-sm font-semibold text-teal-400">応援会員募集中</span>
                   </div>
                   {spot.socioCount > 0 && (
-                    <p className="text-sm font-semibold tabular-nums text-teal-600">
+                    <p className="text-sm font-semibold tabular-nums text-teal-400">
                       {spot.socioCount}人が応援中
                     </p>
                   )}
                 </div>
 
-                {/* ベネフィット */}
-                {spot.planBenefits && Object.values(spot.planBenefits).some(Boolean) ? (
+                {/* ベネフィット — 5/10口閾値キーを持つ場合のみ表示、なければデフォルト */}
+                {([5, 10] as const).some((t) => spot.planBenefits?.[t]) ? (
                   <ul className="space-y-2.5">
                     {([5, 10] as const).map((threshold) => {
                       const benefit = spot.planBenefits?.[threshold];
                       if (!benefit) return null;
                       return (
-                        <li key={threshold} className="flex items-start gap-2.5 text-[14px] text-ink/75">
-                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-500/10 px-2 py-0.5 text-[11px] font-bold text-teal-600">{threshold}口以上</span>
+                        <li key={threshold} className="flex items-start gap-2.5 text-[14px] text-white/80">
+                          <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-[11px] font-bold text-teal-400">{threshold}口以上</span>
                           {benefit}
                         </li>
                       );
@@ -564,8 +564,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                       "番号入りの会員証を持てる",
                       "このSPOTの継続を支える",
                     ].map((text) => (
-                      <li key={text} className="flex items-center gap-2.5 text-[14px] text-ink/75">
-                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-teal-500/12 text-[10px] font-bold text-teal-600">✓</span>
+                      <li key={text} className="flex items-center gap-2.5 text-[14px] text-white/80">
+                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-teal-400/20 text-[10px] font-bold text-teal-400">✓</span>
                         {text}
                       </li>
                     ))}
@@ -574,30 +574,30 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
                 {/* 口数ステッパー + CTA */}
                 <div className="mt-auto space-y-3 pt-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40">口数を選ぶ</p>
-                  <div className="flex items-center gap-3 rounded-[16px] bg-mist px-4 py-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-white/40">口数を選ぶ</p>
+                  <div className="flex items-center gap-3 rounded-[16px] bg-white/8 px-4 py-3">
                     <button
                       type="button"
                       onClick={() => setCtaKo((k) => Math.max(1, k - 1))}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/12 bg-white text-ink transition hover:border-ink/25 active:scale-95"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 active:scale-95"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
                     <div className="flex-1 text-center">
-                      <p className="text-xl font-extrabold text-ink">{ctaKo}口</p>
-                      <p className="text-xs text-ink/50">¥{(ctaKo * 100).toLocaleString("ja-JP")}/月</p>
+                      <p className="text-xl font-extrabold text-white">{ctaKo}口</p>
+                      <p className="text-xs text-white/50">¥{(ctaKo * 100).toLocaleString("ja-JP")}/月</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setCtaKo((k) => k + 1)}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/12 bg-white text-ink transition hover:border-ink/25 active:scale-95"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 active:scale-95"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <button
                     type="button"
-                    className="w-full rounded-full bg-ink py-3.5 text-center text-[15px] font-bold text-white transition hover:bg-ink/85 active:scale-[0.98]"
+                    className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
                     onClick={() => setSignupModalOpen(true)}
                   >
                     {ctaKo}口（¥{(ctaKo * 100).toLocaleString("ja-JP")}）で応援する
