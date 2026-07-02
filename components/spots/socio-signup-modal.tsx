@@ -10,13 +10,11 @@ import { loadUserProfileCache, saveUserProfileCache } from "@/lib/user-profile-c
 import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
 import {
-  KO_UNIT_AMOUNT,
-  MIN_KO,
+  COURSE_AMOUNTS,
   PlanAmount,
   Spot,
   defaultPlanAmount
 } from "@/lib/types";
-import { amountToKo, koToAmount } from "@/lib/plan";
 
 type Step = "login" | "email_sent" | "profile";
 
@@ -176,11 +174,9 @@ export function SocioSignupModal({
 
   if (!open) return null;
 
-  const ko = amountToKo(planAmount);
-  const monthly = koToAmount(ko);
-  const pb = spot.planBenefits as Record<number, string | undefined> | undefined;
-  const getBenefit = (ko: 5 | 10) => pb?.[ko] ?? pb?.[ko * 100];
-  const hasBenefits = ([5, 10] as const).some((t) => getBenefit(t));
+  const pb = spot.planBenefits;
+  const getBenefit = (threshold: 5000 | 10000) => pb?.[threshold];
+  const hasBenefits = ([5000, 10000] as const).some((t) => getBenefit(t));
 
   return (
     <div className="fixed inset-0 z-[140] overflow-y-auto bg-ink/35 backdrop-blur-sm">
@@ -276,28 +272,34 @@ export function SocioSignupModal({
                     <p className="mt-1 text-[11px] text-ink/50">住所はオーナーのみ閲覧できます。</p>
                   </div>
 
-                  {/* 口数ステッパー */}
-                  <div className="mt-4 flex items-center gap-3 rounded-[14px] bg-mist px-4 py-3">
-                    <button type="button" aria-label="口数を減らす" onClick={() => setPlanAmount((a) => Math.max(MIN_KO * KO_UNIT_AMOUNT, a - KO_UNIT_AMOUNT))} disabled={ko <= MIN_KO} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink disabled:opacity-30">
-                      −
-                    </button>
-                    <div className="flex flex-1 items-baseline justify-center gap-1">
-                      <span className="text-3xl font-extrabold tabular-nums text-ink">{ko}</span>
-                      <span className="text-lg font-semibold text-ink">口</span>
-                    </div>
-                    <button type="button" aria-label="口数を増やす" onClick={() => setPlanAmount((a) => a + KO_UNIT_AMOUNT)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink">
-                      ＋
-                    </button>
-                    <div className="shrink-0 border-l border-ink/10 pl-3 text-right">
-                      <p className="text-base font-bold text-ink">¥{monthly.toLocaleString("ja-JP")}</p>
-                      <p className="text-[11px] text-ink/50">/月</p>
-                    </div>
+                  {/* 年会費コース選択 */}
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    {COURSE_AMOUNTS.map((amount) => (
+                      <button
+                        key={amount}
+                        type="button"
+                        onClick={() => setPlanAmount(amount)}
+                        className={`relative rounded-[14px] border px-2 py-3 text-center transition ${
+                          planAmount === amount
+                            ? "border-ink bg-ink text-white"
+                            : "border-ink/15 bg-mist text-ink hover:border-ink/40"
+                        }`}
+                      >
+                        {amount === defaultPlanAmount && (
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-moss px-2 py-0.5 text-[10px] font-bold text-white">
+                            おすすめ
+                          </span>
+                        )}
+                        <p className="text-lg font-extrabold tabular-nums">¥{amount.toLocaleString("ja-JP")}</p>
+                        <p className="text-[11px] opacity-70">/年</p>
+                      </button>
+                    ))}
                   </div>
 
                   {/* CTA */}
                   <div className="mt-3 space-y-2">
                     <button type="button" className="cta-primary w-full" onClick={() => void startCheckout()} disabled={loading}>
-                      {loading ? "移動中..." : `${ko}口（¥${monthly.toLocaleString("ja-JP")}）で応援する`}
+                      {loading ? "移動中..." : `¥${planAmount.toLocaleString("ja-JP")}/年で応援する`}
                     </button>
                     <p className="text-center text-[11px] leading-5 text-ink/50">
                       「応援する」で<a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・<a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>に同意
@@ -326,13 +328,13 @@ export function SocioSignupModal({
                 {hasBenefits && (
                   <>
                     <div className="my-1 h-px bg-ink/10" />
-                    {([5, 10] as const).map((threshold) => {
+                    {([5000, 10000] as const).map((threshold) => {
                       const benefit = getBenefit(threshold);
                       if (!benefit) return null;
                       return (
                         <div key={threshold} className="flex items-start gap-2.5">
                           <span className="mt-0.5 shrink-0 rounded-full bg-teal-500/20 px-2 py-0.5 text-xs font-bold text-teal-600">
-                            {threshold}口以上
+                            ¥{threshold.toLocaleString("ja-JP")}コース以上
                           </span>
                           <p className="text-sm leading-5 text-ink">{benefit}</p>
                         </div>

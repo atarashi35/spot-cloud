@@ -22,7 +22,7 @@ import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { EMAIL_JOIN_PENDING_KEY, EmailJoinPending } from "@/lib/auth/email-link";
 import { loadUserProfileCache } from "@/lib/user-profile-cache";
 import { PlanAmount, Spot, UserMembership, isSignupPlan, defaultPlanAmount } from "@/lib/types";
-import { amountToKo } from "@/lib/plan";
+import { formatCourseLabel } from "@/lib/plan";
 import { isSvgAssetUrl } from "@/lib/utils";
 import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { SocioCard } from "@/components/account/socio-card";
@@ -30,7 +30,7 @@ import { ModalShell } from "@/components/ui/modal-shell";
 
 type FeedPost = {
   id: string; isPublic: boolean; publishDate: string;
-  minPlanAmount?: 500 | 1000;
+  minPlanAmount?: 5000 | 10000;
   title: string; body: string; imageUrl: string | null;
   attachments: { url: string; type: string }[];
   masked: boolean;
@@ -542,11 +542,11 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   )}
                 </div>
 
-                {/* ベネフィット — デフォルト常時表示 + 口数特典を下に追加 */}
+                {/* ベネフィット — デフォルト常時表示 + コース特典を下に追加 */}
                 {(() => {
-                  const pb = spot.planBenefits as Record<number, string | undefined> | undefined;
-                  const getBenefit = (ko: 5 | 10) => pb?.[ko] ?? pb?.[ko * 100];
-                  const hasBenefits = ([5, 10] as const).some((t) => getBenefit(t));
+                  const pb = spot.planBenefits;
+                  const getBenefit = (threshold: 5000 | 10000) => pb?.[threshold];
+                  const hasBenefits = ([5000, 10000] as const).some((t) => getBenefit(t));
                   return (
                     <ul className="space-y-2">
                       {[
@@ -562,12 +562,12 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                       {hasBenefits && (
                         <>
                           <li className="my-0.5 h-px bg-white/10 list-none" />
-                          {([5, 10] as const).map((threshold) => {
+                          {([5000, 10000] as const).map((threshold) => {
                             const benefit = getBenefit(threshold);
                             if (!benefit) return null;
                             return (
                               <li key={threshold} className="flex items-start gap-2.5 text-[14px] text-white/80">
-                                <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-[11px] font-bold text-teal-400">{threshold}口以上</span>
+                                <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-[11px] font-bold text-teal-400">¥{threshold.toLocaleString("ja-JP")}コース以上</span>
                                 {benefit}
                               </li>
                             );
@@ -671,7 +671,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   ) : allPosts.map((post) => {
                     // masked はフィードAPIがプラン閾値込みで判定済み（サーバー権威）
                     const isLocked = post.masked || (locked && !post.isPublic);
-                    const tierLabel = post.minPlanAmount ? `${amountToKo(post.minPlanAmount)}口以上限定` : null;
+                    const tierLabel = post.minPlanAmount ? `${formatCourseLabel(post.minPlanAmount)}以上限定` : null;
                     const thumb = post.attachments?.find((a) => a.type === "image")?.url ?? post.imageUrl;
                     return (
                       <article key={post.id} className="relative overflow-hidden rounded-[20px] border border-ink/8 bg-white">
@@ -801,7 +801,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
-            <p className="text-xs text-ink/65">1口100円から参加できます</p>
+            <p className="text-xs text-ink/65">年会費¥3,000から参加できます</p>
           </div>
           <button
             type="button"

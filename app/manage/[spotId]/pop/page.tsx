@@ -67,7 +67,7 @@ function PopCard({ spot }: { spot: Spot }) {
 
       {/* 価格 */}
       <p style={{ fontSize: "10mm", fontWeight: 700, color: "#111111", textAlign: "center", marginBottom: "4mm" }}>
-        1口100円〜
+        年会費¥3,000〜
       </p>
       <p style={{ fontSize: "5.5mm", color: "#888888", textAlign: "center", marginBottom: "14mm" }}>
         QRコードをスキャンして応援会員登録

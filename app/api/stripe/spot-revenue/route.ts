@@ -13,10 +13,10 @@
  * レスポンス:
  *   socioCount       - アクティブな応援会員数（解約予定含む）
  *   cancelingCount   - 解約予定の応援会員数
- *   grossMonthly     - 月額決済総額
+ *   grossAnnual      - 有効な契約の決済総額（新規は年額、2026-07以前加入の月額レガシー会員は月額のまま合算される点に注意）
  *   estimatedStripeFee - 推定Stripe手数料（3.6%ベース、実際は変動あり）
  *   platformFee      - SPOT利用料
- *   netMonthly       - 振込予定額
+ *   netAnnual        - 振込予定額
  *   platformFeePercent - SPOT利用料率 (%)
  *   stripeFeePercent   - Stripe手数料率 (%)
  */
@@ -75,23 +75,23 @@ export async function GET(request: NextRequest) {
     const cancelingSubs = activeSubs.filter((s) => s.cancel_at_period_end);
 
     // 決済総額の集計
-    let grossMonthly = 0;
+    let grossAnnual = 0;
     for (const sub of activeSubs) {
-      grossMonthly += Number(sub.metadata.planAmount ?? 0);
+      grossAnnual += Number(sub.metadata.planAmount ?? 0);
     }
 
     // 費用計算
     // Stripe手数料を先に控除し、残額に対して PLATFORM_FEE_PERCENT% を課金
-    const { stripeFee: estimatedStripeFee, platformFee, payout: netMonthly } =
-      calcRevenue(grossMonthly);
+    const { stripeFee: estimatedStripeFee, platformFee, payout: netAnnual } =
+      calcRevenue(grossAnnual);
 
     return NextResponse.json({
       socioCount: activeSubs.length,
       cancelingCount: cancelingSubs.length,
-      grossMonthly,
+      grossAnnual,
       estimatedStripeFee,
       platformFee,
-      netMonthly,
+      netAnnual,
       platformFeePercent: PLATFORM_FEE_PERCENT,
       stripeFeePercent: STRIPE_PROCESSING_FEE_RATE * 100
     });

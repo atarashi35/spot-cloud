@@ -1,28 +1,24 @@
 /**
- * 口数制：1口 = ¥100。会員は1口以上を任意の口数で購入する。
- * planAmount は「口数 × 100」の月額（円）。既存の固定プラン会員（¥300/¥500/¥1,000）は
- * そのまま 3口/5口/10口 として解釈される。口数⇔金額の変換は lib/plan.ts を使う。
- * 特典は口数閾値（5口以上 / 10口以上）でプラットフォーム統一。
+ * 年会費制：¥3,000 / ¥5,000 / ¥10,000 の3コース固定。
+ * planAmount はコース金額（円）そのもの。
+ * 特典はコース閾値（¥5,000以上 / ¥10,000以上）でプラットフォーム統一。
+ *
+ * 2026-07以前に月額（口数制、1口¥100の自由金額）で加入した既存会員はそのまま継続する。
+ * 表示用の口数⇔金額変換ヘルパーは lib/plan.ts にレガシー互換として残している。
  */
 export type PlanAmount = number;
 
-/** 1口の金額（円）。 */
-export const KO_UNIT_AMOUNT = 100;
+/** 新規受付する年会費コース金額（円）。 */
+export const COURSE_AMOUNTS = [3000, 5000, 10000] as const;
 
-/** 入会時の最小口数。 */
-export const MIN_KO = 1;
-
-/** 入会画面のステッパー初期値（口数）。 */
-export const DEFAULT_KO = 3;
-
-/** 申込時にデフォルトで選択されるプラン金額（口数換算 × ¥100）。 */
-export const defaultPlanAmount: PlanAmount = DEFAULT_KO * KO_UNIT_AMOUNT;
+/** 入会画面でデフォルト選択されるコース（中間・おすすめ）。 */
+export const defaultPlanAmount: PlanAmount = 5000;
 
 export type SignupPlanAmount = PlanAmount;
 
-/** 新規受付可能な金額かどうか（¥100以上かつ¥100単位） */
+/** 新規受付可能な金額かどうか（3コースのいずれか） */
 export function isSignupPlan(value: number): value is SignupPlanAmount {
-  return Number.isInteger(value) && value >= KO_UNIT_AMOUNT && value % KO_UNIT_AMOUNT === 0;
+  return (COURSE_AMOUNTS as readonly number[]).includes(value);
 }
 
 export type SpotCategory =
@@ -64,12 +60,12 @@ export type SocialLinks = {
 };
 
 /**
- * 口数閾値ごとの特典。キーは口数（5口以上 / 10口以上）。
+ * コース閾値ごとの特典。キーはコース金額（¥5,000以上 / ¥10,000以上）。
  * プラットフォーム共通の閾値で、各特典の文言はオーナーが設定する。
  */
 export type PlanBenefits = {
-  5?: string;
-  10?: string;
+  5000?: string;
+  10000?: string;
 };
 
 export type TeamMember = {
@@ -159,11 +155,11 @@ export interface SpotPost {
   /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
   isPublic: boolean;
   /**
-   * 応援会員限定（isPublic=false）のとき、閲覧に必要な最低口数（金額換算）。
-   * undefined: 全会員が閲覧可 / 500: 5口以上 / 1000: 10口以上。
-   * 口数が多いほど下位限定も閲覧できる（閾値方式）。
+   * 応援会員限定（isPublic=false）のとき、閲覧に必要な最低コース金額。
+   * undefined: 全会員が閲覧可 / 5000: ¥5,000コース以上 / 10000: ¥10,000コース以上。
+   * 金額が大きいほど下位限定も閲覧できる（閾値方式）。
    */
-  minPlanAmount?: SignupPlanAmount;
+  minPlanAmount?: 5000 | 10000;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

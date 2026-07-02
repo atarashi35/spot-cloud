@@ -44,6 +44,16 @@ export async function POST(request: NextRequest) {
         capabilities: {
           transfers: { requested: true }
         },
+        // 自動送金を止め、四半期バッチ(/api/cron/quarterly-payout)でまとめて送金する。
+        // Stripeの送金手数料(¥275+0.25%/回)とアクティブアカウント手数料(¥220/月)は
+        // 送金回数に比例するため、頻度を落とすことがSPOT側のConnect固定費を抑える唯一の手段。
+        settings: {
+          payouts: {
+            schedule: {
+              interval: "manual"
+            }
+          }
+        },
         metadata: {
           spotId: body.spotId,
           ownerUid: decodedToken.uid

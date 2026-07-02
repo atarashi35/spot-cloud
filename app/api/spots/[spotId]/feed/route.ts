@@ -50,8 +50,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ spot
   const posts = postsSnap.docs.map((d) => {
     const data = d.data();
     const isPublic = Boolean(data.isPublic);
-    const minPlanAmount = (data.minPlanAmount === 500 || data.minPlanAmount === 1000)
-      ? (data.minPlanAmount as 500 | 1000)
+    const minPlanAmount = (data.minPlanAmount === 5000 || data.minPlanAmount === 10000)
+      ? (data.minPlanAmount as 5000 | 10000)
       : undefined;
     // 公開でなく、かつ「会員でない」または「プランが閾値未満」のときマスク
     const masked = !isPublic && viewerPlan < (minPlanAmount ?? (isMember ? 1 : Infinity));
