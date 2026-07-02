@@ -16,3 +16,5 @@ env:
     secret: APPLE_TEAM_IDENTIFIER
   - variable: APPLE_PASS_CERT_PASSWORD
     secret: APPLE_PASS_CERT_PASSWORD
+  - variable: CRON_SECRET
+    secret: CRON_SECRET
