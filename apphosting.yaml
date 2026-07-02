@@ -19,4 +19,6 @@ env:
   - variable: CRON_SECRET
     secret: CRON_SECRET
     # 2026-07-02: Secret Manager側でCRON_SECRET作成・アクセス権付与済み
-    # (実行用SA + Cloud Buildデフォルト SA + App Hostingサービスエージェントに付与)
+    # (他の既存シークレット(APPLE_TEAM_IDENTIFIER等)と同一のロール構成に統一:
+    #  firebase-app-hosting-compute@ = シークレットアクセサー+閲覧者、
+    #  service-...@gcp-sa-firebaseapphosting = シークレットバージョンのマネージャー)
