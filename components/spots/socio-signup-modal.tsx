@@ -56,11 +56,10 @@ export function SocioSignupModal({
       setStep("profile");
       if (cached?.name) {
         setName(cached.name);
-      } else {
-        void getUserProfileDoc(user.uid).then((profile) => {
-          setName(resolveDisplayName(profile?.profileDisplayName, user.displayName, user.email));
-        });
       }
+      void getUserProfileDoc(user.uid).then((profile) => {
+        setName(resolveDisplayName(profile?.profileDisplayName, user.displayName, user.email));
+      });
     } else {
       setEmail("");
       setName("");
