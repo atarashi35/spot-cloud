@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, LogIn, LogOut, MapPin, Search, Settings2, Shield, UserCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowLeft, Building2, LogIn, LogOut, MapPin, Search, Settings2, Shield, UserCircle } from "lucide-react";
 import { LogoHorizontal } from "@/components/ui/logo";
 import { NotificationDrawer } from "@/components/ui/notification-drawer";
 import { useEffect, useRef, useState } from "react";
@@ -28,6 +29,9 @@ function getInitials(name: string | null | undefined) {
 
 export function SiteHeader() {
   const { authReady, user, signOutUser } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+  const isRoot = pathname === "/";
   const [showManageLink, setShowManageLink] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -87,7 +91,24 @@ export function SiteHeader() {
     <>
     <header className="shell sticky top-0 z-[80] py-2.5">
       <div className="relative z-[80] flex items-center justify-between gap-4 rounded-[28px] border border-white/12 bg-white/5 px-4 py-2 shadow-card backdrop-blur-xl sm:px-5">
-        <div className="flex items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-4">
+          {!isRoot ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.history.length > 1) {
+                  router.back();
+                } else {
+                  router.push("/");
+                }
+              }}
+              aria-label="戻る"
+              title="戻る"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-ink/55 transition hover:bg-ink/5 hover:text-ink active:scale-95"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          ) : null}
           <Link href="/" className="flex items-center">
             <LogoHorizontal className="h-11 w-auto min-w-[120px] object-contain" />
           </Link>

@@ -86,6 +86,26 @@ export function SocioSignupModal({
     return () => document.removeEventListener("keydown", handleEscape);
   }, [onClose, open]);
 
+  // PWA(standalone)ではブラウザの戻るが無い/効かないため、モーダルを履歴に1段積む。
+  // これでAndroidのジェスチャ戻りがページ離脱ではなくモーダルのクローズになる。
+  // iOSは戻る自体が無いので無害（✕での閉じが主導線）。
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
+  useEffect(() => {
+    if (!open) return;
+    window.history.pushState({ spotSignupModal: true }, "");
+    function handlePopState() { onCloseRef.current(); }
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      // ✕や背景タップで閉じた場合は、積んだダミー履歴を取り除く。
+      // 戻る操作で閉じた場合は既にpopされているのでスキップ。
+      if (window.history.state?.spotSignupModal) {
+        window.history.back();
+      }
+    };
+  }, [open]);
+
   async function handlePostalLookup() {
     const normalized = postalCode.replace(/[^\d]/g, "");
     if (normalized.length !== 7) return;
@@ -187,8 +207,13 @@ export function SocioSignupModal({
 
             {/* ── 左カラム: フォーム → ステッパー → CTA ── */}
             <div className="relative p-6 sm:p-7">
-              <button type="button" className="icon-button absolute right-5 top-5" onClick={onClose} aria-label="閉じる">
-                <X className="h-4 w-4" />
+              <button
+                type="button"
+                className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-ink/5 text-ink/70 transition hover:bg-ink/10 hover:text-ink active:scale-95"
+                onClick={onClose}
+                aria-label="閉じる"
+              >
+                <X className="h-5 w-5" />
               </button>
 
               <span className="chip">応援会員</span>
