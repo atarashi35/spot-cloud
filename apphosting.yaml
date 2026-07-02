@@ -19,3 +19,4 @@ env:
   - variable: CRON_SECRET
     secret: CRON_SECRET
     # 2026-07-02: Secret Manager側でCRON_SECRET作成・アクセス権付与済み
+    # (実行用SA + Cloud Buildデフォルト SAの両方に付与)
