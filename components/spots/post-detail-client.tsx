@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
 import { Spot, SpotPost } from "@/lib/types";
-import { formatCourseLabel } from "@/lib/plan";
+import { amountToKo } from "@/lib/plan";
 import { toVideoEmbedUrl } from "@/lib/utils";
 
 export function PostDetailClient({ spotId, postId }: { spotId: string; postId: string }) {
@@ -16,7 +16,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
   const [spot, setSpot] = useState<Spot | null>(null);
   const [post, setPost] = useState<SpotPost | null>(null);
   // 認可で弾かれたとき、ゲート表示に使う最低プラン金額
-  const [forbidden, setForbidden] = useState<{ minPlanAmount?: 5000 | 10000 } | null>(null);
+  const [forbidden, setForbidden] = useState<{ minPlanAmount?: 500 | 1000 } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +34,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (res.status === 403) {
-          const data = (await res.json()) as { minPlanAmount?: 5000 | 10000 };
+          const data = (await res.json()) as { minPlanAmount?: 500 | 1000 };
           setForbidden({ minPlanAmount: data.minPlanAmount });
         } else if (res.ok) {
           const data = (await res.json()) as { post: SpotPost };
@@ -71,7 +71,7 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
 
   if (forbidden) {
     const tierLabel = forbidden.minPlanAmount
-      ? `${formatCourseLabel(forbidden.minPlanAmount)}以上の応援会員限定`
+      ? `${amountToKo(forbidden.minPlanAmount)}口以上の応援会員限定`
       : "応援会員限定";
     return (
       <div className="shell">

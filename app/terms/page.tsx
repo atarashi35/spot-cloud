@@ -8,7 +8,7 @@ export default function TermsPage() {
       <PageHeader
         eyebrow="LEGAL"
         title="利用規約"
-        subtitle="最終更新日: 2026年7月2日"
+        subtitle="最終更新日: 2026年6月1日"
       />
 
       <PageShell>
@@ -27,7 +27,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-ink">第2条（サービスの概要）</h2>
             <p className="mt-3">
               本サービスは、場所・コミュニティ（SPOT）と、そこにゆるく所属したいユーザー（応援会員）をつなぐ応援会員型コミュニティプラットフォームです。
-              ユーザーは年会費サブスクリプションを通じてSPOTに所属し、限定情報・イベント情報などを受け取ることができます。
+              ユーザーは月額サブスクリプションを通じてSPOTに所属し、限定情報・イベント情報などを受け取ることができます。
             </p>
           </section>
 
@@ -42,10 +42,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-bold text-ink">第4条（料金・支払い）</h2>
             <p className="mt-3">
-              SPOTへの所属は年会費¥3,000／¥5,000／¥10,000（税込）の3コース制です。会員が選んだコースの金額を年1回お支払いいただきます。
+              SPOTへの所属は1口100円（税込）の口数制です。会員が選んだ口数に応じて、口数×100円を毎月お支払いいただきます（例：3口で月300円）。
               支払いはStripeを通じたクレジットカード決済となります。
-              加入手続き完了時に初回課金が発生し、以降は毎年同日に自動更新されます。
-              なお、2026年7月の規約改定前に月額プラン（1口100円の口数制）で加入した会員は、従前の月額プランのまま利用を継続できます。
+              加入手続き完了時に初回課金が発生し、以降は毎月同日に自動更新されます。
             </p>
           </section>
 
@@ -53,7 +52,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-ink">第5条（解約・返金）</h2>
             <p className="mt-3">
               解約はマイアカウント画面の「支払い管理」からいつでも行えます。
-              契約期間途中の解約による日割り返金は行いません。解約後は次回更新日まで引き続き利用可能です。
+              月途中の解約による日割り返金は行いません。解約後は次回更新日まで引き続き利用可能です。
             </p>
           </section>
 

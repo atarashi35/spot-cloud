@@ -63,10 +63,10 @@ async function fetchPayoutState(spotId: string, idToken: string): Promise<Payout
 type SpotRevenue = {
   socioCount: number;
   cancelingCount: number;
-  grossAnnual: number;
+  grossMonthly: number;
   estimatedStripeFee: number;
   platformFee: number;
-  netAnnual: number;
+  netMonthly: number;
   platformFeePercent: number;
   stripeFeePercent: number;
 };
@@ -306,7 +306,7 @@ export function OwnerConsoleClient() {
     0
   );
   const totalNet = Object.values(summaries).reduce(
-    (sum, s) => sum + (s.revenue?.netAnnual ?? 0),
+    (sum, s) => sum + (s.revenue?.netMonthly ?? 0),
     0
   );
   const revenueLoaded = Object.values(summaries).some((s) => s.revenue !== undefined);
@@ -491,10 +491,10 @@ export function OwnerConsoleClient() {
                       <div className="hidden h-10 w-px bg-ink/15 sm:block" />
 
                       <div>
-                        <div className="text-sm font-bold text-ink/72">年間契約額</div>
+                        <div className="text-sm font-bold text-ink/72">今月売上</div>
                         <div className="mt-1 text-2xl font-extrabold text-ink">
-                          ¥{revenue.grossAnnual.toLocaleString()}
-                          <span className="ml-1 text-sm font-normal text-ink/65">/年</span>
+                          ¥{revenue.grossMonthly.toLocaleString()}
+                          <span className="ml-1 text-sm font-normal text-ink/65">/月</span>
                         </div>
                       </div>
 
@@ -503,8 +503,8 @@ export function OwnerConsoleClient() {
                       <div>
                         <div className="text-sm font-bold text-ink/72">振込予定額</div>
                         <div className="mt-1 text-2xl font-extrabold text-moss">
-                          ¥{revenue.netAnnual.toLocaleString()}
-                          <span className="ml-1 text-sm font-normal text-ink/65">/年</span>
+                          ¥{revenue.netMonthly.toLocaleString()}
+                          <span className="ml-1 text-sm font-normal text-ink/65">/月</span>
                         </div>
                       </div>
                     </div>
@@ -512,7 +512,7 @@ export function OwnerConsoleClient() {
                   </div>
 
                   {/* 内訳（アコーディオン） */}
-                  {revenue.grossAnnual > 0 ? (
+                  {revenue.grossMonthly > 0 ? (
                     <div className="mt-3 border-t border-ink/8 pt-2">
                       <button
                         type="button"
@@ -533,7 +533,7 @@ export function OwnerConsoleClient() {
                         <div className="mt-2 text-xs text-ink/65 space-y-0.5">
                           <div className="flex justify-between">
                             <span>決済総額</span>
-                            <span>¥{revenue.grossAnnual.toLocaleString()}</span>
+                            <span>¥{revenue.grossMonthly.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>決済手数料 ({Number(revenue.stripeFeePercent.toFixed(2))}%)</span>
@@ -545,7 +545,7 @@ export function OwnerConsoleClient() {
                           </div>
                           <div className="flex justify-between font-semibold text-ink/72 pt-0.5 border-t border-ink/8">
                             <span>振込予定額</span>
-                            <span>¥{revenue.netAnnual.toLocaleString()}</span>
+                            <span>¥{revenue.netMonthly.toLocaleString()}</span>
                           </div>
                         </div>
                       ) : null}

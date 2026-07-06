@@ -31,12 +31,12 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: { default: "SPOT｜あなたの場所に、応援会員を。", template: "%s | SPOT" },
-  description: "街の小さな文化拠点（本屋・ミニシアター・ライブハウス・劇場・ギャラリー・伝統文化・カフェ・バー・文化プロジェクト）のための応援会員制度。初期費用・月額費用0円。ファンや常連さんが年会費¥3,000から、続ける力になります。",
+  description: "街の小さな文化拠点（本屋・ミニシアター・ライブハウス・劇場・ギャラリー・伝統文化・カフェ・バー・文化プロジェクト）のための応援会員制度。初期費用・月額費用0円。ファンや常連さんが1口100円から、続ける力になります。",
   metadataBase: new URL("https://spotcloud.app"),
   openGraph: {
     siteName: "SPOT",
     title: "SPOT｜あなたの場所に、応援会員を。",
-    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。ファンや常連さんが年会費¥3,000から、続ける力になります。",
+    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。ファンや常連さんが1口100円から、続ける力になります。",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "ja_JP",
     type: "website"
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "SPOT｜あなたの場所に、応援会員を。",
-    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。ファンや常連さんが年会費¥3,000から、続ける力になります。",
+    description: "街の小さな文化拠点のための応援会員制度。初期費用・月額費用0円。ファンや常連さんが1口100円から、続ける力になります。",
     images: ["/og-image.png"]
   }
 };

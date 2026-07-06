@@ -5,7 +5,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AttachmentsUploader } from "@/components/ui/attachments-uploader";
-import { PostAttachment } from "@/lib/types";
+import { PostAttachment, SignupPlanAmount } from "@/lib/types";
+import { amountToKo } from "@/lib/plan";
 import { toVideoEmbedUrl } from "@/lib/utils";
 import {
   createSpotPostInFirestore,
@@ -29,8 +30,8 @@ export function PostForm(props: PostFormProps) {
   const [videoUrl, setVideoUrl] = useState("");
   const [publishDate, setPublishDate] = useState(new Date().toISOString().slice(0, 10));
   const [isPublic, setIsPublic] = useState(false);
-  // undefined: 全会員 / 5000: ¥5,000コース以上 / 10000: ¥10,000コース以上
-  const [minPlanAmount, setMinPlanAmount] = useState<5000 | 10000 | undefined>(undefined);
+  // undefined: 全会員 / 500: 5口以上 / 1000: 10口以上
+  const [minPlanAmount, setMinPlanAmount] = useState<SignupPlanAmount | undefined>(undefined);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -224,10 +225,10 @@ export function PostForm(props: PostFormProps) {
         {!isPublic && (
           <div className="mt-4">
             <p className="mb-2 text-xs font-medium text-ink/65">
-              対象コース（任意・上位コースほど下位限定も閲覧できます）
+              対象口数（任意・口数が多いほど下位限定も閲覧できます）
             </p>
             <div className="flex gap-2">
-              {([undefined, 5000, 10000] as const).map((amount) => (
+              {([undefined, 500, 1000] as const).map((amount) => (
                 <button
                   key={String(amount)}
                   type="button"
@@ -236,7 +237,7 @@ export function PostForm(props: PostFormProps) {
                     minPlanAmount === amount ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
                   }`}
                 >
-                  {amount === undefined ? "全会員" : `¥${amount.toLocaleString("ja-JP")}コース以上`}
+                  {amount === undefined ? "全会員" : `${amountToKo(amount)}口以上`}
                 </button>
               ))}
             </div>

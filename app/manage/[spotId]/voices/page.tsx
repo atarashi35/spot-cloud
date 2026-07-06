@@ -41,7 +41,7 @@ function PollResults({ responses, vote }: { responses: VoteResponse[]; vote: Spo
       })}
       <div className="flex justify-between border-t border-ink/8 pt-3 text-xs text-ink/65">
         <span>{responses.length} 票</span>
-        <span>合計 ¥{totalAmount.toLocaleString()}</span>
+        <span>合計月額 ¥{totalAmount.toLocaleString()}</span>
       </div>
     </div>
   );
@@ -55,7 +55,7 @@ function OpenQuestionResults({ responses }: { responses: VoteResponse[] }) {
         <div key={i} className="rounded-[16px] bg-mist px-4 py-3 text-sm text-ink/78">{r.text}</div>
       ))}
       <div className="border-t border-ink/8 pt-3 text-xs text-ink/65 text-right">
-        {responses.length} 件 ／ 合計 ¥{totalAmount.toLocaleString()}
+        {responses.length} 件 ／ 合計月額 ¥{totalAmount.toLocaleString()}
       </div>
     </div>
   );

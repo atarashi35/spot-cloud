@@ -38,8 +38,8 @@ export async function GET(
   }
   const data = postSnap.data()!;
   const isPublic = Boolean(data.isPublic);
-  const minPlanAmount = (data.minPlanAmount === 5000 || data.minPlanAmount === 10000)
-    ? (data.minPlanAmount as 5000 | 10000)
+  const minPlanAmount = (data.minPlanAmount === 500 || data.minPlanAmount === 1000)
+    ? (data.minPlanAmount as 500 | 1000)
     : undefined;
 
   // 閲覧者プラン: オーナー=Infinity / 有効会員=加入額 / それ以外=0

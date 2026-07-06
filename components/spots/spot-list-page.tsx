@@ -188,7 +188,7 @@ export function SpotListPage() {
             SPOTを探す
           </h1>
           <p className="mt-2 text-sm text-ink/68">
-            気になる活動を見つけて、年会費¥3,000から応援会員になろう。
+            気になる活動を見つけて、1口100円から応援会員になろう。
           </p>
         </div>
       </div>
@@ -339,7 +339,7 @@ export function SpotListPage() {
           <div className="text-sm font-bold text-ink/72">FOR OWNERS</div>
           <p className="mt-2 text-base font-bold text-ink">あなたの場所にも、応援会員を。</p>
           <p className="mt-1.5 text-[13px] leading-[1.7] text-ink/68">
-            年会費¥3,000から、ファンや常連さんが続ける力になります。初期費用・月額費用は0円。
+            1口100円から、ファンや常連さんが続ける力になります。初期費用・月額費用は0円。
           </p>
           <Link href="/" className="cta-primary mt-5 inline-flex">
             SPOTを作る
