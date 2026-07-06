@@ -6,12 +6,19 @@
  * 送金1回ごとに ¥275+0.25% の手数料 + その月 ¥220 のアクティブアカウント手数料がかかるため、
  * 頻度を四半期に落とすことでSPOT側のConnect固定費を店舗あたり ¥495/月 → 約¥165/月相当に抑える。
  *
+ * さらに、会員数が少なく残高が薄い店舗では、送金1回分の手数料(¥495程度)が残高に対して
+ * 大きすぎる比率になる(手数料負け)。MIN_PAYOUT_AMOUNT未満の残高は送金せず、
+ * 翌四半期以降に持ち越して貯める(note等の最低引き出し額と同じ考え方)。
+ *
  * vercel.json の crons 設定で 1,4,7,10月の1日に起動する想定。
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { stripe } from "@/lib/stripe/config";
+
+/** この金額(円)未満の残高は送金せず持ち越す。手数料(¥495程度)が送金額の1割程度に収まる水準。 */
+const MIN_PAYOUT_AMOUNT = 5000;
 
 export async function GET(request: NextRequest) {
   const authorization = request.headers.get("authorization");
@@ -39,6 +46,11 @@ export async function GET(request: NextRequest) {
 
       if (amount <= 0) {
         results.push({ accountId, status: "skipped_no_balance" });
+        continue;
+      }
+
+      if (amount < MIN_PAYOUT_AMOUNT) {
+        results.push({ accountId, status: "skipped_below_threshold", amount });
         continue;
       }
 
