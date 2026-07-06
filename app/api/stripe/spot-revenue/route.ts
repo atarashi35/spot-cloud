@@ -13,17 +13,21 @@
  * レスポンス:
  *   socioCount       - アクティブな応援会員数（解約予定含む）
  *   cancelingCount   - 解約予定の応援会員数
- *   grossMonthly     - 月額決済総額
+ *   grossMonthly     - 月額決済総額（今の会員数から見た月次レートの目安。実際の入出金とは別軸）
  *   estimatedStripeFee - 推定Stripe手数料（3.6%ベース、実際は変動あり）
  *   platformFee      - SPOT利用料
- *   netMonthly       - 振込予定額
+ *   netMonthly       - 振込予定額（月次レートの目安。以下pendingBalanceが実際の未払い残高）
  *   platformFeePercent - SPOT利用料率 (%)
  *   stripeFeePercent   - Stripe手数料率 (%)
+ *   pendingBalance   - Connectアカウントの実際の未払い残高（円、四半期バッチ送金待ち）
+ *   minPayoutAmount  - この金額を超えると次回バッチで送金される（quarterly-payout参照）
+ *   lastPayout       - 直近の送金（ない場合はnull）
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import {
+  MIN_PAYOUT_AMOUNT,
   PLATFORM_FEE_PERCENT,
   STRIPE_PROCESSING_FEE_RATE,
   calcRevenue,
@@ -63,6 +67,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
+    const connectedAccountId = String(spotDoc.data()?.stripeConnectedAccountId ?? "");
+
+    // Connectアカウントの実際の未払い残高・直近の送金履歴（四半期バッチ送金待ちの実態）
+    let pendingBalance = 0;
+    let lastPayout: { amount: number; status: string; date: string } | null = null;
+
+    if (connectedAccountId) {
+      const [balance, payouts] = await Promise.all([
+        stripe.balance.retrieve({ stripeAccount: connectedAccountId }),
+        stripe.payouts.list({ limit: 1 }, { stripeAccount: connectedAccountId })
+      ]);
+
+      const jpyAvailable = balance.available.find((b) => b.currency === "jpy");
+      const jpyPending = balance.pending.find((b) => b.currency === "jpy");
+      pendingBalance = (jpyAvailable?.amount ?? 0) + (jpyPending?.amount ?? 0);
+
+      const latest = payouts.data[0];
+      if (latest) {
+        lastPayout = {
+          amount: latest.amount,
+          status: latest.status,
+          date: new Date(latest.created * 1000).toISOString()
+        };
+      }
+    }
+
     // metadata.spotId で Stripe サブスクリプションを検索（Firestore非依存）
     const searchResult = await stripe.subscriptions.search({
       query: `metadata['spotId']:'${spotId}'`,
@@ -93,7 +123,10 @@ export async function GET(request: NextRequest) {
       platformFee,
       netMonthly,
       platformFeePercent: PLATFORM_FEE_PERCENT,
-      stripeFeePercent: STRIPE_PROCESSING_FEE_RATE * 100
+      stripeFeePercent: STRIPE_PROCESSING_FEE_RATE * 100,
+      pendingBalance,
+      minPayoutAmount: MIN_PAYOUT_AMOUNT,
+      lastPayout
     });
   } catch (error) {
     return NextResponse.json(

@@ -44,6 +44,13 @@ export const BILLING_APPLICATION_FEE_PERCENT =
   STRIPE_PROCESSING_FEE_RATE * 100 * (1 - PLATFORM_FEE_PERCENT / 100);
 
 /**
+ * この金額(円)未満のConnect残高は送金せず持ち越す(app/api/cron/quarterly-payout)。
+ * 手数料(¥495程度/回)が送金額の1割程度に収まる水準。
+ * オーナー向けダッシュボード(spot-revenue API)でも進捗表示に使う。
+ */
+export const MIN_PAYOUT_AMOUNT = 5000;
+
+/**
  * 決済額から各費用を計算するユーティリティ
  * UIの表示・API返却値の算出に使う
  */

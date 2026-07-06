@@ -69,6 +69,9 @@ type SpotRevenue = {
   netMonthly: number;
   platformFeePercent: number;
   stripeFeePercent: number;
+  pendingBalance: number;
+  minPayoutAmount: number;
+  lastPayout: { amount: number; status: string; date: string } | null;
 };
 
 type SpotContent = {
@@ -92,6 +95,14 @@ function toEventLabel(iso: string) {
   const d = new Date(iso);
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
+
+const PAYOUT_STATUS_LABEL: Record<string, string> = {
+  paid: "着金済み",
+  pending: "処理中",
+  in_transit: "送金中",
+  canceled: "取消",
+  failed: "失敗"
+};
 
 // ─── データ取得 ────────────────────────────────────────────────────────
 
@@ -551,6 +562,38 @@ export function OwnerConsoleClient() {
                       ) : null}
                     </div>
                   ) : null}
+
+                  {/* 実際の未払い残高・次回送金までの進捗 */}
+                  <div className="mt-3 border-t border-ink/8 pt-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-ink/72">現在の未払い残高</span>
+                      <span className="font-bold text-ink">
+                        ¥{revenue.pendingBalance.toLocaleString()}
+                        <span className="ml-1 font-normal text-ink/55">
+                          / ¥{revenue.minPayoutAmount.toLocaleString()}で次回送金
+                        </span>
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/75">
+                      <div
+                        className="h-full rounded-full bg-moss"
+                        style={{
+                          width: `${Math.min(100, Math.round((revenue.pendingBalance / revenue.minPayoutAmount) * 100))}%`
+                        }}
+                      />
+                    </div>
+                    <div className="mt-2 text-xs text-ink/60">
+                      {revenue.lastPayout ? (
+                        <>
+                          前回の送金: {toDateLabel(revenue.lastPayout.date)}・¥
+                          {revenue.lastPayout.amount.toLocaleString()}・
+                          {PAYOUT_STATUS_LABEL[revenue.lastPayout.status] ?? revenue.lastPayout.status}
+                        </>
+                      ) : (
+                        "まだ送金はありません"
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 

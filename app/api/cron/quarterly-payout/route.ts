@@ -15,10 +15,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
-import { stripe } from "@/lib/stripe/config";
-
-/** この金額(円)未満の残高は送金せず持ち越す。手数料(¥495程度)が送金額の1割程度に収まる水準。 */
-const MIN_PAYOUT_AMOUNT = 5000;
+import { MIN_PAYOUT_AMOUNT, stripe } from "@/lib/stripe/config";
 
 export async function GET(request: NextRequest) {
   const authorization = request.headers.get("authorization");
