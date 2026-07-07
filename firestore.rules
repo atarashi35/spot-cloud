@@ -22,7 +22,9 @@ service cloud.firestore {
 
       match /members/{uid} {
         allow read: if signedIn() && (request.auth.uid == uid || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid));
-        allow create, update: if signedIn() && request.auth.uid == uid;
+        // Memberships are payment-derived records. They must only be written by
+        // trusted server code via the Admin SDK after Stripe/webhook validation.
+        allow create, update, delete: if false;
       }
 
       match /posts/{postId} {
@@ -71,7 +73,7 @@ service cloud.firestore {
         allow create, delete: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
         // オーナーはすべて更新可。ソシオは participantCount のみ更新可（参加登録/取り消し時）
         allow update: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid)
-                      || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["participantCount"]));
+                      || (isActiveMember(spotId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["participantCount"]));
 
         match /participants/{uid} {
           // 参加者の名前・メールはオーナーと本人のみ閲覧可。他ソシオには非公開（プライバシー保護）
@@ -99,7 +101,10 @@ service cloud.firestore {
     }
 
     match /users/{uid}/memberships/{spotId} {
-      allow read, write: if signedIn() && request.auth.uid == uid;
+      allow read: if signedIn() && request.auth.uid == uid;
+      // User membership mirrors are also payment-derived and are maintained by
+      // trusted server code via the Admin SDK.
+      allow write: if false;
     }
 
     match /users/{uid}/notifications/{notifId} {

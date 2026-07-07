@@ -2,19 +2,49 @@ rules_version = '2';
 // Bucket: spot-cloud-27aaf.firebasestorage.app
 service firebase.storage {
   match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSpotOwner(spotId) {
+      return signedIn()
+        && firestore.get(/databases/(default)/documents/spots/$(spotId)).data.ownerUid == request.auth.uid;
+    }
+
+    function isOwnerStagingPath(pathId) {
+      return signedIn() && pathId == request.auth.uid;
+    }
+
+    function isAllowedSpotUpload() {
+      return request.resource != null
+        && request.resource.size <= 20 * 1024 * 1024
+        && (
+          request.resource.contentType.matches("image/(jpeg|png|webp)")
+          || request.resource.contentType == "application/pdf"
+        );
+    }
+
     match /spots/{spotId}/{allPaths=**} {
       // 画像は誰でも読める（公開コンテンツ）
       allow read: if true;
-      // ログイン済みユーザーのみ書き込める
-      // オーナー限定の制御はアプリ側 UI（isOwner チェック）で担保する
-      allow write: if request.auth != null;
+      // Existing SPOT assets may only be written by the SPOT owner.
+      // New SPOT form assets are staged under spots/{uid}/... before the spot
+      // document exists.
+      allow create, update: if isAllowedSpotUpload()
+        && (isOwnerStagingPath(spotId) || isSpotOwner(spotId));
+      allow delete: if isOwnerStagingPath(spotId) || isSpotOwner(spotId);
     }
 
     match /avatars/{uid}/{allPaths=**} {
       // アバターは誰でも読める（カード表示・オーナー画面で使用）
       allow read: if true;
       // 本人のみ書き込める
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource != null
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType == "image/webp";
+      allow delete: if signedIn() && request.auth.uid == uid;
     }
   }
 }
