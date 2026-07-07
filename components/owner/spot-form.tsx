@@ -461,7 +461,7 @@ export function SpotForm(props: SpotFormProps) {
         <GalleryUploader
           values={galleryImageUrls}
           onChange={setGalleryImageUrls}
-          storagePath={props.mode === "edit" ? `spots/${props.spotId}/gallery` : `spots/${user.uid}/gallery`}
+          storagePath={props.mode === "edit" ? `spots/${user.uid}/spots/${props.spotId}/gallery` : `spots/${user.uid}/gallery`}
         />
       </div>
 

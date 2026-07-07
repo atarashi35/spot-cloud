@@ -273,7 +273,7 @@ export function EventForm(props: EventFormProps) {
         <ImageUploader
           value={imageUrl}
           onChange={setImageUrl}
-          storagePath={`spots/${props.spotId}/events`}
+          storagePath={`spots/${user.uid}/spots/${props.spotId}/events`}
         />
       </div>
 

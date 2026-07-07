@@ -184,7 +184,7 @@ export function PostForm(props: PostFormProps) {
         <AttachmentsUploader
           value={attachments}
           onChange={setAttachments}
-          storagePath={`spots/${props.spotId}/posts`}
+          storagePath={`spots/${user.uid}/spots/${props.spotId}/posts`}
         />
       </div>
       <div>

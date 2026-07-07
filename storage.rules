@@ -6,12 +6,7 @@ service firebase.storage {
       return request.auth != null;
     }
 
-    function isSpotOwner(spotId) {
-      return signedIn()
-        && firestore.get(/databases/(default)/documents/spots/$(spotId)).data.ownerUid == request.auth.uid;
-    }
-
-    function isOwnerStagingPath(pathId) {
+    function isOwnerNamespace(pathId) {
       return signedIn() && pathId == request.auth.uid;
     }
 
@@ -27,12 +22,12 @@ service firebase.storage {
     match /spots/{spotId}/{allPaths=**} {
       // 画像は誰でも読める（公開コンテンツ）
       allow read: if true;
-      // Existing SPOT assets may only be written by the SPOT owner.
-      // New SPOT form assets are staged under spots/{uid}/... before the spot
-      // document exists.
+      // Browser uploads live under spots/{uid}/... so users cannot overwrite
+      // another owner's assets. Firestore owner rules still decide whether a
+      // returned URL may be attached to a SPOT, post, or event.
       allow create, update: if isAllowedSpotUpload()
-        && (isOwnerStagingPath(spotId) || isSpotOwner(spotId));
-      allow delete: if isOwnerStagingPath(spotId) || isSpotOwner(spotId);
+        && isOwnerNamespace(spotId);
+      allow delete: if isOwnerNamespace(spotId);
     }
 
     match /avatars/{uid}/{allPaths=**} {
