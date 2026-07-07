@@ -13,7 +13,7 @@ import Stripe from "stripe";
 import { getAdminAuth } from "@/lib/firebase/admin";
 import { upsertMembership } from "@/lib/server/memberships";
 import { stripe } from "@/lib/stripe/config";
-import { MembershipStatus, PlanAmount, SocioAgeRange, SocioGender } from "@/lib/types";
+import { MembershipStatus, PlanAmount, SocioAgeRange, SocioGender, isSignupPlan } from "@/lib/types";
 
 /** Webhook ハンドラと同じロジックでサブスクリプション状態を MembershipStatus に変換 */
 function deriveStatus(sub: Stripe.Subscription): MembershipStatus {
@@ -77,10 +77,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (session.mode !== "subscription") {
+    return NextResponse.json({ error: "invalid_session_mode" }, { status: 400 });
+  }
+
   const metadata = session.metadata ?? {};
 
-  // UID がセッションの UID と一致することを確認（なりすまし防止）
-  if (metadata.uid && metadata.uid !== decoded.uid) {
+  // UID がセッションの UID と一致することを必須にする（なりすまし防止）。
+  // この API は webhook のフォールバックなので、アプリが作成した Checkout
+  // セッション以外を同期対象にしない。
+  if (!metadata.uid || metadata.uid !== decoded.uid) {
     return NextResponse.json({ error: "uid_mismatch" }, { status: 403 });
   }
 
@@ -89,6 +95,11 @@ export async function POST(request: NextRequest) {
       { error: "missing_metadata", detail: "spotId / spotName / planAmount が不足" },
       { status: 400 }
     );
+  }
+
+  const planAmount = Number(metadata.planAmount);
+  if (!isSignupPlan(planAmount)) {
+    return NextResponse.json({ error: "invalid_plan_amount" }, { status: 400 });
   }
 
   const subscription =
@@ -101,6 +112,10 @@ export async function POST(request: NextRequest) {
       ? session.subscription
       : subscription?.id ?? "";
 
+  if (!subscription || !subscriptionId) {
+    return NextResponse.json({ error: "missing_subscription" }, { status: 400 });
+  }
+
   const buyerName =
     session.customer_details?.name ?? metadata.displayName ?? "";
   const buyerEmail =
@@ -108,9 +123,7 @@ export async function POST(request: NextRequest) {
 
   // サブスクリプションの実態からステータスを導出（Webhook と同じロジック）
   // "active" 固定にすると cancel_at_period_end や past_due を上書きしてしまう
-  const membershipStatus: MembershipStatus = subscription
-    ? deriveStatus(subscription)
-    : "active"; // サブスクリプション未取得の場合のみフォールバック
+  const membershipStatus: MembershipStatus = deriveStatus(subscription);
 
   await upsertMembership({
     uid: decoded.uid,
@@ -122,7 +135,7 @@ export async function POST(request: NextRequest) {
     address: String(metadata.address ?? ""),
     spotId: metadata.spotId,
     spotName: metadata.spotName,
-    planAmount: Number(metadata.planAmount) as PlanAmount,
+    planAmount: planAmount as PlanAmount,
     status: membershipStatus,
     stripeCustomerId: String(session.customer ?? ""),
     stripeSubscriptionId: subscriptionId

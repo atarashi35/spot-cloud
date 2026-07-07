@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
-import {
-  getEventParticipation,
-  joinSpotEventInFirestore,
-  leaveSpotEventInFirestore
-} from "@/lib/firestore/events";
+import { getEventParticipation } from "@/lib/firestore/events";
 
 type EventJoinButtonProps = {
   spotId: string;
@@ -52,16 +48,21 @@ export function EventJoinButton({ spotId, eventId, participantCount }: EventJoin
     setError(null);
 
     try {
+      const token = await user.getIdToken();
       if (joined) {
-        await leaveSpotEventInFirestore(spotId, eventId, user.uid);
+        const response = await fetch(`/api/spots/${spotId}/events/${eventId}/participants`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error("参加取消に失敗しました。");
         setJoined(false);
         setLocalCount((c) => Math.max(0, c - 1));
       } else {
-        await joinSpotEventInFirestore(spotId, eventId, {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email
+        const response = await fetch(`/api/spots/${spotId}/events/${eventId}/participants`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
         });
+        if (!response.ok) throw new Error("参加登録に失敗しました。");
         setJoined(true);
         setLocalCount((c) => c + 1);
       }

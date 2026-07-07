@@ -23,38 +23,16 @@ export async function POST(request: NextRequest) {
     const decodedToken = await getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
     const db = getAdminDb();
 
-    const membersCol = db.collection(`spots/${body.spotId}/members`);
-
-    // 1. uid をドキュメントIDとして直接引く
-    let memberData: Record<string, unknown> | null = null;
     const directSnap = await db.doc(`spots/${body.spotId}/members/${decodedToken.uid}`).get();
-    if (directSnap.exists) {
-      memberData = directSnap.data() as Record<string, unknown>;
-    }
 
-    // 2. uid フィールドで検索（ドキュメントIDが別UIDになっているケース）
-    if (!memberData) {
-      const byUid = await membersCol.where("uid", "==", decodedToken.uid).limit(1).get();
-      if (!byUid.empty) {
-        memberData = byUid.docs[0].data() as Record<string, unknown>;
-      }
-    }
-
-    // 3. メールアドレスで検索（認証方法が変わったケース）
-    if (!memberData && decodedToken.email) {
-      const byEmail = await membersCol.where("email", "==", decodedToken.email).limit(1).get();
-      if (!byEmail.empty) {
-        memberData = byEmail.docs[0].data() as Record<string, unknown>;
-      }
-    }
-
-    if (!memberData) {
+    if (!directSnap.exists) {
       return NextResponse.json(
         { error: "membership_not_found", message: "このSPOTの加入情報が見つかりませんでした。サポートにお問い合わせください。" },
         { status: 404 }
       );
     }
 
+    const memberData = directSnap.data() as Record<string, unknown>;
     const customerId = String(memberData.stripeCustomerId ?? "");
 
     if (!customerId) {
