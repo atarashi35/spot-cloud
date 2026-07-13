@@ -10,13 +10,13 @@ import { loadUserProfileCache, saveUserProfileCache } from "@/lib/user-profile-c
 import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
 import {
-  KO_UNIT_AMOUNT,
   MIN_KO,
   PlanAmount,
   Spot,
   defaultPlanAmount
 } from "@/lib/types";
 import { amountToKo, koToAmount } from "@/lib/plan";
+import { KoWheelPicker } from "@/components/spots/ko-wheel-picker";
 
 type Step = "login" | "email_sent" | "profile";
 
@@ -275,18 +275,13 @@ export function SocioSignupModal({
                     <p className="mt-1 text-[11px] text-ink/50">住所はオーナーのみ閲覧できます。</p>
                   </div>
 
-                  {/* 口数ステッパー */}
+                  {/* 口数ピッカー(ドラムロール) */}
                   <div className="mt-4 flex items-center gap-3 rounded-[14px] bg-mist px-4 py-3">
-                    <button type="button" aria-label="口数を減らす" onClick={() => setPlanAmount((a) => Math.max(MIN_KO * KO_UNIT_AMOUNT, a - KO_UNIT_AMOUNT))} disabled={ko <= MIN_KO} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink disabled:opacity-30">
-                      −
-                    </button>
-                    <div className="flex flex-1 items-baseline justify-center gap-1">
-                      <span className="text-3xl font-extrabold tabular-nums text-ink">{ko}</span>
-                      <span className="text-lg font-semibold text-ink">口</span>
+                    <div className="w-16 shrink-0">
+                      <KoWheelPicker value={ko} min={MIN_KO} onChange={(nextKo) => setPlanAmount(koToAmount(nextKo))} />
                     </div>
-                    <button type="button" aria-label="口数を増やす" onClick={() => setPlanAmount((a) => a + KO_UNIT_AMOUNT)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-xl font-bold text-ink transition hover:border-ink">
-                      ＋
-                    </button>
+                    <span className="text-sm font-semibold text-ink/60">口</span>
+                    <div className="flex-1" />
                     <div className="shrink-0 border-l border-ink/10 pl-3 text-right">
                       <p className="text-base font-bold text-ink">¥{monthly.toLocaleString("ja-JP")}</p>
                       <p className="text-[11px] text-ink/50">/月</p>
