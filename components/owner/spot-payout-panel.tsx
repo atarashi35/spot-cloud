@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
+import { useConnectOnboarding } from "@/hooks/use-connect-onboarding";
 import { Spot } from "@/lib/types";
 
 type ConnectStatus = {
@@ -58,6 +59,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
   const [connectStatus, setConnectStatus] = useState<ConnectStatus | null>(null);
   const [existingAccounts, setExistingAccounts] = useState<ExistingAccount[]>([]);
   const [linkLoading, setLinkLoading] = useState(false);
+  const { start: startOnboarding, loading: onboardingLoading, error: onboardingError } = useConnectOnboarding(spotId);
 
   useEffect(() => {
     if (!authReady) return;
@@ -227,7 +229,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
       <section className="rounded-[28px] border border-ink/10 bg-white px-6 py-5 space-y-4">
 
         {/* ステータス行 */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="flex items-center gap-3">
             <StatusBadge tone={ready ? "success" : inReview ? "warning" : "danger"}>
               {ready ? "受取準備完了" : inReview ? "審査中" : !connected ? "未設定" : "設定中"}
@@ -237,12 +239,12 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
             </p>
           </div>
           {showCta && (
-            <ConnectOnboardingButton spotId={spotId} connected={connected} label={primaryCta} className="cta-primary shrink-0 text-sm" />
+            <ConnectOnboardingButton spotId={spotId} connected={connected} label={primaryCta} className="cta-primary w-full sm:w-auto shrink-0 text-sm" />
           )}
         </div>
 
         {/* ステップ */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {([
             { number: 1, label: "本人確認",  state: step1State, note: null },
             { number: 2, label: "売上受取",  state: step2State, note: step2State === "review" ? "審査中（3〜4営業日）" : null },
@@ -254,26 +256,34 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
               review:  { badge: "審査中", badgeClass: "bg-amber-50 text-amber-700",  card: "border-amber-200 bg-amber-50" },
               pending: { badge: "未対応", badgeClass: "bg-ink/5 text-ink/60",        card: "border-ink/10 bg-mist" },
             }[state];
+            const tappable = state === "active";
+            const Tag = tappable ? "button" : "div";
             return (
-              <div key={number} className={`rounded-[16px] border px-4 py-3 ${cfg.card}`}>
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/60"}`}>
-                    {state === "done" ? "✓" : number}
-                  </span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cfg.badgeClass}`}>{cfg.badge}</span>
-                </div>
-                <p className="mt-1.5 text-xs font-semibold text-ink">{label}</p>
-                {note && <p className="mt-0.5 text-xs text-ink/65">{note}</p>}
-              </div>
+              <Tag
+                key={number}
+                type={tappable ? "button" : undefined}
+                onClick={tappable ? () => void startOnboarding() : undefined}
+                disabled={tappable ? onboardingLoading : undefined}
+                className={`flex w-full items-center gap-3 rounded-[16px] border px-4 py-3 text-left sm:block ${cfg.card} ${tappable ? "cursor-pointer transition active:scale-[0.98]" : ""}`}
+              >
+                <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${state === "done" ? "bg-moss text-white" : "bg-ink/8 text-ink/60"}`}>
+                  {state === "done" ? "✓" : number}
+                </span>
+                <p className="flex-1 text-xs font-semibold text-ink sm:mt-1.5 sm:flex-none">{label}</p>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cfg.badgeClass} shrink-0 sm:mt-2 sm:inline-block`}>
+                  {tappable && onboardingLoading ? "設定中…" : cfg.badge}
+                </span>
+                {note && <p className="mt-0.5 w-full text-xs text-ink/65 sm:w-auto">{note}</p>}
+              </Tag>
             );
           })}
         </div>
 
         {/* エラー・通知 */}
-        {error && (
-          <div className="rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>
+        {(error || onboardingError) && (
+          <div className="rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error || onboardingError}</div>
         )}
-        {disabledReasonLabel && !error && (
+        {disabledReasonLabel && !error && !onboardingError && (
           <p className="text-xs text-ink/68">{disabledReasonLabel}</p>
         )}
         {existingAccounts.length > 0 && !connected && (
