@@ -12,6 +12,7 @@ import { VoicesSection } from "@/components/spots/voices-section";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EventJoinButton } from "@/components/spots/event-join-button";
 import { SocioSignupModal } from "@/components/spots/socio-signup-modal";
+import { BookingRequestModal } from "@/components/spots/booking-request-modal";
 import { MetricPill } from "@/components/ui/metric-pill";
 import { SocioRankBadge } from "@/components/ui/socio-rank-badge";
 import { IconGlobe, IconInstagram, IconLine, IconX, IconYouTube } from "@/components/ui/sns-icons";
@@ -24,7 +25,7 @@ import { loadUserProfileCache } from "@/lib/user-profile-cache";
 import { PlanAmount, Spot, UserMembership, isSignupPlan, defaultPlanAmount } from "@/lib/types";
 import { amountToKo } from "@/lib/plan";
 import { isSvgAssetUrl } from "@/lib/utils";
-import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
+import { FEATURE_BOOKINGS, FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { SocioCard } from "@/components/account/socio-card";
 import { ModalShell } from "@/components/ui/modal-shell";
 
@@ -68,6 +69,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [socioNumber, setSocioNumber] = useState<number | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
   const [signupModalOpen, setSignupModalOpen] = useState(false);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [emailJoinPlan, setEmailJoinPlan] = useState<PlanAmount | null>(null);
   const [showOwnerCta, setShowOwnerCta] = useState(false);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
@@ -312,6 +314,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         initialStep={emailJoinPlan ? "profile" : undefined}
       />
 
+      <BookingRequestModal spot={spot} open={bookingModalOpen} onClose={() => setBookingModalOpen(false)} />
+
       {/* ── ウェルカムモーダル ── */}
       <ModalShell
         open={showWelcomeBanner}
@@ -454,6 +458,27 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
             ) : null}
           </div>
+          <div className="flex flex-col gap-4">
+          {spot.spotType === "performer" && FEATURE_BOOKINGS && !isOwner && spot.bookingsEnabled !== false && spot.performerFee ? (
+            <div className="rounded-[28px] bg-mist p-5">
+              <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/15 px-3 py-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+                <span className="text-sm font-semibold text-teal-600">出演依頼を受付中</span>
+              </div>
+              <p className="mt-3 text-2xl font-extrabold text-ink">
+                ¥{spot.performerFee.toLocaleString()}
+                <span className="ml-1 text-sm font-medium text-ink/55">〜</span>
+              </p>
+              {spot.performerFeeNote ? <p className="mt-1 text-sm text-ink/65">{spot.performerFeeNote}</p> : null}
+              <button
+                type="button"
+                className="cta-primary mt-4 w-full"
+                onClick={() => setBookingModalOpen(true)}
+              >
+                出演依頼する
+              </button>
+            </div>
+          ) : null}
           <aside ref={mainCtaRef} className={`flex flex-col rounded-[28px] p-5 ${
             !isOwner && membershipStatus !== "active" && membershipStatus !== "canceling"
             && membershipStatus !== "past_due" && membershipStatus !== "canceled"
@@ -591,6 +616,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
             )}
           </aside>
+          </div>
         </div>
       </section>
 

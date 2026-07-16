@@ -13,6 +13,8 @@ import {
 } from "@/lib/server/mailer";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { payoutStateFromAccount } from "@/lib/stripe/payout-state";
+import { getBookingRequestById, markBookingRequestPaid } from "@/lib/server/bookings";
+import { sendBookingPaid } from "@/lib/server/mailer";
 
 /**
  * Stripe Subscription → MembershipStatus のマッピング
@@ -131,6 +133,22 @@ export async function POST(request: Request) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const metadata = session.metadata ?? {};
+
+      // ── 出演依頼の決済完了（応援会員のmetadata形状とは別物、bookingRequestIdの有無で分岐） ──
+      if (metadata.bookingRequestId && metadata.spotId) {
+        const paymentIntentId =
+          typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? "";
+        const updated = await markBookingRequestPaid(metadata.spotId, metadata.bookingRequestId, paymentIntentId);
+
+        if (updated) {
+          const booking = await getBookingRequestById(metadata.spotId, metadata.bookingRequestId);
+          if (booking) {
+            await Promise.allSettled([sendBookingPaid(booking)]);
+          }
+        }
+
+        return NextResponse.json({ received: true, type: event.type });
+      }
 
       if (!metadata.uid || !metadata.spotId || !metadata.spotName || !metadata.planAmount) {
         return NextResponse.json({ received: true, skipped: "missing_metadata" });

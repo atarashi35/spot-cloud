@@ -180,6 +180,10 @@ export function SpotForm(props: SpotFormProps) {
   const [line, setLine] = useState("");
   const [youtube, setYoutube] = useState("");
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [spotType, setSpotType] = useState<"venue" | "performer">("venue");
+  const [performerFee, setPerformerFee] = useState("");
+  const [performerFeeNote, setPerformerFeeNote] = useState("");
+  const [performerDisciplines, setPerformerDisciplines] = useState<string[]>([]);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -229,6 +233,10 @@ export function SpotForm(props: SpotFormProps) {
         setLine(spot.socialLinks?.line ?? "");
         setYoutube(spot.socialLinks?.youtube ?? "");
         setTeamMembers(spot.teamMembers ?? []);
+        setSpotType(spot.spotType === "performer" ? "performer" : "venue");
+        setPerformerFee(spot.performerFee ? String(spot.performerFee) : "");
+        setPerformerFeeNote(spot.performerFeeNote ?? "");
+        setPerformerDisciplines(spot.performerDisciplines ?? []);
       })
       .catch((cause: Error) => {
         setError(cause.message);
@@ -261,6 +269,21 @@ export function SpotForm(props: SpotFormProps) {
       return;
     }
 
+    const normalizedPerformerFee = Number(performerFee);
+
+    if (spotType === "performer" && (!performerFee || !Number.isFinite(normalizedPerformerFee) || normalizedPerformerFee <= 0)) {
+      setError("演者プロフィールでは出演料の目安（円）を入力してください。");
+      setSaving(false);
+      return;
+    }
+
+    const performerFields = {
+      spotType,
+      performerFee: spotType === "performer" ? normalizedPerformerFee : undefined,
+      performerFeeNote: spotType === "performer" ? performerFeeNote.trim() : undefined,
+      performerDisciplines: spotType === "performer" ? performerDisciplines.filter((d) => d.trim()) : undefined,
+    };
+
     try {
       if (props.mode === "create") {
         const spotId = await createSpotInFirestore(
@@ -270,6 +293,7 @@ export function SpotForm(props: SpotFormProps) {
             phone: normalizedPhone, email: normalizedEmail,
             socialLinks: { website, instagram, twitter, line, youtube },
             teamMembers: teamMembers.filter((m) => m.name.trim()),
+            ...performerFields,
           },
           user.uid
         );
@@ -284,6 +308,7 @@ export function SpotForm(props: SpotFormProps) {
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
         teamMembers: teamMembers.filter((m) => m.name.trim()),
+        ...performerFields,
       });
       router.push("/manage");
       router.refresh();
@@ -348,6 +373,32 @@ export function SpotForm(props: SpotFormProps) {
           aria-invalid={!!error && !name.trim() ? true : undefined}
         />
         <p className="mt-1.5 text-xs text-ink/65">※場所・屋号・団体名・プロジェクト名など</p>
+      </div>
+      <div className="rounded-[20px] border border-ink/10 p-4">
+        <p className="text-sm font-bold text-ink/72">SPOTのタイプ</p>
+        <p className="mt-1 text-xs leading-5 text-ink/60">
+          「演者」を選ぶと、地域のイベント主催者から出演依頼を受け付けられるようになります（応援会員機能はどちらでも使えます）。
+        </p>
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            className={`flex-1 rounded-[14px] border px-4 py-2.5 text-sm font-semibold transition ${
+              spotType === "venue" ? "border-ink bg-ink text-white" : "border-ink/15 text-ink/68 hover:border-ink/30"
+            }`}
+            onClick={() => setSpotType("venue")}
+          >
+            拠点（店舗・団体など）
+          </button>
+          <button
+            type="button"
+            className={`flex-1 rounded-[14px] border px-4 py-2.5 text-sm font-semibold transition ${
+              spotType === "performer" ? "border-ink bg-ink text-white" : "border-ink/15 text-ink/68 hover:border-ink/30"
+            }`}
+            onClick={() => setSpotType("performer")}
+          >
+            演者（個人・移動体）
+          </button>
+        </div>
       </div>
       <select
         className="field"
@@ -428,6 +479,64 @@ export function SpotForm(props: SpotFormProps) {
           placeholder="メールアドレス（任意）"
         />
       </div>
+      {spotType === "performer" ? (
+        <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
+          <div>
+            <p className="text-sm font-bold text-ink/72">出演依頼の受付情報</p>
+            <p className="mt-1 text-xs leading-5 text-ink/60">
+              ここで入力した出演料は、依頼した主催者に満額そのまま伝わります（SPOTの手数料は主催者への上乗せ請求のみで、この金額から差し引かれません）。
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <input
+              className="field"
+              type="number"
+              min={0}
+              step={1000}
+              value={performerFee}
+              onChange={(event) => setPerformerFee(event.target.value)}
+              placeholder="出演料の目安（円）例: 30000"
+              required={spotType === "performer"}
+            />
+            <input
+              className="field"
+              value={performerFeeNote}
+              onChange={(event) => setPerformerFeeNote(event.target.value)}
+              placeholder="補足（例: 交通費別途、応相談）"
+            />
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-ink/68">活動分野タグ（任意、例: 弾き語り、MC）</p>
+            <div className="flex flex-wrap gap-2">
+              {performerDisciplines.map((tag, index) => (
+                <span key={index} className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1.5 text-xs text-ink/72">
+                  <input
+                    className="w-24 bg-transparent outline-none"
+                    value={tag}
+                    onChange={(e) =>
+                      setPerformerDisciplines((prev) => prev.map((t, i) => (i === index ? e.target.value : t)))
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="text-ink/50 hover:text-ink"
+                    onClick={() => setPerformerDisciplines((prev) => prev.filter((_, i) => i !== index))}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <button
+                type="button"
+                className="rounded-full border border-dashed border-ink/25 px-3 py-1.5 text-xs text-ink/60 hover:border-ink/40 hover:text-ink/78"
+                onClick={() => setPerformerDisciplines((prev) => [...prev, ""])}
+              >
+                ＋ タグを追加
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="rounded-[20px] bg-mist p-4">
         <label className="block text-sm font-semibold text-ink">カバー画像アップロード</label>
         <input

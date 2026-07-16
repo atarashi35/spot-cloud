@@ -102,6 +102,16 @@ export interface Spot {
   planBenefits?: PlanBenefits;
   opinionBoxEnabled?: boolean;
   teamMembers?: TeamMember[];
+  /** undefined は既存の「拠点」として扱う（後方互換）。"performer" は出演依頼機能の対象。 */
+  spotType?: "venue" | "performer";
+  /** 出演料の目安（円）。spotType: "performer" のみ。演者はこの金額を満額受け取る。 */
+  performerFee?: number;
+  /** 「交通費別途」等の補足。spotType: "performer" のみ。 */
+  performerFeeNote?: string;
+  /** 自由記述の活動分野タグ（例: ["弾き語り","MC"]）。表示のみ、検索フィルタ配線はしない。 */
+  performerDisciplines?: string[];
+  /** false のときオーナーが出演依頼の受付を一時停止。undefined は受付中として扱う。 */
+  bookingsEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -193,6 +203,61 @@ export interface EventParticipant {
   displayName?: string;
   email?: string;
   joinedAt: string;
+}
+
+// ─── 出演依頼 ────────────────────────────────────────────────────────
+
+/**
+ * pending          : 依頼受信、オーナー未対応
+ * accepted         : オーナーが受諾、支払いリンク発行可能
+ * declined         : オーナーが辞退
+ * payment_pending  : 支払いリンク発行済み、未決済
+ * paid             : 決済完了
+ * completed        : 実演後、オーナーが完了マーク
+ * canceled         : 決済前 or 決済後に組織者/オーナーがキャンセル
+ */
+export type BookingRequestStatus =
+  | "pending"
+  | "accepted"
+  | "declined"
+  | "payment_pending"
+  | "paid"
+  | "completed"
+  | "canceled";
+
+export interface BookingRequest {
+  id: string;
+  spotId: string;
+  spotName: string;
+  status: BookingRequestStatus;
+
+  // 依頼者（SPOTアカウント不要）
+  organizerName: string;
+  organizerOrg?: string;
+  organizerEmail: string;
+  organizerPhone?: string;
+
+  // 依頼内容
+  eventDate: string;
+  eventLocation: string;
+  eventDescription: string;
+  message?: string;
+
+  // 金額（オーナー受諾時に確定、以降は不変のスナップショット）
+  /** 演者の受取額（円）。spot.performerFee のスナップショット。 */
+  performerFeeAmount: number;
+  /** SPOT手数料（円）。lib/booking/fee-tiers.ts で算出したスナップショット。 */
+  platformFeeAmount: number;
+  /** 決済総額（円）= performerFeeAmount + platformFeeAmount。 */
+  totalAmount: number;
+
+  declineReason?: string;
+  stripeCheckoutSessionId?: string;
+  stripePaymentIntentId?: string;
+  paidAt?: string;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface User {

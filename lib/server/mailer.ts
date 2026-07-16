@@ -11,6 +11,11 @@ import { OwnerOpinionEmail } from "@/lib/resend/templates/owner-opinion";
 import { SociosNewPostEmail } from "@/lib/resend/templates/socios-new-post";
 import { SociosNewEventEmail } from "@/lib/resend/templates/socios-new-event";
 import { AdminNewSpotEmail } from "@/lib/resend/templates/admin-new-spot";
+import { BookingRequestReceivedEmail } from "@/lib/resend/templates/booking-request-received";
+import { BookingAcceptedEmail } from "@/lib/resend/templates/booking-accepted";
+import { BookingDeclinedEmail } from "@/lib/resend/templates/booking-declined";
+import { BookingPaidEmail } from "@/lib/resend/templates/booking-paid";
+import { BookingRequest } from "@/lib/types";
 
 // Resend未設定時は静かにスキップ
 async function send(to: string | string[], subject: string, element: React.ReactElement) {
@@ -195,6 +200,86 @@ export async function sendSociosNewEvent(params: {
       )
     )
   );
+}
+
+// ─── 出演依頼 ────────────────────────────────────────────────────────────────
+
+export async function sendBookingRequestReceived(booking: BookingRequest) {
+  const ownerEmail = await getOwnerEmail(booking.spotId);
+  if (!ownerEmail) return;
+  await send(
+    ownerEmail,
+    `【${booking.spotName}】新しい出演依頼が届きました`,
+    BookingRequestReceivedEmail({
+      spotId: booking.spotId,
+      spotName: booking.spotName,
+      organizerName: booking.organizerName,
+      eventDate: booking.eventDate,
+      eventLocation: booking.eventLocation
+    }) as unknown as React.ReactElement
+  );
+}
+
+export async function sendBookingAccepted(booking: BookingRequest) {
+  if (!booking.organizerEmail) return;
+  await send(
+    booking.organizerEmail,
+    `${booking.spotName}が出演依頼を受諾しました`,
+    BookingAcceptedEmail({
+      spotId: booking.spotId,
+      bookingRequestId: booking.id,
+      spotName: booking.spotName,
+      organizerName: booking.organizerName,
+      totalAmount: booking.totalAmount
+    }) as unknown as React.ReactElement
+  );
+}
+
+export async function sendBookingDeclined(booking: BookingRequest) {
+  if (!booking.organizerEmail) return;
+  await send(
+    booking.organizerEmail,
+    `${booking.spotName}の出演依頼について`,
+    BookingDeclinedEmail({
+      spotName: booking.spotName,
+      organizerName: booking.organizerName,
+      declineReason: booking.declineReason
+    }) as unknown as React.ReactElement
+  );
+}
+
+/** 組織者・演者の双方へ支払い完了を通知する。 */
+export async function sendBookingPaid(booking: BookingRequest) {
+  const ownerEmail = await getOwnerEmail(booking.spotId);
+
+  await Promise.allSettled([
+    booking.organizerEmail
+      ? send(
+          booking.organizerEmail,
+          `${booking.spotName}への出演依頼のお支払いが完了しました`,
+          BookingPaidEmail({
+            spotName: booking.spotName,
+            organizerName: booking.organizerName,
+            performerFeeAmount: booking.performerFeeAmount,
+            eventDate: booking.eventDate,
+            forPerformer: false
+          }) as unknown as React.ReactElement
+        )
+      : Promise.resolve(),
+    ownerEmail
+      ? send(
+          ownerEmail,
+          `【${booking.spotName}】出演依頼のお支払いが完了しました`,
+          BookingPaidEmail({
+            spotName: booking.spotName,
+            organizerName: booking.organizerName,
+            performerFeeAmount: booking.performerFeeAmount,
+            eventDate: booking.eventDate,
+            forPerformer: true
+          }) as unknown as React.ReactElement
+        )
+      : Promise.resolve()
+  ]);
 }
 
 // ─── 管理者向け ───────────────────────────────────────────────────────────────

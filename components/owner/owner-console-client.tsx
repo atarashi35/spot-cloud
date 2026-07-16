@@ -16,7 +16,7 @@ import {
   setSpotPublished
 } from "@/lib/firestore/spots";
 import { getSocioRankProgress } from "@/lib/socio-rank";
-import { FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
+import { FEATURE_BOOKINGS, FEATURE_EVENTS, FEATURE_VOICES } from "@/lib/flags";
 import { Spot } from "@/lib/types";
 import { RecentSociosPanel } from "@/components/owner/recent-socios-panel";
 import { OpinionBoxPanel } from "@/components/owner/opinion-box-panel";
@@ -657,7 +657,11 @@ export function OwnerConsoleClient() {
               />
 
               {/* プライマリアクション（高頻度） */}
-              <div className={`mt-6 grid gap-2 ${FEATURE_EVENTS || FEATURE_VOICES ? "grid-cols-3" : "grid-cols-2"}`}>
+              {(() => {
+                const showBookings = FEATURE_BOOKINGS && spot.spotType === "performer";
+                const extraTileCount = [FEATURE_EVENTS, FEATURE_VOICES, showBookings].filter(Boolean).length;
+                return (
+              <div className={`mt-6 grid gap-2 ${extraTileCount > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
                 <button
                   type="button"
                   onClick={() => setPostModal({ spotId: spot.id, mode: "create" })}
@@ -687,7 +691,17 @@ export function OwnerConsoleClient() {
                   <span className="text-xs font-semibold">アンケート</span>
                 </a>
                 )}
+                {showBookings && (
+                <a
+                  href={`/manage/${spot.id}/bookings`}
+                  className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
+                >
+                  <span className="text-xs font-semibold">出演依頼</span>
+                </a>
+                )}
               </div>
+                );
+              })()}
 
               {/* 管理メニュー（中頻度）— アイコン付きで見つけやすく */}
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">

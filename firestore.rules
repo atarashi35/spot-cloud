@@ -65,6 +65,17 @@ service cloud.firestore {
                       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["isRead"]);
       }
 
+      match /bookingRequests/{bookingRequestId} {
+        // オーナーのみ閲覧可。組織者はFirebase Authを持たないため直接アクセスなし
+        // （サーバーAPIがAdmin SDK経由でbookingRequestIdを認可トークンとして検証する）。
+        allow read: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid);
+        // 作成・金額系フィールドはAdmin SDK経由のみ。
+        allow create, delete: if false;
+        // オーナーはステータス遷移のみ可能（金額・Stripe関連フィールドはサーバーのみ）。
+        allow update: if isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "declineReason", "updatedAt"]);
+      }
+
       match /events/{eventId} {
         // 公開イベントは誰でも、非公開はソシオ/オーナーのみ
         allow read: if resource.data.isPublic == true
