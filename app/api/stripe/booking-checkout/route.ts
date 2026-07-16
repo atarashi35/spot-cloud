@@ -36,10 +36,31 @@ export async function POST(request: NextRequest) {
     const connectedAccountId = String(spotSnapshot.data()?.stripeConnectedAccountId ?? "");
 
     if (!connectedAccountId) {
-      return NextResponse.json({ error: "connect_not_ready" }, { status: 409 });
+      return NextResponse.json(
+        { error: "connect_not_ready", message: "この依頼先はまだ受取設定が完了していないため、お支払いに進めません。" },
+        { status: 409 }
+      );
+    }
+
+    const account = await stripe.accounts.retrieve(connectedAccountId);
+    const transfersActive = account.capabilities?.transfers === "active" || account.payouts_enabled;
+    const connectReady = account.details_submitted && transfersActive;
+
+    if (!connectReady) {
+      return NextResponse.json(
+        { error: "connect_not_ready", message: "この依頼先はまだ受取設定が完了していないため、お支払いに進めません。" },
+        { status: 409 }
+      );
     }
 
     const origin = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
+
+    // customer_balance（銀行振込）はセッション作成時点でCustomerが実在している必要があるため、
+    // customer_creation（完了後に作成）ではなく事前にCustomerを作成して渡す。
+    const customer = await stripe.customers.create({
+      email: booking.organizerEmail || undefined,
+      name: booking.organizerName || undefined
+    });
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -53,6 +74,7 @@ export async function POST(request: NextRequest) {
           quantity: 1
         }
       ],
+      customer: customer.id,
       payment_method_types: ["card", "customer_balance"],
       payment_method_options: {
         customer_balance: {
@@ -62,7 +84,6 @@ export async function POST(request: NextRequest) {
       },
       success_url: `${origin}/booking/${body.spotId}/${body.bookingRequestId}?checkout=success&sid={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/booking/${body.spotId}/${body.bookingRequestId}`,
-      customer_email: booking.organizerEmail || undefined,
       payment_intent_data: {
         application_fee_amount: booking.platformFeeAmount,
         transfer_data: { destination: connectedAccountId }

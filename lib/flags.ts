@@ -12,4 +12,4 @@ export const FEATURE_VOICES = false;
  * 出演依頼機能。1〜3件の実演者アカウントで検証中は true にして限定公開、
  * 検証前は false で導線を隠す（コードは残す）。
  */
-export const FEATURE_BOOKINGS = false;
+export const FEATURE_BOOKINGS = true;
