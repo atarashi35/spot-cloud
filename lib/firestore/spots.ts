@@ -31,7 +31,6 @@ type SpotInput = {
   socialLinks?: SocialLinks;
   planBenefits?: PlanBenefits;
   teamMembers?: TeamMember[];
-  spotType?: "venue" | "performer";
   performerFee?: number;
   performerFeeNote?: string;
   performerDisciplines?: string[];
@@ -133,7 +132,6 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
     teamMembers: Array.isArray(data.teamMembers)
       ? (data.teamMembers as TeamMember[]).filter((m) => m && typeof m.name === "string")
       : undefined,
-    spotType: data.spotType === "performer" ? "performer" : undefined,
     performerFee: typeof data.performerFee === "number" && data.performerFee > 0 ? data.performerFee : undefined,
     performerFeeNote: typeof data.performerFeeNote === "string" && data.performerFeeNote ? data.performerFeeNote : undefined,
     performerDisciplines: Array.isArray(data.performerDisciplines)
@@ -197,7 +195,6 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
     socialLinks: input.socialLinks ?? {},
     planBenefits: input.planBenefits ?? {},
     teamMembers: input.teamMembers ?? [],
-    spotType: input.spotType ?? "venue",
     performerFee: input.performerFee ?? 0,
     performerFeeNote: input.performerFeeNote ?? "",
     performerDisciplines: input.performerDisciplines ?? [],
@@ -226,7 +223,6 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     socialLinks: input.socialLinks ?? {},
     planBenefits: input.planBenefits ?? {},
     teamMembers: input.teamMembers ?? [],
-    spotType: input.spotType ?? "venue",
     performerFee: input.performerFee ?? 0,
     performerFeeNote: input.performerFeeNote ?? "",
     performerDisciplines: input.performerDisciplines ?? [],

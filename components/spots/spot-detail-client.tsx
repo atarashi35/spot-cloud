@@ -459,7 +459,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             ) : null}
           </div>
           <div className="flex flex-col gap-4">
-          {spot.spotType === "performer" && FEATURE_BOOKINGS && !isOwner && spot.bookingsEnabled !== false && spot.performerFee ? (
+          {FEATURE_BOOKINGS && !isOwner && spot.bookingsEnabled !== false && spot.performerFee ? (
             <div className="rounded-[28px] bg-mist p-5">
               <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/15 px-3 py-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />

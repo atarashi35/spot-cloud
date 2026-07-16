@@ -4,7 +4,7 @@ import { sendBookingRequestReceived } from "@/lib/server/mailer";
 
 /**
  * 出演依頼の作成。組織者はFirebase Authを持たない前提のため未認証エンドポイント。
- * 認可はSpotの公開状態・spotType・受付フラグをサーバー側で検証することで担保する
+ * 認可はSpotの公開状態・出演料設定・受付フラグをサーバー側で検証することで担保する
  * （firestore.rules 側は create: if false としている）。
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ spotId: string }> }) {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ ok: true, bookingRequestId });
   } catch (error) {
     const message = error instanceof Error ? error.message : "依頼の送信に失敗しました。";
-    const knownErrors = ["spot_not_found", "spot_not_published", "not_a_performer_spot", "bookings_disabled", "connect_not_ready", "performer_fee_not_set"];
+    const knownErrors = ["spot_not_found", "spot_not_published", "bookings_disabled", "connect_not_ready", "performer_fee_not_set"];
     const status = knownErrors.includes(message) ? 409 : 500;
     return NextResponse.json({ error: "booking_create_error", message }, { status });
   }

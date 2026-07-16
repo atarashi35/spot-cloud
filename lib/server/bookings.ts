@@ -64,10 +64,6 @@ export async function createBookingRequest(spotId: string, input: CreateBookingR
     throw new Error("spot_not_published");
   }
 
-  if (spot.spotType !== "performer") {
-    throw new Error("not_a_performer_spot");
-  }
-
   if (spot.bookingsEnabled === false) {
     throw new Error("bookings_disabled");
   }

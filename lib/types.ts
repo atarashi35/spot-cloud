@@ -102,11 +102,13 @@ export interface Spot {
   planBenefits?: PlanBenefits;
   opinionBoxEnabled?: boolean;
   teamMembers?: TeamMember[];
-  /** undefined は既存の「拠点」として扱う（後方互換）。"performer" は出演依頼機能の対象。 */
-  spotType?: "venue" | "performer";
-  /** 出演料の目安（円）。spotType: "performer" のみ。演者はこの金額を満額受け取る。 */
+  /**
+   * 出演依頼の受付有無はカテゴリ・タイプに関係なく、この金額（円）が設定されているかどうかで決まる。
+   * 演者・キッチンカー・場所の貸切依頼など、あらゆるSPOTが同じ仕組みで依頼を受けられる。
+   * 満額そのまま受け取る（SPOT手数料は依頼側への上乗せ請求のみ）。
+   */
   performerFee?: number;
-  /** 「交通費別途」等の補足。spotType: "performer" のみ。 */
+  /** 「交通費別途」等の補足。 */
   performerFeeNote?: string;
   /** 自由記述の活動分野タグ（例: ["弾き語り","MC"]）。表示のみ、検索フィルタ配線はしない。 */
   performerDisciplines?: string[];

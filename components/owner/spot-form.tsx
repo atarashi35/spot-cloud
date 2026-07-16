@@ -180,7 +180,7 @@ export function SpotForm(props: SpotFormProps) {
   const [line, setLine] = useState("");
   const [youtube, setYoutube] = useState("");
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [spotType, setSpotType] = useState<"venue" | "performer">("venue");
+  const [acceptsBookings, setAcceptsBookings] = useState(false);
   const [performerFee, setPerformerFee] = useState("");
   const [performerFeeNote, setPerformerFeeNote] = useState("");
   const [performerDisciplines, setPerformerDisciplines] = useState<string[]>([]);
@@ -233,7 +233,7 @@ export function SpotForm(props: SpotFormProps) {
         setLine(spot.socialLinks?.line ?? "");
         setYoutube(spot.socialLinks?.youtube ?? "");
         setTeamMembers(spot.teamMembers ?? []);
-        setSpotType(spot.spotType === "performer" ? "performer" : "venue");
+        setAcceptsBookings(Boolean(spot.performerFee));
         setPerformerFee(spot.performerFee ? String(spot.performerFee) : "");
         setPerformerFeeNote(spot.performerFeeNote ?? "");
         setPerformerDisciplines(spot.performerDisciplines ?? []);
@@ -271,17 +271,16 @@ export function SpotForm(props: SpotFormProps) {
 
     const normalizedPerformerFee = Number(performerFee);
 
-    if (spotType === "performer" && (!performerFee || !Number.isFinite(normalizedPerformerFee) || normalizedPerformerFee <= 0)) {
-      setError("演者プロフィールでは出演料の目安（円）を入力してください。");
+    if (acceptsBookings && (!performerFee || !Number.isFinite(normalizedPerformerFee) || normalizedPerformerFee <= 0)) {
+      setError("出演依頼を受け付けるには、出演料の目安（円）を入力してください。");
       setSaving(false);
       return;
     }
 
     const performerFields = {
-      spotType,
-      performerFee: spotType === "performer" ? normalizedPerformerFee : undefined,
-      performerFeeNote: spotType === "performer" ? performerFeeNote.trim() : undefined,
-      performerDisciplines: spotType === "performer" ? performerDisciplines.filter((d) => d.trim()) : undefined,
+      performerFee: acceptsBookings ? normalizedPerformerFee : undefined,
+      performerFeeNote: acceptsBookings ? performerFeeNote.trim() : undefined,
+      performerDisciplines: acceptsBookings ? performerDisciplines.filter((d) => d.trim()) : undefined,
     };
 
     try {
@@ -374,32 +373,6 @@ export function SpotForm(props: SpotFormProps) {
         />
         <p className="mt-1.5 text-xs text-ink/65">※場所・屋号・団体名・プロジェクト名など</p>
       </div>
-      <div className="rounded-[20px] border border-ink/10 p-4">
-        <p className="text-sm font-bold text-ink/72">SPOTのタイプ</p>
-        <p className="mt-1 text-xs leading-5 text-ink/60">
-          「演者」を選ぶと、地域のイベント主催者から出演依頼を受け付けられるようになります（応援会員機能はどちらでも使えます）。
-        </p>
-        <div className="mt-3 flex gap-2">
-          <button
-            type="button"
-            className={`flex-1 rounded-[14px] border px-4 py-2.5 text-sm font-semibold transition ${
-              spotType === "venue" ? "border-ink bg-ink text-white" : "border-ink/15 text-ink/68 hover:border-ink/30"
-            }`}
-            onClick={() => setSpotType("venue")}
-          >
-            拠点（店舗・団体など）
-          </button>
-          <button
-            type="button"
-            className={`flex-1 rounded-[14px] border px-4 py-2.5 text-sm font-semibold transition ${
-              spotType === "performer" ? "border-ink bg-ink text-white" : "border-ink/15 text-ink/68 hover:border-ink/30"
-            }`}
-            onClick={() => setSpotType("performer")}
-          >
-            演者（個人・移動体）
-          </button>
-        </div>
-      </div>
       <select
         className="field"
         value={category}
@@ -479,14 +452,24 @@ export function SpotForm(props: SpotFormProps) {
           placeholder="メールアドレス（任意）"
         />
       </div>
-      {spotType === "performer" ? (
-        <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
-          <div>
-            <p className="text-sm font-bold text-ink/72">出演依頼の受付情報</p>
+      <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
+        <label className="flex items-start gap-2.5">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={acceptsBookings}
+            onChange={(event) => setAcceptsBookings(event.target.checked)}
+          />
+          <span>
+            <span className="text-sm font-bold text-ink/72">出演依頼を受け付ける</span>
             <p className="mt-1 text-xs leading-5 text-ink/60">
-              ここで入力した出演料は、依頼した主催者に満額そのまま伝わります（SPOTの手数料は主催者への上乗せ請求のみで、この金額から差し引かれません）。
+              演者・キッチンカー・場所の貸切依頼など、種類を問わず地域のイベント主催者から依頼を受けられます。
+              入力した金額は依頼した主催者に満額そのまま伝わります（SPOTの手数料は主催者への上乗せ請求のみで、この金額から差し引かれません）。
             </p>
-          </div>
+          </span>
+        </label>
+        {acceptsBookings ? (
+          <>
           <div className="grid gap-3 sm:grid-cols-2">
             <input
               className="field"
@@ -496,7 +479,7 @@ export function SpotForm(props: SpotFormProps) {
               value={performerFee}
               onChange={(event) => setPerformerFee(event.target.value)}
               placeholder="出演料の目安（円）例: 30000"
-              required={spotType === "performer"}
+              required={acceptsBookings}
             />
             <input
               className="field"
@@ -535,8 +518,9 @@ export function SpotForm(props: SpotFormProps) {
               </button>
             </div>
           </div>
-        </div>
-      ) : null}
+          </>
+        ) : null}
+      </div>
       <div className="rounded-[20px] bg-mist p-4">
         <label className="block text-sm font-semibold text-ink">カバー画像アップロード</label>
         <input

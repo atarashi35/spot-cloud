@@ -658,7 +658,7 @@ export function OwnerConsoleClient() {
 
               {/* プライマリアクション（高頻度） */}
               {(() => {
-                const showBookings = FEATURE_BOOKINGS && spot.spotType === "performer";
+                const showBookings = FEATURE_BOOKINGS && Boolean(spot.performerFee);
                 const extraTileCount = [FEATURE_EVENTS, FEATURE_VOICES, showBookings].filter(Boolean).length;
                 return (
               <div className={`mt-6 grid gap-2 ${extraTileCount > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
