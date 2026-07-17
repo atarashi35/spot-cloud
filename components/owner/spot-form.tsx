@@ -12,7 +12,7 @@ import {
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SpotCategory, TeamMember } from "@/lib/types";
+import { SPOT_CATEGORIES, SpotCategory, TeamMember } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -64,17 +64,7 @@ const prefectures = [
   "沖縄県"
 ] as const;
 
-const categories: SpotCategory[] = [
-  "ライブハウス・音楽",
-  "劇場・パフォーマンス",
-  "ミニシアター・映画館",
-  "ギャラリー・アート",
-  "伝統文化・芸能",
-  "本屋・書店",
-  "カフェ・バー",
-  "文化プロジェクト",
-  "その他"
-];
+const categories: SpotCategory[] = SPOT_CATEGORIES;
 
 // ─── SNS ハンドル ↔ URL 変換ヘルパー ──────────────────────────────────────
 

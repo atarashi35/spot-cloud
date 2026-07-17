@@ -17,6 +17,7 @@ function isNewSpot(createdAt: string): boolean {
 export function SpotCard({ spot }: { spot: Spot }) {
   const useRawImage = spot.coverImageUrl ? isSvgAssetUrl(spot.coverImageUrl) : false;
   const showNewBadge = isNewSpot(spot.createdAt);
+  const acceptsBookings = Boolean(spot.performerFee) && spot.bookingsEnabled !== false;
 
   return (
     <Link
@@ -44,7 +45,14 @@ export function SpotCard({ spot }: { spot: Spot }) {
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-center justify-between gap-3">
-          <span className="chip">{spot.category}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="chip">{spot.category}</span>
+            {acceptsBookings ? (
+              <span className="rounded-full bg-teal-500/15 px-2.5 py-1 text-xs font-semibold text-teal-600">
+                出演依頼受付中
+              </span>
+            ) : null}
+          </div>
           <span className="text-sm font-semibold text-ink/68">{spot.prefecture}</span>
         </div>
         <SocioRankBadge socioCount={spot.socioCount} compact />

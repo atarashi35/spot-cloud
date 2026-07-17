@@ -36,6 +36,40 @@ export type SpotCategory =
   | "文化プロジェクト"
   | "その他";
 
+/** カテゴリの正規の値リスト・表示順。他ファイルでの重複定義はここに統一する。 */
+export const SPOT_CATEGORIES: SpotCategory[] = [
+  "ライブハウス・音楽",
+  "劇場・パフォーマンス",
+  "ミニシアター・映画館",
+  "ギャラリー・アート",
+  "伝統文化・芸能",
+  "本屋・書店",
+  "カフェ・バー",
+  "文化プロジェクト",
+  "その他"
+];
+
+/** 未知・旧カテゴリ値をSpotCategoryへ正規化する（既存データ互換）。 */
+export function normalizeSpotCategory(value: unknown): SpotCategory {
+  const raw = String(value ?? "");
+
+  // 旧カテゴリ → 新カテゴリの読み替え（既存データ互換）
+  const legacyMap: Record<string, SpotCategory> = {
+    "神社": "伝統文化・芸能",
+    "寺社仏閣": "伝統文化・芸能",
+    "神社・寺院": "伝統文化・芸能",
+    "アート": "ギャラリー・アート",
+    "音楽・ライブ": "ライブハウス・音楽",
+    "文化施設": "ミニシアター・映画館"
+  };
+
+  if (legacyMap[raw]) {
+    return legacyMap[raw];
+  }
+
+  return SPOT_CATEGORIES.includes(raw as SpotCategory) ? (raw as SpotCategory) : "その他";
+}
+
 /**
  * active    : 有効な応援会員
  * canceling : 解約予定（cancel_at_period_end=true）。期末まで請求は続く

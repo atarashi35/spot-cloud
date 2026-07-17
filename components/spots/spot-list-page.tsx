@@ -7,20 +7,19 @@ import { EmptyState } from "@/components/empty-state";
 import { SpotCard } from "@/components/spot-card";
 import { PageShell } from "@/components/ui/page-shell";
 import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
-import { Spot, SpotCategory } from "@/lib/types";
+import { SPOT_CATEGORIES, Spot, SpotCategory } from "@/lib/types";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
   { value: "all", label: "すべて" },
-  { value: "ライブハウス・音楽", label: "ライブハウス・音楽" },
-  { value: "劇場・パフォーマンス", label: "劇場・パフォーマンス" },
-  { value: "ミニシアター・映画館", label: "ミニシアター・映画館" },
-  { value: "ギャラリー・アート", label: "ギャラリー・アート" },
-  { value: "伝統文化・芸能", label: "伝統文化・芸能" },
-  { value: "本屋・書店", label: "本屋・書店" },
-  { value: "カフェ・バー", label: "カフェ・バー" },
-  { value: "文化プロジェクト", label: "文化プロジェクト" },
-  { value: "その他", label: "その他" },
+  ...SPOT_CATEGORIES.map((value) => ({ value, label: value })),
+];
+
+const budgetMaxOptions: Array<{ value: string; label: string }> = [
+  { value: "all", label: "予算" },
+  { value: "10000", label: "〜1万円" },
+  { value: "30000", label: "〜3万円" },
+  { value: "100000", label: "〜10万円" },
 ];
 
 type SortOption = "recommended" | "popular" | "newest";
@@ -120,6 +119,8 @@ export function SpotListPage() {
   const [category, setCategory] = useState<"all" | SpotCategory>("all");
   const [sort, setSort] = useState<SortOption>("recommended");
   const [showAreaFilter, setShowAreaFilter] = useState(false);
+  const [budgetMax, setBudgetMax] = useState("all");
+  const [bookingsOnly, setBookingsOnly] = useState(false);
   const gridRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 60 });
   const deferredKeyword = useDeferredValue(keyword);
 
@@ -157,25 +158,29 @@ export function SpotListPage() {
   const filteredSpots = useMemo(() => {
     if (!spots) return [];
     const normalized = normalizeText(deferredKeyword);
+    const budgetMaxValue = budgetMax === "all" ? null : Number(budgetMax);
     return spots.filter((spot) => {
       const matchesKeyword =
         normalized.length === 0 ||
-        [spot.name, spot.description, spot.address, spot.city, spot.prefecture]
+        [spot.name, spot.description, spot.address, spot.city, spot.prefecture, ...(spot.performerDisciplines ?? [])]
           .join(" ")
           .toLocaleLowerCase("ja-JP")
           .includes(normalized);
+      const acceptsBookings = Boolean(spot.performerFee) && spot.bookingsEnabled !== false;
       return (
         matchesKeyword &&
         (prefecture === "all" || spot.prefecture === prefecture) &&
         (city === "all" || spot.city === city) &&
-        (category === "all" || spot.category === category)
+        (category === "all" || spot.category === category) &&
+        (!bookingsOnly || acceptsBookings) &&
+        (budgetMaxValue === null || (acceptsBookings && (spot.performerFee ?? 0) <= budgetMaxValue))
       );
     });
-  }, [spots, deferredKeyword, prefecture, city, category]);
+  }, [spots, deferredKeyword, prefecture, city, category, bookingsOnly, budgetMax]);
 
   const sortedSpots = useMemo(() => sortSpotList(filteredSpots, sort), [filteredSpots, sort]);
 
-  const activeFilterCount = [prefecture !== "all", city !== "all"].filter(Boolean).length;
+  const activeFilterCount = [prefecture !== "all", city !== "all", budgetMax !== "all"].filter(Boolean).length;
 
   return (
     <div className="pb-20">
@@ -248,12 +253,23 @@ export function SpotListPage() {
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
-              エリア
+              エリア・予算
               {activeFilterCount > 0 ? (
                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-moss text-xs font-bold text-white">
                   {activeFilterCount}
                 </span>
               ) : null}
+            </button>
+            <button
+              type="button"
+              onClick={() => setBookingsOnly((c) => !c)}
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold transition active:scale-[0.96] ${
+                bookingsOnly
+                  ? "border-moss bg-moss/8 text-moss"
+                  : "border-ink/12 bg-white text-ink/65 hover:border-ink/22 hover:text-ink/78"
+              }`}
+            >
+              出演依頼受付中のみ
             </button>
             <div className="flex items-center gap-1.5">
               {sortOptions.map((option) => {
@@ -293,6 +309,12 @@ export function SpotListPage() {
               options={cityFilterOptions}
               onChange={setCity}
               placeholder="市区町村"
+            />
+            <FilterSelect
+              value={budgetMax}
+              options={budgetMaxOptions}
+              onChange={setBudgetMax}
+              placeholder="予算"
             />
           </div>
         ) : null}

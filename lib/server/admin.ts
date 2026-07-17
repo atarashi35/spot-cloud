@@ -1,6 +1,6 @@
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import { getAdminEmails } from "@/lib/auth/admin";
-import { Spot, SpotCategory } from "@/lib/types";
+import { Spot, normalizeSpotCategory } from "@/lib/types";
 import { stripe } from "@/lib/stripe/config";
 import { payoutStateFromAccount, PayoutState } from "@/lib/stripe/payout-state";
 
@@ -28,38 +28,6 @@ async function resolvePayoutState(
   } catch {
     return "none";
   }
-}
-
-function normalizeSpotCategory(value: unknown): SpotCategory {
-  const raw = String(value ?? "");
-
-  // 旧カテゴリ → 新カテゴリの読み替え（既存データ互換）
-  const legacyMap: Record<string, SpotCategory> = {
-    "神社": "伝統文化・芸能",
-    "寺社仏閣": "伝統文化・芸能",
-    "神社・寺院": "伝統文化・芸能",
-    "アート": "ギャラリー・アート",
-    "音楽・ライブ": "ライブハウス・音楽",
-    "文化施設": "ミニシアター・映画館"
-  };
-
-  if (legacyMap[raw]) {
-    return legacyMap[raw];
-  }
-
-  const valid: SpotCategory[] = [
-    "本屋・書店",
-    "ミニシアター・映画館",
-    "ライブハウス・音楽",
-    "劇場・パフォーマンス",
-    "ギャラリー・アート",
-    "伝統文化・芸能",
-    "カフェ・バー",
-    "文化プロジェクト",
-    "その他"
-  ];
-
-  return valid.includes(raw as SpotCategory) ? (raw as SpotCategory) : "その他";
 }
 
 function parseTimestamp(value: unknown) {

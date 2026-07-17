@@ -13,7 +13,7 @@ import {
   where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
-import { Spot, SpotCategory, SocialLinks, PlanBenefits, TeamMember } from "@/lib/types";
+import { Spot, SpotCategory, SocialLinks, PlanBenefits, TeamMember, normalizeSpotCategory } from "@/lib/types";
 import { prefecturePattern, slugify, splitAddress, toShortDescription } from "@/lib/utils";
 
 type SpotInput = {
@@ -43,38 +43,6 @@ const tonePalette = [
   "from-stone-200 via-zinc-100 to-white",
   "from-neutral-200 via-stone-100 to-zinc-50"
 ] as const;
-
-function normalizeSpotCategory(value: unknown): SpotCategory {
-  const raw = String(value ?? "");
-
-  // 旧カテゴリ → 新カテゴリの読み替え（既存データ互換）
-  const legacyMap: Record<string, SpotCategory> = {
-    "神社": "伝統文化・芸能",
-    "寺社仏閣": "伝統文化・芸能",
-    "神社・寺院": "伝統文化・芸能",
-    "アート": "ギャラリー・アート",
-    "音楽・ライブ": "ライブハウス・音楽",
-    "文化施設": "ミニシアター・映画館"
-  };
-
-  if (legacyMap[raw]) {
-    return legacyMap[raw];
-  }
-
-  const valid: SpotCategory[] = [
-    "本屋・書店",
-    "ミニシアター・映画館",
-    "ライブハウス・音楽",
-    "劇場・パフォーマンス",
-    "ギャラリー・アート",
-    "伝統文化・芸能",
-    "カフェ・バー",
-    "文化プロジェクト",
-    "その他"
-  ];
-
-  return valid.includes(raw as SpotCategory) ? (raw as SpotCategory) : "その他";
-}
 
 function parseTimestamp(value: unknown) {
   if (value instanceof Timestamp) {
