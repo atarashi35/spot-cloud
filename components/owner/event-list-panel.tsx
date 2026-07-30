@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
-import { listSpotEventsFromFirestore } from "@/lib/firestore/events";
+import { createSpotEventInFirestore, listSpotEventsFromFirestore } from "@/lib/firestore/events";
 import { EventParticipant, SpotEvent } from "@/lib/types";
 
 function toDateTimeLabel(iso: string) {
@@ -56,8 +57,35 @@ function ParticipantRows({ spotId, eventId }: { spotId: string; eventId: string 
 }
 
 function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
+  const { user } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
   const isPast = new Date(event.startAt) < new Date();
+
+  async function handleDuplicate(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!user || duplicating) return;
+
+    setDuplicating(true);
+    try {
+      const newId = await createSpotEventInFirestore(spotId, user.uid, {
+        title: `${event.title}（コピー）`,
+        description: event.description,
+        startAt: event.startAt,
+        location: event.location,
+        imageUrl: event.imageUrl,
+        isPublic: event.isPublic,
+        hasJoinButton: event.hasJoinButton,
+        participationMode: event.participationMode ?? "open",
+        capacity: event.capacity,
+        registrationQuestions: event.registrationQuestions
+      });
+      router.push(`/spots/${spotId}/events/${newId}/edit`);
+    } finally {
+      setDuplicating(false);
+    }
+  }
 
   return (
     <div className="rounded-[16px] bg-mist">
@@ -81,6 +109,14 @@ function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
           </div>
         </div>
         <div className="ml-3 flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            className="text-xs text-ink/60 underline hover:text-ink"
+            onClick={(e) => void handleDuplicate(e)}
+            disabled={duplicating}
+          >
+            {duplicating ? "複製中..." : "複製"}
+          </button>
           <Link
             href={`/spots/${spotId}/events/${event.id}/edit`}
             className="text-xs text-ink/60 underline hover:text-ink"

@@ -85,8 +85,9 @@ export function EmailCallbackClient() {
 
       setStatus("success");
 
-      // SPOT 詳細ページへ戻る（クエリパラメータなし）
-      const destination = spotId ? `/spots/${spotId}` : "/";
+      // returnTo が指定されていればそこへ戻す（招待ランディング等）。
+      // なければ従来通り SPOT 詳細ページへ戻る。
+      const destination = savedState?.returnTo || (spotId ? `/spots/${spotId}` : "/");
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       router.replace(destination as any);

@@ -19,7 +19,7 @@ import {
   where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
-import { EventParticipant, SpotEvent } from "@/lib/types";
+import { EventParticipant, EventParticipantStatus, EventParticipationMode, SpotEvent } from "@/lib/types";
 
 type SpotEventInput = {
   title: string;
@@ -29,6 +29,9 @@ type SpotEventInput = {
   imageUrl?: string;
   isPublic: boolean;
   hasJoinButton: boolean;
+  participationMode: EventParticipationMode;
+  capacity?: number;
+  registrationQuestions?: string[];
 };
 
 function parseTimestamp(value: unknown) {
@@ -59,7 +62,13 @@ function mapEvent(spotId: string, id: string, data: Record<string, unknown>): Sp
     imageUrl: typeof data.imageUrl === "string" && data.imageUrl ? data.imageUrl : undefined,
     isPublic: Boolean(data.isPublic),
     hasJoinButton: Boolean(data.hasJoinButton),
+    participationMode: (data.participationMode as EventParticipationMode) ?? "open",
     participantCount: Number(data.participantCount ?? 0),
+    capacity: typeof data.capacity === "number" && data.capacity > 0 ? data.capacity : undefined,
+    registrationQuestions: Array.isArray(data.registrationQuestions)
+      ? (data.registrationQuestions as unknown[]).filter((q): q is string => typeof q === "string" && q.trim() !== "")
+      : undefined,
+    viewCount: Number(data.viewCount ?? 0),
     createdBy: String(data.createdBy ?? ""),
     createdAt: parseTimestamp(data.createdAt),
     updatedAt: parseTimestamp(data.updatedAt)
@@ -106,7 +115,7 @@ export async function createSpotEventInFirestore(
   uid: string,
   input: SpotEventInput
 ) {
-  await addDoc(collection(getFirestoreDb(), "spots", spotId, "events"), {
+  const ref = await addDoc(collection(getFirestoreDb(), "spots", spotId, "events"), {
     title: input.title,
     description: input.description,
     startAt: input.startAt,
@@ -114,11 +123,16 @@ export async function createSpotEventInFirestore(
     imageUrl: input.imageUrl ?? "",
     isPublic: input.isPublic,
     hasJoinButton: input.hasJoinButton,
+    participationMode: input.participationMode,
+    capacity: input.capacity ?? null,
+    registrationQuestions: input.registrationQuestions ?? [],
     participantCount: 0,
+    viewCount: 0,
     createdBy: uid,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
+  return ref.id;
 }
 
 export async function updateSpotEventInFirestore(
@@ -135,6 +149,9 @@ export async function updateSpotEventInFirestore(
     imageUrl: input.imageUrl ?? "",
     isPublic: input.isPublic,
     hasJoinButton: input.hasJoinButton,
+    participationMode: input.participationMode,
+    capacity: input.capacity ?? null,
+    registrationQuestions: input.registrationQuestions ?? [],
     updatedAt: serverTimestamp()
   });
 }
@@ -148,7 +165,11 @@ function mapParticipant(data: Record<string, unknown>): EventParticipant {
     uid: String(data.uid ?? ""),
     displayName: typeof data.displayName === "string" ? data.displayName : undefined,
     email: typeof data.email === "string" ? data.email : undefined,
-    joinedAt: parseTimestamp(data.joinedAt)
+    status: (data.status as EventParticipantStatus) ?? "accepted",
+    joinedAt: parseTimestamp(data.joinedAt),
+    plusOneCount: typeof data.plusOneCount === "number" ? data.plusOneCount : undefined,
+    answers: (data.answers as Record<string, string> | undefined) ?? undefined,
+    checkedInAt: typeof data.checkedInAt === "string" ? data.checkedInAt : undefined
   };
 }
 

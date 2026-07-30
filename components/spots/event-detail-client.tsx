@@ -6,9 +6,11 @@ import { Calendar, MapPin, Users } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EventJoinButton } from "@/components/spots/event-join-button";
+import { EventParticipantsList } from "@/components/spots/event-participants-list";
 import { getSpotEventFromFirestore } from "@/lib/firestore/events";
 import { getUserMembership } from "@/lib/firestore/memberships";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
+import { buildGoogleCalendarUrl, buildIcsDataUrl } from "@/lib/ics";
 import { Spot, SpotEvent, UserMembership } from "@/lib/types";
 
 function formatDateRange(startAt: string, endAt?: string) {
@@ -52,6 +54,14 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
       .catch((cause: Error) => setError(cause.message))
       .finally(() => setLoading(false));
   }, [authReady, spotId, eventId, user]);
+
+  // 閲覧数はブラウザセッションごとに1回だけ加算する
+  useEffect(() => {
+    const key = `spot_event_viewed_${spotId}_${eventId}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    void fetch(`/api/spots/${spotId}/events/${eventId}/view`, { method: "POST" }).catch(() => {});
+  }, [spotId, eventId]);
 
   if (!authReady || loading) {
     return (
@@ -138,7 +148,9 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
           {event.hasJoinButton && (
             <div className="flex items-center gap-3 text-sm text-ink/78">
               <Users className="h-4 w-4 shrink-0" />
-              <span>{event.participantCount} 人が参加予定</span>
+              <span>
+                {event.participantCount}{event.capacity ? ` / ${event.capacity}` : ""} 人が参加予定
+              </span>
             </div>
           )}
         </div>
@@ -147,15 +159,51 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
           <p className="mt-6 text-[15px] leading-relaxed text-ink/75 whitespace-pre-wrap">{event.description}</p>
         )}
 
+        <div className="mt-4 flex flex-wrap gap-3 text-xs">
+          <a
+            href={buildGoogleCalendarUrl({
+              title: event.title,
+              description: event.description,
+              location: event.location,
+              startAt: event.startAt,
+              endAt: event.endAt
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink/60 underline hover:text-ink"
+          >
+            Googleカレンダーに追加
+          </a>
+          <a
+            href={buildIcsDataUrl({
+              title: event.title,
+              description: event.description,
+              location: event.location,
+              startAt: event.startAt,
+              endAt: event.endAt
+            })}
+            download={`${event.title}.ics`}
+            className="text-ink/60 underline hover:text-ink"
+          >
+            カレンダーに追加（.ics）
+          </a>
+        </div>
+
         {event.hasJoinButton && isMember && !isOwner && (
           <div className="mt-6">
-            <EventJoinButton spotId={spotId} eventId={eventId} participantCount={event.participantCount} />
+            <EventJoinButton
+              spotId={spotId}
+              eventId={eventId}
+              participantCount={event.participantCount}
+              participationMode={event.participationMode}
+              registrationQuestions={event.registrationQuestions}
+            />
           </div>
         )}
 
         {isOwner && event.hasJoinButton && (
-          <div className="mt-6 rounded-[20px] bg-mist px-5 py-4 text-sm text-ink/78">
-            参加登録者数: <span className="font-bold text-ink">{event.participantCount} 人</span>
+          <div className="mt-6">
+            <EventParticipantsList spotId={spotId} eventId={eventId} event={event} />
           </div>
         )}
       </section>

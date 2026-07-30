@@ -10,7 +10,15 @@ import { EMAIL_LINK_STORAGE_KEY, EmailSignInState } from "@/lib/auth/email-link"
 
 type Step = "login" | "email_sent";
 
-export function LoginModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess?: () => void }) {
+type LoginModalProps = {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+  /** メールリンク認証完了後に戻すパス（未指定時は従来通りSPOT詳細へ） */
+  returnTo?: string;
+};
+
+export function LoginModal({ open, onClose, onSuccess, returnTo }: LoginModalProps) {
   const { signInWithGoogle } = useAuth();
   const [step, setStep] = useState<Step>("login");
   const [email, setEmail] = useState("");
@@ -53,7 +61,7 @@ export function LoginModal({ open, onClose, onSuccess }: { open: boolean; onClos
     const auth = getFirebaseAuth();
     const callbackUrl = `${window.location.origin}/auth/email-callback`;
 
-    const state: EmailSignInState = { email: trimmed, spotId: "", planAmount: 0 };
+    const state: EmailSignInState = { email: trimmed, spotId: "", planAmount: 0, returnTo };
     localStorage.setItem(EMAIL_LINK_STORAGE_KEY, JSON.stringify(state));
 
     try {

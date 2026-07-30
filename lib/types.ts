@@ -227,18 +227,64 @@ export interface SpotEvent {
   /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
   isPublic: boolean;
   hasJoinButton: boolean;
-  /** 参加登録人数（応援会員には人数のみ公開。名前・メールは非公開） */
+  /**
+   * "open": 即時参加。"application": 承認制（会員が申し込み→オーナーが承認）。
+   * "invitation": 招待制（オーナーが会員/未加入者を選んで招待→本人が応諾）。
+   * undefined は "open" 扱い（後方互換）。
+   */
+  participationMode?: EventParticipationMode;
+  /** 参加登録人数（同伴者込みの総人数。承認待ち・招待中・キャンセル待ちは含まない） */
   participantCount: number;
+  /** 定員（同伴者込みの総人数の上限）。undefined = 無制限。 */
+  capacity?: number;
+  /** 参加時に回答してもらう質問（1問1行）。空/undefinedなら質問なし。 */
+  registrationQuestions?: string[];
+  /** イベントページの累計閲覧数（ブラウザセッションごとに1回だけ加算） */
+  viewCount?: number;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export type EventParticipationMode = "open" | "application" | "invitation";
+
+/**
+ * invited     : オーナーが招待、本人の応諾待ち（invitationモードのみ）
+ * pending     : 本人が申込、オーナーの承認待ち（applicationモードのみ）
+ * accepted    : 参加確定
+ * waitlisted  : 定員超過のためキャンセル待ち（本人はaccept/redeem操作済み、空きが出れば自動繰り上げ）
+ * declined    : 見送り（オーナーが辞退 or 本人が招待を辞退）
+ */
+export type EventParticipantStatus = "invited" | "pending" | "accepted" | "waitlisted" | "declined";
+
+/**
+ * 招待制イベントで、まだSPOTアカウントを持たない相手をメールアドレスで招待した記録。
+ * アカウント作成 → 参加応諾と同時に spots/{spotId}/events/{eventId}/participants/{uid} が作られ、
+ * このドキュメントは redeemed になる（削除はしない＝送信履歴として残す）。
+ */
+export type EventEmailInviteStatus = "sent" | "redeemed";
+
+export interface EventEmailInvite {
+  id: string;
+  email: string;
+  displayName?: string;
+  status: EventEmailInviteStatus;
+  createdAt: string;
 }
 
 export interface EventParticipant {
   uid: string;
   displayName?: string;
   email?: string;
+  /** open モードのイベントでは常に "accepted"。 */
+  status: EventParticipantStatus;
   joinedAt: string;
+  /** 同伴者の人数（本人を除く）。定員計算では本人+この人数を消費する。 */
+  plusOneCount?: number;
+  /** SpotEvent.registrationQuestions への回答（質問文をキーにする） */
+  answers?: Record<string, string>;
+  /** オーナーが当日チェックインを確認した日時（未チェックインならundefined） */
+  checkedInAt?: string;
 }
 
 // ─── 出演依頼 ────────────────────────────────────────────────────────

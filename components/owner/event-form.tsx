@@ -12,6 +12,7 @@ import {
   updateSpotEventInFirestore
 } from "@/lib/firestore/events";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
+import { EventParticipationMode } from "@/lib/types";
 
 type EventFormProps =
   | { spotId: string; mode: "create"; onSuccess?: () => void }
@@ -51,6 +52,9 @@ export function EventForm(props: EventFormProps) {
   const [zipError, setZipError] = useState<string | null>(null);
   const [isPublic, setIsPublic] = useState(false);
   const [hasJoinButton, setHasJoinButton] = useState(true);
+  const [participationMode, setParticipationMode] = useState<EventParticipationMode>("open");
+  const [capacityInput, setCapacityInput] = useState("");
+  const [questionsInput, setQuestionsInput] = useState("");
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -80,6 +84,9 @@ export function EventForm(props: EventFormProps) {
           setLocationAddress(event.location ?? "");
           setIsPublic(event.isPublic);
           setHasJoinButton(event.hasJoinButton);
+          setParticipationMode(event.participationMode ?? "open");
+          setCapacityInput(event.capacity ? String(event.capacity) : "");
+          setQuestionsInput((event.registrationQuestions ?? []).join("\n"));
         }
       })
       .catch((cause: Error) => {
@@ -129,7 +136,13 @@ export function EventForm(props: EventFormProps) {
         location: locationFull,
         imageUrl,
         isPublic,
-        hasJoinButton
+        hasJoinButton,
+        participationMode,
+        capacity: capacityInput.trim() ? Math.max(1, Number(capacityInput)) : undefined,
+        registrationQuestions: questionsInput
+          .split("\n")
+          .map((q) => q.trim())
+          .filter(Boolean)
       };
 
       if (props.mode === "create") {
@@ -305,6 +318,93 @@ export function EventForm(props: EventFormProps) {
         />
         参加ボタンを表示する
       </label>
+
+      {/* 参加方式（第1段階: 即時参加か、一手間かかるイベントか） */}
+      {hasJoinButton ? (
+        <div className="rounded-[20px] border border-ink/10 p-4">
+          <p className="mb-3 text-sm font-bold text-ink/72">参加方式</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setParticipationMode("open")}
+              className={`flex-1 rounded-[16px] px-4 py-3 text-sm font-medium transition ${
+                participationMode === "open" ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
+              }`}
+            >
+              ⚡ 即時参加
+            </button>
+            <button
+              type="button"
+              onClick={() => setParticipationMode((prev) => (prev === "open" ? "application" : prev))}
+              className={`flex-1 rounded-[16px] px-4 py-3 text-sm font-medium transition ${
+                participationMode !== "open" ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
+              }`}
+            >
+              🔐 参加に確認が必要
+            </button>
+          </div>
+
+          {/* 第2段階: 承認制 or 招待制 */}
+          {participationMode !== "open" ? (
+            <div className="mt-3 flex gap-2 border-t border-ink/10 pt-3">
+              {(["application", "invitation"] as const).map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setParticipationMode(val)}
+                  className={`flex-1 rounded-[14px] px-3 py-2 text-xs font-medium transition ${
+                    participationMode === val ? "bg-ink/85 text-white" : "bg-mist text-ink/65 hover:text-ink"
+                  }`}
+                >
+                  {val === "application" ? "✋ 承認制" : "✉️ 招待制"}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          {participationMode === "application" ? (
+            <p className="mt-3 text-xs text-ink/65">
+              応援会員は「参加を申し込む」ボタンから応募し、あなたが承認するまで参加確定になりません。
+            </p>
+          ) : null}
+          {participationMode === "invitation" ? (
+            <p className="mt-3 text-xs text-ink/65">
+              応援会員は自分から申し込めません。イベント保存後、参加者一覧からあなたが招待したい相手（既存の会員、または未加入の知人をメールアドレスで）を選んで招待を送ります。招待された本人が応諾すると参加確定します。茶会など少人数制のイベントに向いています。
+            </p>
+          ) : null}
+
+          {/* 定員 */}
+          <div className="mt-4 border-t border-ink/10 pt-4">
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-ink/72">定員（同伴者込みの人数、任意）</span>
+              <input
+                type="number"
+                min={1}
+                className="field w-32"
+                value={capacityInput}
+                onChange={(e) => setCapacityInput(e.target.value)}
+                placeholder="無制限"
+              />
+            </label>
+            <p className="mt-1 text-xs text-ink/60">
+              定員を超えた参加はキャンセル待ちになり、空きが出ると自動的に繰り上がります。
+            </p>
+          </div>
+
+          {/* 参加時の質問 */}
+          <div className="mt-4 border-t border-ink/10 pt-4">
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-ink/72">参加時に聞く質問（任意、1行1問）</span>
+              <textarea
+                className="field min-h-20 text-sm"
+                value={questionsInput}
+                onChange={(e) => setQuestionsInput(e.target.value)}
+                placeholder={"例）お茶のご経験はありますか？\nアレルギーがあればご記入ください"}
+              />
+            </label>
+          </div>
+        </div>
+      ) : null}
 
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
 

@@ -15,7 +15,13 @@ import { BookingRequestReceivedEmail } from "@/lib/resend/templates/booking-requ
 import { BookingAcceptedEmail } from "@/lib/resend/templates/booking-accepted";
 import { BookingDeclinedEmail } from "@/lib/resend/templates/booking-declined";
 import { BookingPaidEmail } from "@/lib/resend/templates/booking-paid";
-import { BookingRequest } from "@/lib/types";
+import { EventInvitationReceivedEmail } from "@/lib/resend/templates/event-invitation-received";
+import { EventEmailInvitationEmail } from "@/lib/resend/templates/event-email-invitation";
+import { EventWaitlistedEmail } from "@/lib/resend/templates/event-waitlisted";
+import { EventApplicationReceivedEmail } from "@/lib/resend/templates/event-application-received";
+import { EventApplicationAcceptedEmail } from "@/lib/resend/templates/event-application-accepted";
+import { EventApplicationDeclinedEmail } from "@/lib/resend/templates/event-application-declined";
+import { BookingRequest, EventEmailInvite, EventParticipant } from "@/lib/types";
 
 // Resend未設定時は静かにスキップ
 async function send(to: string | string[], subject: string, element: React.ReactElement) {
@@ -199,6 +205,131 @@ export async function sendSociosNewEvent(params: {
         )
       )
     )
+  );
+}
+
+// ─── イベント招待（招待制イベント） ────────────────────────────────────────────
+
+export async function sendEventInvitation(params: {
+  participant: EventParticipant;
+  spotId: string;
+  eventId: string;
+  spotName: string;
+  eventTitle: string;
+  eventStartAt: string;
+  eventLocation?: string;
+}) {
+  if (!params.participant.email) return;
+  await send(
+    params.participant.email,
+    `${params.spotName}から「${params.eventTitle}」への招待が届きました`,
+    EventInvitationReceivedEmail({
+      spotId: params.spotId,
+      eventId: params.eventId,
+      spotName: params.spotName,
+      eventTitle: params.eventTitle,
+      eventStartAt: params.eventStartAt,
+      eventLocation: params.eventLocation,
+      displayName: params.participant.displayName ?? ""
+    }) as unknown as React.ReactElement
+  );
+}
+
+export async function sendEventEmailInvitation(params: {
+  invite: EventEmailInvite;
+  spotId: string;
+  eventId: string;
+  spotName: string;
+  eventTitle: string;
+  eventStartAt: string;
+  eventLocation?: string;
+}) {
+  await send(
+    params.invite.email,
+    `${params.spotName}から「${params.eventTitle}」への招待が届きました`,
+    EventEmailInvitationEmail({
+      spotId: params.spotId,
+      eventId: params.eventId,
+      inviteId: params.invite.id,
+      spotName: params.spotName,
+      eventTitle: params.eventTitle,
+      eventStartAt: params.eventStartAt,
+      eventLocation: params.eventLocation,
+      displayName: params.invite.displayName
+    }) as unknown as React.ReactElement
+  );
+}
+
+// ─── イベント参加申込（承認制イベント） ──────────────────────────────────────────
+
+export async function sendEventApplicationReceived(params: {
+  spotId: string;
+  eventTitle: string;
+  applicantName: string;
+}) {
+  const ownerEmail = await getOwnerEmail(params.spotId);
+  if (!ownerEmail) return;
+  await send(
+    ownerEmail,
+    `【${params.eventTitle}】新しい参加申込が届きました`,
+    EventApplicationReceivedEmail({ ...params }) as unknown as React.ReactElement
+  );
+}
+
+export async function sendEventApplicationAccepted(params: {
+  participant: EventParticipant;
+  spotId: string;
+  spotName: string;
+  eventTitle: string;
+  eventStartAt: string;
+  eventLocation?: string;
+}) {
+  if (!params.participant.email) return;
+  await send(
+    params.participant.email,
+    `${params.eventTitle}への参加が確定しました`,
+    EventApplicationAcceptedEmail({
+      spotId: params.spotId,
+      spotName: params.spotName,
+      eventTitle: params.eventTitle,
+      eventStartAt: params.eventStartAt,
+      eventLocation: params.eventLocation,
+      applicantName: params.participant.displayName ?? ""
+    }) as unknown as React.ReactElement
+  );
+}
+
+export async function sendEventWaitlisted(params: {
+  participant: EventParticipant;
+  spotName: string;
+  eventTitle: string;
+}) {
+  if (!params.participant.email) return;
+  await send(
+    params.participant.email,
+    `${params.eventTitle}はキャンセル待ちです`,
+    EventWaitlistedEmail({
+      spotName: params.spotName,
+      eventTitle: params.eventTitle,
+      applicantName: params.participant.displayName ?? ""
+    }) as unknown as React.ReactElement
+  );
+}
+
+export async function sendEventApplicationDeclined(params: {
+  participant: EventParticipant;
+  spotName: string;
+  eventTitle: string;
+}) {
+  if (!params.participant.email) return;
+  await send(
+    params.participant.email,
+    `${params.eventTitle}の参加申込について`,
+    EventApplicationDeclinedEmail({
+      spotName: params.spotName,
+      eventTitle: params.eventTitle,
+      applicantName: params.participant.displayName ?? ""
+    }) as unknown as React.ReactElement
   );
 }
 

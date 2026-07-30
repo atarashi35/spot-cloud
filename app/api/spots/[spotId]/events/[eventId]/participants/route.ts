@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
-import { EventParticipant } from "@/lib/types";
+import { promoteFromWaitlist } from "@/lib/server/events";
+import { EventParticipant, EventParticipantStatus } from "@/lib/types";
 
 export async function GET(
   request: NextRequest,
@@ -52,10 +53,17 @@ export async function GET(
           uid: String(data.uid ?? item.id),
           displayName,
           email,
+          status: (data.status as EventParticipant["status"]) ?? "accepted",
           joinedAt:
             data.joinedAt && typeof data.joinedAt.toDate === "function"
               ? data.joinedAt.toDate().toISOString()
-              : new Date().toISOString()
+              : new Date().toISOString(),
+          plusOneCount: typeof data.plusOneCount === "number" && data.plusOneCount > 0 ? data.plusOneCount : undefined,
+          answers: data.answers && typeof data.answers === "object" ? (data.answers as Record<string, string>) : undefined,
+          checkedInAt:
+            data.checkedInAt && typeof data.checkedInAt.toDate === "function"
+              ? data.checkedInAt.toDate().toISOString()
+              : undefined
         } satisfies EventParticipant;
       })
     );
@@ -100,10 +108,18 @@ export async function POST(
     const auth = await requireActiveMember(request, spotId);
     if ("error" in auth) return auth.error;
 
+    const body = (await request.json().catch(() => ({}))) as {
+      plusOneCount?: unknown;
+      answers?: unknown;
+    };
+    const plusOneCount = Math.max(0, Math.min(10, Number(body.plusOneCount ?? 0) || 0));
+    const answers =
+      body.answers && typeof body.answers === "object" ? (body.answers as Record<string, string>) : {};
+
     const eventRef = auth.db.doc(`spots/${spotId}/events/${eventId}`);
     const participantRef = auth.db.doc(`spots/${spotId}/events/${eventId}/participants/${auth.uid}`);
 
-    await auth.db.runTransaction(async (transaction) => {
+    const result = await auth.db.runTransaction(async (transaction) => {
       const [eventSnap, participantSnap] = await Promise.all([
         transaction.get(eventRef),
         transaction.get(participantRef),
@@ -117,26 +133,58 @@ export async function POST(
         throw new Error("join_not_enabled");
       }
 
-      if (participantSnap.exists) {
-        return;
+      const participationMode = eventSnap.data()?.participationMode ?? "open";
+
+      if (participationMode === "invitation") {
+        throw new Error("invitation_only");
       }
+
+      if (participantSnap.exists) {
+        return { applied: false, status: participantSnap.data()?.status ?? "accepted", event: eventSnap.data() };
+      }
+
+      const seats = 1 + plusOneCount;
+      const capacity = Number(eventSnap.data()?.capacity ?? 0) || undefined;
+      const participantCount = Number(eventSnap.data()?.participantCount ?? 0);
+      const hasRoom = !capacity || participantCount + seats <= capacity;
+
+      const status: EventParticipantStatus =
+        participationMode === "application" ? "pending" : hasRoom ? "accepted" : "waitlisted";
 
       transaction.set(participantRef, {
         uid: auth.uid,
         displayName: auth.displayName,
         email: auth.email,
+        status,
+        plusOneCount,
+        answers,
         joinedAt: FieldValue.serverTimestamp(),
       });
-      transaction.update(eventRef, {
-        participantCount: FieldValue.increment(1),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+
+      if (status === "accepted") {
+        transaction.update(eventRef, {
+          participantCount: FieldValue.increment(seats),
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+
+      return { applied: true, status, event: eventSnap.data() };
     });
 
-    return NextResponse.json({ ok: true });
+    if (result.applied && result.status === "pending") {
+      const { sendEventApplicationReceived } = await import("@/lib/server/mailer");
+      void sendEventApplicationReceived({
+        spotId,
+        eventTitle: String(result.event?.title ?? ""),
+        applicantName: auth.displayName || auth.email || "応援会員"
+      }).catch(() => {});
+    }
+
+    return NextResponse.json({ ok: true, status: result.status });
   } catch (error) {
     const message = error instanceof Error ? error.message : "join_failed";
-    const status = message === "event_not_found" ? 404 : message === "join_not_enabled" ? 409 : 500;
+    const status =
+      message === "event_not_found" ? 404 : message === "join_not_enabled" || message === "invitation_only" ? 409 : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }
@@ -153,7 +201,7 @@ export async function DELETE(
     const eventRef = auth.db.doc(`spots/${spotId}/events/${eventId}`);
     const participantRef = auth.db.doc(`spots/${spotId}/events/${eventId}/participants/${auth.uid}`);
 
-    await auth.db.runTransaction(async (transaction) => {
+    const wasAccepted = await auth.db.runTransaction(async (transaction) => {
       const [eventSnap, participantSnap] = await Promise.all([
         transaction.get(eventRef),
         transaction.get(participantRef),
@@ -164,15 +212,45 @@ export async function DELETE(
       }
 
       if (!participantSnap.exists) {
-        return;
+        return false;
       }
 
+      const data = participantSnap.data();
+      const accepted = (data?.status ?? "accepted") === "accepted";
+      const seats = 1 + Number(data?.plusOneCount ?? 0);
+
       transaction.delete(participantRef);
-      transaction.update(eventRef, {
-        participantCount: FieldValue.increment(-1),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+      if (accepted) {
+        transaction.update(eventRef, {
+          participantCount: FieldValue.increment(-seats),
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+
+      return accepted;
     });
+
+    if (wasAccepted) {
+      void promoteFromWaitlist(spotId, eventId)
+        .then(async ({ promoted }) => {
+          if (promoted.length === 0) return;
+          const [{ sendEventApplicationAccepted }, spotSnap, eventSnap] = await Promise.all([
+            import("@/lib/server/mailer"),
+            getAdminDb().doc(`spots/${spotId}`).get(),
+            getAdminDb().doc(`spots/${spotId}/events/${eventId}`).get()
+          ]);
+          const spotName = String(spotSnap.data()?.name ?? "");
+          const eventTitle = String(eventSnap.data()?.title ?? "");
+          const eventStartAt = String(eventSnap.data()?.startAt ?? "");
+          const eventLocation = String(eventSnap.data()?.location ?? "");
+          await Promise.allSettled(
+            promoted.map((participant) =>
+              sendEventApplicationAccepted({ participant, spotId, spotName, eventTitle, eventStartAt, eventLocation })
+            )
+          );
+        })
+        .catch(() => {});
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

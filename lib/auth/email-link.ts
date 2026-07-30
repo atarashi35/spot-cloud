@@ -12,6 +12,8 @@ export type EmailSignInState = {
   spotId: string;
   /** 選択中のプラン金額 */
   planAmount: number;
+  /** 認証完了後に戻る先（未指定時は spotId から決まる従来の遷移先） */
+  returnTo?: string;
 };
 
 /** 認証完了後にモーダルを自動オープンするための一時情報（sessionStorage） */
