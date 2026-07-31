@@ -1,6 +1,7 @@
 import { Button, Heading, Text } from "@react-email/components";
 import * as React from "react";
 import { EmailLayout } from "./layout";
+import { formatEventDateTime } from "../format-event-date";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://spotcloud.app";
 
@@ -25,7 +26,7 @@ export function EventApplicationAcceptedEmail({
       </Text>
       <div style={card}>
         <Text style={eventTitleStyle}>{eventTitle}</Text>
-        {eventStartAt && <Text style={detailRow}>📅 {eventStartAt}</Text>}
+        {eventStartAt && <Text style={detailRow}>📅 {formatEventDateTime(eventStartAt)}</Text>}
         {eventLocation && <Text style={detailRow}>📍 {eventLocation}</Text>}
       </div>
       <Button href={`${baseUrl}/spots/${spotId}`} style={button}>

@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { LoginModal } from "@/components/auth/login-modal";
 import { useAuth } from "@/components/providers/auth-provider";
 import { buildGoogleCalendarUrl, buildIcsDataUrl } from "@/lib/ics";
+import { formatEventDateTime } from "@/lib/resend/format-event-date";
 import { EventParticipantStatus } from "@/lib/types";
 
 type InviteInfo = {
@@ -118,7 +119,7 @@ export function EventInviteClient({ spotId, eventId, inviteId }: Props) {
           {invite.eventStartAt ? (
             <div className="mt-2 flex items-center gap-2 text-sm text-ink/72">
               <Calendar className="h-4 w-4 shrink-0" />
-              <span>{invite.eventStartAt}</span>
+              <span>{formatEventDateTime(invite.eventStartAt)}</span>
             </div>
           ) : null}
           {invite.eventLocation ? (
