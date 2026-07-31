@@ -7,6 +7,8 @@ import { getFirebaseStorage } from "@/lib/firebase/client";
 import { isSvgFile } from "@/lib/utils";
 
 export const GALLERY_MAX = 10;
+// 圧縮前のサイズ上限（MB）。最新iPhoneの高解像度写真にも対応できるよう余裕を持たせる。
+const MAX_FILE_MB = 30;
 
 type GalleryUploaderProps = {
   values: string[];
@@ -52,7 +54,7 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
   async function uploadOne(file: File): Promise<string | null> {
     if (!file.type.startsWith("image/")) return null;
     if (isSvgFile(file)) return null;
-    if (file.size > 5 * 1024 * 1024) return null;
+    if (file.size > MAX_FILE_MB * 1024 * 1024) return null;
     try {
       const compressed = await compressImage(file);
       const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
@@ -72,9 +74,11 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
     const targets = Array.from(files).slice(0, remaining);
     if (targets.length === 0) return;
 
-    const invalid = targets.filter((f) => !f.type.startsWith("image/") || isSvgFile(f) || f.size > 5 * 1024 * 1024);
+    const invalid = targets.filter(
+      (f) => !f.type.startsWith("image/") || isSvgFile(f) || f.size > MAX_FILE_MB * 1024 * 1024
+    );
     if (invalid.length > 0) {
-      setError("一部のファイルはスキップされました（SVG、5MB超、または非対応形式）。");
+      setError(`一部のファイルはスキップされました（SVG、${MAX_FILE_MB}MB超、または非対応形式）。`);
     } else {
       setError(null);
     }

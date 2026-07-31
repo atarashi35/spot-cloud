@@ -12,7 +12,7 @@ type ImageUploaderProps = {
   onChange: (url: string) => void;
   /** Storage上のパスプレフィックス（例: spots/abc123/posts） */
   storagePath: string;
-  /** ファイルサイズ上限（MB）。デフォルト5MB */
+  /** ファイルサイズ上限（MB、圧縮前）。デフォルト30MB（最新iPhoneの高解像度写真にも対応） */
   maxMb?: number;
 };
 
@@ -55,7 +55,7 @@ export function ImageUploader({
   value,
   onChange,
   storagePath,
-  maxMb = 5
+  maxMb = 30
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
