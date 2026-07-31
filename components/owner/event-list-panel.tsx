@@ -135,7 +135,16 @@ function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
           {event.description ? (
             <p className="mt-2 text-xs leading-6 text-ink/72">{event.description}</p>
           ) : null}
-          <div className="mt-1 text-sm font-bold text-ink/72">参加者</div>
+          {event.hasJoinButton ? (
+            <Link
+              href={`/spots/${spotId}/events/${event.id}`}
+              className="mt-3 inline-block text-xs font-medium text-ink underline hover:text-ink/70"
+              onClick={(e) => e.stopPropagation()}
+            >
+              参加者を管理・招待する →
+            </Link>
+          ) : null}
+          <div className="mt-3 text-sm font-bold text-ink/72">参加者</div>
           <ParticipantRows spotId={spotId} eventId={event.id} />
         </div>
       ) : null}
