@@ -6,7 +6,6 @@ import { Calendar, MapPin, Users } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EventJoinButton } from "@/components/spots/event-join-button";
-import { EventParticipantsList } from "@/components/spots/event-participants-list";
 import { getSpotEventFromFirestore } from "@/lib/firestore/events";
 import { getUserMembership } from "@/lib/firestore/memberships";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
@@ -126,10 +125,10 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
           </div>
           {isOwner && (
             <Link
-              href={`/spots/${spotId}/events/${eventId}/edit`}
+              href={`/manage/${spotId}/events/${eventId}`}
               className="cta-secondary shrink-0"
             >
-              編集
+              運営者として管理する
             </Link>
           )}
         </div>
@@ -201,11 +200,6 @@ export function EventDetailClient({ spotId, eventId }: { spotId: string; eventId
           </div>
         )}
 
-        {isOwner && event.hasJoinButton && (
-          <div className="mt-6">
-            <EventParticipantsList spotId={spotId} eventId={eventId} event={event} />
-          </div>
-        )}
       </section>
 
       <div className="text-sm">

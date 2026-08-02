@@ -6,54 +6,11 @@ import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createSpotEventInFirestore, listSpotEventsFromFirestore } from "@/lib/firestore/events";
-import { EventParticipant, SpotEvent } from "@/lib/types";
+import { SpotEvent } from "@/lib/types";
 
 function toDateTimeLabel(iso: string) {
   const d = new Date(iso);
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
-function ParticipantRows({ spotId, eventId }: { spotId: string; eventId: string }) {
-  const { user } = useAuth();
-  const [participants, setParticipants] = useState<EventParticipant[] | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) return;
-    void user.getIdToken().then(async (token) => {
-      try {
-        const res = await fetch(`/api/spots/${spotId}/events/${eventId}/participants`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = (await res.json()) as { participants?: EventParticipant[] };
-        setParticipants(data.participants ?? []);
-      } catch {
-        setParticipants([]);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [spotId, eventId, user]);
-
-  if (loading) return <p className="mt-2 text-xs text-ink/65">読み込み中...</p>;
-
-  if (!participants || participants.length === 0) {
-    return <p className="mt-2 text-xs text-ink/65">参加者はまだいません。</p>;
-  }
-
-  return (
-    <div className="mt-2 space-y-1">
-      {participants.map((p) => (
-        <div key={p.uid} className="flex items-center gap-2 rounded-[10px] bg-white px-3 py-2 text-xs">
-          <div className="min-w-0 flex-1">
-            <span className="font-medium text-ink">{p.displayName || "(名前未設定)"}</span>
-            {p.email ? <span className="ml-2 text-ink/65">{p.email}</span> : null}
-          </div>
-          <span className="shrink-0 text-ink/60">{p.joinedAt.slice(0, 10)}</span>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
@@ -137,15 +94,15 @@ function EventRow({ spotId, event }: { spotId: string; event: SpotEvent }) {
           ) : null}
           {event.hasJoinButton ? (
             <Link
-              href={`/spots/${spotId}/events/${event.id}`}
+              href={`/manage/${spotId}/events/${event.id}`}
               className="mt-3 inline-block text-xs font-medium text-ink underline hover:text-ink/70"
               onClick={(e) => e.stopPropagation()}
             >
               参加者を管理・招待する →
             </Link>
-          ) : null}
-          <div className="mt-3 text-sm font-bold text-ink/72">参加者</div>
-          <ParticipantRows spotId={spotId} eventId={event.id} />
+          ) : (
+            <p className="mt-3 text-xs text-ink/60">参加ボタンが無効のため、参加者管理はありません。</p>
+          )}
         </div>
       ) : null}
     </div>
