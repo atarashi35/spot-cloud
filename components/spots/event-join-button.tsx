@@ -9,7 +9,7 @@ import { EventParticipantStatus, EventParticipationMode } from "@/lib/types";
 type EventJoinButtonProps = {
   spotId: string;
   eventId: string;
-  /** イベントドキュメントに保持されている参加人数（他応援会員のデータを取得しないための安全な代替） */
+  /** イベントドキュメントに保持されている参加人数（他サポーターのデータを取得しないための安全な代替） */
   participantCount: number;
   participationMode?: EventParticipationMode;
   registrationQuestions?: string[];
@@ -83,7 +83,7 @@ export function EventJoinButton({
       return;
     }
 
-    // 自分の参加状態のみ取得（他応援会員のデータは取得しない）
+    // 自分の参加状態のみ取得（他サポーターのデータは取得しない）
     void getEventParticipation(spotId, eventId, user.uid)
       .then((participation) => {
         setState(participation?.status ?? "none");

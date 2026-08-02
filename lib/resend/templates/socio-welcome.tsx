@@ -14,15 +14,15 @@ type Props = {
 
 export function SocioWelcomeEmail({ spotName, spotId, planAmount, displayName }: Props) {
   return (
-    <EmailLayout preview={`${spotName}の応援会員になりました`}>
-      <Heading style={h1}>応援会員登録が完了しました</Heading>
+    <EmailLayout preview={`${spotName}のサポーターになりました`}>
+      <Heading style={h1}>サポーター登録が完了しました</Heading>
       <Text style={text}>
         {displayName ? `${displayName}さん、` : ""}はじめまして。{"\n"}
-        <strong>{spotName}</strong> の応援会員として登録が完了しました。
+        <strong>{spotName}</strong> のサポーターとして登録が完了しました。
       </Text>
       <Text style={plan}>{formatKo(planAmount)}</Text>
       <Text style={text}>
-        応援会員として、アンケートや意見投稿を通じてこのSPOTに関わることができます。
+        サポーターとして、アンケートや意見投稿を通じてこのSPOTに関わることができます。
         オーナーからのお知らせはメールでお届けします。
       </Text>
       <Button href={`${baseUrl}/spots/${spotId}`} style={button}>

@@ -165,7 +165,7 @@ export function OwnerConsoleClient() {
   const [summaries, setSummaries] = useState<Record<string, SpotSummary>>({});
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [openBreakdowns, setOpenBreakdowns] = useState<Record<string, boolean>>({});
-  // 実際の会員数（members APIの権威値）。Stripe由来のrevenue.socioCountより優先する。
+  // 実際のサポーター数（members APIの権威値）。Stripe由来のrevenue.socioCountより優先する。
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
   // 受取（Connect）の実ステータス。アカウントIDの有無ではなく入金可否で判定する。
   const [payoutStatuses, setPayoutStatuses] = useState<Record<string, PayoutState>>({});
@@ -636,7 +636,7 @@ export function OwnerConsoleClient() {
                 <div className="mt-4 h-14 animate-pulse rounded-[16px] bg-mist" />
               )}
 
-              {/* 最近加入した応援会員 */}
+              {/* 最近加入したサポーター */}
               <RecentSociosPanel
                 spotId={spot.id}
                 spotShareHref={`/owner/spots/${spot.id}/share`}
@@ -715,7 +715,7 @@ export function OwnerConsoleClient() {
                 </Link>
                 <a href={`/manage/${spot.id}/socios`} className={MENU_ITEM_CLS}>
                   <Users className="h-4 w-4 shrink-0 text-ink/55" />
-                  <span className="truncate">応援会員一覧（{socioCount}）</span>
+                  <span className="truncate">サポーター一覧（{socioCount}）</span>
                 </a>
                 <a href={`/manage/${spot.id}/benefits`} className={MENU_ITEM_CLS}>
                   <Gift className="h-4 w-4 shrink-0 text-ink/55" />

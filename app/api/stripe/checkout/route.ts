@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!authorization?.startsWith("Bearer ")) {
       return NextResponse.json(
-        { error: "auth_required", message: "応援会員登録にはログインが必要です。" },
+        { error: "auth_required", message: "サポーター登録にはログインが必要です。" },
         { status: 401 }
       );
     }
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
             currency: "jpy",
             unit_amount: KO_UNIT_AMOUNT,
             recurring: { interval: "month" },
-            product_data: { name: `SPOT応援会員（${spotName}）` }
+            product_data: { name: `SPOTサポーター（${spotName}）` }
           },
           quantity
         }

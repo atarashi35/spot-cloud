@@ -54,7 +54,7 @@ type Props = {
   spotId: string;
   spotShareHref: string;
   spotPublicHref: string;
-  /** 有効な応援会員数（active + canceling）を親に通知する */
+  /** 有効なサポーター数（active + canceling）を親に通知する */
   onActiveCount?: (count: number) => void;
 };
 
@@ -105,9 +105,9 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref, onAct
   if (!recents || recents.length === 0) {
     return (
       <div className="mt-5 rounded-[16px] border border-dashed border-ink/15 px-5 py-5">
-        <div className="text-sm font-semibold text-ink/72">まだ応援会員がいません</div>
+        <div className="text-sm font-semibold text-ink/72">まだサポーターがいません</div>
         <p className="mt-1 text-xs leading-6 text-ink/65">
-          QRコードを共有して、最初の応援会員を募集しましょう。
+          QRコードを共有して、最初のサポーターを募集しましょう。
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <a href={spotShareHref} className="cta-secondary text-xs">
@@ -126,7 +126,7 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref, onAct
       <div className="text-sm font-bold text-ink/72">
         応援してくれている人
       </div>
-      <p className="mt-0.5 text-[13px] text-ink/58">最近新しく応援会員になった方</p>
+      <p className="mt-0.5 text-[13px] text-ink/58">最近新しくサポーターになった方</p>
 
       <div className="mt-3 space-y-2.5">
         {recents.map((m, i) => (
@@ -134,7 +134,7 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref, onAct
             <InitialAvatar name={m.displayName} index={i} />
             <div className="min-w-0">
               <div className="text-sm font-semibold text-ink leading-none truncate">
-                {m.displayName?.trim() || "応援会員"}
+                {m.displayName?.trim() || "サポーター"}
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-ink/65">
                 {m.occupation ? <span>{m.occupation}</span> : null}
@@ -155,7 +155,7 @@ export function RecentSociosPanel({ spotId, spotShareHref, spotPublicHref, onAct
         href={`/manage/${spotId}/socios`}
         className="mt-4 block text-xs font-semibold text-ink/60 underline-offset-2 hover:text-ink/78 transition-colors"
       >
-        応援会員全員を見る →
+        サポーター全員を見る →
       </Link>
     </div>
   );

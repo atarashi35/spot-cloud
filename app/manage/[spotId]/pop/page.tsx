@@ -12,7 +12,7 @@ import { Spot } from "@/lib/types";
 /**
  * 店頭POP自動生成ページ。
  * A4サイズで印刷し、レジ横や壁に置く。
- * レジ横が応援会員獲得の唯一の配布チャネルなので、このページが営業の本体。
+ * レジ横がサポーター獲得の唯一の配布チャネルなので、このページが営業の本体。
  */
 
 function getNameFontSize(name: string): string {
@@ -55,7 +55,7 @@ function PopCard({ spot }: { spot: Spot }) {
         {spot.name}の
       </h1>
       <p style={{ fontSize: "18mm", fontWeight: 900, color: "#111111", lineHeight: 1.1, marginBottom: "14mm" }}>
-        応援会員に<br />なりませんか？
+        サポーターに<br />なりませんか？
       </p>
 
       {/* QR */}
@@ -70,7 +70,7 @@ function PopCard({ spot }: { spot: Spot }) {
         1口100円〜
       </p>
       <p style={{ fontSize: "5.5mm", color: "#888888", textAlign: "center", marginBottom: "14mm" }}>
-        QRコードをスキャンして応援会員登録
+        QRコードをスキャンしてサポーター登録
       </p>
 
       {/* フッター */}
@@ -149,7 +149,7 @@ export default function PopPage({ params }: { params: Promise<{ spotId: string }
             <h1 className="mt-4 text-3xl font-extrabold text-ink">目立つ場所に置くQRカードを印刷</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/68">
               A4サイズで印刷されます。レジ横・受付・会場など、目に入る場所に置いてください。
-              声をかけるときに一言添えると、応援会員の入会につながります。
+              声をかけるときに一言添えると、サポーターの入会につながります。
             </p>
             <button
               type="button"

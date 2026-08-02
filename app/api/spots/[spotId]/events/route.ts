@@ -50,7 +50,7 @@ export async function POST(
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    // 応援会員へのメール通知（公開イベントのみ）
+    // サポーターへのメール通知（公開イベントのみ）
     if (payload.isPublic) {
       const eventDate = payload.startAt
         ? new Date(payload.startAt).toLocaleString("ja-JP", {

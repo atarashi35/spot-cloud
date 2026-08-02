@@ -116,7 +116,7 @@ function toSince(iso: string) {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
-/** 会員番号の表示。3桁ゼロ埋め（1000人を超えたらそのまま） */
+/** サポーター番号の表示。3桁ゼロ埋め（1000人を超えたらそのまま） */
 function formatMemberNo(n: number) {
   return `No.${n < 1000 ? String(n).padStart(3, "0") : String(n)}`;
 }
@@ -128,7 +128,7 @@ type Props = {
   displayName: string;
   avatarUrl?: string | null;
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId" | "status">[];
-  /** spotId → 会員番号（joinedAt順の通し番号）。/api/spots/[spotId]/socio-number から取得して渡す */
+  /** spotId → サポーター番号（joinedAt順の通し番号）。/api/spots/[spotId]/socio-number から取得して渡す */
   memberNumbers?: Record<string, number | null>;
   /** LPデモなど閲覧専用の埋め込みでは false にして保存・コピー導線を隠す */
   showActions?: boolean;
@@ -156,7 +156,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
 
   const spotsLabel = data.spotCount === 1 ? "SPOT" : "SPOTS";
 
-  // 表面に大きく表示する主会員情報（最初の有効な所属）
+  // 表面に大きく表示する主サポーター情報（最初の有効な所属）
   const primaryMembership = data.memberships[0] ?? null;
   const primaryNumber = primaryMembership
     ? memberNumbers?.[primaryMembership.spotId] ?? null
@@ -304,7 +304,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
                 <div className="rounded-full" style={{ width: 10, height: 10, background: "#e8261a", boxShadow: "0 0 8px rgba(232,38,26,0.7)" }} />
                 <span className="font-bold tracking-[0.22em] text-white" style={{ fontSize: 13 }}>SPOT</span>
               </div>
-              <span className="font-semibold tracking-[0.2em] text-white/70" style={{ fontSize: 11 }}>応援会員証</span>
+              <span className="font-semibold tracking-[0.2em] text-white/70" style={{ fontSize: 11 }}>サポーター証</span>
             </div>
 
             <div className="flex items-end justify-between gap-4">
@@ -406,7 +406,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
               )}
             </div>
 
-            {/* フッター：SPOTS数 + 応援会員ID */}
+            {/* フッター：SPOTS数 + サポーターID */}
             <div className="mt-auto flex items-end justify-between pt-3 border-t border-white/8">
               <div>
                 <span className="font-bold text-white tabular-nums" style={{ fontSize: 20, lineHeight: 1 }}>

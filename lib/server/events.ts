@@ -81,8 +81,8 @@ export async function declineEventParticipant(spotId: string, eventId: string, u
 }
 
 /**
- * オーナーが招待制イベントに既存の応援会員を招待する。
- * 対象は現在有効な会員（active/canceling）のみ。既に参加記録がある会員はスキップする。
+ * オーナーが招待制イベントに既存のサポーターを招待する。
+ * 対象は現在有効なサポーター（active/canceling）のみ。既に参加記録があるサポーターはスキップする。
  */
 export async function inviteEventParticipants(spotId: string, eventId: string, uids: string[]) {
   const db = getAdminDb();

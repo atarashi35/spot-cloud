@@ -195,12 +195,12 @@ export function SocioSignupModal({
                 <X className="h-4 w-4" />
               </button>
 
-              <span className="chip">応援会員</span>
+              <span className="chip">サポーター</span>
 
               {/* Step: login */}
               {step === "login" ? (
                 <>
-                  <h2 className="mt-4 text-xl font-extrabold text-ink">ログインして応援する</h2>
+                  <h2 className="mt-4 text-xl font-extrabold text-ink">ログインしてサポーターになる</h2>
                   <p className="mt-1 text-sm text-ink/70">加入にはアカウントが必要です。</p>
                   <div className="mt-5">
                     <button type="button" className="cta-secondary w-full" onClick={() => void handleGoogle()} disabled={googleLoading}>
@@ -309,10 +309,10 @@ export function SocioSignupModal({
                   {/* CTA */}
                   <div className="mt-3 space-y-2">
                     <button type="button" className="cta-primary w-full" onClick={() => void startCheckout()} disabled={loading}>
-                      {loading ? "移動中..." : `${ko}口（¥${monthly.toLocaleString("ja-JP")}）で応援する`}
+                      {loading ? "移動中..." : `${ko}口（¥${monthly.toLocaleString("ja-JP")}）でサポーターになる`}
                     </button>
                     <p className="text-center text-[11px] leading-5 text-ink/50">
-                      「応援する」で<a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・<a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>に同意
+                      「サポーターになる」で<a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・<a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>に同意
                     </p>
                   </div>
                 </>
@@ -326,7 +326,7 @@ export function SocioSignupModal({
               <p className="text-xs font-bold text-ink/55">加入すると</p>
               <div className="mt-3 space-y-3.5">
                 {[
-                  "番号入りの会員証を受け取れる",
+                  "番号入りのサポーター証を受け取れる",
                   "限定の投稿が読める",
                   "このSPOTの継続を支える",
                 ].map((text) => (

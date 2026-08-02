@@ -147,7 +147,7 @@ export function EventForm(props: EventFormProps) {
 
       if (props.mode === "create") {
         await createSpotEventInFirestore(props.spotId, user.uid, payload);
-        // 応援会員へ通知（fire-and-forget）
+        // サポーターへ通知（fire-and-forget）
         void user.getIdToken().then((token) =>
           fetch("/api/notify", {
             method: "POST",
@@ -303,7 +303,7 @@ export function EventForm(props: EventFormProps) {
                 isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
               }`}
             >
-              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 応援会員限定"}
+              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 サポーター限定"}
             </button>
           ))}
         </div>
@@ -364,12 +364,12 @@ export function EventForm(props: EventFormProps) {
 
           {participationMode === "application" ? (
             <p className="mt-3 text-xs text-ink/65">
-              応援会員は「参加を申し込む」ボタンから応募し、あなたが承認するまで参加確定になりません。
+              サポーターは「参加を申し込む」ボタンから応募し、あなたが承認するまで参加確定になりません。
             </p>
           ) : null}
           {participationMode === "invitation" ? (
             <p className="mt-3 text-xs text-ink/65">
-              応援会員は自分から申し込めません。イベント保存後、参加者一覧からあなたが招待したい相手（既存の会員、または未加入の知人をメールアドレスで）を選んで招待を送ります。招待された本人が応諾すると参加確定します。茶会など少人数制のイベントに向いています。
+              サポーターは自分から申し込めません。イベント保存後、参加者一覧からあなたが招待したい相手（既存のサポーター、または未加入の知人をメールアドレスで）を選んで招待を送ります。招待された本人が応諾すると参加確定します。茶会など少人数制のイベントに向いています。
             </p>
           ) : null}
 

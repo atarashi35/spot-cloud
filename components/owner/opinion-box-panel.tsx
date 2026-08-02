@@ -90,7 +90,7 @@ export function OpinionBoxPanel({ spot, onSpotChange }: Props) {
             ? (unreadCount === 0 && (opinions.length > 0)
                 ? "未読の意見はありません"
                 : "まだ意見は届いていません")
-            : "オンにすると応援会員から意見を受け取れます"}
+            : "オンにするとサポーターから意見を受け取れます"}
         </p>
       ) : (
         <div className="mt-2 space-y-1.5">

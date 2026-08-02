@@ -48,7 +48,7 @@ export function EventEmailInvitationEmail({
       </div>
 
       <Text style={note}>
-        参加確定には無料のアカウント作成のみが必要です。応援会員登録（月額課金）は求めません。
+        参加確定には無料のアカウント作成のみが必要です。サポーター登録（月額課金）は求めません。
       </Text>
 
       <div style={buttonWrap}>

@@ -18,17 +18,17 @@ const values = [
   {
     eyebrow: "毎月つづく応援",
     title: "ファンや常連さんが、\n続ける力になる。",
-    body: "応援会員は1口100円から、好きな口数で。売上の波に左右されない、毎月つづく支えになります。",
+    body: "サポーターは1口100円から、好きな口数で。売上の波に左右されない、毎月つづく支えになります。",
   },
   {
     eyebrow: "入会はその場で",
     title: "QRカードを置くだけで、\nその場で入会。",
-    body: "QRカードを自動生成。レジ横や受付・会場に置けば、スマホで読み取ってその場で応援会員になれます。",
+    body: "QRカードを自動生成。レジ横や受付・会場に置けば、スマホで読み取ってその場でサポーターになれます。",
   },
   {
-    eyebrow: "会員証が誇りに",
-    title: "番号入りの会員証が、\n応援の証になる。",
-    body: "応援会員には通し番号と加入月入りのデジタル会員証。早く入った人ほど若い番号。場所との関係がかたちになります。",
+    eyebrow: "サポーター証が誇りに",
+    title: "番号入りのサポーター証が、\n応援の証になる。",
+    body: "サポーターには通し番号と加入月入りのデジタルサポーター証。早く入った人ほど若い番号。場所との関係がかたちになります。",
   },
 ];
 
@@ -39,7 +39,7 @@ const steps = [
   },
   {
     title: "受取設定を行う",
-    body: "受取口座の設定です。完了後、応援会員の募集を本番公開できます。",
+    body: "受取口座の設定です。完了後、サポーターの募集を本番公開できます。",
   },
   {
     title: "QRカードを目立つ場所に置く",
@@ -48,10 +48,10 @@ const steps = [
 ];
 
 const comparison = [
-  { axis: "かたち", cf: "一度きりの支援", spot: "毎月つづく会員制" },
+  { axis: "かたち", cf: "一度きりの支援", spot: "毎月つづくサポーター制" },
   { axis: "目的", cf: "目標額を集める", spot: "場所や活動を続けること" },
   { axis: "終わり方", cf: "達成したら終了", spot: "ずっと続いていく" },
-  { axis: "関係", cf: "支援したら終わり", spot: "会員証を持って通い続ける" },
+  { axis: "関係", cf: "支援したら終わり", spot: "サポーター証を持って通い続ける" },
 ];
 
 const faqs: { q: string; a: React.ReactNode }[] = [
@@ -59,7 +59,7 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     q: "利用料金はかかりますか？",
     a: (
       <span>
-        SPOTの登録・公開は無料です。応援会員から会費を受け取った場合のみ、
+        SPOTの登録・公開は無料です。サポーターから会費を受け取った場合のみ、
         <ul className="mt-2 space-y-1 pl-1">
           <li>・Stripe 決済手数料　3.6%</li>
           <li>・SPOT 利用料　決済手数料控除後の<strong className="text-ink/80">純額の 10%</strong></li>
@@ -73,16 +73,16 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     a: "本屋・書店、ミニシアター、ライブハウス、劇場、ギャラリー、伝統文化・芸能、カフェ・バー、文化プロジェクトなど、「続いてほしい」と思われている街の文化拠点のための仕組みです。個人経営でも法人でも団体でも利用できます。",
   },
   {
-    q: "応援会員の月額金額は？",
-    a: "1口100円から、好きな口数を選べます。何口でも会員の基本的な権利は同じ。口数は応援の気持ちの大きさであって、扱いの差ではありません（オーナーが設定した場合のみ、5口・10口以上で特典が付くことがあります）。",
+    q: "サポーターの月額金額は？",
+    a: "1口100円から、好きな口数を選べます。何口でもサポーターの基本的な権利は同じ。口数は応援の気持ちの大きさであって、扱いの差ではありません（オーナーが設定した場合のみ、5口・10口以上で特典が付くことがあります）。",
   },
   {
-    q: "応援会員は何ができますか？",
-    a: "番号入りのデジタル会員証を持ち、限定投稿を受け取れます。何より「この場所を支えている」という関係そのものが価値です。",
+    q: "サポーターは何ができますか？",
+    a: "番号入りのデジタルサポーター証を持ち、限定投稿を受け取れます。何より「この場所を支えている」という関係そのものが価値です。",
   },
   {
-    q: "会員はいつでも解約できますか？",
-    a: "はい。応援会員はいつでも解約できます。期間の縛りや違約金はありません。",
+    q: "サポーターはいつでも解約できますか？",
+    a: "はい。サポーターはいつでも解約できます。期間の縛りや違約金はありません。",
   },
 ];
 
@@ -154,11 +154,11 @@ export function TopLanding() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-moss opacity-75" style={{animation:"ping 1.5s cubic-bezier(0,0,0.2,1) infinite"}} />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-moss" />
                 </span>
-                <span className="text-sm font-semibold text-white/80">街の小さな文化拠点のための、応援会員制度</span>
+                <span className="text-sm font-semibold text-white/80">街の小さな文化拠点のための、サポーター制度</span>
               </div>
               <h1 className="hero-animate-2 mt-5 text-[clamp(2.4rem,6vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight">
                 <span className="block text-white/90">あなたの場所に、</span>
-                <span className="hero-gradient-text block">応援会員を。</span>
+                <span className="hero-gradient-text block">サポーターを。</span>
               </h1>
               <p className="hero-animate-3 mt-6 max-w-lg text-[15px] leading-relaxed text-white/78 sm:text-base">
                 ファンや常連さんが1口100円から、続ける力になります。
@@ -219,12 +219,12 @@ export function TopLanding() {
             ))}
           </div>
           <p className="mt-4 text-xs leading-6 text-ink/60">
-            手数料は応援会員の決済が発生した場合のみ。固定費・月額費用はかかりません。
+            手数料はサポーターの決済が発生した場合のみ。固定費・月額費用はかかりません。
           </p>
 
           {/* 振込額 */}
           <div className="mt-8 border-t border-ink/8 pt-7">
-            <p className="text-sm font-bold text-ink/72">口数ごとの振込額（目安・会員1人あたり）</p>
+            <p className="text-sm font-bold text-ink/72">口数ごとの振込額（目安・サポーター1人あたり）</p>
             <div className="mt-4 grid gap-3">
               {[
                 { from: "1口（¥100）", to: "約 ¥87" },
@@ -248,7 +248,7 @@ export function TopLanding() {
           {/* 100人いたら（具体例） */}
           <div className="mt-7 flex flex-col gap-4 rounded-[20px] bg-ink px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[15px] font-semibold text-white/80">
-              例えば、<span className="font-extrabold text-white">3口</span>の応援会員が<span className="font-extrabold text-white">100人</span>いれば
+              例えば、<span className="font-extrabold text-white">3口</span>のサポーターが<span className="font-extrabold text-white">100人</span>いれば
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
               <div>
@@ -311,12 +311,12 @@ export function TopLanding() {
           <Card className="px-6 py-7 sm:px-8">
             <div className="text-sm font-bold text-moss">Q. 寄付や投げ銭と何が違うの？</div>
             <h3 className="mt-3 text-xl font-extrabold leading-snug text-ink">
-              一度きりの善意ではなく、<br className="hidden sm:block" />会員証を持つ「続く関係」。
+              一度きりの善意ではなく、<br className="hidden sm:block" />サポーター証を持つ「続く関係」。
             </h3>
             <p className="mt-4 text-[15px] leading-relaxed text-ink/75">
-              寄付は一度で終わりますが、応援会員は毎月続きます。
-              会員は番号入りの会員証を持ち、限定投稿を受け取り、「自分はこの場所を支えている」と言える関係になります。
-              口数に関わらず会員の基本的な権利は<strong className="text-ink/80">全員同じ</strong>。
+              寄付は一度で終わりますが、サポーターは毎月続きます。
+              サポーターは番号入りのサポーター証を持ち、限定投稿を受け取り、「自分はこの場所を支えている」と言える関係になります。
+              口数に関わらずサポーターの基本的な権利は<strong className="text-ink/80">全員同じ</strong>。
               口数の大きさで扱いが変わることはありません。
             </p>
           </Card>
@@ -325,7 +325,7 @@ export function TopLanding() {
           <Card className="px-6 py-7 sm:px-8">
             <div className="text-sm font-bold text-moss">Q. 一度きりの資金集めと何が違うの？</div>
             <h3 className="mt-3 text-xl font-extrabold leading-snug text-ink">
-              「集めて終わり」ではなく、<br className="hidden sm:block" />「続けて支える」会員制。
+              「集めて終わり」ではなく、<br className="hidden sm:block" />「続けて支える」サポーター制。
             </h3>
             <div className="mt-4 overflow-hidden rounded-2xl border border-ink/8">
               <div className="grid grid-cols-[68px_1fr_1fr] text-[13px] font-semibold">
@@ -391,7 +391,7 @@ export function TopLanding() {
               まず、あなたの場所のSPOTを作ってみる。
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-white/75">
-              登録は無料。受取設定を完了すると、応援会員の募集を本番公開できます。
+              登録は無料。受取設定を完了すると、サポーターの募集を本番公開できます。
             </p>
             <div className="mt-8 flex justify-center">
               <Link
@@ -409,8 +409,8 @@ export function TopLanding() {
       {showStickyCta && (
         <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="min-w-0">
-            <p className="text-sm font-bold text-ink">街の小さな文化拠点のための、応援会員制度</p>
-            <p className="text-xs text-ink/65">1口100円から、場所や活動を支える会員になれます</p>
+            <p className="text-sm font-bold text-ink">街の小さな文化拠点のための、サポーター制度</p>
+            <p className="text-xs text-ink/65">1口100円から、場所や活動を支えるサポーターになれます</p>
           </div>
           <Link href="/owner/spots/new" className="cta-primary shrink-0">
             無料でSPOTを作る →

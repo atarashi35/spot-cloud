@@ -186,7 +186,7 @@ export function EventInviteClient({ spotId, eventId, inviteId }: Props) {
           <div className="mt-6 space-y-3">
             {!user ? (
               <p className="text-xs text-ink/65">
-                参加を確定するには、アカウント作成（無料）が必要です。応援会員登録は不要です。
+                参加を確定するには、アカウント作成（無料）が必要です。サポーター登録は不要です。
               </p>
             ) : null}
             {questions.length > 0 ? (

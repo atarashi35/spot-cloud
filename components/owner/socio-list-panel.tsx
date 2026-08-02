@@ -43,7 +43,7 @@ function exportCsv(members: SpotMembership[], spotName: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${spotName}_応援会員_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `${spotName}_サポーター_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -94,7 +94,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
         onClick={() => setOpen((p) => !p)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-ink/72">応援会員一覧</span>
+          <span className="text-sm font-bold text-ink/72">サポーター一覧</span>
           {members !== null ? (
             <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-ink/78">
               {payingCount}人
@@ -146,7 +146,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
               <p className="text-sm text-red-700">{error}</p>
             ) : displayed.length === 0 ? (
               <p className="text-sm text-ink/65">
-                {filter === "paying" ? "現在加入中の応援会員はいません。" : "まだ応援会員はいません。"}
+                {filter === "paying" ? "現在加入中のサポーターはいません。" : "まだサポーターはいません。"}
               </p>
             ) : (
               <div className="space-y-2">

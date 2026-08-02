@@ -111,7 +111,7 @@ export function AccountPageClient() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [memberNumbers, setMemberNumbers] = useState<Record<string, number | null>>({});
 
-  // 会員証に表示する会員番号（spotごとのjoinedAt順通し番号）を取得
+  // サポーター証に表示するサポーター番号（spotごとのjoinedAt順通し番号）を取得
   useEffect(() => {
     if (!user || !memberships) return;
     const targets = memberships.filter((m) => m.status === "active" || m.status === "canceling");
@@ -227,8 +227,8 @@ export function AccountPageClient() {
   if (!user) {
     return (
       <EmptyState
-        title="応援中のSPOTはログイン後に利用できます"
-        description="Google ログイン後に、応援しているSPOTと限定コンテンツにアクセスできます。"
+        title="サポート中のSPOTはログイン後に利用できます"
+        description="Google ログイン後に、サポート中のSPOTと限定コンテンツにアクセスできます。"
       />
     );
   }
@@ -252,7 +252,7 @@ export function AccountPageClient() {
   return (
     <div className="space-y-6">
 
-      {/* 応援会員会員証 */}
+      {/* サポーター証 */}
       {user ? (
         <section className="space-y-3">
           <h2 className="px-2 text-sm font-bold text-ink/72">MY SUPPORTER CARD</h2>
@@ -303,11 +303,11 @@ export function AccountPageClient() {
         </section>
       ) : null}
 
-      {/* 応援中のSPOTがない場合 */}
+      {/* サポート中のSPOTがない場合 */}
       {activeList.length === 0 ? (
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
-            title="まだ応援中のSPOTはありません"
+            title="まだサポート中のSPOTはありません"
             description="SPOTを見つけて加入すると、限定ページやイベント情報にアクセスできるようになります。"
           />
           <div className="mt-6">
@@ -316,10 +316,10 @@ export function AccountPageClient() {
         </section>
       ) : null}
 
-      {/* 応援中のSPOT */}
+      {/* サポート中のSPOT */}
       {activeList.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="px-2 text-sm font-bold text-ink/72">応援中のSPOT</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">サポート中のSPOT</h2>
           {activeList.map((membership) => {
             const preview = previews[membership.spotId];
             return (

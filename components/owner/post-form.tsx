@@ -30,7 +30,7 @@ export function PostForm(props: PostFormProps) {
   const [videoUrl, setVideoUrl] = useState("");
   const [publishDate, setPublishDate] = useState(new Date().toISOString().slice(0, 10));
   const [isPublic, setIsPublic] = useState(false);
-  // undefined: 全会員 / 500: 5口以上 / 1000: 10口以上
+  // undefined: 全サポーター / 500: 5口以上 / 1000: 10口以上
   const [minPlanAmount, setMinPlanAmount] = useState<SignupPlanAmount | undefined>(undefined);
   const [loading, setLoading] = useState(props.mode === "edit");
   const [saving, setSaving] = useState(false);
@@ -106,7 +106,7 @@ export function PostForm(props: PostFormProps) {
           throw new Error(data.error ?? "投稿の保存に失敗しました。");
         }
         const { postId } = (await res.json()) as { postId: string };
-        // 応援会員へ通知（fire-and-forget）
+        // サポーターへ通知（fire-and-forget）
         void user.getIdToken().then(async (tok) => {
           await fetch("/api/notify", {
             method: "POST",
@@ -216,7 +216,7 @@ export function PostForm(props: PostFormProps) {
                 isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
               }`}
             >
-              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 応援会員限定"}
+              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 サポーター限定"}
             </button>
           ))}
         </div>
@@ -237,7 +237,7 @@ export function PostForm(props: PostFormProps) {
                     minPlanAmount === amount ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
                   }`}
                 >
-                  {amount === undefined ? "全会員" : `${amountToKo(amount)}口以上`}
+                  {amount === undefined ? "全サポーター" : `${amountToKo(amount)}口以上`}
                 </button>
               ))}
             </div>

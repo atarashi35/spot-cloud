@@ -274,11 +274,11 @@ export function EventParticipantsList({ spotId, eventId, event }: EventParticipa
           {pickerOpen ? (
             <div className="mt-3 space-y-4">
               <div>
-                <p className="mb-2 text-xs font-bold text-ink/65">既存の応援会員から選ぶ</p>
+                <p className="mb-2 text-xs font-bold text-ink/65">既存のサポーターから選ぶ</p>
                 {members === null ? (
-                  <p className="text-xs text-ink/65">会員一覧を読み込み中です。</p>
+                  <p className="text-xs text-ink/65">サポーター一覧を読み込み中です。</p>
                 ) : invitableMembers.length === 0 ? (
-                  <p className="text-xs text-ink/65">招待できる会員がいません（全員招待済み、または会員がいません）。</p>
+                  <p className="text-xs text-ink/65">招待できるサポーターがいません（全員招待済み、またはサポーターがいません）。</p>
                 ) : (
                   <div className="max-h-56 space-y-1.5 overflow-y-auto">
                     {invitableMembers.map((m) => (
@@ -300,7 +300,7 @@ export function EventParticipantsList({ spotId, eventId, event }: EventParticipa
               </div>
 
               <div>
-                <p className="mb-2 text-xs font-bold text-ink/65">まだ会員でない知人をメールで招待</p>
+                <p className="mb-2 text-xs font-bold text-ink/65">まだサポーターでない知人をメールで招待</p>
                 <div className="flex flex-wrap gap-2">
                   <input
                     type="email"
@@ -337,7 +337,7 @@ export function EventParticipantsList({ spotId, eventId, event }: EventParticipa
                   </div>
                 ) : null}
                 <p className="mt-2 text-xs text-ink/60">
-                  承諾には無料のアカウント作成のみが必要です。応援会員登録（月額課金）は求めません。
+                  承諾には無料のアカウント作成のみが必要です。サポーター登録（月額課金）は求めません。
                 </p>
               </div>
 

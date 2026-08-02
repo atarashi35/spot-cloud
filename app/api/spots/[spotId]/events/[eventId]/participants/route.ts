@@ -176,7 +176,7 @@ export async function POST(
       void sendEventApplicationReceived({
         spotId,
         eventTitle: String(result.event?.title ?? ""),
-        applicantName: auth.displayName || auth.email || "応援会員"
+        applicantName: auth.displayName || auth.email || "サポーター"
       }).catch(() => {});
     }
 

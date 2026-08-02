@@ -71,14 +71,14 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
 
   if (forbidden) {
     const tierLabel = forbidden.minPlanAmount
-      ? `${amountToKo(forbidden.minPlanAmount)}口以上の応援会員限定`
-      : "応援会員限定";
+      ? `${amountToKo(forbidden.minPlanAmount)}口以上のサポーター限定`
+      : "サポーター限定";
     return (
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
             title={`この投稿は${tierLabel}です`}
-            description="対象の口数以上の応援会員のみ閲覧できます。"
+            description="対象の口数以上のサポーターのみ閲覧できます。"
           />
           <Link href={`/spots/${spotId}`} className="cta-primary mt-6">
             SPOTページへ

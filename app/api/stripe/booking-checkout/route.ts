@@ -6,7 +6,7 @@ import { getBookingRequestById, markBookingRequestPaymentPending } from "@/lib/s
 /**
  * 出演依頼の決済セッション作成。組織者はFirebase Authを持たない前提のため、
  * bookingRequestId（Firestore自動採番、事実上推測不可能）の保持自体を
- * 認可トークンとして扱う。既存の応援会員Checkoutの success_url に埋め込む
+ * 認可トークンとして扱う。既存のサポーターCheckoutの success_url に埋め込む
  * {CHECKOUT_SESSION_ID} と同じ信頼モデル（app/api/stripe/checkout/route.ts参照）。
  */
 export async function POST(request: NextRequest) {

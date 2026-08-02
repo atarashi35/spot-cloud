@@ -108,7 +108,7 @@ export function EmailCallbackClient() {
   if (status === "need_email") {
     return (
       <div className="panel mx-auto max-w-md px-8 py-10">
-        <span className="chip">応援会員</span>
+        <span className="chip">サポーター</span>
         <h1 className="mt-5 text-2xl font-extrabold text-ink">メールアドレスを確認</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-ink/75">
           別のデバイスでリンクを開いたため、認証に使ったメールアドレスの入力が必要です。

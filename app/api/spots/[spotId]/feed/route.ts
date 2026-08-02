@@ -22,8 +22,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ spot
     } catch { /* 未ログインとして扱う */ }
   }
 
-  // 応援会員 or オーナー判定。
-  // viewerPlan: オーナーは Infinity（全閲覧）、有効会員は加入プラン金額、非会員は 0。
+  // サポーター or オーナー判定。
+  // viewerPlan: オーナーは Infinity（全閲覧）、有効サポーターは加入プラン金額、非サポーターは 0。
   let isOwner = false;
   let viewerPlan = 0;
   if (uid) {
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ spot
     const minPlanAmount = (data.minPlanAmount === 500 || data.minPlanAmount === 1000)
       ? (data.minPlanAmount as 500 | 1000)
       : undefined;
-    // 公開でなく、かつ「会員でない」または「プランが閾値未満」のときマスク
+    // 公開でなく、かつ「サポーターでない」または「プランが閾値未満」のときマスク
     const masked = !isPublic && viewerPlan < (minPlanAmount ?? (isMember ? 1 : Infinity));
     return {
       id: d.id,

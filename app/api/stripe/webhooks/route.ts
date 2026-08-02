@@ -20,7 +20,7 @@ import { sendBookingPaid } from "@/lib/server/mailer";
  * Stripe Subscription → MembershipStatus のマッピング
  *
  * cancel_at_period_end = true の場合は "canceling" 扱い。
- * 応援会員はまだ請求中なので socioCount から除外しない。
+ * サポーターはまだ請求中なので socioCount から除外しない。
  * 期末に subscription.deleted が飛んで "canceled" になる。
  */
 function mapSubscriptionToMembershipStatus(
@@ -134,7 +134,7 @@ export async function POST(request: Request) {
       const session = event.data.object as Stripe.Checkout.Session;
       const metadata = session.metadata ?? {};
 
-      // ── 出演依頼の決済完了（応援会員のmetadata形状とは別物、bookingRequestIdの有無で分岐） ──
+      // ── 出演依頼の決済完了（サポーターのmetadata形状とは別物、bookingRequestIdの有無で分岐） ──
       if (metadata.bookingRequestId && metadata.spotId) {
         const paymentIntentId =
           typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? "";

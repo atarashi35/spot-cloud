@@ -1,6 +1,6 @@
 /**
- * 口数制：1口 = ¥100。会員は1口以上を任意の口数で購入する。
- * planAmount は「口数 × 100」の月額（円）。既存の固定プラン会員（¥300/¥500/¥1,000）は
+ * 口数制：1口 = ¥100。サポーターは1口以上を任意の口数で購入する。
+ * planAmount は「口数 × 100」の月額（円）。既存の固定プランサポーター（¥300/¥500/¥1,000）は
  * そのまま 3口/5口/10口 として解釈される。口数⇔金額の変換は lib/plan.ts を使う。
  * 特典は口数閾値（5口以上 / 10口以上）でプラットフォーム統一。
  */
@@ -71,7 +71,7 @@ export function normalizeSpotCategory(value: unknown): SpotCategory {
 }
 
 /**
- * active    : 有効な応援会員
+ * active    : 有効なサポーター
  * canceling : 解約予定（cancel_at_period_end=true）。期末まで請求は続く
  * past_due  : 支払い失敗・未払い
  * canceled  : 解約済み
@@ -171,7 +171,7 @@ export interface SpotMembership {
    */
   canceledAt?: string;
   address?: string;
-  // 応援会員プロフィール（users/{uid} から結合）
+  // サポータープロフィール（users/{uid} から結合）
   avatarUrl?: string;
   occupation?: string;
   specialty?: string;
@@ -202,11 +202,11 @@ export interface SpotPost {
   imageUrl?: string;
   attachments?: PostAttachment[];
   publishDate: string;
-  /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
+  /** true: 誰でも閲覧可、false/undefined: サポーター限定 */
   isPublic: boolean;
   /**
-   * 応援会員限定（isPublic=false）のとき、閲覧に必要な最低口数（金額換算）。
-   * undefined: 全会員が閲覧可 / 500: 5口以上 / 1000: 10口以上。
+   * サポーター限定（isPublic=false）のとき、閲覧に必要な最低口数（金額換算）。
+   * undefined: 全サポーターが閲覧可 / 500: 5口以上 / 1000: 10口以上。
    * 口数が多いほど下位限定も閲覧できる（閾値方式）。
    */
   minPlanAmount?: SignupPlanAmount;
@@ -224,12 +224,12 @@ export interface SpotEvent {
   endAt?: string;
   location?: string;
   imageUrl?: string;
-  /** true: 誰でも閲覧可、false/undefined: 応援会員限定 */
+  /** true: 誰でも閲覧可、false/undefined: サポーター限定 */
   isPublic: boolean;
   hasJoinButton: boolean;
   /**
-   * "open": 即時参加。"application": 承認制（会員が申し込み→オーナーが承認）。
-   * "invitation": 招待制（オーナーが会員/未加入者を選んで招待→本人が応諾）。
+   * "open": 即時参加。"application": 承認制（サポーターが申し込み→オーナーが承認）。
+   * "invitation": 招待制（オーナーがサポーター/未加入者を選んで招待→本人が応諾）。
    * undefined は "open" 扱い（後方互換）。
    */
   participationMode?: EventParticipationMode;

@@ -7,8 +7,8 @@ export default function AccountPage() {
     <div className="space-y-8 pb-20">
       <PageHeader
         eyebrow="MY ACCOUNT"
-        title="応援中のSPOT"
-        subtitle="応援しているSPOTの限定コンテンツにアクセスできます。"
+        title="サポート中のSPOT"
+        subtitle="サポート中のSPOTの限定コンテンツにアクセスできます。"
       />
       <PageShell>
         <AccountPageClient />

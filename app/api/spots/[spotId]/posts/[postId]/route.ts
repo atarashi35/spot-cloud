@@ -42,7 +42,7 @@ export async function GET(
     ? (data.minPlanAmount as 500 | 1000)
     : undefined;
 
-  // 閲覧者プラン: オーナー=Infinity / 有効会員=加入額 / それ以外=0
+  // 閲覧者プラン: オーナー=Infinity / 有効サポーター=加入額 / それ以外=0
   let viewerPlan = 0;
   let isOwner = false;
   if (uid) {
