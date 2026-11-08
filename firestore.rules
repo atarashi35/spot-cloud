@@ -117,6 +117,13 @@ service cloud.firestore {
       allow read, write: if signedIn() && request.auth.uid == uid;
     }
 
+    match /publicProfiles/{uid} {
+      allow read: if resource.data.status == "approved"
+                  || (signedIn() && request.auth.uid == uid);
+      // 申請・審査は入力値と審査状態を分離するためサーバーAPI経由で行う。
+      allow write: if false;
+    }
+
     match /users/{uid}/memberships/{spotId} {
       allow read: if signedIn() && request.auth.uid == uid;
       // User membership mirrors are also payment-derived and are maintained by

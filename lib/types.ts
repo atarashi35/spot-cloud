@@ -97,6 +97,28 @@ export type SocialLinks = {
   facebook?: string;
 };
 
+export type PublicProfileKind = "creator" | "organization";
+export type PublicProfileStatus = "draft" | "pending" | "approved" | "rejected";
+
+export interface PublicProfile {
+  uid: string;
+  kind: PublicProfileKind;
+  name: string;
+  bio: string;
+  fields: string[];
+  prefecture?: string;
+  city?: string;
+  avatarUrl?: string;
+  websiteUrl?: string;
+  instagramUrl?: string;
+  status: PublicProfileStatus;
+  reviewNote?: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /**
  * 口数閾値ごとの特典。キーは口数（5口以上 / 10口以上）。
  * プラットフォーム共通の閾値で、各特典の文言はオーナーが設定する。
