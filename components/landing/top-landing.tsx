@@ -18,7 +18,7 @@ const values = [
   {
     eyebrow: "毎月つづく応援",
     title: "ファンや常連さんが、\n続ける力になる。",
-    body: "サポーターは1口100円から、好きな口数で。売上の波に左右されない、毎月つづく支えになります。",
+    body: "月額サポーターは1口100円から、好きな口数で活動を支えられます。",
   },
   {
     eyebrow: "入会はその場で",
@@ -39,7 +39,7 @@ const steps = [
   },
   {
     title: "受取設定を行う",
-    body: "受取口座の設定です。完了後、サポーターの募集を本番公開できます。",
+    body: "月額サポートを受け付ける場合は、受取口座を設定します。",
   },
   {
     title: "QRカードを目立つ場所に置く",
@@ -170,7 +170,7 @@ export function TopLanding() {
               </div>
               <div className="hero-animate-4 mt-10 flex flex-wrap gap-3">
                 <Link
-                  href="/owner/spots/new"
+                  href="/owner"
                   className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]"
                 >
                   無料でSPOTを作る →
@@ -314,7 +314,7 @@ export function TopLanding() {
               一度きりの善意ではなく、<br className="hidden sm:block" />サポーター証を持つ「続く関係」。
             </h3>
             <p className="mt-4 text-[15px] leading-relaxed text-ink/75">
-              寄付は一度で終わりますが、サポーターは毎月続きます。
+              無料でつながるほか、月額で活動を支えることもできます。
               サポーターは番号入りのサポーター証を持ち、限定投稿を受け取り、「自分はこの場所を支えている」と言える関係になります。
               口数に関わらずサポーターの基本的な権利は<strong className="text-ink/80">全員同じ</strong>。
               口数の大きさで扱いが変わることはありません。
@@ -391,11 +391,11 @@ export function TopLanding() {
               まず、あなたの場所のSPOTを作ってみる。
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-white/75">
-              登録は無料。受取設定を完了すると、サポーターの募集を本番公開できます。
+              登録は無料。月額サポートの受付には受取設定が必要です。
             </p>
             <div className="mt-8 flex justify-center">
               <Link
-                href="/owner/spots/new"
+                href="/owner"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-ink transition hover:bg-moss hover:text-white active:scale-[0.97]"
               >
                 SPOTを作る →
@@ -407,12 +407,12 @@ export function TopLanding() {
 
       {/* ── スティッキー CTA ── */}
       {showStickyCta && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
+        <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:bottom-0 sm:px-8">
           <div className="min-w-0">
             <p className="text-sm font-bold text-ink">街の小さな文化拠点のための、サポーター制度</p>
             <p className="text-xs text-ink/65">1口100円から、場所や活動を支えるサポーターになれます</p>
           </div>
-          <Link href="/owner/spots/new" className="cta-primary shrink-0">
+          <Link href="/owner" className="cta-primary shrink-0">
             無料でSPOTを作る →
           </Link>
         </div>

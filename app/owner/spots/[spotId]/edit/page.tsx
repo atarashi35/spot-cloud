@@ -14,7 +14,7 @@ export default async function EditSpotPage({
         <SpotBreadcrumb spotId={spotId} current="SPOT編集" />
         <h1 className="mt-4 text-3xl font-extrabold text-ink">SPOT を編集</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-ink/78">
-          公開内容を整えたあと、加入受付を始める前に受取設定も確認してください。
+          月額サポートを受け付ける場合は、受取設定も確認してください。
         </p>
         <SpotForm mode="edit" spotId={spotId} />
       </section>

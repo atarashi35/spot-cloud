@@ -457,6 +457,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <SocioRankBadge socioCount={spot.socioCount} />
             </div>
             <h1 className="mt-4 text-3xl font-extrabold text-ink sm:text-4xl">{spot.name}</h1>
+            {spot.shortDescription ? <p className="mt-3 max-w-xl text-sm leading-7 text-ink/70">{spot.shortDescription}</p> : null}
             {spot.activityFields && spot.activityFields.length > 0 ? (
               <div className="mt-3 flex flex-wrap gap-2">
                 {spot.activityFields.map((field) => <span key={field} className="text-sm text-ink/65">#{field}</span>)}
@@ -741,14 +742,14 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       {/* ── 統合フィード ─────────────────────────────────────────────── */}
       {(() => {
         const allPosts = posts;
-        const allEvents = FEATURE_EVENTS ? events : [];
+        const allEvents: FeedEvent[] = [];
         if (allPosts.length === 0 && allEvents.length === 0 && !isOwner) return null;
 
         const locked = !canViewMembersArea;
 
         return (
           <section className="panel px-6 py-8 sm:px-8">
-            <div className={`grid gap-6 ${FEATURE_EVENTS ? "lg:grid-cols-[1.1fr_0.9fr]" : ""}`}>
+            <div className={`grid gap-6 ${allEvents.length > 0 ? "lg:grid-cols-[1.1fr_0.9fr]" : ""}`}>
               {/* 投稿列 */}
               <div className="rounded-[28px] bg-white/60 p-6">
                 <h3 className="text-2xl font-extrabold text-ink">投稿</h3>
@@ -805,7 +806,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
 
               {/* イベント列（凍結中: FEATURE_EVENTS） */}
-              {FEATURE_EVENTS && (
+              {FEATURE_EVENTS && allEvents.length > 0 && (
               <div className="rounded-[28px] bg-white/60 p-6">
                 <h3 className="text-2xl font-extrabold text-ink">イベント</h3>
                 <div className="mt-4 space-y-4">
@@ -885,7 +886,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
 
       {/* ── スティッキー サポーターになるCTA ─────────────────────────────── */}
       {showStickyJoin && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:px-8">
+        <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:bottom-0 sm:px-8">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
             <p className="text-xs text-ink/65">1口100円から参加できます</p>

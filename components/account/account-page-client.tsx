@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { LoginModal } from "@/components/auth/login-modal";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SocioCard } from "@/components/account/socio-card";
 import { MemberQr } from "@/components/account/member-qr";
@@ -20,6 +21,7 @@ export function AccountPageClient() {
   const [profile, setProfile] = useState<{ name: string | null; avatar: string | null; since: string | null }>({ name: null, avatar: null, since: null });
   const [numbers, setNumbers] = useState<Record<string, number | null>>({});
   const [error, setError] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
     if (!user) { setMemberships(null); setFollows([]); return; }
@@ -41,7 +43,7 @@ export function AccountPageClient() {
   }, [user]);
 
   if (!authReady) return <p className="text-sm text-ink/60">読み込み中です。</p>;
-  if (!user) return <EmptyState title="ログインしてください" description="会員証やサポート中のSPOTを確認できます。" />;
+  if (!user) return <div className="space-y-4"><EmptyState title="ログインしてください" description="会員証やサポート中のSPOTを確認できます。" /><button type="button" className="cta-primary" onClick={() => setLoginOpen(true)}>ログイン・会員登録</button><LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} returnTo="/account" /></div>;
   if (error) return <EmptyState title="サポート情報を取得できませんでした" description="再読み込みしてください。" />;
   if (!memberships) return <p className="text-sm text-ink/60">読み込み中です。</p>;
 

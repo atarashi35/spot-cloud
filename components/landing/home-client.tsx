@@ -1,11 +1,11 @@
 "use client";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { TopLanding } from "@/components/landing/top-landing";
+import { VisitorHome } from "@/components/landing/visitor-home";
 import { MemberHome } from "@/components/account/member-home";
 
 export function HomeClient() {
   const { authReady, user } = useAuth();
-  if (!authReady) return <TopLanding />;
-  return user && !user.isAnonymous ? <MemberHome user={user} /> : <TopLanding />;
+  if (!authReady) return <VisitorHome />;
+  return user && !user.isAnonymous ? <MemberHome user={user} /> : <VisitorHome />;
 }

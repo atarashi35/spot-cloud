@@ -3,7 +3,7 @@ import { LogoHorizontal } from "@/components/ui/logo";
 
 export function SiteFooter() {
   return (
-    <footer className="shell py-10">
+    <footer className="shell pb-28 pt-10 sm:pb-10">
       <div className="panel px-6 py-6 sm:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <LogoHorizontal className="h-7 w-auto object-contain opacity-40" />

@@ -208,7 +208,7 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     performerFee: input.performerFee ?? 0,
     performerFeeNote: input.performerFeeNote ?? "",
     performerDisciplines: input.performerDisciplines ?? [],
-    bookingsEnabled: input.bookingsEnabled ?? true,
+    ...(input.bookingsEnabled !== undefined ? { bookingsEnabled: input.bookingsEnabled } : {}),
     updatedAt: serverTimestamp()
   });
 }

@@ -159,7 +159,7 @@ async function fetchSpotContent(spotId: string): Promise<SpotContent> {
 
 // ─── コンポーネント ────────────────────────────────────────────────────
 
-export function OwnerConsoleClient() {
+export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string }) {
   const { authReady, user } = useAuth();
   const [spots, setSpots] = useState<Spot[] | null>(null);
   const [summaries, setSummaries] = useState<Record<string, SpotSummary>>({});
@@ -323,7 +323,7 @@ export function OwnerConsoleClient() {
     0
   );
   const revenueLoaded = Object.values(summaries).some((s) => s.revenue !== undefined);
-  const visibleSpots = kindFilter === "all" ? spots : spots.filter((spot) => spot.kind === kindFilter);
+  const visibleSpots = selectedSpotId ? spots.filter((spot) => spot.id === selectedSpotId) : kindFilter === "all" ? spots : spots.filter((spot) => spot.kind === kindFilter);
 
   // コンテンツ再読み込み（モーダル保存後）
   async function reloadContent(spotId: string) {
@@ -360,11 +360,11 @@ export function OwnerConsoleClient() {
       </ModalShell>
 
       {/* 全体サマリー（複数SPOT時） */}
-      {spots.length > 1 ? (
+      {!selectedSpotId && spots.length > 1 ? (
         <section className="panel px-6 py-6 sm:px-8">
           <div className="flex flex-wrap items-center gap-6">
             <div>
-              <div className="text-sm font-bold text-ink/72">TOTAL SUPPORTERS</div>
+              <div className="text-sm font-bold text-ink/72">月額サポーター</div>
               <div className="mt-1 text-3xl font-extrabold text-ink">
                 {revenueLoaded ? totalSocio : "---"}
                 <span className="ml-1 text-base font-normal text-ink/65">人</span>
@@ -391,7 +391,7 @@ export function OwnerConsoleClient() {
 
       {/* SPOTカード一覧 */}
       <section className="space-y-5">
-        <div className="flex flex-wrap gap-2">
+        {!selectedSpotId ? <div className="flex flex-wrap gap-2">
           {([
             { value: "all", label: `すべて ${spots.length}` },
             { value: "creator", label: `クリエイター ${spots.filter((spot) => spot.kind === "creator").length}` },
@@ -401,7 +401,8 @@ export function OwnerConsoleClient() {
               {option.label}
             </button>
           ))}
-        </div>
+        </div> : null}
+        {selectedSpotId && visibleSpots.length === 0 ? <EmptyState title="SPOTが見つかりません" description="運営中のSPOTをご確認ください。" /> : null}
         {visibleSpots.map((spot) => {
           const summary = summaries[spot.id];
           const revenue = summary?.revenue;
@@ -484,7 +485,7 @@ export function OwnerConsoleClient() {
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex flex-wrap items-end gap-6">
                       <div>
-                        <div className="text-sm font-bold text-ink/72">SUPPORTERS</div>
+                        <div className="text-sm font-bold text-ink/72">月額サポーター</div>
                         <div className="mt-1 text-2xl font-extrabold text-ink">
                           {revenue.socioCount}
                           <span className="ml-1 text-sm font-normal text-ink/65">人</span>
@@ -613,7 +614,7 @@ export function OwnerConsoleClient() {
               )}
 
               {!connectReady ? (
-                <div className="mt-2 text-xs text-amber-600">受取設定が必要です</div>
+                <div className="mt-2 text-xs text-amber-600">月額サポートの受付には受取設定が必要です</div>
               ) : null}
 
               {/* コンテンツプレビュー */}
@@ -630,20 +631,6 @@ export function OwnerConsoleClient() {
                       </>
                     ) : (
                       <div className="mt-1 text-ink/60">まだ投稿がありません</div>
-                    )}
-                  </div>
-                  <div className="rounded-[16px] bg-mist px-4 py-3 text-xs">
-                    <div className="font-semibold tracking-[0.15em] text-ink/65">次のイベント</div>
-                    {content.nextEvent ? (
-                      <>
-                        <div className="mt-1 font-semibold text-ink">{content.nextEvent.title}</div>
-                        <div className="mt-0.5 text-ink/65">
-                          {toEventLabel(content.nextEvent.startAt)}
-                          {content.nextEvent.location ? ` · ${content.nextEvent.location}` : ""}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="mt-1 text-ink/60">予定されているイベントはありません</div>
                     )}
                   </div>
                 </div>
@@ -674,8 +661,9 @@ export function OwnerConsoleClient() {
               {/* プライマリアクション（高頻度） */}
               {(() => {
                 const showBookings = FEATURE_BOOKINGS && Boolean(spot.performerFee);
-                const extraTileCount = [FEATURE_EVENTS, FEATURE_VOICES, showBookings].filter(Boolean).length;
+                const extraTileCount = [FEATURE_VOICES, showBookings].filter(Boolean).length;
                 return (
+              <>
               <div className={`mt-6 grid gap-2 ${extraTileCount > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
                 <button
                   type="button"
@@ -690,14 +678,6 @@ export function OwnerConsoleClient() {
                 >
                   <span className="text-xs font-semibold">QRカード</span>
                 </a>
-                {FEATURE_EVENTS && (
-                <a
-                  href={`/manage/${spot.id}/events`}
-                  className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
-                >
-                  <span className="text-xs font-semibold">イベント</span>
-                </a>
-                )}
                 {FEATURE_VOICES && (
                 <a
                   href={`/manage/${spot.id}/voices`}
@@ -715,6 +695,8 @@ export function OwnerConsoleClient() {
                 </a>
                 )}
               </div>
+              {FEATURE_EVENTS ? <details className="mt-3"><summary className="cursor-pointer text-xs text-ink/60">その他</summary><Link href={`/manage/${spot.id}/events`} className="mt-2 inline-block text-sm text-moss">イベント管理</Link></details> : null}
+              </>
                 );
               })()}
 
@@ -730,7 +712,7 @@ export function OwnerConsoleClient() {
                 </Link>
                 <a href={`/manage/${spot.id}/socios`} className={MENU_ITEM_CLS}>
                   <Users className="h-4 w-4 shrink-0 text-ink/55" />
-                  <span className="truncate">サポーター一覧（{socioCount}）</span>
+                  <span className="truncate">月額サポーター（{socioCount}）</span>
                 </a>
                 <a href={`/manage/${spot.id}/benefits`} className={MENU_ITEM_CLS}>
                   <Gift className="h-4 w-4 shrink-0 text-ink/55" />
@@ -759,7 +741,7 @@ export function OwnerConsoleClient() {
                     className="flex items-center justify-center gap-2 rounded-[14px] border border-red-300 bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
                   >
                     <Landmark className="h-4 w-4 shrink-0" />
-                    本人確認の追加対応が必要です（このままだと入金・新規入会ができません）
+                    本人確認の追加対応が必要です（月額サポートの受付・入金）
                   </Link>
                 ) : (
                   <Link

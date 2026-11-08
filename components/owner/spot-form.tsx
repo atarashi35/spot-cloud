@@ -292,7 +292,7 @@ export function SpotForm(props: SpotFormProps) {
           },
           user.uid
         );
-        router.push(`/owner/spots/${spotId}/payout`);
+        router.push(`/manage/${spotId}`);
         router.refresh();
         return;
       }
@@ -302,7 +302,7 @@ export function SpotForm(props: SpotFormProps) {
         city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
-        teamMembers: kind === "organization" ? teamMembers.filter((m) => m.name.trim()) : [],
+        teamMembers: teamMembers.filter((m) => m.name.trim()),
         ...performerFields,
       });
       router.push("/manage");
@@ -366,6 +366,7 @@ export function SpotForm(props: SpotFormProps) {
               key={value}
               type="button"
               onClick={() => {
+                if (value === kind) return;
                 setKind(value);
                 setCategory(value === "creator" ? "音楽" : "店舗・文化拠点");
               }}
@@ -454,6 +455,9 @@ export function SpotForm(props: SpotFormProps) {
         placeholder="説明"
         required
       />
+      <details className="rounded-[20px] border border-ink/10 px-4 py-4">
+        <summary className="cursor-pointer text-sm font-semibold text-ink">活動分野・実績・連絡先・出演依頼（任意）</summary>
+        <div className="mt-4 space-y-4">
       <div className="space-y-4 rounded-[20px] border border-ink/10 p-4">
         <div>
           <p className="text-sm font-bold text-ink/72">活動分野</p>
@@ -568,6 +572,8 @@ export function SpotForm(props: SpotFormProps) {
           </>
         ) : null}
       </div>
+        </div>
+      </details>
       <div className="rounded-[20px] bg-mist p-4">
           <label className="block text-sm font-semibold text-ink">{kind === "creator" ? "メイン画像" : "カバー画像"}</label>
         <input
@@ -592,6 +598,9 @@ export function SpotForm(props: SpotFormProps) {
           </div>
         )}
       </div>
+      <details className="rounded-[20px] border border-ink/10 px-4 py-4">
+        <summary className="cursor-pointer text-sm font-semibold text-ink">活動写真・SNS・運営メンバー（任意）</summary>
+        <div className="mt-4 space-y-4">
       {/* ギャラリー */}
       <div className="space-y-3 rounded-[20px] bg-mist p-4">
         <div>
@@ -716,9 +725,12 @@ export function SpotForm(props: SpotFormProps) {
         </button>
       </div>
       ) : null}
+        </div>
+      </details>
 
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
-      <button type="submit" className="cta-primary" disabled={saving}>
+      <p className="text-xs text-ink/60">任意項目は登録後も編集できます。</p>
+      <button type="submit" className="cta-primary" disabled={saving || uploadingImage}>
         {saving ? "保存中..." : props.mode === "create" ? "登録して公開する" : "更新する"}
       </button>
     </form>
