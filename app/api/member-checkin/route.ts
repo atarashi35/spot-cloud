@@ -11,7 +11,7 @@ async function context(request: NextRequest, token: unknown) {
   const db = getAdminDb();
   const hash = createHash("sha256").update(token).digest("hex");
   const snap = await db.doc(`memberQrTokens/${hash}`).get();
-  if (!snap.exists || Number(snap.data()?.expiresAt) < Date.now()) throw new Error("expired_qr");
+  if (!snap.exists || typeof snap.data()?.expiresAt !== "number" || snap.data()!.expiresAt <= Date.now()) throw new Error("expired_qr");
   return { db, ownerUid: owner.uid, uid: String(snap.data()?.uid ?? "") };
 }
 
@@ -40,6 +40,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ events: choices.filter(Boolean) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "checkin_error";
-    return NextResponse.json({ error: message }, { status: message === "forbidden" ? 403 : message === "expired_qr" || message === "invalid_qr" ? 400 : 500 });
+    return NextResponse.json({ error: message }, { status: message === "auth_required" ? 401 : message === "forbidden" ? 403 : message === "expired_qr" || message === "invalid_qr" ? 400 : 500 });
   }
 }

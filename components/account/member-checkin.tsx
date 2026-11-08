@@ -13,7 +13,15 @@ export function MemberCheckin() {
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
   const [busy, setBusy] = useState("");
-  useEffect(() => { setToken(window.location.hash.slice(1)); }, []);
+  useEffect(() => {
+    const scanned = window.location.hash.slice(1);
+    if (/^[A-Za-z0-9_-]{43}$/.test(scanned)) {
+      sessionStorage.setItem("spot_member_checkin_token", scanned);
+      setToken(scanned);
+    } else {
+      setToken(sessionStorage.getItem("spot_member_checkin_token") ?? "");
+    }
+  }, []);
   useEffect(() => {
     if (!user || !token) return;
     let cancelled = false;
@@ -36,7 +44,8 @@ export function MemberCheckin() {
   }
   return <main className="panel mx-auto max-w-xl px-6 py-8">
     <h1 className="text-2xl font-bold">会員受付</h1>
-    {!authReady ? <p className="mt-4 text-sm">確認中です。</p> : !user ? <><p className="mt-4 text-sm">受付するSPOTの運営者アカウントでログインしてください。</p><button className="cta-primary mt-4" onClick={() => setLoginOpen(true)}>ログイン</button><LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} /></> : null}
+    {!authReady ? <p className="mt-4 text-sm">確認中です。</p> : !user ? <><p className="mt-4 text-sm">受付するSPOTの運営者アカウントでログインしてください。</p><button className="cta-primary mt-4" onClick={() => setLoginOpen(true)}>ログイン</button><LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} returnTo="/member-checkin" /></> : null}
+    {authReady && user && !token ? <p className="mt-4 text-sm">会員の受付用QRを読み取ってください。</p> : null}
     {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
     {user && events && events.length === 0 ? <p className="mt-4 text-sm">運営中のSPOTに、この会員の参加確定イベントはありません。</p> : null}
     {events?.map((event) => <div key={`${event.spotId}-${event.eventId}`} className="mt-4 border-t border-ink/10 pt-4">
