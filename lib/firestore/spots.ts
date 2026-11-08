@@ -203,7 +203,7 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     phone: input.phone ?? "",
     email: input.email ?? "",
     socialLinks: input.socialLinks ?? {},
-    planBenefits: input.planBenefits ?? {},
+    ...(input.planBenefits !== undefined ? { planBenefits: input.planBenefits } : {}),
     teamMembers: input.teamMembers ?? [],
     performerFee: input.performerFee ?? 0,
     performerFeeNote: input.performerFeeNote ?? "",

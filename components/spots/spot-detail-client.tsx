@@ -376,6 +376,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onAmountChange={setSelectedPlan}
         canAcceptMonthly={canAcceptMembership}
         isFollowing={isFollowing}
+        planBenefits={spot.planBenefits}
         onMonthly={() => { setChoiceModalOpen(false); setSignupModalOpen(true); }}
         onFree={() => { setChoiceModalOpen(false); void updateFreeMembership("join"); }}
       />

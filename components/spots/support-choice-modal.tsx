@@ -2,9 +2,9 @@
 
 import { Minus, Plus } from "lucide-react";
 import { ModalShell } from "@/components/ui/modal-shell";
-import { KO_UNIT_AMOUNT, MIN_KO, PlanAmount } from "@/lib/types";
+import { KO_UNIT_AMOUNT, MIN_KO, PlanAmount, PlanBenefits } from "@/lib/types";
 
-export function SupportChoiceModal({ open, onClose, spotName, amount, onAmountChange, canAcceptMonthly, isFollowing, onMonthly, onFree }: {
+export function SupportChoiceModal({ open, onClose, spotName, amount, onAmountChange, canAcceptMonthly, isFollowing, planBenefits, onMonthly, onFree }: {
   open: boolean;
   onClose: () => void;
   spotName: string;
@@ -12,9 +12,15 @@ export function SupportChoiceModal({ open, onClose, spotName, amount, onAmountCh
   onAmountChange: (amount: PlanAmount) => void;
   canAcceptMonthly: boolean;
   isFollowing: boolean;
+  planBenefits?: PlanBenefits;
   onMonthly: () => void;
   onFree: () => void;
 }) {
+  const benefits = planBenefits as Record<number, string | undefined> | undefined;
+  const tiers = ([5, 10] as const).map((threshold) => ({
+    threshold,
+    description: benefits?.[threshold] ?? benefits?.[threshold * 100],
+  })).filter((tier) => tier.description?.trim());
   return (
     <ModalShell open={open} onClose={onClose} title="サポーターになる" size="sm">
       <p className="text-sm font-medium text-ink/65">{spotName}</p>
@@ -33,6 +39,19 @@ export function SupportChoiceModal({ open, onClose, spotName, amount, onAmountCh
             </button>
           </div>
           <p className="mt-2 text-center text-xs text-ink/55">1口100円・毎月のお支払い</p>
+          {tiers.length > 0 ? (
+            <div className="mt-5 border-t border-ink/10 pt-4">
+              <h4 className="text-sm font-semibold text-ink">口数特典</h4>
+              <ul className="mt-2 space-y-2">
+                {tiers.map(({ threshold, description }) => (
+                  <li key={threshold} className="flex items-start gap-2 text-sm leading-6 text-ink/75">
+                    <span className="shrink-0 font-semibold text-moss">{threshold}口以上</span>
+                    <span>{description}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <button type="button" className="cta-primary mt-5 w-full" onClick={onMonthly}>月額{amount.toLocaleString("ja-JP")}円でサポート</button>
         </div>
       ) : (
