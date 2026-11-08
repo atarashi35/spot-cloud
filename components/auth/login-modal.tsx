@@ -44,7 +44,10 @@ export function LoginModal({ open, onClose, onSuccess, returnTo }: LoginModalPro
       if (onSuccess) onSuccess();
       else onClose();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Google ログインに失敗しました。");
+      const code = (cause as { code?: string }).code;
+      setError(code === "auth/popup-blocked" || code === "auth/popup-closed-by-user"
+        ? "ログイン画面を開けませんでした。Safariのポップアップ設定を確認するか、メールで続けてください。"
+        : "Googleログインに失敗しました。もう一度お試しください。");
     } finally {
       setGoogleLoading(false);
     }

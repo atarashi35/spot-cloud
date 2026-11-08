@@ -77,11 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
-  async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) {
+  async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider, useRedirect: boolean) {
     const auth = getFirebaseAuth();
 
     try {
-      if (shouldUseRedirect()) {
+      if (useRedirect) {
         if (auth.currentUser?.isAnonymous) {
           await linkWithRedirect(auth.currentUser, provider);
           return;
@@ -109,13 +109,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     async signInWithGoogle() {
       const provider = new GoogleAuthProvider();
-      await signInWithProvider(provider);
+      await signInWithProvider(provider, false);
     },
     async signInWithApple() {
       const provider = new OAuthProvider("apple.com");
       provider.addScope("email");
       provider.addScope("name");
-      await signInWithProvider(provider);
+      await signInWithProvider(provider, shouldUseRedirect());
     },
     async signOutUser() {
       await signOut(getFirebaseAuth());
