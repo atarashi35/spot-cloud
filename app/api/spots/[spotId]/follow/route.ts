@@ -8,6 +8,38 @@ async function authenticate(request: NextRequest) {
   return getAdminAuth().verifyIdToken(authorization.slice("Bearer ".length));
 }
 
+function toIso(value: unknown) {
+  if (value && typeof value === "object" && "toDate" in value) {
+    return (value as { toDate(): Date }).toDate().toISOString();
+  }
+  return typeof value === "string" ? value : new Date().toISOString();
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ spotId: string }> }
+) {
+  try {
+    const decoded = await authenticate(request);
+    if (!decoded) return NextResponse.json({ error: "auth_required" }, { status: 401 });
+
+    const { spotId } = await params;
+    const snap = await getAdminDb().doc(`users/${decoded.uid}/follows/${spotId}`).get();
+    if (!snap.exists) return NextResponse.json({ follow: null });
+
+    const data = snap.data() ?? {};
+    return NextResponse.json({
+      follow: {
+        spotId,
+        spotName: String(data.spotName ?? ""),
+        followedAt: toIso(data.followedAt),
+      },
+    });
+  } catch {
+    return NextResponse.json({ error: "follow_lookup_failed" }, { status: 500 });
+  }
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ spotId: string }> }

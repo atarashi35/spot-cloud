@@ -170,7 +170,7 @@ export function AccountPageClient() {
         // no-op: 表示は継続する
       }
 
-      return Promise.all([listUserMemberships(user.uid), listUserFollows(user.uid)]);
+      return Promise.all([listUserMemberships(user.uid), listUserFollows(user)]);
     })()
       .then(([nextMemberships, nextFollows]) => {
         setMemberships(nextMemberships);

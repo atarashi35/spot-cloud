@@ -89,7 +89,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
     const nextSpot = await getSpotFromFirestore(spotId).catch((e: unknown) => { throw Object.assign(e as Error, { _step: "getSpot" }); });
     const [nextMembership, nextFollow] = await Promise.all([
       currentUser ? getUserMembership(currentUser.uid, spotId) : Promise.resolve(null),
-      currentUser ? getUserFollow(currentUser.uid, spotId) : Promise.resolve(null),
+      currentUser ? getUserFollow(currentUser, spotId) : Promise.resolve(null),
     ]).catch((e: unknown) => { throw Object.assign(e as Error, { _step: "getMembership" }); });
 
     if (!nextSpot) {

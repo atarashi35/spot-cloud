@@ -1,31 +1,24 @@
 "use client";
 
-import { Timestamp, collection, doc, getDoc, getDocs } from "firebase/firestore";
-import { getFirestoreDb } from "@/lib/firebase/client";
+import type { User } from "firebase/auth";
 import type { UserFollow } from "@/lib/types";
 
-function toIso(value: unknown) {
-  if (value instanceof Timestamp) return value.toDate().toISOString();
-  if (typeof value === "string") return value;
-  return new Date().toISOString();
+export async function getUserFollow(user: User, spotId: string) {
+  const token = await user.getIdToken();
+  const response = await fetch(`/api/spots/${spotId}/follow`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error("無料会員情報を取得できませんでした。");
+  const data = (await response.json()) as { follow: UserFollow | null };
+  return data.follow;
 }
 
-function mapFollow(spotId: string, data: Record<string, unknown>): UserFollow {
-  return {
-    spotId,
-    spotName: String(data.spotName ?? ""),
-    followedAt: toIso(data.followedAt),
-  };
-}
-
-export async function getUserFollow(uid: string, spotId: string) {
-  const snap = await getDoc(doc(getFirestoreDb(), "users", uid, "follows", spotId));
-  return snap.exists() ? mapFollow(spotId, snap.data()) : null;
-}
-
-export async function listUserFollows(uid: string) {
-  const snap = await getDocs(collection(getFirestoreDb(), "users", uid, "follows"));
-  return snap.docs
-    .map((item) => mapFollow(item.id, item.data()))
-    .sort((a, b) => b.followedAt.localeCompare(a.followedAt));
+export async function listUserFollows(user: User) {
+  const token = await user.getIdToken();
+  const response = await fetch("/api/account/follows", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error("無料会員情報を取得できませんでした。");
+  const data = (await response.json()) as { follows: UserFollow[] };
+  return data.follows;
 }
