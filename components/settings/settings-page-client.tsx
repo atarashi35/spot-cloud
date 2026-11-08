@@ -7,7 +7,6 @@ import { Pencil, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { MfaEnrollmentModal } from "@/components/auth/mfa-enrollment-modal";
 import { SupportSection } from "@/components/settings/support-section";
-import { PublicProfileSection } from "@/components/settings/public-profile-section";
 import { MetricPill } from "@/components/ui/metric-pill";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { listUserMemberships } from "@/lib/firestore/memberships";
@@ -510,8 +509,6 @@ export function SettingsPageClient() {
         onClose={() => setMfaEnrollOpen(false)}
         onEnrolled={() => setMfaEnrolled(true)}
       />
-
-      {user ? <PublicProfileSection avatarUrl={avatarUrl} /> : null}
 
       {/* 通知 */}
       <section className="panel px-6 py-8 sm:px-8">

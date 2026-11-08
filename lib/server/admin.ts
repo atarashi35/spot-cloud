@@ -45,6 +45,7 @@ function parseTimestamp(value: unknown) {
 function mapAdminSpot(id: string, data: Record<string, unknown>): Spot {
   return {
     id,
+    kind: data.kind === "creator" ? "creator" : "organization",
     name: String(data.name ?? ""),
     description: String(data.description ?? ""),
     shortDescription: String(data.shortDescription ?? ""),

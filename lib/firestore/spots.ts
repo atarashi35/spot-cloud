@@ -13,11 +13,12 @@ import {
   where
 } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
-import { Spot, SpotCategory, SocialLinks, PlanBenefits, TeamMember, normalizeSpotCategory } from "@/lib/types";
+import { Spot, SpotCategory, SpotKind, SocialLinks, PlanBenefits, TeamMember, normalizeSpotCategory } from "@/lib/types";
 import { prefecturePattern, slugify, splitAddress, toShortDescription } from "@/lib/utils";
 
 type SpotInput = {
   name: string;
+  kind: SpotKind;
   description: string;
   category: SpotCategory;
   address: string;
@@ -69,6 +70,7 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
 
   return {
     id,
+    kind: data.kind === "creator" ? "creator" : "organization",
     name: String(data.name ?? ""),
     description,
     shortDescription: String(data.shortDescription ?? toShortDescription(description)),
@@ -146,6 +148,7 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
 
   const ref = await addDoc(collection(getFirestoreDb(), "spots"), {
     name: input.name,
+    kind: input.kind,
     description: input.description,
     shortDescription: toShortDescription(input.description),
     category: input.category,
@@ -179,6 +182,7 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
 export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
   await updateDoc(doc(getFirestoreDb(), "spots", spotId), {
     name: input.name,
+    kind: input.kind,
     description: input.description,
     shortDescription: toShortDescription(input.description),
     category: input.category,

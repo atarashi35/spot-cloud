@@ -1,5 +1,4 @@
 import { AdminConsoleClient } from "@/components/admin/admin-console-client";
-import { PublicProfileReview } from "@/components/admin/public-profile-review";
 
 export default function AdminPage() {
   return (
@@ -12,7 +11,6 @@ export default function AdminPage() {
       </div>
 
       <AdminConsoleClient />
-      <PublicProfileReview />
 
     </div>
   );

@@ -12,7 +12,7 @@ import {
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SPOT_CATEGORIES, SpotCategory, TeamMember } from "@/lib/types";
+import { SPOT_CATEGORIES, SpotCategory, SpotKind, TeamMember } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -153,6 +153,7 @@ export function SpotForm(props: SpotFormProps) {
   const router = useRouter();
   const { authReady, user } = useAuth();
   const [name, setName] = useState("");
+  const [kind, setKind] = useState<SpotKind>("organization");
   const [category, setCategory] = useState<SpotCategory>("ライブハウス・音楽");
   const [postalCode, setPostalCode] = useState("");
   const [prefecture, setPrefecture] = useState<(typeof prefectures)[number]>("東京都");
@@ -199,6 +200,7 @@ export function SpotForm(props: SpotFormProps) {
         }
 
         setName(spot.name);
+        setKind(spot.kind);
         setCategory(spot.category);
         setPrefecture(
           prefectures.includes(spot.prefecture as (typeof prefectures)[number])
@@ -277,7 +279,7 @@ export function SpotForm(props: SpotFormProps) {
       if (props.mode === "create") {
         const spotId = await createSpotInFirestore(
           {
-            name, category, address: fullAddress, prefecture,
+            name, kind, category, address: fullAddress, prefecture,
             city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
             phone: normalizedPhone, email: normalizedEmail,
             socialLinks: { website, instagram, twitter, line, youtube },
@@ -292,7 +294,7 @@ export function SpotForm(props: SpotFormProps) {
       }
 
       await updateSpotInFirestore(props.spotId, {
-        name, category, address: fullAddress, prefecture,
+        name, kind, category, address: fullAddress, prefecture,
         city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
@@ -352,6 +354,21 @@ export function SpotForm(props: SpotFormProps) {
 
   return (
     <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+      <fieldset>
+        <legend className="mb-2 text-sm font-semibold text-ink">SPOTの種類</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {(["creator", "organization"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setKind(value)}
+              className={`rounded-[14px] border px-4 py-3 text-sm font-semibold ${kind === value ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink"}`}
+            >
+              {value === "creator" ? "クリエイター" : "団体"}
+            </button>
+          ))}
+        </div>
+      </fieldset>
       <div>
         <input
           className="field"
@@ -361,7 +378,7 @@ export function SpotForm(props: SpotFormProps) {
           required
           aria-invalid={!!error && !name.trim() ? true : undefined}
         />
-        <p className="mt-1.5 text-xs text-ink/65">※場所・屋号・団体名・プロジェクト名など</p>
+        <p className="mt-1.5 text-xs text-ink/65">※公開するクリエイター名または団体名</p>
       </div>
       <select
         className="field"

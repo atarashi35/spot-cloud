@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { SpotCard } from "@/components/spot-card";
 import { PageShell } from "@/components/ui/page-shell";
 import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
-import { SPOT_CATEGORIES, Spot, SpotCategory } from "@/lib/types";
+import { SPOT_CATEGORIES, Spot, SpotCategory, SpotKind } from "@/lib/types";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
@@ -117,6 +117,7 @@ export function SpotListPage() {
   const [prefecture, setPrefecture] = useState("all");
   const [city, setCity] = useState("all");
   const [category, setCategory] = useState<"all" | SpotCategory>("all");
+  const [kind, setKind] = useState<"all" | SpotKind>("all");
   const [sort, setSort] = useState<SortOption>("recommended");
   const [showAreaFilter, setShowAreaFilter] = useState(false);
   const [budgetMax, setBudgetMax] = useState("all");
@@ -171,12 +172,13 @@ export function SpotListPage() {
         matchesKeyword &&
         (prefecture === "all" || spot.prefecture === prefecture) &&
         (city === "all" || spot.city === city) &&
+        (kind === "all" || spot.kind === kind) &&
         (category === "all" || spot.category === category) &&
         (!bookingsOnly || acceptsBookings) &&
         (budgetMaxValue === null || (acceptsBookings && (spot.performerFee ?? 0) <= budgetMaxValue))
       );
     });
-  }, [spots, deferredKeyword, prefecture, city, category, bookingsOnly, budgetMax]);
+  }, [spots, deferredKeyword, prefecture, city, kind, category, bookingsOnly, budgetMax]);
 
   const sortedSpots = useMemo(() => sortSpotList(filteredSpots, sort), [filteredSpots, sort]);
 
@@ -218,6 +220,17 @@ export function SpotListPage() {
 
       {/* ── Category chips ── */}
       <PageShell className="mt-4 overflow-x-auto pb-1 hide-scrollbar">
+        <div className="mb-3 flex gap-2">
+          {([
+            { value: "all", label: "すべて" },
+            { value: "creator", label: "クリエイター" },
+            { value: "organization", label: "団体" },
+          ] as const).map((option) => (
+            <button key={option.value} type="button" onClick={() => setKind(option.value)} className={`rounded-full px-4 py-2 text-[13px] font-semibold transition ${kind === option.value ? "bg-moss text-white" : "border border-ink/12 bg-white text-ink/70"}`}>
+              {option.label}
+            </button>
+          ))}
+        </div>
         <div className="flex gap-2 w-max sm:w-auto sm:flex-wrap">
           {categoryOptions.map((cat) => {
             const active = category === cat.value;

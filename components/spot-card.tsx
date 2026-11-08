@@ -46,6 +46,9 @@ export function SpotCard({ spot }: { spot: Spot }) {
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
+            <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-white">
+              {spot.kind === "creator" ? "クリエイター" : "団体"}
+            </span>
             <span className="chip">{spot.category}</span>
             {acceptsBookings ? (
               <span className="rounded-full bg-teal-500/15 px-2.5 py-1 text-xs font-semibold text-teal-600">

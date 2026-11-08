@@ -451,6 +451,9 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         <div className="grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
             <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white">
+                {spot.kind === "creator" ? "クリエイター" : "団体"}
+              </span>
               <span className="chip">{spot.category}</span>
               <SocioRankBadge socioCount={spot.socioCount} />
             </div>

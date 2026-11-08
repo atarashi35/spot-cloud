@@ -97,27 +97,7 @@ export type SocialLinks = {
   facebook?: string;
 };
 
-export type PublicProfileKind = "creator" | "organization";
-export type PublicProfileStatus = "draft" | "pending" | "approved" | "rejected";
-
-export interface PublicProfile {
-  uid: string;
-  kind: PublicProfileKind;
-  name: string;
-  bio: string;
-  fields: string[];
-  prefecture?: string;
-  city?: string;
-  avatarUrl?: string;
-  websiteUrl?: string;
-  instagramUrl?: string;
-  status: PublicProfileStatus;
-  reviewNote?: string;
-  submittedAt?: string;
-  reviewedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type SpotKind = "creator" | "organization";
 
 /**
  * 口数閾値ごとの特典。キーは口数（5口以上 / 10口以上）。
@@ -137,6 +117,8 @@ export type TeamMember = {
 
 export interface Spot {
   id: string;
+  /** SPOTの運営主体。旧データは organization として扱う。 */
+  kind: SpotKind;
   name: string;
   description: string;
   shortDescription: string;
