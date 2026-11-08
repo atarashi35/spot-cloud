@@ -12,7 +12,7 @@ import {
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SPOT_CATEGORIES, SpotCategory, SpotKind, TeamMember } from "@/lib/types";
+import { CREATOR_CATEGORIES, ORGANIZATION_CATEGORIES, SpotCategory, SpotKind, TeamMember } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -63,8 +63,6 @@ const prefectures = [
   "鹿児島県",
   "沖縄県"
 ] as const;
-
-const categories: SpotCategory[] = SPOT_CATEGORIES;
 
 // ─── SNS ハンドル ↔ URL 変換ヘルパー ──────────────────────────────────────
 
@@ -155,7 +153,8 @@ export function SpotForm(props: SpotFormProps) {
   const { authReady, user } = useAuth();
   const [name, setName] = useState("");
   const [kind, setKind] = useState<SpotKind>(props.mode === "create" ? props.initialKind ?? "creator" : "organization");
-  const [category, setCategory] = useState<SpotCategory>("ライブハウス・音楽");
+  const [category, setCategory] = useState<SpotCategory>(props.mode === "create" && props.initialKind === "organization" ? "店舗・文化拠点" : "音楽");
+  const categories: readonly SpotCategory[] = kind === "creator" ? CREATOR_CATEGORIES : ORGANIZATION_CATEGORIES;
   const [postalCode, setPostalCode] = useState("");
   const [prefecture, setPrefecture] = useState<(typeof prefectures)[number]>("東京都");
   const [city, setCity] = useState("");
@@ -366,7 +365,10 @@ export function SpotForm(props: SpotFormProps) {
             <button
               key={value}
               type="button"
-              onClick={() => setKind(value)}
+              onClick={() => {
+                setKind(value);
+                setCategory(value === "creator" ? "音楽" : "店舗・文化拠点");
+              }}
               className={`rounded-[14px] border px-4 py-3 text-sm font-semibold ${kind === value ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink"}`}
             >
               {value === "creator" ? "クリエイター" : "団体"}

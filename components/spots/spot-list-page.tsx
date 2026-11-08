@@ -7,13 +7,8 @@ import { EmptyState } from "@/components/empty-state";
 import { SpotCard } from "@/components/spot-card";
 import { PageShell } from "@/components/ui/page-shell";
 import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
-import { SPOT_CATEGORIES, Spot, SpotCategory, SpotKind } from "@/lib/types";
+import { CREATOR_CATEGORIES, ORGANIZATION_CATEGORIES, SPOT_CATEGORIES, Spot, SpotCategory, SpotKind } from "@/lib/types";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
-
-const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
-  { value: "all", label: "すべて" },
-  ...SPOT_CATEGORIES.map((value) => ({ value, label: value })),
-];
 
 const budgetMaxOptions: Array<{ value: string; label: string }> = [
   { value: "all", label: "予算" },
@@ -124,6 +119,11 @@ export function SpotListPage() {
   const [bookingsOnly, setBookingsOnly] = useState(false);
   const gridRef = useScrollReveal<HTMLDivElement>({ staggerChildren: true, staggerDelay: 60 });
   const deferredKeyword = useDeferredValue(keyword);
+  const categoryOptions: Array<{ value: "all" | SpotCategory; label: string }> = [
+    { value: "all", label: "すべて" },
+    ...(kind === "creator" ? CREATOR_CATEGORIES : kind === "organization" ? ORGANIZATION_CATEGORIES : SPOT_CATEGORIES)
+      .map((value) => ({ value, label: value })),
+  ];
 
   useEffect(() => {
     void listPublishedSpotsFromFirestore()
@@ -226,7 +226,7 @@ export function SpotListPage() {
             { value: "creator", label: "クリエイター" },
             { value: "organization", label: "団体" },
           ] as const).map((option) => (
-            <button key={option.value} type="button" onClick={() => setKind(option.value)} className={`rounded-full px-4 py-2 text-[13px] font-semibold transition ${kind === option.value ? "bg-moss text-white" : "border border-ink/12 bg-white text-ink/70"}`}>
+            <button key={option.value} type="button" onClick={() => { setKind(option.value); setCategory("all"); }} className={`rounded-full px-4 py-2 text-[13px] font-semibold transition ${kind === option.value ? "bg-moss text-white" : "border border-ink/12 bg-white text-ink/70"}`}>
               {option.label}
             </button>
           ))}

@@ -25,19 +25,35 @@ export function isSignupPlan(value: number): value is SignupPlanAmount {
   return Number.isInteger(value) && value >= KO_UNIT_AMOUNT && value % KO_UNIT_AMOUNT === 0;
 }
 
-export type SpotCategory =
-  | "ライブハウス・音楽"
-  | "劇場・パフォーマンス"
-  | "ミニシアター・映画館"
-  | "ギャラリー・アート"
-  | "伝統文化・芸能"
-  | "本屋・書店"
-  | "カフェ・バー"
-  | "文化プロジェクト"
-  | "その他";
+export const CREATOR_CATEGORIES = [
+  "音楽",
+  "演劇・ダンス",
+  "映画・映像",
+  "美術",
+  "写真",
+  "文芸",
+  "伝統文化",
+  "デザイン",
+  "工芸",
+  "食",
+  "その他",
+] as const;
 
-/** カテゴリの正規の値リスト・表示順。他ファイルでの重複定義はここに統一する。 */
-export const SPOT_CATEGORIES: SpotCategory[] = [
+export const ORGANIZATION_CATEGORIES = [
+  "音楽団体",
+  "劇団・パフォーマンス団体",
+  "映画・映像団体",
+  "美術・ギャラリー",
+  "伝統文化団体",
+  "文芸・出版",
+  "店舗・文化拠点",
+  "地域・まちづくり",
+  "制作・企画",
+  "その他",
+] as const;
+
+/** 既存SPOTの値を表示・編集し続けるために保持する。 */
+export const LEGACY_SPOT_CATEGORIES = [
   "ライブハウス・音楽",
   "劇場・パフォーマンス",
   "ミニシアター・映画館",
@@ -47,7 +63,18 @@ export const SPOT_CATEGORIES: SpotCategory[] = [
   "カフェ・バー",
   "文化プロジェクト",
   "その他"
-];
+] as const;
+
+export const SPOT_CATEGORIES = Array.from(new Set([
+  ...CREATOR_CATEGORIES,
+  ...ORGANIZATION_CATEGORIES,
+  ...LEGACY_SPOT_CATEGORIES,
+])) as SpotCategory[];
+
+export type SpotCategory =
+  | (typeof CREATOR_CATEGORIES)[number]
+  | (typeof ORGANIZATION_CATEGORIES)[number]
+  | (typeof LEGACY_SPOT_CATEGORIES)[number];
 
 /** 未知・旧カテゴリ値をSpotCategoryへ正規化する（既存データ互換）。 */
 export function normalizeSpotCategory(value: unknown): SpotCategory {
