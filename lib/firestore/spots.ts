@@ -86,6 +86,7 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
     stripeConnectedAccountId:
       typeof data.stripeConnectedAccountId === "string" ? data.stripeConnectedAccountId : undefined,
     socioCount: Number(data.socioCount ?? 0),
+    followerCount: Number(data.followerCount ?? 0),
     isPublished: Boolean(data.isPublished),
     isSuspended: Boolean(data.isSuspended),
     phone: typeof data.phone === "string" ? data.phone : undefined,
@@ -156,6 +157,7 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
     galleryImageUrls: input.galleryImageUrls ?? [],
     ownerUid,
     socioCount: 0,
+    followerCount: 0,
     isPublished: input.isPublished,
     isSuspended: false,
     phone: input.phone ?? "",

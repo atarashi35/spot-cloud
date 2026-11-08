@@ -111,7 +111,7 @@ export function PostForm(props: PostFormProps) {
           await fetch("/api/notify", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${tok}` },
-            body: JSON.stringify({ spotId: props.spotId, type: "new_post", title, body: body.slice(0, 80), resourceId: postId })
+            body: JSON.stringify({ spotId: props.spotId, type: "new_post", title, body: body.slice(0, 80), resourceId: postId, isPublic })
           });
         });
       } else {

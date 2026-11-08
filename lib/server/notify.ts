@@ -9,21 +9,26 @@ type NotifyPayload = {
   spotId: string;
   spotName: string;
   resourceId?: string;
+  includeFollowers?: boolean;
 };
 
 export async function notifySpotMembers(payload: NotifyPayload) {
   const db = getAdminDb();
 
   // active / canceling のメンバーを取得
-  const [activeSnap, cancelingSnap] = await Promise.all([
+  const [activeSnap, cancelingSnap, followersSnap] = await Promise.all([
     db.collection(`spots/${payload.spotId}/members`).where("status", "==", "active").get(),
-    db.collection(`spots/${payload.spotId}/members`).where("status", "==", "canceling").get()
+    db.collection(`spots/${payload.spotId}/members`).where("status", "==", "canceling").get(),
+    payload.includeFollowers
+      ? db.collection(`spots/${payload.spotId}/followers`).get()
+      : Promise.resolve(null),
   ]);
 
-  const uids = [
+  const uids = [...new Set([
     ...activeSnap.docs.map((d) => d.data().uid as string),
-    ...cancelingSnap.docs.map((d) => d.data().uid as string)
-  ].filter(Boolean);
+    ...cancelingSnap.docs.map((d) => d.data().uid as string),
+    ...(followersSnap?.docs.map((d) => d.data().uid as string) ?? []),
+  ].filter(Boolean))];
 
   if (uids.length === 0) return;
 

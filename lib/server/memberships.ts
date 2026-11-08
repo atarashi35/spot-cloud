@@ -22,9 +22,14 @@ export async function upsertMembership(payload: MembershipPayload) {
   const db = getAdminDb();
   const memberRef = db.doc(`spots/${payload.spotId}/members/${payload.uid}`);
   const membershipRef = db.doc(`users/${payload.uid}/memberships/${payload.spotId}`);
+  const followerRef = db.doc(`spots/${payload.spotId}/followers/${payload.uid}`);
+  const userFollowRef = db.doc(`users/${payload.uid}/follows/${payload.spotId}`);
 
   await db.runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(memberRef);
+    const [snapshot, followerSnapshot] = await Promise.all([
+      transaction.get(memberRef),
+      transaction.get(followerRef),
+    ]);
     const previousStatus = snapshot.exists ? (snapshot.data()?.status as string | null) : null;
 
     // "active" と "canceling" はどちらも請求中 → socioCount に含める
@@ -76,8 +81,13 @@ export async function upsertMembership(payload: MembershipPayload) {
     if (becameActive) {
       transaction.update(db.doc(`spots/${payload.spotId}`), {
         socioCount: FieldValue.increment(1),
+        ...(followerSnapshot.exists ? { followerCount: FieldValue.increment(-1) } : {}),
         updatedAt: FieldValue.serverTimestamp()
       });
+      if (followerSnapshot.exists) {
+        transaction.delete(followerRef);
+        transaction.delete(userFollowRef);
+      }
     }
 
     if (becameInactive) {

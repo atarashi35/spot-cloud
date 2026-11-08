@@ -3,10 +3,14 @@
 import {
   GoogleAuthProvider,
   MultiFactorError,
+  OAuthProvider,
   User,
   linkWithPopup,
+  linkWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
   signOut
 } from "firebase/auth";
 import {
@@ -19,11 +23,13 @@ import {
 } from "react";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { MfaVerificationModal } from "@/components/auth/mfa-verification-modal";
+import { ensureUserProfileDoc } from "@/lib/firestore/user-profile";
 
 type AuthContextValue = {
   authReady: boolean;
   user: User | null;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
   signOutUser: () => Promise<void>;
 };
 
@@ -33,42 +39,83 @@ function isMfaError(e: unknown): e is MultiFactorError {
   return (e as { code?: string }).code === "auth/multi-factor-auth-required";
 }
 
+function shouldUseRedirect() {
+  if (typeof window === "undefined") return false;
+
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  const mobileApple = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  return standalone || mobileApple;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [mfaError, setMfaError] = useState<MultiFactorError | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getFirebaseAuth(), (nextUser) => {
+    const auth = getFirebaseAuth();
+    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+      if (nextUser && !nextUser.isAnonymous) {
+        const joinedAt = nextUser.metadata.creationTime
+          ? new Date(nextUser.metadata.creationTime).toISOString()
+          : new Date().toISOString();
+        void ensureUserProfileDoc(nextUser.uid, joinedAt);
+      }
       startTransition(() => {
         setUser(nextUser);
         setAuthReady(true);
       });
     });
 
+    void getRedirectResult(auth).catch((error: unknown) => {
+      if (isMfaError(error)) setMfaError(error);
+    });
+
     return unsubscribe;
   }, []);
+
+  async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) {
+    const auth = getFirebaseAuth();
+
+    try {
+      if (shouldUseRedirect()) {
+        if (auth.currentUser?.isAnonymous) {
+          await linkWithRedirect(auth.currentUser, provider);
+          return;
+        }
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
+      if (auth.currentUser?.isAnonymous) {
+        await linkWithPopup(auth.currentUser, provider);
+        return;
+      }
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      if (isMfaError(error)) {
+        setMfaError(error);
+        return;
+      }
+      throw error;
+    }
+  }
 
   const value: AuthContextValue = {
     authReady,
     user,
     async signInWithGoogle() {
-      const auth = getFirebaseAuth();
       const provider = new GoogleAuthProvider();
-
-      try {
-        if (auth.currentUser?.isAnonymous) {
-          await linkWithPopup(auth.currentUser, provider);
-          return;
-        }
-        await signInWithPopup(auth, provider);
-      } catch (e) {
-        if (isMfaError(e)) {
-          setMfaError(e);
-          return;
-        }
-        throw e;
-      }
+      await signInWithProvider(provider);
+    },
+    async signInWithApple() {
+      const provider = new OAuthProvider("apple.com");
+      provider.addScope("email");
+      provider.addScope("name");
+      await signInWithProvider(provider);
     },
     async signOutUser() {
       await signOut(getFirebaseAuth());

@@ -67,12 +67,13 @@ async function fetchNextBillingDate(idToken: string, spotId: string): Promise<st
 
 function getLoginMethodLabel(user: NonNullable<ReturnType<typeof useAuth>["user"]>) {
   const hasGoogle = user.providerData.some((p) => p.providerId === "google.com");
+  const hasApple = user.providerData.some((p) => p.providerId === "apple.com");
   // Email Link (passwordless) と Email/Password は両方 "password" provider として登録される
   const hasEmail = user.providerData.some((p) => p.providerId === "password");
 
-  if (hasGoogle && hasEmail) return "Google / メール";
-  if (hasGoogle) return "Google";
-  if (hasEmail) return "メール";
+  const methods = [hasApple ? "Apple" : null, hasGoogle ? "Google" : null, hasEmail ? "メール" : null]
+    .filter(Boolean);
+  if (methods.length > 0) return methods.join(" / ");
   return "未設定";
 }
 

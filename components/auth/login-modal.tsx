@@ -19,11 +19,13 @@ type LoginModalProps = {
 };
 
 export function LoginModal({ open, onClose, onSuccess, returnTo }: LoginModalProps) {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInWithApple } = useAuth();
+  const appleLoginEnabled = process.env.NEXT_PUBLIC_APPLE_LOGIN_ENABLED === "true";
   const [step, setStep] = useState<Step>("login");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,6 +47,25 @@ export function LoginModal({ open, onClose, onSuccess, returnTo }: LoginModalPro
       setError(cause instanceof Error ? cause.message : "Google ログインに失敗しました。");
     } finally {
       setGoogleLoading(false);
+    }
+  }
+
+  async function handleApple() {
+    setAppleLoading(true);
+    setError(null);
+    try {
+      await signInWithApple();
+      if (onSuccess) onSuccess();
+      else onClose();
+    } catch (cause) {
+      const code = (cause as { code?: string }).code;
+      setError(
+        code === "auth/operation-not-allowed"
+          ? "Appleログインは現在準備中です。Googleまたはメールをご利用ください。"
+          : "Appleログインに失敗しました。"
+      );
+    } finally {
+      setAppleLoading(false);
     }
   }
 
@@ -91,11 +112,22 @@ export function LoginModal({ open, onClose, onSuccess, returnTo }: LoginModalPro
             <p className="mt-2 text-sm text-ink/70">アカウントをお持ちでない方も、そのまま新規登録できます。</p>
           </div>
 
+          {appleLoginEnabled ? (
+            <button
+              type="button"
+              className="w-full rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/80 disabled:opacity-60"
+              onClick={() => void handleApple()}
+              disabled={appleLoading || googleLoading}
+            >
+              {appleLoading ? "接続中..." : "Appleで続ける"}
+            </button>
+          ) : null}
+
           <button
             type="button"
             className="cta-secondary w-full"
             onClick={() => void handleGoogle()}
-            disabled={googleLoading}
+            disabled={googleLoading || appleLoading}
           >
             {googleLoading ? "接続中..." : "Googleで続ける"}
           </button>

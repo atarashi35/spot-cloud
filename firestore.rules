@@ -27,6 +27,14 @@ service cloud.firestore {
         allow create, update, delete: if false;
       }
 
+      match /followers/{uid} {
+        allow read: if signedIn() && (
+          request.auth.uid == uid ||
+          isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid)
+        );
+        allow write: if false;
+      }
+
       match /posts/{postId} {
         // 公開投稿は誰でも、非公開はソシオ/オーナーのみ
         allow read: if resource.data.isPublic == true
@@ -113,6 +121,11 @@ service cloud.firestore {
       allow read: if signedIn() && request.auth.uid == uid;
       // User membership mirrors are also payment-derived and are maintained by
       // trusted server code via the Admin SDK.
+      allow write: if false;
+    }
+
+    match /users/{uid}/follows/{spotId} {
+      allow read: if signedIn() && request.auth.uid == uid;
       allow write: if false;
     }
 

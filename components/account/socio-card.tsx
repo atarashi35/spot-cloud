@@ -127,6 +127,8 @@ type Props = {
   uid: string;
   displayName: string;
   avatarUrl?: string | null;
+  /** SPOT共通会員になった日時 */
+  memberSince?: string | null;
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId" | "status">[];
   /** spotId → サポーター番号（joinedAt順の通し番号）。/api/spots/[spotId]/socio-number から取得して渡す */
   memberNumbers?: Record<string, number | null>;
@@ -136,7 +138,7 @@ type Props = {
   hintClassName?: string;
 };
 
-export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumbers, showActions = true, hintClassName = "text-ink/58" }: Props) {
+export function SocioCard({ uid, displayName, avatarUrl, memberSince, memberships, memberNumbers, showActions = true, hintClassName = "text-ink/58" }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
 
@@ -202,7 +204,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "spot-socio-card.png";
+      a.download = "spot-member-card.png";
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -304,7 +306,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
                 <div className="rounded-full" style={{ width: 10, height: 10, background: "#e8261a", boxShadow: "0 0 8px rgba(232,38,26,0.7)" }} />
                 <span className="font-bold tracking-[0.22em] text-white" style={{ fontSize: 13 }}>SPOT</span>
               </div>
-              <span className="font-semibold tracking-[0.2em] text-white/70" style={{ fontSize: 11 }}>サポーター証</span>
+              <span className="font-semibold tracking-[0.2em] text-white/70" style={{ fontSize: 11 }}>SPOT会員証</span>
             </div>
 
             <div className="flex items-end justify-between gap-4">
@@ -326,10 +328,16 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
                     </div>
                   </>
                 ) : (
-                  <div className="font-bold text-white tabular-nums" style={{ fontSize: 28, lineHeight: 1 }}>
-                    {data.spotCount}
-                    <span className="ml-1.5 font-semibold text-white/70" style={{ fontSize: 13, letterSpacing: "0.15em" }}>{spotsLabel}</span>
-                  </div>
+                  <>
+                    <div className="font-bold tracking-[0.12em] text-white" style={{ fontSize: 20, lineHeight: 1 }}>
+                      SPOT MEMBER
+                    </div>
+                    {memberSince ? (
+                      <div className="mt-2 font-semibold tracking-[0.18em] text-white/60" style={{ fontSize: 10 }}>
+                        SINCE {toSince(memberSince)}
+                      </div>
+                    ) : null}
+                  </>
                 )}
                 <div className="mt-2.5 flex items-center gap-2 min-w-0">
                   {avatarUrl ? (
@@ -375,7 +383,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
             {/* ヘッダー */}
             <div className="flex items-center justify-between">
               <span className="font-semibold tracking-[0.22em] text-white/65" style={{ fontSize: 10 }}>
-                SUPPORTER DETAILS
+                MEMBER DETAILS
               </span>
               <div className="flex items-center gap-1.5">
                 <div className="rounded-full" style={{ width: 7, height: 7, background: "#e8261a", boxShadow: "0 0 6px rgba(232,38,26,0.6)" }} />
@@ -406,14 +414,14 @@ export function SocioCard({ uid, displayName, avatarUrl, memberships, memberNumb
               )}
             </div>
 
-            {/* フッター：SPOTS数 + サポーターID */}
+            {/* フッター：支援中SPOT数 + 会員ID */}
             <div className="mt-auto flex items-end justify-between pt-3 border-t border-white/8">
               <div>
                 <span className="font-bold text-white tabular-nums" style={{ fontSize: 20, lineHeight: 1 }}>
                   {data.spotCount}
                 </span>
                 <span className="ml-1 font-semibold text-white/65" style={{ fontSize: 10, letterSpacing: "0.15em" }}>
-                  {spotsLabel}
+                  SUPPORTING
                 </span>
               </div>
               <span className="font-mono text-white/25" style={{ fontSize: 9 }}>

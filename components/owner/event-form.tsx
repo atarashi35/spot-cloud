@@ -152,7 +152,7 @@ export function EventForm(props: EventFormProps) {
           fetch("/api/notify", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ spotId: props.spotId, type: "new_event", title, body: description.slice(0, 80) })
+            body: JSON.stringify({ spotId: props.spotId, type: "new_event", title, body: description.slice(0, 80), isPublic })
           })
         );
       } else {

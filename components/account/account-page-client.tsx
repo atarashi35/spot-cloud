@@ -16,6 +16,8 @@ import { SocioCard } from "@/components/account/socio-card";
 import { FEATURE_EVENTS } from "@/lib/flags";
 import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
+import { listUserFollows } from "@/lib/firestore/follows";
+import type { UserFollow } from "@/lib/types";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
@@ -103,12 +105,14 @@ async function fetchSpotPreview(user: User, spotId: string): Promise<SpotPreview
 export function AccountPageClient() {
   const { authReady, user } = useAuth();
   const [memberships, setMemberships] = useState<UserMembership[] | null>(null);
+  const [follows, setFollows] = useState<UserFollow[] | null>(null);
   const [spotNames, setSpotNames] = useState<Record<string, string>>({});
   const [previews, setPreviews] = useState<Record<string, SpotPreview>>({});
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [membershipError, setMembershipError] = useState<string | null>(null);
   const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [memberSince, setMemberSince] = useState<string | null>(null);
   const [memberNumbers, setMemberNumbers] = useState<Record<string, number | null>>({});
 
   // サポーター証に表示するサポーター番号（spotごとのjoinedAt順通し番号）を取得
@@ -141,6 +145,7 @@ export function AccountPageClient() {
     void getUserProfileDoc(user.uid).then((profile) => {
       setProfileDisplayName(profile?.profileDisplayName ?? null);
       setAvatarUrl(profile?.avatarUrl ?? null);
+      setMemberSince(profile?.joinedAt ?? user.metadata.creationTime ?? null);
     });
   }, [user]);
 
@@ -148,6 +153,7 @@ export function AccountPageClient() {
   useEffect(() => {
     if (!user) {
       setMemberships(null);
+      setFollows(null);
       return;
     }
 
@@ -164,9 +170,12 @@ export function AccountPageClient() {
         // no-op: 表示は継続する
       }
 
-      return listUserMemberships(user.uid);
+      return Promise.all([listUserMemberships(user.uid), listUserFollows(user.uid)]);
     })()
-      .then(setMemberships)
+      .then(([nextMemberships, nextFollows]) => {
+        setMemberships(nextMemberships);
+        setFollows(nextFollows);
+      })
       .catch((cause: Error) => {
         setMembershipError(cause.message);
       });
@@ -252,15 +261,16 @@ export function AccountPageClient() {
   return (
     <div className="space-y-6">
 
-      {/* サポーター証 */}
+      {/* SPOT会員証 */}
       {user ? (
         <section className="space-y-3">
-          <h2 className="px-2 text-sm font-bold text-ink/72">MY SUPPORTER CARD</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">MY SPOT MEMBER CARD</h2>
           <div className="mx-auto max-w-sm space-y-3">
             <SocioCard
               uid={user.uid}
               displayName={resolveDisplayName(profileDisplayName, user.displayName, user.email)}
               avatarUrl={avatarUrl}
+              memberSince={memberSince}
               memberships={memberships}
               memberNumbers={memberNumbers}
             />
@@ -304,7 +314,7 @@ export function AccountPageClient() {
       ) : null}
 
       {/* サポート中のSPOTがない場合 */}
-      {activeList.length === 0 ? (
+      {activeList.length === 0 && (follows?.length ?? 0) === 0 ? (
         <section className="panel px-6 py-8 sm:px-8">
           <EmptyState
             title="まだサポート中のSPOTはありません"
@@ -312,6 +322,25 @@ export function AccountPageClient() {
           />
           <div className="mt-6">
             <Link href="/spots" className="cta-primary">SPOTを探す</Link>
+          </div>
+        </section>
+      ) : null}
+
+      {follows && follows.length > 0 ? (
+        <section className="space-y-4">
+          <h2 className="px-2 text-sm font-bold text-ink/72">無料で参加中のSPOT</h2>
+          <div className="panel divide-y divide-ink/8 overflow-hidden px-6 sm:px-8">
+            {follows.map((follow) => (
+              <div key={follow.spotId} className="flex items-center justify-between gap-4 py-4">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-ink">{follow.spotName}</p>
+                  <p className="mt-1 text-xs text-ink/60">{toDateLabel(follow.followedAt)}から参加</p>
+                </div>
+                <Link href={`/spots/${follow.spotId}`} className="cta-secondary shrink-0 text-sm">
+                  SPOTを見る
+                </Link>
+              </div>
+            ))}
           </div>
         </section>
       ) : null}

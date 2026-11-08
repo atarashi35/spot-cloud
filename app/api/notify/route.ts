@@ -9,6 +9,7 @@ type Body = {
   title: string;
   body: string;
   resourceId?: string;
+  isPublic?: boolean;
 };
 
 export async function POST(request: NextRequest) {
@@ -39,7 +40,8 @@ export async function POST(request: NextRequest) {
       body: payload.body,
       spotId: payload.spotId,
       spotName,
-      resourceId: payload.resourceId
+      resourceId: payload.resourceId,
+      includeFollowers: payload.isPublic === true
     });
 
     return NextResponse.json({ ok: true });

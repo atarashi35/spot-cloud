@@ -31,7 +31,7 @@ export function buildShareContent(data: SocioCardData): { text: string; url: str
 
   if (!first) {
     return {
-      text: "SPOTでサポーターを募集中です！",
+      text: "SPOT会員になりました。",
       url: `${base}/spots`,
     };
   }

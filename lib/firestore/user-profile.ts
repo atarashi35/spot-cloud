@@ -1,11 +1,12 @@
 "use client";
 
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { Timestamp, doc, getDoc, setDoc } from "firebase/firestore";
 import { getFirestoreDb } from "@/lib/firebase/client";
 
 export type SocioVisibilityLevel = "owner_only" | "same_spot_socios";
 
 export interface StoredUserProfile {
+  joinedAt?: string;
   profileDisplayName?: string;
   avatarUrl?: string;
   bio?: string;
@@ -22,6 +23,10 @@ export async function getUserProfileDoc(uid: string): Promise<StoredUserProfile 
     return typeof v === "string" && v.trim() ? v.trim() : undefined;
   }
   return {
+    joinedAt:
+      data.joinedAt instanceof Timestamp
+        ? data.joinedAt.toDate().toISOString()
+        : str(data.joinedAt),
     profileDisplayName: str(data.profileDisplayName),
     avatarUrl: str(data.avatarUrl),
     bio: str(data.bio),
@@ -30,6 +35,16 @@ export async function getUserProfileDoc(uid: string): Promise<StoredUserProfile 
     visibilityLevel:
       data.visibilityLevel === "same_spot_socios" ? "same_spot_socios" : "owner_only",
   };
+}
+
+/** ログイン済みユーザーをSPOT会員として記録する。既存プロフィールは変更しない。 */
+export async function ensureUserProfileDoc(uid: string, joinedAt: string): Promise<void> {
+  const ref = doc(getFirestoreDb(), "users", uid);
+  const snap = await getDoc(ref);
+
+  if (snap.exists() && snap.data().joinedAt) return;
+
+  await setDoc(ref, { joinedAt }, { merge: true });
 }
 
 export async function saveUserProfileDoc(
