@@ -67,6 +67,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [spot, setSpot] = useState<Spot | null>(null);
+  const [affiliatedSpots, setAffiliatedSpots] = useState<Spot[]>([]);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [events, setEvents] = useState<FeedEvent[]>([]);
   const [membership, setMembership] = useState<UserMembership | null>(null);
@@ -116,6 +117,13 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
     const nextEvents = feedData.events ?? [];
 
     setSpot(nextSpot);
+    if (nextSpot.affiliatedSpotIds?.length) {
+      void Promise.all(nextSpot.affiliatedSpotIds.map((id) => getSpotFromFirestore(id)))
+        .then((items) => setAffiliatedSpots(items.filter((item): item is Spot => Boolean(item?.isPublished && !item.isSuspended))))
+        .catch(() => setAffiliatedSpots([]));
+    } else {
+      setAffiliatedSpots([]);
+    }
     setPosts(nextPosts);
     setEvents(nextEvents);
     setMembership(nextMembership);
@@ -458,6 +466,11 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <SocioRankBadge socioCount={spot.socioCount} />
             </div>
             <h1 className="mt-4 text-3xl font-extrabold text-ink sm:text-4xl">{spot.name}</h1>
+            {spot.activityFields && spot.activityFields.length > 0 ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {spot.activityFields.map((field) => <span key={field} className="text-sm text-ink/65">#{field}</span>)}
+              </div>
+            ) : null}
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-[2.2rem] font-extrabold tabular-nums leading-none text-teal-600">
@@ -738,6 +751,33 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </p>
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {(affiliatedSpots.length > 0 || (spot.achievements?.length ?? 0) > 0) ? (
+        <section className="panel px-6 py-8 sm:px-10 sm:py-10">
+          {affiliatedSpots.length > 0 ? (
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-ink/45">AFFILIATION</p>
+              <h2 className="mt-2 text-2xl font-extrabold text-ink">所属団体</h2>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {affiliatedSpots.map((organization) => (
+                  <Link key={organization.id} href={`/spots/${organization.id}`} className="rounded-full border border-ink/12 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-moss hover:text-moss">
+                    {organization.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {spot.achievements && spot.achievements.length > 0 ? (
+            <div className={affiliatedSpots.length > 0 ? "mt-8 border-t border-ink/8 pt-8" : ""}>
+              <p className="text-xs font-bold uppercase tracking-widest text-ink/45">ACTIVITY</p>
+              <h2 className="mt-2 text-2xl font-extrabold text-ink">活動実績</h2>
+              <ul className="mt-4 divide-y divide-ink/8 border-y border-ink/8">
+                {spot.achievements.map((achievement, index) => <li key={`${achievement}-${index}`} className="py-3 text-[15px] leading-6 text-ink/78">{achievement}</li>)}
+              </ul>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

@@ -123,6 +123,12 @@ export interface Spot {
   description: string;
   shortDescription: string;
   category: SpotCategory;
+  /** 検索・プロフィールに表示する活動分野。 */
+  activityFields?: string[];
+  /** 展示、出演、受賞、制作などの主な活動実績。 */
+  achievements?: string[];
+  /** クリエイターSPOTが所属する団体SPOTのID。 */
+  affiliatedSpotIds?: string[];
   address: string;
   prefecture: string;
   city: string;

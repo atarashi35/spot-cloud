@@ -163,7 +163,7 @@ export function SpotListPage() {
     return spots.filter((spot) => {
       const matchesKeyword =
         normalized.length === 0 ||
-        [spot.name, spot.description, spot.address, spot.city, spot.prefecture, ...(spot.performerDisciplines ?? [])]
+        [spot.name, spot.description, spot.address, spot.city, spot.prefecture, ...(spot.activityFields ?? []), ...(spot.performerDisciplines ?? [])]
           .join(" ")
           .toLocaleLowerCase("ja-JP")
           .includes(normalized);

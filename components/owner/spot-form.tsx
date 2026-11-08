@@ -8,11 +8,12 @@ import { useAuth } from "@/components/providers/auth-provider";
 import {
   createSpotInFirestore,
   getSpotFromFirestore,
+  listPublishedSpotsFromFirestore,
   updateSpotInFirestore
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SPOT_CATEGORIES, SpotCategory, SpotKind, TeamMember } from "@/lib/types";
+import { SPOT_CATEGORIES, Spot, SpotCategory, SpotKind, TeamMember } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -160,6 +161,10 @@ export function SpotForm(props: SpotFormProps) {
   const [city, setCity] = useState("");
   const [addressLine, setAddressLine] = useState("");
   const [description, setDescription] = useState("");
+  const [activityFields, setActivityFields] = useState<string[]>([]);
+  const [achievements, setAchievements] = useState<string[]>([]);
+  const [affiliatedSpotIds, setAffiliatedSpotIds] = useState<string[]>([]);
+  const [organizationSpots, setOrganizationSpots] = useState<Spot[]>([]);
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [galleryImageUrls, setGalleryImageUrls] = useState<string[]>([]);
   const [isPublished, setIsPublished] = useState(true);
@@ -188,6 +193,12 @@ export function SpotForm(props: SpotFormProps) {
   }, [authReady, user]);
 
   useEffect(() => {
+    void listPublishedSpotsFromFirestore()
+      .then((spots) => setOrganizationSpots(spots.filter((spot) => spot.kind === "organization" && (props.mode !== "edit" || spot.id !== props.spotId))))
+      .catch(() => setOrganizationSpots([]));
+  }, [props]);
+
+  useEffect(() => {
     if (props.mode !== "edit") {
       return;
     }
@@ -214,6 +225,9 @@ export function SpotForm(props: SpotFormProps) {
           : spot.address.replace(`${spot.prefecture}${spot.city}`, "");
         setAddressLine(addressRest);
         setDescription(spot.description);
+        setActivityFields(spot.activityFields ?? []);
+        setAchievements(spot.achievements ?? []);
+        setAffiliatedSpotIds(spot.affiliatedSpotIds ?? []);
         setCoverImageUrl(spot.coverImageUrl ?? "");
         setGalleryImageUrls(spot.galleryImageUrls ?? []);
         setIsPublished(spot.isPublished);
@@ -279,7 +293,7 @@ export function SpotForm(props: SpotFormProps) {
       if (props.mode === "create") {
         const spotId = await createSpotInFirestore(
           {
-            name, kind, category, address: fullAddress, prefecture,
+            name, kind, category, activityFields: activityFields.filter(Boolean), achievements: achievements.filter(Boolean), affiliatedSpotIds: kind === "creator" ? affiliatedSpotIds : [], address: fullAddress, prefecture,
             city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
             phone: normalizedPhone, email: normalizedEmail,
             socialLinks: { website, instagram, twitter, line, youtube },
@@ -294,7 +308,7 @@ export function SpotForm(props: SpotFormProps) {
       }
 
       await updateSpotInFirestore(props.spotId, {
-        name, kind, category, address: fullAddress, prefecture,
+        name, kind, category, activityFields: activityFields.filter(Boolean), achievements: achievements.filter(Boolean), affiliatedSpotIds: kind === "creator" ? affiliatedSpotIds : [], address: fullAddress, prefecture,
         city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
@@ -443,6 +457,48 @@ export function SpotForm(props: SpotFormProps) {
         placeholder="説明"
         required
       />
+      <div className="space-y-4 rounded-[20px] border border-ink/10 p-4">
+        <div>
+          <p className="text-sm font-bold text-ink/72">活動分野</p>
+          <p className="mt-1 text-xs text-ink/60">検索やプロフィールに表示する言葉を登録します。</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {activityFields.map((field, index) => (
+            <span key={index} className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1.5 text-xs text-ink/72">
+              <input className="w-28 bg-transparent outline-none" value={field} onChange={(e) => setActivityFields((current) => current.map((item, i) => i === index ? e.target.value : item))} placeholder="例：写真" />
+              <button type="button" onClick={() => setActivityFields((current) => current.filter((_, i) => i !== index))}>×</button>
+            </span>
+          ))}
+          <button type="button" className="rounded-full border border-dashed border-ink/25 px-3 py-1.5 text-xs text-ink/60" onClick={() => setActivityFields((current) => [...current, ""])}>＋ 分野を追加</button>
+        </div>
+
+        <div className="border-t border-ink/8 pt-4">
+          <p className="text-sm font-bold text-ink/72">活動実績</p>
+          <div className="mt-3 space-y-2">
+            {achievements.map((achievement, index) => (
+              <div key={index} className="flex gap-2">
+                <input className="field flex-1 text-sm" value={achievement} onChange={(e) => setAchievements((current) => current.map((item, i) => i === index ? e.target.value : item))} placeholder="例：2026年 ○○展に出展" />
+                <button type="button" className="px-2 text-xs text-ink/60" onClick={() => setAchievements((current) => current.filter((_, i) => i !== index))}>削除</button>
+              </div>
+            ))}
+            <button type="button" className="text-sm font-semibold text-moss" onClick={() => setAchievements((current) => [...current, ""])}>＋ 実績を追加</button>
+          </div>
+        </div>
+
+        {kind === "creator" && organizationSpots.length > 0 ? (
+          <div className="border-t border-ink/8 pt-4">
+            <p className="text-sm font-bold text-ink/72">所属団体</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {organizationSpots.map((organization) => (
+                <label key={organization.id} className="flex items-center gap-2 rounded-[12px] bg-mist px-3 py-2 text-sm text-ink/75">
+                  <input type="checkbox" checked={affiliatedSpotIds.includes(organization.id)} onChange={(e) => setAffiliatedSpotIds((current) => e.target.checked ? [...current, organization.id] : current.filter((id) => id !== organization.id))} />
+                  {organization.name}
+                </label>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <input
           className="field"
