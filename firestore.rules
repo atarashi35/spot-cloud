@@ -17,14 +17,8 @@ service cloud.firestore {
 
     match /spots/{spotId} {
       allow read: if resource == null || resource.data.isPublished == true || isResourceOwner(resource.data.ownerUid);
-      allow create: if signedIn()
-                    && request.resource.data.ownerUid == request.auth.uid
-                    && request.resource.data.isPublished == false
-                    && request.resource.data.reviewStatus == "pending";
-      allow update: if isResourceOwner(resource.data.ownerUid)
-                    && request.resource.data.get("reviewStatus", "approved") == resource.data.get("reviewStatus", "approved")
-                    && (resource.data.get("reviewStatus", "approved") == "approved" || request.resource.data.isPublished == false);
-      allow delete: if isResourceOwner(resource.data.ownerUid);
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isResourceOwner(resource.data.ownerUid);
 
       match /members/{uid} {
         allow read: if signedIn() && (request.auth.uid == uid || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid));

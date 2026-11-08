@@ -717,7 +717,7 @@ export function SpotForm(props: SpotFormProps) {
 
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
       <button type="submit" className="cta-primary" disabled={saving}>
-        {saving ? "保存中..." : props.mode === "create" ? "登録を申請する" : "更新する"}
+        {saving ? "保存中..." : props.mode === "create" ? "登録して公開する" : "更新する"}
       </button>
     </form>
   );

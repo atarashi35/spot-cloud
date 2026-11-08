@@ -167,11 +167,7 @@ export function AdminConsoleClient() {
 
             {/* 公開状態 */}
             <div className="flex justify-center">
-              {spot.reviewStatus === "pending" ? (
-                <StatusBadge tone="warning">審査中</StatusBadge>
-              ) : spot.reviewStatus === "rejected" ? (
-                <StatusBadge tone="danger">差し戻し</StatusBadge>
-              ) : spot.isSuspended ? (
+              {spot.isSuspended ? (
                 <StatusBadge tone="danger">停止中</StatusBadge>
               ) : spot.isPublished ? (
                 <StatusBadge tone="success">公開中</StatusBadge>
