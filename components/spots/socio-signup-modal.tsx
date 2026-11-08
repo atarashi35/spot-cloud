@@ -149,9 +149,9 @@ export function SocioSignupModal({
 
   async function startCheckout() {
     if (checkoutInFlight.current) return;
-    checkoutInFlight.current = true;
     if (!user) { setError("ログインが必要です。"); return; }
     if (!name.trim()) { setError("お名前を入力してください。"); return; }
+    checkoutInFlight.current = true;
     setLoading(true);
     setError(null);
     saveUserProfileCache({ name: name.trim() });
@@ -189,8 +189,8 @@ export function SocioSignupModal({
     <div className="fixed inset-0 z-[140] overflow-y-auto bg-ink/35 backdrop-blur-sm">
       <button type="button" className="absolute inset-0 cursor-default" aria-label="閉じる" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center px-4 py-6">
-        <section className="menu-surface relative z-[141] w-full max-w-3xl overflow-hidden p-0">
-          <div className="grid md:grid-cols-[1.1fr_0.9fr]">
+        <section role="dialog" aria-modal="true" aria-label="月額サポーター登録" className="menu-surface relative z-[141] w-full max-w-lg overflow-hidden p-0">
+          <div>
 
             {/* ── 左カラム: フォーム → ステッパー → CTA ── */}
             <div className="relative p-6 sm:p-7">
@@ -325,8 +325,8 @@ export function SocioSignupModal({
             </div>
 
             {/* ── 右カラム: 特典（静的）── */}
-            <aside className="flex flex-col border-t border-ink/8 bg-mist/60 p-6 md:border-l md:border-t-0">
-              <p className="text-xs font-bold text-ink/55">加入すると</p>
+            <details className="border-t border-ink/8 px-6 py-4">
+              <summary className="cursor-pointer text-sm font-semibold text-ink/65">月額サポーターの特典</summary>
               <div className="mt-3 space-y-3.5">
                 {[
                   "番号入りのサポーター証を受け取れる",
@@ -356,7 +356,7 @@ export function SocioSignupModal({
                   </>
                 )}
               </div>
-            </aside>
+            </details>
 
           </div>
         </section>

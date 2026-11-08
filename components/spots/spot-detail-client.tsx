@@ -12,6 +12,7 @@ import { VoicesSection } from "@/components/spots/voices-section";
 import { useAuth } from "@/components/providers/auth-provider";
 import { EventJoinButton } from "@/components/spots/event-join-button";
 import { SocioSignupModal } from "@/components/spots/socio-signup-modal";
+import { SupportChoiceModal } from "@/components/spots/support-choice-modal";
 import { BookingRequestModal } from "@/components/spots/booking-request-modal";
 import { MetricPill } from "@/components/ui/metric-pill";
 import { SocioRankBadge } from "@/components/ui/socio-rank-badge";
@@ -78,12 +79,14 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   const [socioNumber, setSocioNumber] = useState<number | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
   const [signupModalOpen, setSignupModalOpen] = useState(false);
+  const [choiceModalOpen, setChoiceModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanAmount>(defaultPlanAmount);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [emailJoinPlan, setEmailJoinPlan] = useState<PlanAmount | null>(null);
-  const [showOwnerCta, setShowOwnerCta] = useState(false);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
   const mainCtaRef = useRef<HTMLElement>(null);
+  const freeJoinInFlight = useRef(false);
 
   async function loadSpotDetail(currentUser = user) {
     const nextSpot = await getSpotFromFirestore(spotId).catch((e: unknown) => { throw Object.assign(e as Error, { _step: "getSpot" }); });
@@ -153,6 +156,9 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       return;
     }
 
+    if (freeJoinInFlight.current) return;
+    freeJoinInFlight.current = true;
+
     setFollowLoading(true);
     setFollowError(null);
     try {
@@ -165,22 +171,23 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       if (!response.ok) throw new Error(data.error ?? "更新できませんでした。");
       sessionStorage.removeItem(`${FREE_JOIN_PENDING_PREFIX}${spotId}`);
       await loadSpotDetail(currentUser);
-      if (action === "join") setShowOwnerCta(true);
     } catch {
       setFollowError("無料サポーターの登録を更新できませんでした。もう一度お試しください。");
     } finally {
+      freeJoinInFlight.current = false;
       setFollowLoading(false);
     }
   }
 
   useEffect(() => {
     if (!user) return;
-    const pending = followAfterLogin || sessionStorage.getItem(`${FREE_JOIN_PENDING_PREFIX}${spotId}`) === "1";
+    const pending = followAfterLogin || sessionStorage.getItem(`${FREE_JOIN_PENDING_PREFIX}${spotId}`) === "1" || searchParams.get("freeJoin") === "1";
     if (!pending) return;
     setFollowAfterLogin(false);
     setFollowLoginOpen(false);
+    if (searchParams.get("freeJoin") === "1") router.replace(`/spots/${spotId}`);
     void updateFreeMembership("join", user);
-  }, [followAfterLogin, spotId, user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [followAfterLogin, spotId, user, searchParams, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // メールリンク認証コールバック後の自動モーダルオープン
   // URL パラメータではなく sessionStorage 経由で受け取る（ルーティング競合回避）
@@ -287,7 +294,6 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         const currentMembership = await getUserMembership(currentUser.uid, spotId);
         if (currentMembership) {
           setShowWelcomeBanner(true);
-          setShowOwnerCta(true);
           router.replace(`/spots/${spotId}`);
           return;
         }
@@ -358,9 +364,20 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         onClose={() => { setSignupModalOpen(false); setEmailJoinPlan(null); }}
         defaultPlan={
           emailJoinPlan ??
-          (membership && isSignupPlan(membership.planAmount) ? membership.planAmount : defaultPlanAmount)
+          selectedPlan
         }
         initialStep={emailJoinPlan ? "profile" : undefined}
+      />
+      <SupportChoiceModal
+        open={choiceModalOpen}
+        onClose={() => setChoiceModalOpen(false)}
+        spotName={spot.name}
+        amount={selectedPlan}
+        onAmountChange={setSelectedPlan}
+        canAcceptMonthly={canAcceptMembership}
+        isFollowing={isFollowing}
+        onMonthly={() => { setChoiceModalOpen(false); setSignupModalOpen(true); }}
+        onFree={() => { setChoiceModalOpen(false); void updateFreeMembership("join"); }}
       />
       <LoginModal
         open={followLoginOpen}
@@ -370,7 +387,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           setFollowAfterLogin(false);
         }}
         onSuccess={() => setFollowAfterLogin(true)}
-        returnTo={`/spots/${spotId}`}
+        returnTo={`/spots/${spotId}?freeJoin=1`}
       />
 
       <BookingRequestModal spot={spot} open={bookingModalOpen} onClose={() => setBookingModalOpen(false)} />
@@ -409,32 +426,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             </Link>
             {" "}から確認できます。
           </p>
-          <div className="border-t border-ink/8 pt-4 text-center">
-            <p className="text-sm font-semibold text-ink">活動する側として登録することもできます</p>
-            <div className="mt-3 flex justify-center gap-2">
-              <Link href="/owner/spots/new?kind=creator" className="cta-secondary text-sm" onClick={() => setShowWelcomeBanner(false)}>クリエイター登録</Link>
-              <Link href="/owner/spots/new?kind=organization" className="cta-primary text-sm" onClick={() => setShowWelcomeBanner(false)}>団体登録</Link>
-            </div>
-          </div>
         </div>
       </ModalShell>
-
-      {showOwnerCta && (
-        <div className="flex items-center justify-between gap-4 rounded-[20px] border border-moss/20 bg-moss/8 px-5 py-4">
-          <p className="text-sm font-medium text-ink">活動する側としてもSPOTに参加できます</p>
-          <div className="flex shrink-0 items-center gap-3">
-            <Link href="/owner/spots/new?kind=creator" className="cta-secondary text-sm">クリエイター登録</Link>
-            <Link href="/owner/spots/new?kind=organization" className="cta-primary text-sm">団体登録</Link>
-            <button
-              type="button"
-              className="text-xs text-ink/65 hover:text-ink"
-              onClick={() => setShowOwnerCta(false)}
-            >
-              閉じる
-            </button>
-          </div>
-        </div>
-      )}
 
       <section className="panel overflow-hidden">
         <div className="relative h-64 w-full">
@@ -603,7 +596,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   公開される投稿やイベントをマイページから確認できます。
                 </p>
                 {canAcceptMembership ? (
-                  <button type="button" className="cta-primary mt-5 w-full" onClick={() => setSignupModalOpen(true)}>
+                  <button type="button" className="cta-primary mt-5 w-full" onClick={() => setChoiceModalOpen(true)}>
                     月額サポーターになる
                   </button>
                 ) : null}
@@ -633,30 +626,12 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 <div className="mt-4 flex flex-wrap gap-3">
                   <StatusBadge>{getMembershipStatusLabel(membershipStatus)}</StatusBadge>
                 </div>
-                {canAcceptMembership ? (
-                  <div className="mt-5 space-y-3">
-                    <button type="button" className="cta-primary w-full" onClick={() => setSignupModalOpen(true)}>
-                      月額サポーターになる
-                    </button>
-                    <button type="button" className="cta-secondary w-full" disabled={followLoading} onClick={() => void updateFreeMembership("join")}>
-                      無料サポーターになる
-                    </button>
-                  </div>
-                ) : (
-                  <button type="button" className="cta-primary mt-5 w-full" disabled={followLoading} onClick={() => void updateFreeMembership("join")}>
-                    無料サポーターになる
-                  </button>
-                )}
+                <button type="button" className="cta-primary mt-5 w-full" onClick={() => setChoiceModalOpen(true)}>サポーターになる</button>
               </>
             ) : !canAcceptMembership ? (
               <>
-                <h2 className="text-2xl font-extrabold text-ink">加入受付は準備中です</h2>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <StatusBadge>受取設定中</StatusBadge>
-                </div>
-                <button type="button" className="cta-primary mt-5 w-full" disabled={followLoading} onClick={() => void updateFreeMembership("join")}>
-                  無料サポーターになる
-                </button>
+                <h2 className="text-2xl font-extrabold text-ink">サポーター募集中</h2>
+                <button type="button" className="cta-primary mt-5 w-full" onClick={() => setChoiceModalOpen(true)}>サポーターになる</button>
               </>
             ) : (
               /* ── 未加入・募集中（メイン訴求）── bg-ink 反転パネル */
@@ -674,64 +649,21 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   )}
                 </div>
 
-                {/* ベネフィット — デフォルト常時表示 + 口数特典を下に追加 */}
-                {(() => {
-                  const pb = spot.planBenefits as Record<number, string | undefined> | undefined;
-                  const getBenefit = (ko: 5 | 10) => pb?.[ko] ?? pb?.[ko * 100];
-                  const hasBenefits = ([5, 10] as const).some((t) => getBenefit(t));
-                  return (
-                    <ul className="space-y-2">
-                      {[
-                        "限定の投稿が読める",
-                        "番号入りのサポーター証を持てる",
-                        "このSPOTの継続を支える",
-                      ].map((text) => (
-                        <li key={text} className="flex items-center gap-2.5 text-[14px] text-white/80">
-                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-teal-400/20 text-[10px] font-bold text-teal-400">✓</span>
-                          {text}
-                        </li>
-                      ))}
-                      {hasBenefits && (
-                        <>
-                          <li className="my-0.5 h-px bg-white/10 list-none" />
-                          {([5, 10] as const).map((threshold) => {
-                            const benefit = getBenefit(threshold);
-                            if (!benefit) return null;
-                            return (
-                              <li key={threshold} className="flex items-start gap-2.5 text-[14px] text-white/80">
-                                <span className="mt-0.5 shrink-0 rounded-full bg-teal-400/20 px-2 py-0.5 text-[11px] font-bold text-teal-400">{threshold}口以上</span>
-                                {benefit}
-                              </li>
-                            );
-                          })}
-                        </>
-                      )}
-                    </ul>
-                  );
-                })()}
-
                 {/* CTA */}
                 <div className="mt-auto pt-2">
                   <button
                     type="button"
                     className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
-                    onClick={() => setSignupModalOpen(true)}
+                    onClick={() => setChoiceModalOpen(true)}
                   >
-                    月額サポーターになる
-                  </button>
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-full border border-white/25 py-3 text-center text-sm font-semibold text-white/85 transition hover:bg-white/10 disabled:opacity-50"
-                    disabled={followLoading}
-                    onClick={() => void updateFreeMembership("join")}
-                  >
-                    {followLoading ? "登録中..." : "無料サポーターになる"}
+                    サポーターになる
                   </button>
                   {followError ? <p className="mt-3 text-sm text-red-300">{followError}</p> : null}
                 </div>
               </div>
             )}
           </aside>
+          {followError && !isFollowing ? <p role="alert" className="text-sm text-red-700">{followError}</p> : null}
           </div>
         </div>
       </section>
@@ -960,9 +892,9 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           <button
             type="button"
             className="cta-primary shrink-0"
-            onClick={() => setSignupModalOpen(true)}
+            onClick={() => setChoiceModalOpen(true)}
           >
-            月額サポーターになる
+            {isFollowing ? "月額サポーターになる" : "サポーターになる"}
           </button>
         </div>
       )}
