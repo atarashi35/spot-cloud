@@ -1,4 +1,4 @@
-import { TopLanding } from "@/components/landing/top-landing";
+import { HomeClient } from "@/components/landing/home-client";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <TopLanding />;
+  return <HomeClient />;
 }
