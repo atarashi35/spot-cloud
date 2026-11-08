@@ -24,7 +24,7 @@ export function MemberQr({ user }: { user: User }) {
     } catch { setError(true); }
   }
   return <div className="text-center">
-    <button type="button" className="cta-secondary text-sm" onClick={() => void create()}>{qr ? "QRを更新" : "イベント受付用QRを表示"}</button>
+    <button type="button" className="cta-secondary text-sm" onClick={() => void create()}>{qr ? "QRを更新" : "サポーター確認用QRを表示"}</button>
     {qr && !expired ? <div className="mt-3 inline-block rounded-xl bg-white p-4"><QRCode value={`${window.location.origin}/member-checkin#${qr.token}`} size={180} /><p className="mt-2 text-xs text-ink/65">{new Date(qr.expiresAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}まで有効</p></div> : null}
     {expired ? <p className="mt-2 text-sm text-ink/65">有効期限が切れました。QRを更新してください。</p> : null}
     {error ? <p className="mt-2 text-sm text-red-700">QRを表示できませんでした。</p> : null}

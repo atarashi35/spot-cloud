@@ -280,7 +280,7 @@ export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string
     return (
       <EmptyState
         title="運営中のSPOTはログイン後に利用できます"
-        description="Google ログインを行うと、自分のSPOTを登録・編集できるようになります。"
+        description="ログインすると、自分のSPOTを登録・編集できます。"
       />
     );
   }
@@ -712,7 +712,7 @@ export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string
                 </Link>
                 <a href={`/manage/${spot.id}/socios`} className={MENU_ITEM_CLS}>
                   <Users className="h-4 w-4 shrink-0 text-ink/55" />
-                  <span className="truncate">月額サポーター（{socioCount}）</span>
+                  <span className="truncate">サポーター一覧</span>
                 </a>
                 <a href={`/manage/${spot.id}/benefits`} className={MENU_ITEM_CLS}>
                   <Gift className="h-4 w-4 shrink-0 text-ink/55" />

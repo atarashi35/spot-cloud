@@ -5,11 +5,13 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { LoginModal } from "@/components/auth/login-modal";
 
 type Event = { spotId: string; spotName: string; eventId: string; title: string; startAt: string; checkedIn: boolean; displayName: string };
+type Supporter = { spotId: string; spotName: string; kind: "free" | "monthly"; amount?: number; displayName: string };
 
 export function MemberCheckin() {
   const { authReady, user } = useAuth();
   const [token, setToken] = useState("");
   const [events, setEvents] = useState<Event[] | null>(null);
+  const [supporters, setSupporters] = useState<Supporter[]>([]);
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
   const [busy, setBusy] = useState("");
@@ -26,8 +28,8 @@ export function MemberCheckin() {
     if (!user || !token) return;
     let cancelled = false;
     void user.getIdToken().then((auth) => fetch("/api/member-checkin", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth}` }, body: JSON.stringify({ token }) }))
-      .then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ events: Event[] }>; })
-      .then((data) => { if (!cancelled) setEvents(data.events); })
+      .then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ events: Event[]; supporters: Supporter[] }>; })
+      .then((data) => { if (!cancelled) { setEvents(data.events); setSupporters(data.supporters); } })
       .catch(() => { if (!cancelled) setError("QRの有効期限が切れたか、読み取れませんでした。会員にQRの更新を依頼してください。"); });
     return () => { cancelled = true; };
   }, [user, token]);
@@ -43,11 +45,17 @@ export function MemberCheckin() {
     finally { setBusy(""); }
   }
   return <main className="panel mx-auto max-w-xl px-6 py-8">
-    <h1 className="text-2xl font-bold">会員受付</h1>
+    <h1 className="text-2xl font-bold">サポーター確認</h1>
     {!authReady ? <p className="mt-4 text-sm">確認中です。</p> : !user ? <><p className="mt-4 text-sm">受付するSPOTの運営者アカウントでログインしてください。</p><button className="cta-primary mt-4" onClick={() => setLoginOpen(true)}>ログイン</button><LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} returnTo="/member-checkin" /></> : null}
     {authReady && user && !token ? <p className="mt-4 text-sm">会員の受付用QRを読み取ってください。</p> : null}
     {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
-    {user && events && events.length === 0 ? <p className="mt-4 text-sm">運営中のSPOTに、この会員の参加確定イベントはありません。</p> : null}
+    {supporters.map((supporter) => <div key={supporter.spotId} className="mt-4 border-t border-ink/10 pt-4">
+      <p className="font-bold">{supporter.spotName}</p>
+      <p className="mt-1 text-sm">{supporter.displayName || "名前未設定"}</p>
+      <p className="mt-2 text-sm font-semibold text-moss">{supporter.kind === "free" ? "無料サポーター" : `月額サポーター${supporter.amount ? `（${supporter.amount.toLocaleString("ja-JP")}円／月）` : ""}`}</p>
+    </div>)}
+    {user && events && supporters.length === 0 ? <p className="mt-4 text-sm">運営中のSPOTに、この会員のサポーター登録はありません。</p> : null}
+    {events && events.length > 0 ? <h2 className="mt-7 text-sm font-semibold text-ink/65">イベント受付</h2> : null}
     {events?.map((event) => <div key={`${event.spotId}-${event.eventId}`} className="mt-4 border-t border-ink/10 pt-4">
       <p className="text-sm text-ink/60">{event.spotName} · {event.startAt ? new Date(event.startAt).toLocaleString("ja-JP") : "日時未設定"}</p>
       <p className="mt-1 font-bold">{event.title}</p><p className="mt-1 text-sm">{event.displayName || "参加者"}</p>

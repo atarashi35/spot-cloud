@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <PageHeader
         eyebrow="LEGAL"
         title="プライバシーポリシー"
-        subtitle="最終更新日: 2026年6月1日"
+        subtitle="最終更新日: 2026年11月9日"
       />
 
       <PageShell>
@@ -26,9 +26,9 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold text-ink">2. 収集する情報</h2>
             <ul className="mt-3 list-inside list-disc space-y-2">
-              <li>氏名・メールアドレス（Googleアカウント連携による取得）</li>
+              <li>表示名・メールアドレスなど、登録時または利用時に入力・連携した情報</li>
               <li>決済情報（クレジットカード情報はStripeが管理し、運営者は保持しません）</li>
-              <li>サービス利用履歴（所属SPOT・加入プラン・加入日時）</li>
+              <li>サービス利用履歴（サポート先・加入プラン・加入日時、イベント参加・受付の記録など）</li>
             </ul>
           </section>
 
@@ -45,7 +45,8 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold text-ink">4. 第三者提供</h2>
             <p className="mt-3">
-              運営者は、法令に基づく場合を除き、ユーザーの個人情報を第三者に提供しません。
+              サポーター登録先のSPOT運営者には、そのSPOTの登録状況や表示名など、運営に必要な情報を提供します。月額サポーターについては、申込時に入力された氏名・メールアドレス・住所等も当該SPOT運営者が確認できます。
+              その他、法令に基づく場合などを除き、本人の同意なく個人情報を第三者に提供しません。
             </p>
           </section>
 

@@ -170,7 +170,7 @@ export function SpotPayoutPanel({ spotId }: { spotId: string }) {
     return (
       <EmptyState
         title="受取設定はログイン後に利用できます"
-        description="Google ログインした状態で、自分の SPOT の受取設定を進めてください。"
+        description="ログインした状態で、自分のSPOTの受取設定を進めてください。"
       />
     );
   }

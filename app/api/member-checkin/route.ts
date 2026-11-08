@@ -28,6 +28,24 @@ export async function POST(request: NextRequest) {
     }
     const spots = await db.collection("spots").where("ownerUid", "==", ownerUid).get();
     const owned = new Map(spots.docs.map((spot) => [spot.id, String(spot.data().name ?? "")]));
+    const support = await Promise.all(spots.docs.map(async (spot) => {
+      const [monthly, free] = await Promise.all([
+        db.doc(`spots/${spot.id}/members/${uid}`).get(),
+        db.doc(`spots/${spot.id}/followers/${uid}`).get(),
+      ]);
+      const data = monthly.data();
+      if (data?.status === "active" || data?.status === "canceling") {
+        return { spotId: spot.id, spotName: owned.get(spot.id), kind: "monthly", amount: Number(data.planAmount ?? 0), displayName: String(data.displayName ?? "") };
+      }
+      return free.exists ? { spotId: spot.id, spotName: owned.get(spot.id), kind: "free", displayName: "" } : null;
+    }));
+    const registered = support.filter((item) => item !== null);
+    if (registered.length) {
+      const profile = await db.doc(`users/${uid}`).get();
+      const fallbackName = (await getAdminAuth().getUser(uid).catch(() => null))?.displayName ?? "";
+      const displayName = (typeof profile.data()?.profileDisplayName === "string" ? profile.data()!.profileDisplayName.trim() : "") || fallbackName;
+      for (const item of registered) item.displayName = displayName || item.displayName;
+    }
     const records = await db.collectionGroup("participants").where("uid", "==", uid).get();
     const choices = await Promise.all(records.docs.map(async (record) => {
       const event = record.ref.parent.parent;
@@ -37,7 +55,7 @@ export async function POST(request: NextRequest) {
       if (!snap.exists) return null;
       return { spotId: spot.id, spotName: owned.get(spot.id), eventId: event.id, title: String(snap.data()?.title ?? ""), startAt: String(snap.data()?.startAt ?? ""), checkedIn: Boolean(record.data().checkedInAt), displayName: String(record.data().displayName ?? "") };
     }));
-    return NextResponse.json({ events: choices.filter(Boolean) }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ supporters: registered, events: choices.filter(Boolean) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "checkin_error";
     return NextResponse.json({ error: message }, { status: message === "auth_required" ? 401 : message === "forbidden" ? 403 : message === "expired_qr" || message === "invalid_qr" ? 400 : 500 });

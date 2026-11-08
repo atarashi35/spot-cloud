@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SocioListPanel } from "@/components/owner/socio-list-panel";
+import { FreeSupporters } from "@/components/owner/free-supporters";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSpotFromFirestore } from "@/lib/firestore/spots";
@@ -31,7 +32,9 @@ export function SocioManageClient({ spotId }: { spotId: string }) {
         <h1 className="text-2xl font-extrabold text-ink">{spotName ?? "…"}</h1>
         <p className="mt-1 text-sm text-ink/68">サポーター管理</p>
       </div>
+      <p className="text-sm text-ink/65">サポーター確認は、会員証のQRをスマートフォンのカメラで読み取ってください。</p>
       <SocioListPanel spotId={spotId} spotName={spotName ?? spotId} defaultOpen />
+      <FreeSupporters spotId={spotId} />
     </div>
   );
 }

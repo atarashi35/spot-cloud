@@ -94,7 +94,7 @@ export function SocioListPanel({ spotId, spotName, defaultOpen = false }: { spot
         onClick={() => setOpen((p) => !p)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-ink/72">サポーター一覧</span>
+          <span className="text-sm font-bold text-ink/72">月額サポーター一覧</span>
           {members !== null ? (
             <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-ink/78">
               {payingCount}人
