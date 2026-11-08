@@ -324,6 +324,15 @@ export async function POST(request: Request) {
       if (!snap.empty) {
         await snap.docs[0].ref.update({ payoutState: state });
       }
+
+      // Expressのオンボーディング完了時にStripe側がpayoutsスケジュールを
+      // 自動(デフォルト)に戻すことがあるため、manual以外になっていたら都度書き戻す。
+      if (stripe && account.settings?.payouts?.schedule?.interval !== "manual") {
+        await stripe.accounts.update(account.id, {
+          settings: { payouts: { schedule: { interval: "manual" } } }
+        });
+      }
+
       return NextResponse.json({ received: true, type: event.type, payoutState: state });
     }
 
