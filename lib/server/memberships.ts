@@ -79,6 +79,8 @@ export async function upsertMembership(payload: MembershipPayload) {
     );
 
     if (becameActive) {
+      transaction.set(db.collection(`users/${payload.uid}/supportHistory`).doc(), { spotId: payload.spotId, spotName: payload.spotName, kind: "monthly", action: "joined", occurredAt: FieldValue.serverTimestamp() });
+      if (followerSnapshot.exists) transaction.set(db.collection(`users/${payload.uid}/supportHistory`).doc(), { spotId: payload.spotId, spotName: payload.spotName, kind: "free", action: "upgraded", occurredAt: FieldValue.serverTimestamp() });
       transaction.update(db.doc(`spots/${payload.spotId}`), {
         socioCount: FieldValue.increment(1),
         ...(followerSnapshot.exists ? { followerCount: FieldValue.increment(-1) } : {}),
@@ -91,6 +93,7 @@ export async function upsertMembership(payload: MembershipPayload) {
     }
 
     if (becameInactive) {
+      transaction.set(db.collection(`users/${payload.uid}/supportHistory`).doc(), { spotId: payload.spotId, spotName: payload.spotName, kind: "monthly", action: "ended", occurredAt: FieldValue.serverTimestamp() });
       transaction.update(db.doc(`spots/${payload.spotId}`), {
         socioCount: FieldValue.increment(-1),
         updatedAt: FieldValue.serverTimestamp()

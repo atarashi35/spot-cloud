@@ -19,6 +19,7 @@ import { resolveDisplayName } from "@/lib/user-profile";
 import { listUserFollows } from "@/lib/firestore/follows";
 import type { UserFollow } from "@/lib/types";
 import { ActivityPassport } from "@/components/account/activity-passport";
+import { MemberQr } from "@/components/account/member-qr";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
@@ -275,6 +276,7 @@ export function AccountPageClient() {
               memberships={memberships}
               memberNumbers={memberNumbers}
             />
+            <MemberQr user={user} />
             {!profileDisplayName ? (
               <Link
                 href="/settings"

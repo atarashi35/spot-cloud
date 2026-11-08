@@ -12,7 +12,12 @@ export async function GET(request: NextRequest) {
   }
   try {
     const db = getAdminDb();
-    const participants = await db.collectionGroup("participants").where("uid", "==", uid).get();
+    const [participants, historySnap, followsSnap, membershipsSnap] = await Promise.all([
+      db.collectionGroup("participants").where("uid", "==", uid).get(),
+      db.collection(`users/${uid}/supportHistory`).get(),
+      db.collection(`users/${uid}/follows`).get(),
+      db.collection(`users/${uid}/memberships`).get(),
+    ]);
     const events = await Promise.all(participants.docs.map(async (participant) => {
       const eventRef = participant.ref.parent.parent;
       const spotRef = eventRef?.parent.parent;
@@ -29,7 +34,16 @@ export async function GET(request: NextRequest) {
         checkedInAt: data.checkedInAt?.toDate?.().toISOString() ?? null,
       };
     }));
-    return NextResponse.json({ events: events.filter((event) => event !== null).sort((a, b) => b.startAt.localeCompare(a.startAt)) }, { headers: { "Cache-Control": "private, no-store" } });
+    const iso = (value: unknown) => typeof value === "string" ? value : (value as { toDate?: () => Date } | null)?.toDate?.().toISOString() ?? "";
+    const history = historySnap.docs.map((doc) => ({ id: doc.id, spotId: String(doc.data().spotId ?? ""), spotName: String(doc.data().spotName ?? ""), kind: String(doc.data().kind ?? ""), action: String(doc.data().action ?? ""), occurredAt: iso(doc.data().occurredAt) }));
+    const knownStarts = new Set(history.filter((item) => item.action === "joined").map((item) => `${item.spotId}:${item.kind}`));
+    for (const doc of followsSnap.docs) {
+      if (!knownStarts.has(`${doc.id}:free`)) history.push({ id: `free-${doc.id}`, spotId: doc.id, spotName: String(doc.data().spotName ?? ""), kind: "free", action: "joined", occurredAt: iso(doc.data().followedAt) });
+    }
+    for (const doc of membershipsSnap.docs) {
+      if (!knownStarts.has(`${doc.id}:monthly`)) history.push({ id: `monthly-${doc.id}`, spotId: doc.id, spotName: String(doc.data().spotName ?? ""), kind: "monthly", action: "joined", occurredAt: iso(doc.data().joinedAt) });
+    }
+    return NextResponse.json({ events: events.filter((event) => event !== null).sort((a, b) => b.startAt.localeCompare(a.startAt)), history: history.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)) }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("[activity]", error);
     return NextResponse.json({ error: "activity_unavailable" }, { status: 500 });

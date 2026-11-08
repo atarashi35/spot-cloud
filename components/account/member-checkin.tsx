@@ -1,0 +1,48 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useAuth } from "@/components/providers/auth-provider";
+import { LoginModal } from "@/components/auth/login-modal";
+
+type Event = { spotId: string; spotName: string; eventId: string; title: string; startAt: string; checkedIn: boolean; displayName: string };
+
+export function MemberCheckin() {
+  const { authReady, user } = useAuth();
+  const [token, setToken] = useState("");
+  const [events, setEvents] = useState<Event[] | null>(null);
+  const [error, setError] = useState("");
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [busy, setBusy] = useState("");
+  useEffect(() => { setToken(window.location.hash.slice(1)); }, []);
+  useEffect(() => {
+    if (!user || !token) return;
+    let cancelled = false;
+    void user.getIdToken().then((auth) => fetch("/api/member-checkin", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth}` }, body: JSON.stringify({ token }) }))
+      .then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ events: Event[] }>; })
+      .then((data) => { if (!cancelled) setEvents(data.events); })
+      .catch(() => { if (!cancelled) setError("QRの有効期限が切れたか、読み取れませんでした。会員にQRの更新を依頼してください。"); });
+    return () => { cancelled = true; };
+  }, [user, token]);
+  async function checkin(event: Event) {
+    if (!user) return;
+    setBusy(event.eventId); setError("");
+    try {
+      const auth = await user.getIdToken();
+      const response = await fetch("/api/member-checkin", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth}` }, body: JSON.stringify({ token, spotId: event.spotId, eventId: event.eventId }) });
+      if (!response.ok) throw new Error();
+      setEvents((current) => current?.map((item) => item.spotId === event.spotId && item.eventId === event.eventId ? { ...item, checkedIn: true } : item) ?? null);
+    } catch { setError("受付できませんでした。QRの期限と参加状況を確認してください。"); }
+    finally { setBusy(""); }
+  }
+  return <main className="panel mx-auto max-w-xl px-6 py-8">
+    <h1 className="text-2xl font-bold">会員受付</h1>
+    {!authReady ? <p className="mt-4 text-sm">確認中です。</p> : !user ? <><p className="mt-4 text-sm">受付するSPOTの運営者アカウントでログインしてください。</p><button className="cta-primary mt-4" onClick={() => setLoginOpen(true)}>ログイン</button><LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} /></> : null}
+    {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
+    {user && events && events.length === 0 ? <p className="mt-4 text-sm">運営中のSPOTに、この会員の参加確定イベントはありません。</p> : null}
+    {events?.map((event) => <div key={`${event.spotId}-${event.eventId}`} className="mt-4 border-t border-ink/10 pt-4">
+      <p className="text-sm text-ink/60">{event.spotName} · {event.startAt ? new Date(event.startAt).toLocaleString("ja-JP") : "日時未設定"}</p>
+      <p className="mt-1 font-bold">{event.title}</p><p className="mt-1 text-sm">{event.displayName || "参加者"}</p>
+      <button type="button" className="cta-primary mt-3 text-sm" disabled={event.checkedIn || Boolean(busy)} onClick={() => void checkin(event)}>{event.checkedIn ? "受付済み" : busy === event.eventId ? "処理中..." : "チェックイン"}</button>
+    </div>)}
+  </main>;
+}

@@ -74,6 +74,7 @@ export async function POST(
       const followedAt = FieldValue.serverTimestamp();
       transaction.set(followerRef, { uid: decoded.uid, followedAt });
       transaction.set(userFollowRef, { spotId, spotName, followedAt });
+      transaction.set(db.collection(`users/${decoded.uid}/supportHistory`).doc(), { spotId, spotName, kind: "free", action: "joined", occurredAt: followedAt });
       transaction.update(spotRef, {
         followerCount: FieldValue.increment(1),
         updatedAt: FieldValue.serverTimestamp(),
@@ -114,6 +115,7 @@ export async function DELETE(
 
       transaction.delete(followerRef);
       transaction.delete(userFollowRef);
+      transaction.set(db.collection(`users/${decoded.uid}/supportHistory`).doc(), { spotId, spotName: String(spotSnap.data()?.name ?? ""), kind: "free", action: "left", occurredAt: FieldValue.serverTimestamp() });
       if (spotSnap.exists) {
         const current = Number(spotSnap.data()?.followerCount ?? 0);
         transaction.update(spotRef, {

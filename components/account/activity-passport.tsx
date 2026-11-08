@@ -5,17 +5,19 @@ import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 
 type Activity = { spotId: string; spotName: string; eventId: string; title: string; startAt: string; checkedInAt: string | null };
+type SupportEvent = { id: string; spotId: string; spotName: string; kind: "free" | "monthly"; action: "joined" | "left" | "upgraded" | "ended"; occurredAt: string };
 
 export function ActivityPassport({ user }: { user: User }) {
   const [events, setEvents] = useState<Activity[] | null>(null);
   const [error, setError] = useState(false);
+  const [history, setHistory] = useState<SupportEvent[]>([]);
   useEffect(() => {
     let cancelled = false;
     void user.getIdToken().then((token) => fetch("/api/account/activity", { headers: { Authorization: `Bearer ${token}` } }))
       .then(async (response) => {
         if (!response.ok) throw new Error("activity_unavailable");
-        return response.json() as Promise<{ events: Activity[] }>;
-      }).then((data) => { if (!cancelled) setEvents(data.events); })
+        return response.json() as Promise<{ events: Activity[]; history: SupportEvent[] }>;
+      }).then((data) => { if (!cancelled) { setEvents(data.events); setHistory(data.history); } })
       .catch(() => { if (!cancelled) setError(true); });
     return () => { cancelled = true; };
   }, [user]);
@@ -32,6 +34,16 @@ export function ActivityPassport({ user }: { user: User }) {
           </li>)}
         </ul>
       )}
+      <h3 className="mt-7 border-t border-ink/8 pt-6 font-bold text-ink">サポーター履歴</h3>
+      <p className="mt-1 text-xs text-ink/60">過去に終了した無料登録など、一部表示できない履歴があります。</p>
+      {events && history.length === 0 ? <p className="mt-4 text-sm text-ink/60">履歴はまだありません。</p> : null}
+      <ul className="mt-3 divide-y divide-ink/8">
+        {history.map((item) => <li key={item.id} className="py-3 text-sm text-ink/75">
+          <span className="text-xs text-ink/60">{item.occurredAt ? new Date(item.occurredAt).toLocaleDateString("ja-JP") : "日付不明"}</span>{" "}
+          <Link href={`/spots/${item.spotId}`} className="font-semibold hover:text-moss">{item.spotName || "SPOT"}</Link>{" "}
+          {item.kind === "free" ? "無料サポーター" : "月額サポーター"}{item.action === "joined" ? "に登録" : item.action === "upgraded" ? "から月額へ移行" : "を終了"}
+        </li>)}
+      </ul>
     </section>
   );
 }
