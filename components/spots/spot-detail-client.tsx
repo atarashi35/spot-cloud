@@ -165,6 +165,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       if (!response.ok) throw new Error(data.error ?? "更新できませんでした。");
       sessionStorage.removeItem(`${FREE_JOIN_PENDING_PREFIX}${spotId}`);
       await loadSpotDetail(currentUser);
+      if (action === "join") setShowOwnerCta(true);
     } catch {
       setFollowError("無料サポーターの登録を更新できませんでした。もう一度お試しください。");
     } finally {
@@ -408,18 +409,22 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             </Link>
             {" "}から確認できます。
           </p>
+          <div className="border-t border-ink/8 pt-4 text-center">
+            <p className="text-sm font-semibold text-ink">活動する側として登録することもできます</p>
+            <div className="mt-3 flex justify-center gap-2">
+              <Link href="/owner/spots/new?kind=creator" className="cta-secondary text-sm" onClick={() => setShowWelcomeBanner(false)}>クリエイター登録</Link>
+              <Link href="/owner/spots/new?kind=organization" className="cta-primary text-sm" onClick={() => setShowWelcomeBanner(false)}>団体登録</Link>
+            </div>
+          </div>
         </div>
       </ModalShell>
 
       {showOwnerCta && (
         <div className="flex items-center justify-between gap-4 rounded-[20px] border border-moss/20 bg-moss/8 px-5 py-4">
-          <p className="text-sm font-medium text-ink">
-            あなたもSPOTを作りませんか？
-          </p>
+          <p className="text-sm font-medium text-ink">活動する側としてもSPOTに参加できます</p>
           <div className="flex shrink-0 items-center gap-3">
-            <Link href="/owner" className="cta-primary text-sm">
-              SPOTを作る
-            </Link>
+            <Link href="/owner/spots/new?kind=creator" className="cta-secondary text-sm">クリエイター登録</Link>
+            <Link href="/owner/spots/new?kind=organization" className="cta-primary text-sm">団体登録</Link>
             <button
               type="button"
               className="text-xs text-ink/65 hover:text-ink"

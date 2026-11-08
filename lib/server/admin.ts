@@ -46,6 +46,7 @@ function mapAdminSpot(id: string, data: Record<string, unknown>): Spot {
   return {
     id,
     kind: data.kind === "creator" ? "creator" : "organization",
+    reviewStatus: data.reviewStatus === "pending" || data.reviewStatus === "rejected" ? data.reviewStatus : "approved",
     name: String(data.name ?? ""),
     description: String(data.description ?? ""),
     shortDescription: String(data.shortDescription ?? ""),
@@ -101,6 +102,7 @@ export async function listAdminSpots(): Promise<AdminSpot[]> {
 export async function updateAdminSpotStatus(spotId: string, input: { isPublished?: boolean; isSuspended?: boolean }) {
   await getAdminDb().doc(`spots/${spotId}`).update({
     ...(typeof input.isPublished === "boolean" ? { isPublished: input.isPublished } : {}),
+    ...(input.isPublished === true ? { reviewStatus: "approved" } : {}),
     ...(typeof input.isSuspended === "boolean" ? { isSuspended: input.isSuspended } : {}),
     updatedAt: new Date().toISOString()
   });

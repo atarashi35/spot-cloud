@@ -251,6 +251,7 @@ export function OwnerConsoleClient() {
   }, [spots, user]);
 
   async function handleTogglePublished(spot: Spot) {
+    if (spot.reviewStatus !== "approved") return;
     setTogglingId(spot.id);
 
     // 楽観的更新
@@ -428,9 +429,9 @@ export function OwnerConsoleClient() {
                   type="button"
                   role="switch"
                   aria-checked={spot.isPublished}
-                  aria-label={spot.isPublished ? "公開中（クリックで非公開）" : "非公開（クリックで公開）"}
+                  aria-label={spot.reviewStatus === "pending" ? "審査中" : spot.isPublished ? "公開中（クリックで非公開）" : "非公開（クリックで公開）"}
                   onClick={() => void handleTogglePublished(spot)}
-                  disabled={togglingId === spot.id}
+                  disabled={togglingId === spot.id || spot.reviewStatus !== "approved"}
                   className="flex items-center gap-2 disabled:opacity-50"
                 >
                   {/* トラック */}
@@ -442,6 +443,7 @@ export function OwnerConsoleClient() {
                     <span className={`absolute h-5 w-5 rounded-full bg-white shadow transition-transform duration-300 ${spot.isPublished ? "translate-x-[4.25rem]" : "translate-x-0.5"}`} />
                   </span>
                 </button>
+                {spot.reviewStatus === "pending" ? <StatusBadge tone="warning">公開審査中</StatusBadge> : spot.reviewStatus === "rejected" ? <StatusBadge tone="danger">要修正</StatusBadge> : null}
               </div>
 
               {/* SPOT名・説明 */}

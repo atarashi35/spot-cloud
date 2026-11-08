@@ -73,6 +73,7 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
   return {
     id,
     kind: data.kind === "creator" ? "creator" : "organization",
+    reviewStatus: data.reviewStatus === "pending" || data.reviewStatus === "rejected" ? data.reviewStatus : "approved",
     name: String(data.name ?? ""),
     description,
     shortDescription: String(data.shortDescription ?? toShortDescription(description)),
@@ -167,7 +168,8 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
     ownerUid,
     socioCount: 0,
     followerCount: 0,
-    isPublished: input.isPublished,
+    isPublished: false,
+    reviewStatus: "pending",
     isSuspended: false,
     phone: input.phone ?? "",
     email: input.email ?? "",

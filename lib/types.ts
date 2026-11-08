@@ -98,6 +98,7 @@ export type SocialLinks = {
 };
 
 export type SpotKind = "creator" | "organization";
+export type SpotReviewStatus = "pending" | "approved" | "rejected";
 
 /**
  * 口数閾値ごとの特典。キーは口数（5口以上 / 10口以上）。
@@ -119,6 +120,7 @@ export interface Spot {
   id: string;
   /** SPOTの運営主体。旧データは organization として扱う。 */
   kind: SpotKind;
+  reviewStatus: SpotReviewStatus;
   name: string;
   description: string;
   shortDescription: string;

@@ -258,10 +258,10 @@ export function SpotForm(props: SpotFormProps) {
     const normalizedAddressLine = addressLine.trim();
     const normalizedPhone = phone.trim();
     const normalizedEmail = email.trim();
-    const fullAddress = `${prefecture}${normalizedCity}${normalizedAddressLine}`;
+    const fullAddress = `${prefecture}${normalizedCity}${kind === "organization" ? normalizedAddressLine : ""}`;
 
-    if (!normalizedCity || !normalizedAddressLine) {
-      setError("市区町村と以降の住所を入力してください。");
+    if (!normalizedCity || (kind === "organization" && !normalizedAddressLine)) {
+      setError(kind === "organization" ? "市区町村と以降の住所を入力してください。" : "活動地域の市区町村を入力してください。");
       setSaving(false);
       return;
     }
@@ -288,7 +288,7 @@ export function SpotForm(props: SpotFormProps) {
             city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
             phone: normalizedPhone, email: normalizedEmail,
             socialLinks: { website, instagram, twitter, line, youtube },
-            teamMembers: teamMembers.filter((m) => m.name.trim()),
+            teamMembers: kind === "organization" ? teamMembers.filter((m) => m.name.trim()) : [],
             ...performerFields,
           },
           user.uid
@@ -303,7 +303,7 @@ export function SpotForm(props: SpotFormProps) {
         city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
-        teamMembers: teamMembers.filter((m) => m.name.trim()),
+        teamMembers: kind === "organization" ? teamMembers.filter((m) => m.name.trim()) : [],
         ...performerFields,
       });
       router.push("/manage");
@@ -379,7 +379,7 @@ export function SpotForm(props: SpotFormProps) {
           className="field"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="SPOT名"
+          placeholder={kind === "creator" ? "クリエイター名・活動名" : "団体名"}
           required
           aria-invalid={!!error && !name.trim() ? true : undefined}
         />
@@ -396,7 +396,7 @@ export function SpotForm(props: SpotFormProps) {
           </option>
         ))}
       </select>
-      <PostalCodeField
+      {kind === "organization" ? <PostalCodeField
         onResolved={({ postalCode: nextPostalCode, prefecture: nextPrefecture, city: nextCity, addressLine: nextAddressLine }) => {
           setPostalCode(nextPostalCode);
           if (prefectures.includes(nextPrefecture as (typeof prefectures)[number])) {
@@ -405,8 +405,9 @@ export function SpotForm(props: SpotFormProps) {
           setCity(nextCity);
           setAddressLine(nextAddressLine);
         }}
-      />
-      <div className="grid gap-3 sm:grid-cols-[0.7fr_0.8fr_0.9fr_1.2fr]">
+      /> : null}
+      <div className={`grid gap-3 ${kind === "organization" ? "sm:grid-cols-[0.7fr_0.8fr_0.9fr_1.2fr]" : "sm:grid-cols-2"}`}>
+        {kind === "organization" ? (
         <input
           className="field"
           value={postalCode}
@@ -415,6 +416,7 @@ export function SpotForm(props: SpotFormProps) {
           maxLength={8}
           placeholder="郵便番号"
         />
+        ) : null}
         <select
           className="field"
           value={prefecture}
@@ -430,9 +432,10 @@ export function SpotForm(props: SpotFormProps) {
           className="field"
           value={city}
           onChange={(event) => setCity(event.target.value)}
-          placeholder="市区町村"
+          placeholder={kind === "creator" ? "主な活動地域（市区町村）" : "市区町村"}
           required
         />
+        {kind === "organization" ? (
         <input
           className="field"
           value={addressLine}
@@ -440,6 +443,7 @@ export function SpotForm(props: SpotFormProps) {
           placeholder="番地・建物名"
           required
         />
+        ) : null}
       </div>
       <textarea
         className="field min-h-40"
@@ -563,7 +567,7 @@ export function SpotForm(props: SpotFormProps) {
         ) : null}
       </div>
       <div className="rounded-[20px] bg-mist p-4">
-        <label className="block text-sm font-semibold text-ink">カバー画像アップロード</label>
+          <label className="block text-sm font-semibold text-ink">{kind === "creator" ? "メイン画像" : "カバー画像"}</label>
         <input
           className="mt-3 block w-full text-sm text-ink/78"
           type="file"
@@ -572,7 +576,7 @@ export function SpotForm(props: SpotFormProps) {
           disabled={uploadingImage}
         />
         <p className="mt-2 text-sm text-ink/72">
-          {uploadingImage ? "Storage にアップロード中です..." : "PNG / JPEG / WebP を Storage に保存し、そのままカバー画像に設定します。"}
+          {uploadingImage ? "アップロード中です..." : kind === "creator" ? "プロフィール写真や活動中の写真を設定できます。" : "団体や活動の雰囲気が伝わる画像を設定できます。"}
         </p>
         {coverImageUrl ? (
           <img
@@ -589,8 +593,8 @@ export function SpotForm(props: SpotFormProps) {
       {/* ギャラリー */}
       <div className="space-y-3 rounded-[20px] bg-mist p-4">
         <div>
-          <label className="block text-sm font-semibold text-ink">ギャラリー</label>
-          <p className="mt-0.5 text-xs text-ink/65">活動の雰囲気が伝わる写真を最大10枚まで追加できます</p>
+          <label className="block text-sm font-semibold text-ink">活動写真</label>
+          <p className="mt-0.5 text-xs text-ink/65">{kind === "creator" ? "作品や活動の様子が伝わる写真" : "団体の活動や拠点の様子が伝わる写真"}を最大10枚まで追加できます</p>
         </div>
         <GalleryUploader
           values={galleryImageUrls}
@@ -659,6 +663,7 @@ export function SpotForm(props: SpotFormProps) {
       </div>
 
       {/* 運営メンバー */}
+      {kind === "organization" ? (
       <div className="space-y-3 rounded-[20px] border border-ink/10 p-4">
         <div>
           <p className="text-sm font-bold text-ink/72">運営メンバー（任意）</p>
@@ -708,10 +713,11 @@ export function SpotForm(props: SpotFormProps) {
           ＋ メンバーを追加
         </button>
       </div>
+      ) : null}
 
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
       <button type="submit" className="cta-primary" disabled={saving}>
-        {saving ? "保存中..." : props.mode === "create" ? "SPOT を保存する" : "更新する"}
+        {saving ? "保存中..." : props.mode === "create" ? "登録を申請する" : "更新する"}
       </button>
     </form>
   );
