@@ -143,6 +143,7 @@ function SnsHandleInput({
 type SpotFormProps =
   | {
       mode: "create";
+      initialKind?: SpotKind;
     }
   | {
       mode: "edit";
@@ -153,7 +154,7 @@ export function SpotForm(props: SpotFormProps) {
   const router = useRouter();
   const { authReady, user } = useAuth();
   const [name, setName] = useState("");
-  const [kind, setKind] = useState<SpotKind>("organization");
+  const [kind, setKind] = useState<SpotKind>(props.mode === "create" ? props.initialKind ?? "creator" : "organization");
   const [category, setCategory] = useState<SpotCategory>("ライブハウス・音楽");
   const [postalCode, setPostalCode] = useState("");
   const [prefecture, setPrefecture] = useState<(typeof prefectures)[number]>("東京都");

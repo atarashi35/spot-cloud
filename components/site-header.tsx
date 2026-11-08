@@ -104,7 +104,7 @@ export function SiteHeader() {
           </Link>
           {!visibleUser ? (
             <Link href="/owner" className="cta-secondary desktop-only whitespace-nowrap">
-              SPOTを作る
+              クリエイター・団体登録
             </Link>
           ) : null}
           {visibleUser ? <NotificationDrawer /> : null}
@@ -138,7 +138,7 @@ export function SiteHeader() {
                     </Link>
                     <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <Building2 className="h-4 w-4" />
-                      {showManageLink ? "運営中のSPOT" : "SPOTを作る"}
+                      {showManageLink ? "運営中のSPOT" : "クリエイター・団体登録"}
                     </Link>
                     {showAdminLink ? (
                       <Link href="/admin" className="menu-link" onClick={() => setMenuOpen(false)}>

@@ -170,6 +170,7 @@ export function OwnerConsoleClient() {
   // 受取（Connect）の実ステータス。アカウントIDの有無ではなく入金可否で判定する。
   const [payoutStatuses, setPayoutStatuses] = useState<Record<string, PayoutState>>({});
   const [error, setError] = useState<string | null>(null);
+  const [kindFilter, setKindFilter] = useState<"all" | "creator" | "organization">("all");
   type PostModal = { spotId: string; mode: "create" } | { spotId: string; mode: "edit"; postId: string } | null;
   const [postModal, setPostModal] = useState<PostModal>(null);
 
@@ -304,8 +305,9 @@ export function OwnerConsoleClient() {
           title="まだ運営中のSPOTがありません"
           description="最初のSPOTを登録すると、この画面で運営管理ができるようになります。"
         />
-        <div className="mt-6">
-          <Link href="/owner/spots/new" className="cta-primary">SPOTを登録する</Link>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Link href="/owner/spots/new?kind=creator" className="cta-secondary">クリエイター登録</Link>
+          <Link href="/owner/spots/new?kind=organization" className="cta-primary">団体登録</Link>
         </div>
       </section>
     );
@@ -321,6 +323,7 @@ export function OwnerConsoleClient() {
     0
   );
   const revenueLoaded = Object.values(summaries).some((s) => s.revenue !== undefined);
+  const visibleSpots = kindFilter === "all" ? spots : spots.filter((spot) => spot.kind === kindFilter);
 
   // コンテンツ再読み込み（モーダル保存後）
   async function reloadContent(spotId: string) {
@@ -388,7 +391,18 @@ export function OwnerConsoleClient() {
 
       {/* SPOTカード一覧 */}
       <section className="space-y-5">
-        {spots.map((spot) => {
+        <div className="flex flex-wrap gap-2">
+          {([
+            { value: "all", label: `すべて ${spots.length}` },
+            { value: "creator", label: `クリエイター ${spots.filter((spot) => spot.kind === "creator").length}` },
+            { value: "organization", label: `団体 ${spots.filter((spot) => spot.kind === "organization").length}` },
+          ] as const).map((option) => (
+            <button key={option.value} type="button" onClick={() => setKindFilter(option.value)} className={`rounded-full px-4 py-2 text-sm font-semibold ${kindFilter === option.value ? "bg-ink text-white" : "border border-ink/12 bg-white text-ink/68"}`}>
+              {option.label}
+            </button>
+          ))}
+        </div>
+        {visibleSpots.map((spot) => {
           const summary = summaries[spot.id];
           const revenue = summary?.revenue;
           const content = summary?.content;
@@ -405,6 +419,7 @@ export function OwnerConsoleClient() {
               {/* ヘッダー行 */}
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-ink px-3 py-1 text-xs font-semibold text-white">{spot.kind === "creator" ? "クリエイター" : "団体"}</span>
                   <span className="chip">{spot.category}</span>
                   <SocioRankBadge socioCount={socioCount} />
                 </div>
