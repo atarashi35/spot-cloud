@@ -8,12 +8,11 @@ import { useAuth } from "@/components/providers/auth-provider";
 import {
   createSpotInFirestore,
   getSpotFromFirestore,
-  listPublishedSpotsFromFirestore,
   updateSpotInFirestore
 } from "@/lib/firestore/spots";
 import { GalleryUploader } from "@/components/ui/gallery-uploader";
 import { uploadSpotCoverImage } from "@/lib/storage/spots";
-import { SPOT_CATEGORIES, Spot, SpotCategory, SpotKind, TeamMember } from "@/lib/types";
+import { SPOT_CATEGORIES, SpotCategory, SpotKind, TeamMember } from "@/lib/types";
 
 const prefectures = [
   "北海道",
@@ -163,8 +162,6 @@ export function SpotForm(props: SpotFormProps) {
   const [description, setDescription] = useState("");
   const [activityFields, setActivityFields] = useState<string[]>([]);
   const [achievements, setAchievements] = useState<string[]>([]);
-  const [affiliatedSpotIds, setAffiliatedSpotIds] = useState<string[]>([]);
-  const [organizationSpots, setOrganizationSpots] = useState<Spot[]>([]);
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [galleryImageUrls, setGalleryImageUrls] = useState<string[]>([]);
   const [isPublished, setIsPublished] = useState(true);
@@ -191,12 +188,6 @@ export function SpotForm(props: SpotFormProps) {
       setLoginModalOpen(true);
     }
   }, [authReady, user]);
-
-  useEffect(() => {
-    void listPublishedSpotsFromFirestore()
-      .then((spots) => setOrganizationSpots(spots.filter((spot) => spot.kind === "organization" && (props.mode !== "edit" || spot.id !== props.spotId))))
-      .catch(() => setOrganizationSpots([]));
-  }, [props]);
 
   useEffect(() => {
     if (props.mode !== "edit") {
@@ -227,7 +218,6 @@ export function SpotForm(props: SpotFormProps) {
         setDescription(spot.description);
         setActivityFields(spot.activityFields ?? []);
         setAchievements(spot.achievements ?? []);
-        setAffiliatedSpotIds(spot.affiliatedSpotIds ?? []);
         setCoverImageUrl(spot.coverImageUrl ?? "");
         setGalleryImageUrls(spot.galleryImageUrls ?? []);
         setIsPublished(spot.isPublished);
@@ -293,7 +283,7 @@ export function SpotForm(props: SpotFormProps) {
       if (props.mode === "create") {
         const spotId = await createSpotInFirestore(
           {
-            name, kind, category, activityFields: activityFields.filter(Boolean), achievements: achievements.filter(Boolean), affiliatedSpotIds: kind === "creator" ? affiliatedSpotIds : [], address: fullAddress, prefecture,
+            name, kind, category, activityFields: activityFields.filter(Boolean), achievements: achievements.filter(Boolean), address: fullAddress, prefecture,
             city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
             phone: normalizedPhone, email: normalizedEmail,
             socialLinks: { website, instagram, twitter, line, youtube },
@@ -308,7 +298,7 @@ export function SpotForm(props: SpotFormProps) {
       }
 
       await updateSpotInFirestore(props.spotId, {
-        name, kind, category, activityFields: activityFields.filter(Boolean), achievements: achievements.filter(Boolean), affiliatedSpotIds: kind === "creator" ? affiliatedSpotIds : [], address: fullAddress, prefecture,
+        name, kind, category, activityFields: activityFields.filter(Boolean), achievements: achievements.filter(Boolean), address: fullAddress, prefecture,
         city: normalizedCity, description, coverImageUrl, galleryImageUrls, isPublished,
         phone: normalizedPhone, email: normalizedEmail,
         socialLinks: { website, instagram, twitter, line, youtube },
@@ -485,19 +475,6 @@ export function SpotForm(props: SpotFormProps) {
           </div>
         </div>
 
-        {kind === "creator" && organizationSpots.length > 0 ? (
-          <div className="border-t border-ink/8 pt-4">
-            <p className="text-sm font-bold text-ink/72">所属団体</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {organizationSpots.map((organization) => (
-                <label key={organization.id} className="flex items-center gap-2 rounded-[12px] bg-mist px-3 py-2 text-sm text-ink/75">
-                  <input type="checkbox" checked={affiliatedSpotIds.includes(organization.id)} onChange={(e) => setAffiliatedSpotIds((current) => e.target.checked ? [...current, organization.id] : current.filter((id) => id !== organization.id))} />
-                  {organization.name}
-                </label>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <input

@@ -23,7 +23,6 @@ type SpotInput = {
   category: SpotCategory;
   activityFields?: string[];
   achievements?: string[];
-  affiliatedSpotIds?: string[];
   address: string;
   prefecture: string;
   city: string;
@@ -80,7 +79,6 @@ function mapFirestoreSpot(id: string, data: Record<string, unknown>): Spot {
     category: normalizeSpotCategory(data.category),
     activityFields: Array.isArray(data.activityFields) ? data.activityFields.filter((v): v is string => typeof v === "string" && Boolean(v.trim())) : [],
     achievements: Array.isArray(data.achievements) ? data.achievements.filter((v): v is string => typeof v === "string" && Boolean(v.trim())) : [],
-    affiliatedSpotIds: Array.isArray(data.affiliatedSpotIds) ? data.affiliatedSpotIds.filter((v): v is string => typeof v === "string" && Boolean(v)) : [],
     address,
     prefecture,
     city,
@@ -160,7 +158,6 @@ export async function createSpotInFirestore(input: SpotInput, ownerUid: string) 
     category: input.category,
     activityFields: input.activityFields ?? [],
     achievements: input.achievements ?? [],
-    affiliatedSpotIds: input.affiliatedSpotIds ?? [],
     address: input.address,
     prefecture: input.prefecture,
     city: input.city,
@@ -197,7 +194,6 @@ export async function updateSpotInFirestore(spotId: string, input: SpotInput) {
     category: input.category,
     activityFields: input.activityFields ?? [],
     achievements: input.achievements ?? [],
-    affiliatedSpotIds: input.affiliatedSpotIds ?? [],
     address: input.address,
     prefecture: input.prefecture,
     city: input.city,

@@ -52,7 +52,6 @@ function mapAdminSpot(id: string, data: Record<string, unknown>): Spot {
     category: normalizeSpotCategory(data.category),
     activityFields: Array.isArray(data.activityFields) ? data.activityFields.filter((v): v is string => typeof v === "string") : [],
     achievements: Array.isArray(data.achievements) ? data.achievements.filter((v): v is string => typeof v === "string") : [],
-    affiliatedSpotIds: Array.isArray(data.affiliatedSpotIds) ? data.affiliatedSpotIds.filter((v): v is string => typeof v === "string") : [],
     address: String(data.address ?? ""),
     prefecture: String(data.prefecture ?? ""),
     city: String(data.city ?? ""),

@@ -127,8 +127,6 @@ export interface Spot {
   activityFields?: string[];
   /** 展示、出演、受賞、制作などの主な活動実績。 */
   achievements?: string[];
-  /** クリエイターSPOTが所属する団体SPOTのID。 */
-  affiliatedSpotIds?: string[];
   address: string;
   prefecture: string;
   city: string;
