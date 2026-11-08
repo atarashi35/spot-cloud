@@ -66,7 +66,9 @@ export function SpotCard({ spot }: { spot: Spot }) {
             <span>{spot.address}</span>
           </div>
           <div className="flex items-center justify-end gap-2">
-            <span className="text-2xl font-extrabold tabular-nums text-teal-600">{spot.socioCount}</span>
+            <span className="text-2xl font-extrabold tabular-nums text-teal-600">
+              {spot.socioCount + (spot.followerCount ?? 0)}
+            </span>
             <span className="text-sm font-semibold text-teal-700/80">人のサポーター</span>
           </div>
         </div>

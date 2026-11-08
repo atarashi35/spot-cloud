@@ -457,14 +457,17 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             <h1 className="mt-4 text-3xl font-extrabold text-ink sm:text-4xl">{spot.name}</h1>
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-[2.2rem] font-extrabold tabular-nums leading-none text-teal-600">{spot.socioCount}</span>
+                <span className="text-[2.2rem] font-extrabold tabular-nums leading-none text-teal-600">
+                  {spot.socioCount + (spot.followerCount ?? 0)}
+                </span>
                 <span className="text-sm font-semibold text-teal-700/80">人のサポーター</span>
               </div>
               <div className="h-5 w-px bg-ink/15" />
               <MetricPill label="エリア" value={`${spot.prefecture}${spot.city ? ` / ${spot.city}` : ""}`} />
               {(spot.followerCount ?? 0) > 0 ? (
-                <MetricPill label="無料会員" value={`${spot.followerCount}人`} />
+                <MetricPill label="無料" value={`${spot.followerCount}人`} />
               ) : null}
+              {spot.socioCount > 0 ? <MetricPill label="有料" value={`${spot.socioCount}人`} /> : null}
             </div>
             <div className="mt-5 flex items-center gap-2 text-sm text-ink/72">
               <MapPin className="h-4 w-4 shrink-0" />
@@ -541,7 +544,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             </div>
           ) : null}
           <aside ref={mainCtaRef} className={`flex flex-col rounded-[28px] p-5 ${
-            !isOwner && membershipStatus !== "active" && membershipStatus !== "canceling"
+            !isOwner && !isFollowing && membershipStatus !== "active" && membershipStatus !== "canceling"
             && membershipStatus !== "past_due" && membershipStatus !== "canceled"
             && canAcceptMembership
               ? "bg-ink"
@@ -581,8 +584,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               </div>
             ) : isFollowing ? (
               <div className="flex h-full flex-col">
-                <StatusBadge tone="success">無料会員</StatusBadge>
-                <h2 className="mt-5 text-2xl font-extrabold text-ink">このSPOTに参加中です</h2>
+                <StatusBadge tone="success">無料サポーター</StatusBadge>
+                <h2 className="mt-5 text-2xl font-extrabold text-ink">サポート中です</h2>
                 <p className="mt-2 text-sm leading-6 text-ink/70">
                   公開される投稿やイベントをマイページから確認できます。
                 </p>
@@ -597,7 +600,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   disabled={followLoading}
                   onClick={() => void updateFreeMembership("leave")}
                 >
-                  無料会員をやめる
+                  無料サポーターをやめる
                 </button>
                 {followError ? <p className="mt-3 text-sm text-red-700">{followError}</p> : null}
               </div>
