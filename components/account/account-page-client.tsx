@@ -18,6 +18,7 @@ import { getUserProfileDoc } from "@/lib/firestore/user-profile";
 import { resolveDisplayName } from "@/lib/user-profile";
 import { listUserFollows } from "@/lib/firestore/follows";
 import type { UserFollow } from "@/lib/types";
+import { ActivityPassport } from "@/components/account/activity-passport";
 
 // ─── 型 ───────────────────────────────────────────────────────────────
 
@@ -286,6 +287,8 @@ export function AccountPageClient() {
           </div>
         </section>
       ) : null}
+
+      {user && FEATURE_EVENTS ? <ActivityPassport user={user} /> : null}
 
       {/* 今後のイベント（全SPOT横断）（凍結中: FEATURE_EVENTS） */}
       {FEATURE_EVENTS && upcomingEvents.length > 0 ? (
