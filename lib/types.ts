@@ -128,7 +128,7 @@ export interface Spot {
   ownerUid: string;
   stripeConnectedAccountId?: string;
   socioCount: number;
-  /** 無料で参加している会員数。有料サポーターは含まない。 */
+  /** 無料サポーター数。月額サポーターは含まない。 */
   followerCount?: number;
   isPublished: boolean;
   isSuspended?: boolean;

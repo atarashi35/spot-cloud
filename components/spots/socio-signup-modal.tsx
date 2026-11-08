@@ -200,7 +200,7 @@ export function SocioSignupModal({
               {/* Step: login */}
               {step === "login" ? (
                 <>
-                  <h2 className="mt-4 text-xl font-extrabold text-ink">ログインしてサポーターになる</h2>
+                  <h2 className="mt-4 text-xl font-extrabold text-ink">ログインして月額サポーターになる</h2>
                   <p className="mt-1 text-sm text-ink/70">加入にはアカウントが必要です。</p>
                   <div className="mt-5">
                     <button type="button" className="cta-secondary w-full" onClick={() => void handleGoogle()} disabled={googleLoading}>
@@ -309,10 +309,10 @@ export function SocioSignupModal({
                   {/* CTA */}
                   <div className="mt-3 space-y-2">
                     <button type="button" className="cta-primary w-full" onClick={() => void startCheckout()} disabled={loading}>
-                      {loading ? "移動中..." : `${ko}口（¥${monthly.toLocaleString("ja-JP")}）でサポーターになる`}
+                      {loading ? "移動中..." : `${ko}口（¥${monthly.toLocaleString("ja-JP")}）で月額サポーターになる`}
                     </button>
                     <p className="text-center text-[11px] leading-5 text-ink/50">
-                      「サポーターになる」で<a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・<a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>に同意
+                      「月額サポーターになる」で<a href="/terms" className="underline hover:text-moss" target="_blank" rel="noreferrer">利用規約</a>・<a href="/privacy" className="underline hover:text-moss" target="_blank" rel="noreferrer">プライバシーポリシー</a>に同意
                     </p>
                   </div>
                 </>

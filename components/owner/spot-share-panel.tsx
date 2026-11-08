@@ -152,7 +152,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
 
     ctx.font = "14px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
     ctx.fillStyle = "#888888";
-    ctx.fillText("QRコードをスキャンしてサポーター登録", W / 2, 682);
+    ctx.fillText("QRコードをスキャンして月額サポーター登録", W / 2, 682);
 
     ctx.fillStyle = "#e5e5e5";
     ctx.fillRect(48, 740, W - 96, 1);
@@ -214,9 +214,9 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         </section>
 
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
-          <h2 className="text-xl font-semibold text-ink">サポーター登録へのリンク</h2>
+          <h2 className="text-xl font-semibold text-ink">月額サポーター登録へのリンク</h2>
           <p className="mt-1.5 text-xs leading-5 text-ink/68">
-            スキャンするとサポーター加入画面が開くQR。<br />
+            スキャンすると月額サポーター登録画面が開くQR。<br />
             「サポーター募集中」の告知に直接使えます。
           </p>
           <div ref={signupQrRef} className="mt-5 inline-flex rounded-[20px] bg-white p-5 shadow-sm">
@@ -264,7 +264,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
               <QRCode value={signupUrl} size={90} />
             </div>
             <p className="text-center text-[8px] font-semibold text-ink">1口100円〜</p>
-            <p className="mt-1 text-center text-[7px] text-ink/65">QRコードをスキャンしてサポーター登録</p>
+            <p className="mt-1 text-center text-[7px] text-ink/65">QRコードをスキャンして月額サポーター登録</p>
             <div className="my-3 h-px bg-ink/10" />
             <p className="text-center text-[7px] text-ink/60">spotcloud.app</p>
           </div>

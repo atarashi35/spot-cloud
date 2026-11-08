@@ -70,7 +70,7 @@ function PopCard({ spot }: { spot: Spot }) {
         1口100円〜
       </p>
       <p style={{ fontSize: "5.5mm", color: "#888888", textAlign: "center", marginBottom: "14mm" }}>
-        QRコードをスキャンしてサポーター登録
+        QRコードをスキャンして月額サポーター登録
       </p>
 
       {/* フッター */}

@@ -216,7 +216,7 @@ export function PostForm(props: PostFormProps) {
                 isPublic === val ? "bg-ink text-white" : "bg-mist text-ink/72 hover:text-ink"
               }`}
             >
-              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 サポーター限定"}
+              {val ? "🌐 公開（誰でも閲覧可）" : "🔒 月額サポーター限定"}
             </button>
           ))}
         </div>

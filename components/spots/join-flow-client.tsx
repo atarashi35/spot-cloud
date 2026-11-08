@@ -52,7 +52,7 @@ export function JoinFlowClient({
     <div className="shell">
       <section className="mx-auto max-w-3xl panel px-6 py-8 sm:px-8">
         <span className="chip">JOIN AS SOCIO</span>
-        <h1 className="mt-4 text-3xl font-extrabold text-ink">{spot.name} のサポーター加入</h1>
+        <h1 className="mt-4 text-3xl font-extrabold text-ink">{spot.name} の月額サポーター登録</h1>
         <p className="mt-3 text-sm text-ink/72">口数を選ぶと、そのまま決済へ進みます。1口 ¥100 から、何口でも。</p>
 
         <div className="mt-8 rounded-[20px] border border-ink/10 bg-mist p-6">
@@ -99,7 +99,7 @@ export function JoinFlowClient({
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <button type="button" className="cta-primary" onClick={startCheckout} disabled={loading}>
-            {loading ? "Checkout に移動中..." : `${ko}口（¥${koToAmount(ko).toLocaleString("ja-JP")}）で加入する`}
+            {loading ? "Checkout に移動中..." : `${ko}口（¥${koToAmount(ko).toLocaleString("ja-JP")}）で月額サポーターになる`}
           </button>
           <Link href={`/spots/${spot.id}`} className="cta-secondary">
             詳細に戻る

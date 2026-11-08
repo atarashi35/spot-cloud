@@ -71,8 +71,8 @@ export function PostDetailClient({ spotId, postId }: { spotId: string; postId: s
 
   if (forbidden) {
     const tierLabel = forbidden.minPlanAmount
-      ? `${amountToKo(forbidden.minPlanAmount)}口以上のサポーター限定`
-      : "サポーター限定";
+      ? `${amountToKo(forbidden.minPlanAmount)}口以上の月額サポーター限定`
+      : "月額サポーター限定";
     return (
       <div className="shell">
         <section className="panel px-6 py-8 sm:px-8">

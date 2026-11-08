@@ -328,7 +328,7 @@ export function AccountPageClient() {
 
       {follows && follows.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="px-2 text-sm font-bold text-ink/72">無料で参加中のSPOT</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">無料サポーターになっているSPOT</h2>
           <div className="panel divide-y divide-ink/8 overflow-hidden px-6 sm:px-8">
             {follows.map((follow) => (
               <div key={follow.spotId} className="flex items-center justify-between gap-4 py-4">
@@ -348,7 +348,7 @@ export function AccountPageClient() {
       {/* サポート中のSPOT */}
       {activeList.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="px-2 text-sm font-bold text-ink/72">サポート中のSPOT</h2>
+          <h2 className="px-2 text-sm font-bold text-ink/72">月額サポーターになっているSPOT</h2>
           {activeList.map((membership) => {
             const preview = previews[membership.spotId];
             return (

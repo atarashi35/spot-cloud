@@ -166,7 +166,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
       sessionStorage.removeItem(`${FREE_JOIN_PENDING_PREFIX}${spotId}`);
       await loadSpotDetail(currentUser);
     } catch {
-      setFollowError("無料会員の登録を更新できませんでした。もう一度お試しください。");
+      setFollowError("無料サポーターの登録を更新できませんでした。もう一度お試しください。");
     } finally {
       setFollowLoading(false);
     }
@@ -554,7 +554,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <>
                 <h2 className="text-2xl font-extrabold text-ink">運営中のSPOT</h2>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <StatusBadge tone="success">サポーター限定を表示中</StatusBadge>
+                  <StatusBadge tone="success">月額サポーター限定を表示中</StatusBadge>
                 </div>
                 <Link href="/manage" className="cta-secondary mt-5 w-full">
                   管理画面へ
@@ -591,7 +591,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 </p>
                 {canAcceptMembership ? (
                   <button type="button" className="cta-primary mt-5 w-full" onClick={() => setSignupModalOpen(true)}>
-                    有料サポーターになる
+                    月額サポーターになる
                   </button>
                 ) : null}
                 <button
@@ -623,15 +623,15 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 {canAcceptMembership ? (
                   <div className="mt-5 space-y-3">
                     <button type="button" className="cta-primary w-full" onClick={() => setSignupModalOpen(true)}>
-                      サポーターになる
+                      月額サポーターになる
                     </button>
                     <button type="button" className="cta-secondary w-full" disabled={followLoading} onClick={() => void updateFreeMembership("join")}>
-                      無料会員として参加
+                      無料サポーターになる
                     </button>
                   </div>
                 ) : (
                   <button type="button" className="cta-primary mt-5 w-full" disabled={followLoading} onClick={() => void updateFreeMembership("join")}>
-                    無料会員として参加
+                    無料サポーターになる
                   </button>
                 )}
               </>
@@ -642,7 +642,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                   <StatusBadge>受取設定中</StatusBadge>
                 </div>
                 <button type="button" className="cta-primary mt-5 w-full" disabled={followLoading} onClick={() => void updateFreeMembership("join")}>
-                  無料会員として参加
+                  無料サポーターになる
                 </button>
               </>
             ) : (
@@ -704,7 +704,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
                     onClick={() => setSignupModalOpen(true)}
                   >
-                    サポーターになる
+                    月額サポーターになる
                   </button>
                   <button
                     type="button"
@@ -712,7 +712,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                     disabled={followLoading}
                     onClick={() => void updateFreeMembership("join")}
                   >
-                    {followLoading ? "登録中..." : "無料会員として参加"}
+                    {followLoading ? "登録中..." : "無料サポーターになる"}
                   </button>
                   {followError ? <p className="mt-3 text-sm text-red-300">{followError}</p> : null}
                 </div>
@@ -831,11 +831,11 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[20px] bg-white/80 backdrop-blur-[3px]">
                             <p className="text-sm font-bold text-ink/72">
-                              {tierLabel ? `${tierLabel}コンテンツです` : "サポーター限定コンテンツです"}
+                              {tierLabel ? `${tierLabel}コンテンツです` : "月額サポーター限定コンテンツです"}
                             </p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="cta-primary">
-                                サポーターになる
+                                月額サポーターになる
                               </button>
                             )}
                           </div>
@@ -893,10 +893,10 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                         </div>
                         {isLocked && (
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[20px] bg-white/80 backdrop-blur-[3px]">
-                            <p className="text-sm font-bold text-ink/72">サポーター限定コンテンツです</p>
+                            <p className="text-sm font-bold text-ink/72">月額サポーター限定コンテンツです</p>
                             {canAcceptMembership && (
                               <button type="button" onClick={() => setSignupModalOpen(true)} className="cta-primary">
-                                サポーターになる
+                                月額サポーターになる
                               </button>
                             )}
                           </div>
@@ -937,7 +937,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             className="cta-primary shrink-0"
             onClick={() => setSignupModalOpen(true)}
           >
-            サポーターになる
+            月額サポーターになる
           </button>
         </div>
       )}
