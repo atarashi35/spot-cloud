@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, ChevronDown, FileText, Pencil, Plus, QrCode, Users, Gift, Landmark, Settings, Eye } from "lucide-react";
+import { BarChart3, CalendarDays, ChevronDown, FileText, HandHeart, Pencil, Plus, QrCode, Users, Gift, Landmark, Settings, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PostForm } from "@/components/owner/post-form";
 import { EventForm } from "@/components/owner/event-form";
+import { PollCreate } from "@/components/owner/poll-create";
+import { OpportunityCreate } from "@/components/owner/opportunity-create";
 import { EmptyState } from "@/components/empty-state";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -176,6 +178,8 @@ export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string
   const [postModal, setPostModal] = useState<PostModal>(null);
   const [createSpotId, setCreateSpotId] = useState<string | null>(null);
   const [eventSpotId, setEventSpotId] = useState<string | null>(null);
+  const [pollSpotId, setPollSpotId] = useState<string | null>(null);
+  const [opportunitySpotId, setOpportunitySpotId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -340,9 +344,14 @@ export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string
       <ModalShell open={createSpotId !== null} onClose={() => setCreateSpotId(null)} title="作成" size="sm">
         <div className="grid gap-3 sm:grid-cols-2">
           <button type="button" className="flex min-h-20 items-center gap-3 rounded-2xl bg-mist px-5 text-left font-semibold transition hover:bg-ink/10" onClick={() => { if (createSpotId) setPostModal({ spotId: createSpotId, mode: "create" }); setCreateSpotId(null); }}><FileText className="h-5 w-5" aria-hidden="true" />投稿</button>
+          <button type="button" className="flex min-h-20 items-center gap-3 rounded-2xl bg-mist px-5 text-left font-semibold transition hover:bg-ink/10" onClick={() => { setPollSpotId(createSpotId); setCreateSpotId(null); }}><BarChart3 className="h-5 w-5" aria-hidden="true" />投票</button>
+          <button type="button" className="flex min-h-20 items-center gap-3 rounded-2xl bg-mist px-5 text-left font-semibold transition hover:bg-ink/10" onClick={() => { setOpportunitySpotId(createSpotId); setCreateSpotId(null); }}><HandHeart className="h-5 w-5" aria-hidden="true" />募集</button>
           {FEATURE_EVENTS ? <button type="button" className="flex min-h-20 items-center gap-3 rounded-2xl bg-mist px-5 text-left font-semibold transition hover:bg-ink/10" onClick={() => { setEventSpotId(createSpotId); setCreateSpotId(null); }}><CalendarDays className="h-5 w-5" aria-hidden="true" />イベント</button> : null}
         </div>
       </ModalShell>
+
+      {pollSpotId ? <PollCreate spotId={pollSpotId} onClose={() => setPollSpotId(null)} /> : null}
+      {opportunitySpotId ? <OpportunityCreate spotId={opportunitySpotId} onClose={() => setOpportunitySpotId(null)} /> : null}
 
       <ModalShell open={eventSpotId !== null} onClose={() => setEventSpotId(null)} title="イベントを作成" size="lg">
         {eventSpotId ? <EventForm spotId={eventSpotId} mode="create" onSuccess={() => { setEventSpotId(null); void reloadContent(eventSpotId); }} /> : null}

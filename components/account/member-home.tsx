@@ -8,6 +8,8 @@ import { listUserFollows } from "@/lib/firestore/follows";
 import { listUserMemberships } from "@/lib/firestore/memberships";
 import { listPublishedSpotsFromFirestore } from "@/lib/firestore/spots";
 import type { PostAttachment } from "@/lib/types";
+import { PollCard, type FeedPoll } from "@/components/account/poll-card";
+import { OpportunityCard, type FeedOpportunity } from "@/components/account/opportunity-card";
 
 type SupportedSpot = { id: string; name: string; coverImageUrl?: string };
 type Post = { id: string; title: string; body: string; publishDate: string; masked: boolean; imageUrl?: string | null; attachments?: PostAttachment[] };
@@ -16,13 +18,15 @@ type News = Post & { spotId: string; spotName: string; spotImage?: string };
 export function MemberHome({ user }: { user: User }) {
   const [spots, setSpots] = useState<SupportedSpot[] | null>(null);
   const [news, setNews] = useState<News[]>([]);
+  const [polls, setPolls] = useState<FeedPoll[]>([]);
+  const [opportunities, setOpportunities] = useState<FeedOpportunity[]>([]);
   const [error, setError] = useState(false);
   const [newsError, setNewsError] = useState(false);
   const [newsLoading, setNewsLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    setSpots(null); setNews([]); setError(false); setNewsError(false); setNewsLoading(true);
+    setSpots(null); setNews([]); setPolls([]); setOpportunities([]); setError(false); setNewsError(false); setNewsLoading(true);
     void (async () => {
       const [follows, memberships, token, published] = await Promise.all([
         listUserFollows(user), listUserMemberships(user.uid), user.getIdToken(), listPublishedSpotsFromFirestore(),
@@ -47,14 +51,38 @@ export function MemberHome({ user }: { user: User }) {
           return data.posts.filter((post) => !post.masked && post.title).map((post) => ({ ...post, spotId: spot.id, spotName: spot.name, spotImage: spot.coverImageUrl }));
         })));
       }
+      const pollResults: PromiseSettledResult<FeedPoll[]>[] = [];
+      for (let start = 0; start < published.length; start += 8) {
+        if (cancelled) return;
+        pollResults.push(...await Promise.allSettled(published.slice(start, start + 8).map(async (spot) => {
+          const response = await fetch(`/api/spots/${encodeURIComponent(spot.id)}/polls`, { headers: { Authorization: `Bearer ${token}` } });
+          if (!response.ok) throw new Error("polls_unavailable");
+          const data = await response.json() as { polls: FeedPoll[] };
+          return data.polls.map((poll) => ({ ...poll, spotId: spot.id, spotName: spot.name, spotImage: spot.coverImageUrl }));
+        })));
+      }
+      const opportunityResults: PromiseSettledResult<FeedOpportunity[]>[] = [];
+      for (let start = 0; start < published.length; start += 8) {
+        if (cancelled) return;
+        opportunityResults.push(...await Promise.allSettled(published.slice(start, start + 8).map(async (spot) => {
+          const response = await fetch(`/api/spots/${encodeURIComponent(spot.id)}/opportunities`, { headers: { Authorization: `Bearer ${token}` } });
+          if (!response.ok) throw new Error("opportunities_unavailable");
+          const data = await response.json() as { opportunities: FeedOpportunity[] };
+          return data.opportunities.map((item) => ({ ...item, spotId: spot.id, spotName: spot.name, spotImage: spot.coverImageUrl }));
+        })));
+      }
       if (!cancelled) {
         setNews(results.flatMap((result) => result.status === "fulfilled" ? result.value : []).sort((a, b) => b.publishDate.localeCompare(a.publishDate)).slice(0, 10));
-        setNewsError(results.some((result) => result.status === "rejected"));
+        setPolls(pollResults.flatMap((result) => result.status === "fulfilled" ? result.value : []));
+        setOpportunities(opportunityResults.flatMap((result) => result.status === "fulfilled" ? result.value : []));
+        setNewsError([...results, ...pollResults, ...opportunityResults].some((result) => result.status === "rejected"));
         setNewsLoading(false);
       }
     })().catch(() => { if (!cancelled) { setError(true); setNewsLoading(false); } });
     return () => { cancelled = true; };
   }, [user]);
+
+  const feed = [...news.map((post) => ({ kind: "post" as const, date: post.publishDate, post })), ...polls.map((poll) => ({ kind: "poll" as const, date: poll.createdAt, poll })), ...opportunities.map((item) => ({ kind: "opportunity" as const, date: item.createdAt, item }))].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
 
   return <div className="shell mx-auto max-w-2xl pb-24 pt-6 sm:pt-8">
     <div className="flex items-center justify-between gap-4">
@@ -78,7 +106,10 @@ export function MemberHome({ user }: { user: User }) {
       <section className="mt-7" aria-label="SPOTの投稿">
         <h2 className="mb-4 text-lg font-bold">フィード</h2>
         {newsError ? <p className="mb-4 text-sm text-red-700">一部の投稿を読み込めませんでした。</p> : null}
-        {newsLoading ? <p className="py-5 text-sm text-ink/60">読み込み中です。</p> : news.length ? <div className="space-y-4">{news.map((post) => {
+        {newsLoading ? <p className="py-5 text-sm text-ink/60">読み込み中です。</p> : feed.length ? <div className="space-y-4">{feed.map((item) => {
+          if (item.kind === "poll") return <PollCard key={`${item.poll.spotId}-${item.poll.id}`} poll={item.poll} user={user} />;
+          if (item.kind === "opportunity") return <OpportunityCard key={`${item.item.spotId}-${item.item.id}`} item={item.item} user={user} />;
+          const post = item.post;
           const image = post.attachments?.find((attachment) => attachment.type === "image")?.url || post.imageUrl;
           return <article key={`${post.spotId}-${post.id}`} className="overflow-hidden rounded-2xl bg-white">
             <Link href={`/spots/${post.spotId}`} className="flex items-center gap-3 px-4 py-3">
