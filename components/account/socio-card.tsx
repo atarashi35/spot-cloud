@@ -134,11 +134,12 @@ type Props = {
   memberNumbers?: Record<string, number | null>;
   /** LPデモなど閲覧専用の埋め込みでは false にして保存・コピー導線を隠す */
   showActions?: boolean;
+  compactActions?: boolean;
   /** 暗い背景に埋め込む場合のヒント文字色の上書き */
   hintClassName?: string;
 };
 
-export function SocioCard({ uid, displayName, avatarUrl, memberSince, memberships, memberNumbers, showActions = true, hintClassName = "text-ink/58" }: Props) {
+export function SocioCard({ uid, displayName, avatarUrl, memberSince, memberships, memberNumbers, showActions = true, compactActions = false, hintClassName = "text-ink/58" }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
 
@@ -458,7 +459,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
       </div>
 
       {/* アクションボタン */}
-      {showActions ? (
+      {showActions && compactActions ? <details className="text-center"><summary className="cursor-pointer text-xs font-semibold text-ink/60">カードの保存・共有</summary><div className="mt-3 flex gap-3"><button type="button" onClick={() => { void handleSave(); }} className="cta-secondary flex-1">カードを保存</button><button type="button" onClick={handleShare} className="cta-secondary flex-1">リンクをコピー</button></div></details> : showActions ? (
       <div className="flex gap-3">
         <button
           type="button"

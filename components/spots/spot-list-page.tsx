@@ -44,10 +44,10 @@ export function SpotListPage() {
       <input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="名前・活動分野・地域" className="w-full bg-transparent text-sm outline-none" />
     </label>
     <div className="flex items-center justify-between gap-3 border-b border-ink/10">
-      <div className="flex gap-5 overflow-x-auto" aria-label="SPOTの種類">
+      <div className="flex min-w-0 gap-4 overflow-x-auto" aria-label="SPOTの種類">
         {([{ value: "all", label: "すべて" }, { value: "creator", label: "クリエイター" }, { value: "organization", label: "団体" }] as const).map((option) => <button type="button" key={option.value} aria-pressed={kind === option.value} onClick={() => { setKind(option.value); setCategory("all"); setPrefecture("all"); setCity("all"); }} className={`whitespace-nowrap border-b-2 pb-3 text-sm font-semibold ${kind === option.value ? "border-moss text-ink" : "border-transparent text-ink/55"}`}>{option.label}</button>)}
       </div>
-      <button type="button" aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)} className="flex shrink-0 items-center gap-1 pb-3 text-sm text-ink/70"><SlidersHorizontal className="h-4 w-4" />絞り込み{filterCount ? ` (${filterCount})` : ""}</button>
+      <button type="button" aria-label={`絞り込み${filterCount ? ` (${filterCount})` : ""}`} aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)} className="flex min-h-11 shrink-0 items-center gap-1 px-2 pb-3 text-sm text-ink/70"><SlidersHorizontal className="h-5 w-5" /><span className="hidden sm:inline">絞り込み</span>{filterCount ? ` (${filterCount})` : ""}</button>
     </div>
     {showFilters ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <label className="text-xs text-ink/65">活動分野<select className="field mt-1" value={category} onChange={(e) => setCategory(e.target.value)}><option value="all">すべて</option>{categories.map((value) => <option key={value}>{value}</option>)}</select></label>

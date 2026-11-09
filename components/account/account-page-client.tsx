@@ -55,7 +55,7 @@ export function AccountPageClient() {
     <section id="member-card" className="scroll-mt-28 space-y-3">
       <h2 className="text-sm font-bold text-ink/72">SPOT会員証</h2>
       <div className="mx-auto max-w-sm space-y-3">
-        <SocioCard uid={user.uid} displayName={resolveDisplayName(profile.name, user.displayName, user.email)} avatarUrl={profile.avatar} memberSince={profile.since} memberships={memberships} memberNumbers={numbers} />
+        <SocioCard uid={user.uid} displayName={resolveDisplayName(profile.name, user.displayName, user.email)} avatarUrl={profile.avatar} memberSince={profile.since} memberships={memberships} memberNumbers={numbers} compactActions />
         <MemberQr user={user} />
       </div>
     </section>

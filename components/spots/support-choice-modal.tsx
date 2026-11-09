@@ -27,11 +27,11 @@ export function SupportChoiceModal({ open, onClose, spotName, amount, onAmountCh
       {canAcceptMonthly ? (
         <div className="mt-6">
           <h3 className="text-base font-bold text-ink">月額でサポート</h3>
-          <div className="mt-4 flex items-center justify-center gap-5">
+          <div className="mt-4 flex items-center justify-center gap-2 sm:gap-5">
             <button type="button" aria-label="月額を100円減らす" className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/15 text-ink disabled:opacity-30" disabled={amount <= MIN_KO * KO_UNIT_AMOUNT} onClick={() => onAmountChange(Math.max(MIN_KO * KO_UNIT_AMOUNT, amount - KO_UNIT_AMOUNT))}>
               <Minus className="h-5 w-5" />
             </button>
-            <div className="min-w-32 text-center tabular-nums" aria-live="polite">
+            <div className="min-w-0 flex-1 text-center tabular-nums sm:flex-none sm:min-w-32" aria-live="polite">
               <span className="text-3xl font-bold text-ink">{amount.toLocaleString("ja-JP")}</span><span className="ml-1 text-sm text-ink/65">円／月</span>
             </div>
             <button type="button" aria-label="月額を100円増やす" className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/15 text-ink" onClick={() => onAmountChange(amount + KO_UNIT_AMOUNT)}>

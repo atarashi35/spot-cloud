@@ -86,10 +86,10 @@ export function SiteHeader() {
   return (
     <>
     <header className="shell sticky top-0 z-[80] py-2.5">
-      <div className="relative z-[80] flex items-center justify-between gap-4 rounded-[28px] border border-white/12 bg-white/5 px-4 py-2 shadow-card backdrop-blur-xl sm:px-5">
-        <div className="flex items-center gap-3 sm:gap-6">
+      <div className="relative z-[80] flex items-center justify-between gap-2 rounded-[24px] border border-white/70 bg-white/90 px-3 py-2 shadow-card backdrop-blur-xl sm:gap-4 sm:px-5">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-6">
           <Link href="/" className="flex items-center">
-            <LogoHorizontal className="h-11 w-auto min-w-[120px] object-contain" />
+            <LogoHorizontal className="h-9 w-auto max-w-[110px] object-contain sm:h-11 sm:max-w-none" />
           </Link>
         </div>
 
@@ -98,7 +98,7 @@ export function SiteHeader() {
             href="/spots"
             aria-label="SPOTを探す"
             title="SPOTを探す"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-ink/55 transition hover:bg-ink/5 hover:text-ink"
+            className="hidden h-11 w-11 items-center justify-center rounded-full text-ink/55 transition hover:bg-ink/5 hover:text-ink sm:flex"
           >
             <Search className="h-5 w-5" />
           </Link>
@@ -134,7 +134,7 @@ export function SiteHeader() {
                     </Link>
                     <Link href="/account" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <UserCircle className="h-4 w-4" />
-                      サポート中
+                      マイページ
                     </Link>
                     <Link href="/manage" className="menu-link" onClick={() => setMenuOpen(false)}>
                       <Building2 className="h-4 w-4" />

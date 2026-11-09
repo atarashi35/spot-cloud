@@ -91,7 +91,7 @@ export function NotificationDrawer() {
       </button>
 
       {open && (
-        <div className="menu-surface absolute right-0 top-[calc(100%+10px)] z-[100] w-80 overflow-hidden">
+        <div className="menu-surface absolute -right-12 top-[calc(100%+10px)] z-[100] w-80 max-w-[calc(100vw-2rem)] overflow-hidden sm:right-0">
           <div className="flex items-center justify-between border-b border-ink/8 px-4 py-3">
             <span className="text-sm font-bold text-ink">通知</span>
             {unreadCount > 0 && (

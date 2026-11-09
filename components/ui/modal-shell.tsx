@@ -43,14 +43,14 @@ export function ModalShell({ open, onClose, title, children, size = "md" }: Moda
         aria-label="閉じる"
         onClick={onClose}
       />
-      <section role="dialog" aria-modal="true" aria-label={title} className={`menu-surface relative z-[141] w-full ${SIZE_CLASS[size]} overflow-hidden`}>
-        <div className="flex items-center justify-between border-b border-ink/8 px-6 py-5">
+      <section role="dialog" aria-modal="true" aria-label={title} className={`menu-surface relative z-[141] flex max-h-[calc(100dvh-3rem)] w-full flex-col ${SIZE_CLASS[size]} overflow-hidden`}>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-ink/8 px-5 py-4 sm:px-6 sm:py-5">
           <h2 className="text-xl font-bold text-ink">{title}</h2>
           <button type="button" className="icon-button" onClick={onClose} aria-label="閉じる">
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="max-h-[80vh] overflow-y-auto px-6 py-6">
+        <div className="min-h-0 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6">
           {children}
         </div>
       </section>

@@ -53,6 +53,7 @@ export function MemberHome({ user }: { user: User }) {
       <h1 className="text-2xl font-bold text-ink">ホーム</h1>
       <Link href="/account#member-card" className="cta-secondary text-sm">会員証</Link>
     </div>
+    <Link href="/manage" className="inline-block text-sm font-semibold text-moss">SPOTの運営・登録 →</Link>
     {error ? <p className="text-sm text-red-700">サポート情報を読み込めませんでした。再読み込みしてください。</p> : !spots ? <p className="text-sm text-ink/60">読み込み中です。</p> : spots.length === 0 ? (
       <section className="border-t border-ink/10 py-6">
         <h2 className="text-lg font-bold">気になるSPOTを見つける</h2>

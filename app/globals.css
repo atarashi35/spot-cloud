@@ -64,11 +64,11 @@ select {
 }
 
 .cta-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-bold text-white transition hover:bg-moss active:scale-[0.96];
+  @apply inline-flex min-h-12 max-w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-center text-sm font-bold leading-snug text-white transition hover:bg-moss active:scale-[0.96];
 }
 
 .cta-secondary {
-  @apply inline-flex items-center justify-center rounded-full border border-ink/15 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-moss hover:text-moss active:scale-[0.96];
+  @apply inline-flex min-h-12 max-w-full items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-5 py-3 text-center text-sm font-semibold leading-snug text-ink transition hover:border-moss hover:text-moss active:scale-[0.96];
 }
 
 .field {
@@ -376,6 +376,12 @@ select {
   animation: lm-particle-fly 2.8s ease-out infinite;
   transform-box: fill-box;
   transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lm-root, .lm-root * {
+    animation: none !important;
+  }
 }
 @keyframes lm-particle-fly {
   0%   { transform: scale(1) translate(0,0); opacity: 0.9; }
