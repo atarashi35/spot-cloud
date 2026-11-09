@@ -31,21 +31,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: { default: "SPOT｜好きな活動と、つながる。", template: "%s | SPOT" },
-  description: "クリエイターや団体を見つけて、無料または月額でサポート。SPOTは活動とサポーターをつなぐ場所です。",
+  title: { default: "SPOT｜サポーターと、つながる。", template: "%s | SPOT" },
+  description: "SPOTは、クリエイターや団体とサポーターをつなぐ場所です。",
   metadataBase: new URL("https://spotcloud.app"),
   openGraph: {
     siteName: "SPOT",
-    title: "SPOT｜好きな活動と、つながる。",
-    description: "クリエイターや団体を見つけて、無料または月額でサポート。",
+    title: "SPOT｜サポーターと、つながる。",
+    description: "クリエイターや団体と、無料または月額のサポーターがつながる場所。",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "ja_JP",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "SPOT｜好きな活動と、つながる。",
-    description: "クリエイターや団体を見つけて、無料または月額でサポート。",
+    title: "SPOT｜サポーターと、つながる。",
+    description: "クリエイターや団体と、無料または月額のサポーターがつながる場所。",
     images: ["/og-image.png"]
   }
 };
