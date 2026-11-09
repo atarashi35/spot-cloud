@@ -55,7 +55,7 @@ function buildDotCSS(dots: ReturnType<typeof assignDotsToRings>): string {
  * カードが裏返し中でも transform なしで確実に取得できる。
  * setTimeout 不要 → ユーザージェスチャーのコンテキストを保持できる。
  */
-async function captureCardAsPng(data: { name: string; spotName?: string; memberNo?: string; since?: string; count: number; avatarUrl?: string | null }): Promise<Blob> {
+async function captureCardAsPng(data: { name: string; uid: string; since?: string; count: number; avatarUrl?: string | null }): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = 1200; canvas.height = 756;
   const ctx = canvas.getContext("2d");
@@ -72,9 +72,9 @@ async function captureCardAsPng(data: { name: string; spotName?: string; memberN
     const ring = RINGS[i % RINGS.length]; const angle = ((i * 137.5) * Math.PI) / 180;
     ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.beginPath(); ctx.arc(280 + Math.cos(angle) * ring.radius, 126 + Math.sin(angle) * ring.radius, 2, 0, Math.PI * 2); ctx.fill();
   }
-  ctx.fillStyle = "#ffffff"; ctx.font = "bold 19px sans-serif"; ctx.fillText(data.spotName || "SPOT MEMBER", 24, 174, 280);
-  if (data.spotName) { ctx.font = "bold 22px sans-serif"; ctx.fillText(data.memberNo || "MEMBER", 24, 200); }
-  if (data.since) { ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = "bold 10px sans-serif"; ctx.fillText(`SINCE ${data.since}`, data.spotName ? 120 : 24, data.spotName ? 199 : 190); }
+  ctx.fillStyle = "#ffffff"; ctx.font = "bold 19px sans-serif"; ctx.fillText("SPOT MEMBER", 24, 174, 280);
+  ctx.font = "bold 12px monospace"; ctx.fillText(`ID: ${data.uid}`, 24, 194, 280);
+  if (data.since) { ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = "bold 10px sans-serif"; ctx.fillText(`SINCE ${data.since}`, 24, 207); }
   if (data.avatarUrl) {
     try {
       const image = new Image(); image.crossOrigin = "anonymous";
@@ -161,12 +161,6 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
 
   const spotsLabel = data.spotCount === 1 ? "SPOT" : "SPOTS";
 
-  // 表面に大きく表示する主サポーター情報（最初の有効な所属）
-  const primaryMembership = data.memberships[0] ?? null;
-  const primaryNumber = primaryMembership
-    ? memberNumbers?.[primaryMembership.spotId] ?? null
-    : null;
-
   // ─── tilt（表面のみ有効） ──────────────────────────────────────────────────
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -202,7 +196,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
   // 「カードを保存」: カード表面を PNG でダウンロード
   const handleSave = useCallback(async () => {
     try {
-      const blob = await captureCardAsPng({ name: displayName, spotName: primaryMembership?.spotName, memberNo: primaryNumber != null ? formatMemberNo(primaryNumber) : undefined, since: primaryMembership?.joinedAt ? toSince(primaryMembership.joinedAt) : memberSince ? toSince(memberSince) : undefined, count: data.spotCount, avatarUrl });
+      const blob = await captureCardAsPng({ name: displayName, uid, since: memberSince ? toSince(memberSince) : undefined, count: data.spotCount, avatarUrl });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -215,7 +209,7 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
       console.error("[SocioCard] save failed:", err);
       setToast({ message: "画像の保存に失敗しました。", ok: false });
     }
-  }, [displayName, primaryMembership, primaryNumber, memberSince, data.spotCount, avatarUrl]);
+  }, [displayName, uid, memberSince, data.spotCount, avatarUrl]);
 
   // 「リンクをコピー」: SPOTの公開ページURLをコピー
   const handleShare = useCallback(async () => {
@@ -320,34 +314,17 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
 
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
-                {primaryMembership ? (
-                  <>
-                    <div className="truncate font-bold text-white" style={{ fontSize: 19, lineHeight: 1.25 }}>
-                      {primaryMembership.spotName}
-                    </div>
-                    <div className="mt-1.5 flex items-baseline gap-3">
-                      <span className="font-bold text-white tabular-nums" style={{ fontSize: 22, lineHeight: 1, letterSpacing: "0.02em" }}>
-                        {primaryNumber !== null && primaryNumber !== undefined
-                          ? formatMemberNo(primaryNumber)
-                          : "MEMBER"}
-                      </span>
-                      <span className="font-semibold tracking-[0.18em] text-white/60" style={{ fontSize: 10 }}>
-                        SINCE {toSince(primaryMembership.joinedAt)}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="font-bold tracking-[0.12em] text-white" style={{ fontSize: 20, lineHeight: 1 }}>
-                      SPOT MEMBER
-                    </div>
-                    {memberSince ? (
-                      <div className="mt-2 font-semibold tracking-[0.18em] text-white/60" style={{ fontSize: 10 }}>
-                        SINCE {toSince(memberSince)}
-                      </div>
-                    ) : null}
-                  </>
-                )}
+                <div className="font-bold tracking-[0.12em] text-white" style={{ fontSize: 20, lineHeight: 1 }}>
+                  SPOT MEMBER
+                </div>
+                <div className="mt-2 break-all font-mono text-white/80" style={{ fontSize: 11 }}>
+                  ID: {uid}
+                </div>
+                {memberSince ? (
+                  <div className="mt-1 font-semibold tracking-[0.18em] text-white/60" style={{ fontSize: 10 }}>
+                    SINCE {toSince(memberSince)}
+                  </div>
+                ) : null}
                 <div className="mt-2.5 flex items-center gap-2 min-w-0">
                   {avatarUrl ? (
                     <img
