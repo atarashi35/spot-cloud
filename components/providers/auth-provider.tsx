@@ -39,17 +39,6 @@ function isMfaError(e: unknown): e is MultiFactorError {
   return (e as { code?: string }).code === "auth/multi-factor-auth-required";
 }
 
-function shouldUseRedirect() {
-  if (typeof window === "undefined") return false;
-
-  const standalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  const mobileApple = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  return standalone || mobileApple;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -115,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const provider = new OAuthProvider("apple.com");
       provider.addScope("email");
       provider.addScope("name");
-      await signInWithProvider(provider, shouldUseRedirect());
+      await signInWithProvider(provider, false);
     },
     async signOutUser() {
       await signOut(getFirebaseAuth());

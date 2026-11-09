@@ -4,6 +4,11 @@ runConfig:
   concurrency: 80
 
 env:
+  - variable: NEXT_PUBLIC_APPLE_LOGIN_ENABLED
+    value: "true"
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: FIREBASE_ADMIN_PRIVATE_KEY
     secret: FIREBASE_ADMIN_PRIVATE_KEY
   - variable: APPLE_SIGNER_CERT_PEM_BASE64
