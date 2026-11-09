@@ -15,10 +15,31 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/spots/$(spotId)/members/$(request.auth.uid)).data.status in ["active", "canceling"];
     }
 
+    // オーナーがクライアントから書き換えてよいフィールド。
+    // socioCount / followerCount / isSuspended / stripeConnectedAccountId などは
+    // Admin SDK（サーバー）だけが書く。
+    function ownerEditableSpotKeys() {
+      return [
+        "name", "kind", "description", "shortDescription", "category",
+        "activityFields", "achievements", "address", "prefecture", "city",
+        "coverTone", "coverImageUrl", "galleryImageUrls", "isPublished",
+        "phone", "email", "socialLinks", "planBenefits", "teamMembers",
+        "performerFee", "performerFeeNote", "performerDisciplines",
+        "bookingsEnabled", "opinionBoxEnabled", "updatedAt"
+      ];
+    }
+
     match /spots/{spotId} {
       allow read: if resource == null || resource.data.isPublished == true || isResourceOwner(resource.data.ownerUid);
-      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
-      allow update, delete: if isResourceOwner(resource.data.ownerUid);
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasOnly(ownerEditableSpotKeys().concat(["ownerUid", "socioCount", "followerCount", "isSuspended", "createdAt"]))
+        && request.resource.data.socioCount == 0
+        && request.resource.data.followerCount == 0
+        && request.resource.data.isSuspended == false;
+      allow update: if isResourceOwner(resource.data.ownerUid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(ownerEditableSpotKeys());
+      allow delete: if isResourceOwner(resource.data.ownerUid);
 
       match /members/{uid} {
         allow read: if signedIn() && (request.auth.uid == uid || isResourceOwner(get(/databases/$(database)/documents/spots/$(spotId)).data.ownerUid));

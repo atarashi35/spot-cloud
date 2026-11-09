@@ -58,6 +58,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "spot_not_found" }, { status: 404 });
     }
 
+    if (spotSnapshot.data()?.isPublished !== true || spotSnapshot.data()?.isSuspended === true) {
+      return NextResponse.json(
+        { error: "spot_unavailable", message: "この SPOT は現在サポーターを募集していません。" },
+        { status: 409 }
+      );
+    }
+
     const connectedAccountId = String(spotSnapshot.data()?.stripeConnectedAccountId ?? "");
 
     if (!connectedAccountId) {

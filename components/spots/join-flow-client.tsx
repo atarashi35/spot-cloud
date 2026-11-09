@@ -51,7 +51,7 @@ export function JoinFlowClient({
   return (
     <div className="shell">
       <section className="mx-auto max-w-3xl panel px-6 py-8 sm:px-8">
-        <span className="chip">JOIN AS SOCIO</span>
+        <span className="chip">JOIN AS SUPPORTER</span>
         <h1 className="mt-4 text-3xl font-extrabold text-ink">{spot.name} の月額サポーター登録</h1>
         <p className="mt-3 text-sm text-ink/72">口数を選ぶと、そのまま決済へ進みます。1口 ¥100 から、何口でも。</p>
 
@@ -90,7 +90,7 @@ export function JoinFlowClient({
         {error ? <p className="mt-5 text-sm font-medium text-red-700">{error}</p> : null}
 
         <p className="mt-8 text-xs leading-6 text-ink/65">
-          「加入する」ボタンをクリックすることで、
+          下のボタンから決済へ進むことで、
           <Link href="/terms" className="underline hover:text-moss">利用規約</Link>
           および
           <Link href="/privacy" className="underline hover:text-moss">プライバシーポリシー</Link>

@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
     }
 
     const spotSnapshot = await getAdminDb().doc(`spots/${body.spotId}`).get();
+
+    if (spotSnapshot.data()?.isSuspended === true) {
+      return NextResponse.json(
+        { error: "spot_unavailable", message: "この依頼先は現在お支払いを受け付けていません。" },
+        { status: 409 }
+      );
+    }
+
     const connectedAccountId = String(spotSnapshot.data()?.stripeConnectedAccountId ?? "");
 
     if (!connectedAccountId) {

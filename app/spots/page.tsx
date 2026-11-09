@@ -1,7 +1,7 @@
 import { SpotListPage } from "@/components/spots/spot-list-page";
 
 export const metadata = {
-  title: "SPOTを探す | SPOT",
+  title: "SPOTを探す",
   description: "クリエイターや団体を見つけて、無料または月額でサポーターになれます。",
 };
 
