@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useMemo, useState, useEffect } from "react";
-import type { UserMembership } from "@/lib/types";
+import type { UserFollow, UserMembership } from "@/lib/types";
 import { buildSocioCardData, buildShareContent } from "@/lib/socio-card-data";
 export type { SocioCardData } from "@/lib/socio-card-data";
 
@@ -55,34 +55,36 @@ function buildDotCSS(dots: ReturnType<typeof assignDotsToRings>): string {
  * カードが裏返し中でも transform なしで確実に取得できる。
  * setTimeout 不要 → ユーザージェスチャーのコンテキストを保持できる。
  */
-async function captureCardAsPng(el: HTMLElement): Promise<Blob> {
-  const { toBlob } = await import("html-to-image");
-
-  // 元要素の実寸を取得してクローンに明示的に設定する。
-  // 設定しないと fixed + off-screen 要素の幅が 0 になり toBlob が空 Blob を返す。
-  const { width, height } = el.getBoundingClientRect();
-
-  const clone = el.cloneNode(true) as HTMLElement;
-  Object.assign(clone.style, {
-    position: "fixed",
-    top: "-9999px",
-    left: "-9999px",
-    width: `${width}px`,
-    height: `${height}px`,
-    transform: "none",
-    backfaceVisibility: "visible",
-    WebkitBackfaceVisibility: "visible",
-    pointerEvents: "none",
-  });
-  document.body.appendChild(clone);
-
-  try {
-    const blob = await toBlob(clone, { pixelRatio: 3, cacheBust: true });
-    if (!blob) throw new Error("toBlob が空を返しました（要素幅: ${width}px）");
-    return blob;
-  } finally {
-    document.body.removeChild(clone);
+async function captureCardAsPng(data: { name: string; spotName?: string; memberNo?: string; since?: string; count: number; avatarUrl?: string | null }): Promise<Blob> {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200; canvas.height = 756;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas unavailable");
+  ctx.scale(3, 3);
+  const gradient = ctx.createLinearGradient(0, 0, 400, 252);
+  gradient.addColorStop(0, "#111111"); gradient.addColorStop(0.5, "#1a1a1a"); gradient.addColorStop(1, "#0d0d0d");
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, 400, 252);
+  ctx.fillStyle = "#e8261a"; ctx.beginPath(); ctx.arc(30, 32, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#ffffff"; ctx.font = "bold 13px sans-serif"; ctx.fillText("S P O T", 43, 37);
+  ctx.textAlign = "right"; ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.font = "bold 11px sans-serif"; ctx.fillText("SPOT会員証", 376, 37); ctx.textAlign = "left";
+  ctx.fillStyle = "#e8261a"; ctx.beginPath(); ctx.arc(280, 126, 11, 0, Math.PI * 2); ctx.fill();
+  for (let i = 0; i < data.count; i++) {
+    const ring = RINGS[i % RINGS.length]; const angle = ((i * 137.5) * Math.PI) / 180;
+    ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.beginPath(); ctx.arc(280 + Math.cos(angle) * ring.radius, 126 + Math.sin(angle) * ring.radius, 2, 0, Math.PI * 2); ctx.fill();
   }
+  ctx.fillStyle = "#ffffff"; ctx.font = "bold 19px sans-serif"; ctx.fillText(data.spotName || "SPOT MEMBER", 24, 174, 280);
+  if (data.spotName) { ctx.font = "bold 22px sans-serif"; ctx.fillText(data.memberNo || "MEMBER", 24, 200); }
+  if (data.since) { ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = "bold 10px sans-serif"; ctx.fillText(`SINCE ${data.since}`, data.spotName ? 120 : 24, data.spotName ? 199 : 190); }
+  if (data.avatarUrl) {
+    try {
+      const image = new Image(); image.crossOrigin = "anonymous";
+      await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("avatar unavailable")); image.src = data.avatarUrl!; });
+      ctx.save(); ctx.beginPath(); ctx.arc(36, 225, 12, 0, Math.PI * 2); ctx.clip(); ctx.drawImage(image, 24, 213, 24, 24); ctx.restore();
+    } catch { /* アバターを取得できない場合も会員証は保存できる */ }
+  }
+  ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.font = "bold 13px sans-serif"; ctx.fillText(data.name, data.avatarUrl ? 56 : 24, 230, 275);
+  if (data.count > 1) { ctx.textAlign = "right"; ctx.fillText(`+${data.count - 1} SPOT`, 376, 230); }
+  return await new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("PNG generation failed")), "image/png"));
 }
 
 // ─── クリップボードコピー（execCommand フォールバック付き） ──────────────────
@@ -130,6 +132,7 @@ type Props = {
   /** SPOT共通会員になった日時 */
   memberSince?: string | null;
   memberships: Pick<UserMembership, "spotName" | "joinedAt" | "spotId" | "status">[];
+  follows?: Pick<UserFollow, "spotName" | "followedAt" | "spotId">[];
   /** spotId → サポーター番号（joinedAt順の通し番号）。/api/spots/[spotId]/socio-number から取得して渡す */
   memberNumbers?: Record<string, number | null>;
   /** LPデモなど閲覧専用の埋め込みでは false にして保存・コピー導線を隠す */
@@ -139,8 +142,7 @@ type Props = {
   hintClassName?: string;
 };
 
-export function SocioCard({ uid, displayName, avatarUrl, memberSince, memberships, memberNumbers, showActions = true, compactActions = false, hintClassName = "text-ink/58" }: Props) {
-  const cardRef = useRef<HTMLDivElement>(null);
+export function SocioCard({ uid, displayName, avatarUrl, memberSince, memberships, follows, memberNumbers, showActions = true, compactActions = false, hintClassName = "text-ink/58" }: Props) {
   const tiltRef = useRef<HTMLDivElement>(null);
 
   const [isFlipped, setIsFlipped] = useState(false);
@@ -149,12 +151,12 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
   const [toast, setToast] = useState<{ message: string; ok: boolean } | null>(null);
 
   const data = useMemo(
-    () => buildSocioCardData(uid, displayName, memberships),
-    [uid, displayName, memberships]
+    () => buildSocioCardData(uid, displayName, memberships, follows),
+    [uid, displayName, memberships, follows]
   );
   const shareContent = useMemo(() => buildShareContent(data), [data]);
 
-  const dots = useMemo(() => assignDotsToRings(Math.max(data.spotCount, 1)), [data.spotCount]);
+  const dots = useMemo(() => assignDotsToRings(data.spotCount), [data.spotCount]);
   const dotCSS = useMemo(() => buildDotCSS(dots), [dots]);
 
   const spotsLabel = data.spotCount === 1 ? "SPOT" : "SPOTS";
@@ -199,26 +201,33 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
 
   // 「カードを保存」: カード表面を PNG でダウンロード
   const handleSave = useCallback(async () => {
-    if (!cardRef.current) return;
     try {
-      const blob = await captureCardAsPng(cardRef.current);
+      const blob = await captureCardAsPng({ name: displayName, spotName: primaryMembership?.spotName, memberNo: primaryNumber != null ? formatMemberNo(primaryNumber) : undefined, since: primaryMembership?.joinedAt ? toSince(primaryMembership.joinedAt) : memberSince ? toSince(memberSince) : undefined, count: data.spotCount, avatarUrl });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = "spot-member-card.png";
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (err) {
       console.error("[SocioCard] save failed:", err);
       setToast({ message: "画像の保存に失敗しました。", ok: false });
     }
-  }, []);
+  }, [displayName, primaryMembership, primaryNumber, memberSince, data.spotCount, avatarUrl]);
 
   // 「リンクをコピー」: SPOTの公開ページURLをコピー
-  const handleShare = useCallback(() => {
-    legacyCopy(`${shareContent.text}\n${shareContent.url}`, (msg) => {
-      setToast({ message: msg, ok: msg.includes("コピーしました") });
-    });
+  const handleShare = useCallback(async () => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(shareContent.url);
+      setToast({ message: "リンクをコピーしました", ok: true });
+    } catch {
+      legacyCopy(shareContent.url, (msg) => {
+        setToast({ message: msg, ok: msg.includes("コピーしました") });
+      });
+    }
   }, [shareContent]);
 
   // ─── tiltのY回転 + flip回転を合成 ────────────────────────────────────────
@@ -254,7 +263,6 @@ export function SocioCard({ uid, displayName, avatarUrl, memberSince, membership
       >
         {/* ── 表面 ── */}
         <div
-          ref={cardRef}
           className="relative w-full overflow-hidden rounded-[24px] select-none"
           style={{
             aspectRatio: "1.586",

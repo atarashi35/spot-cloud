@@ -41,36 +41,34 @@ export function MemberHome({ user }: { user: User }) {
       const images = new Map(published.map((spot) => [spot.id, spot.coverImageUrl]));
       const supported = [...byId.values()].map((spot) => ({ ...spot, coverImageUrl: images.get(spot.id) }));
       if (!cancelled) setSpots(supported);
-      const results: PromiseSettledResult<News[]>[] = [];
-      for (let start = 0; start < published.length; start += 8) {
-        if (cancelled) return;
-        results.push(...await Promise.allSettled(published.slice(start, start + 8).map(async (spot) => {
+      async function loadBatches<T>(load: (spot: typeof published[number]) => Promise<T[]>) {
+        const results: PromiseSettledResult<T[]>[] = [];
+        for (let start = 0; start < published.length; start += 8) {
+          if (cancelled) break;
+          results.push(...await Promise.allSettled(published.slice(start, start + 8).map(load)));
+        }
+        return results;
+      }
+      const [results, pollResults, opportunityResults] = await Promise.all([
+        loadBatches<News>(async (spot) => {
           const response = await fetch(`/api/spots/${encodeURIComponent(spot.id)}/feed`, { headers: { Authorization: `Bearer ${token}` } });
           if (!response.ok) throw new Error("feed_unavailable");
           const data = await response.json() as { posts: Post[] };
           return data.posts.filter((post) => !post.masked && post.title).map((post) => ({ ...post, spotId: spot.id, spotName: spot.name, spotImage: spot.coverImageUrl }));
-        })));
-      }
-      const pollResults: PromiseSettledResult<FeedPoll[]>[] = [];
-      for (let start = 0; start < published.length; start += 8) {
-        if (cancelled) return;
-        pollResults.push(...await Promise.allSettled(published.slice(start, start + 8).map(async (spot) => {
+        }),
+        loadBatches<FeedPoll>(async (spot) => {
           const response = await fetch(`/api/spots/${encodeURIComponent(spot.id)}/polls`, { headers: { Authorization: `Bearer ${token}` } });
           if (!response.ok) throw new Error("polls_unavailable");
           const data = await response.json() as { polls: FeedPoll[] };
           return data.polls.map((poll) => ({ ...poll, spotId: spot.id, spotName: spot.name, spotImage: spot.coverImageUrl }));
-        })));
-      }
-      const opportunityResults: PromiseSettledResult<FeedOpportunity[]>[] = [];
-      for (let start = 0; start < published.length; start += 8) {
-        if (cancelled) return;
-        opportunityResults.push(...await Promise.allSettled(published.slice(start, start + 8).map(async (spot) => {
+        }),
+        loadBatches<FeedOpportunity>(async (spot) => {
           const response = await fetch(`/api/spots/${encodeURIComponent(spot.id)}/opportunities`, { headers: { Authorization: `Bearer ${token}` } });
           if (!response.ok) throw new Error("opportunities_unavailable");
           const data = await response.json() as { opportunities: FeedOpportunity[] };
           return data.opportunities.map((item) => ({ ...item, spotId: spot.id, spotName: spot.name, spotImage: spot.coverImageUrl }));
-        })));
-      }
+        }),
+      ]);
       if (!cancelled) {
         setNews(results.flatMap((result) => result.status === "fulfilled" ? result.value : []).sort((a, b) => b.publishDate.localeCompare(a.publishDate)).slice(0, 10));
         setPolls(pollResults.flatMap((result) => result.status === "fulfilled" ? result.value : []));

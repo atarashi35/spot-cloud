@@ -34,10 +34,14 @@ export function AccountPageClient() {
     setProfile({ name: null, avatar: null, since: null });
     void (async () => {
       const token = await user.getIdToken();
-      await fetch("/api/auth/claim-memberships", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
-      const [paid, free] = await Promise.all([listUserMemberships(user.uid), listUserFollows(user)]);
+      const claim = fetch("/api/auth/claim-memberships", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).then(async (response) => response.ok ? await response.json() as { reconciledCount?: number; repairedCount?: number } : null).catch(() => null);
+      const [initialPaid, free] = await Promise.all([listUserMemberships(user.uid), listUserFollows(user)]);
       if (cancelled) return;
-      setMemberships(paid); setFollows(free);
+      setMemberships(initialPaid); setFollows(free);
+      const result = await claim;
+      const paid = result && ((result.reconciledCount ?? 0) > 0 || (result.repairedCount ?? 0) > 0) ? await listUserMemberships(user.uid) : initialPaid;
+      if (cancelled) return;
+      setMemberships(paid);
       const active = paid.filter((m) => m.status === "active" || m.status === "canceling");
       const entries = await Promise.all(active.map((m) => fetch(`/api/spots/${m.spotId}/socio-number`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.ok ? r.json() as Promise<{ number: number | null }> : { number: null }).then((data) => [m.spotId, data.number] as const).catch(() => [m.spotId, null] as const)));
       if (!cancelled) setNumbers(Object.fromEntries(entries));
@@ -80,7 +84,7 @@ export function AccountPageClient() {
     <section id="member-card" className="scroll-mt-28 space-y-3">
       <h2 className="text-sm font-bold text-ink/72">SPOT会員証</h2>
       <div className="mx-auto max-w-sm space-y-3">
-        <SocioCard uid={user.uid} displayName={resolveDisplayName(profile.name, user.displayName, user.email)} avatarUrl={profile.avatar} memberSince={profile.since} memberships={memberships} memberNumbers={numbers} compactActions />
+        <SocioCard uid={user.uid} displayName={resolveDisplayName(profile.name, user.displayName, user.email)} avatarUrl={profile.avatar} memberSince={profile.since} memberships={memberships} follows={follows} memberNumbers={numbers} compactActions />
         <MemberQr user={user} />
       </div>
     </section>
