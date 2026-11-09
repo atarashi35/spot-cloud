@@ -228,7 +228,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
   useEffect(() => {
     if (searchParams.get("signup") !== "1") return;
     setEmailJoinPlan(null);
-    setSignupModalOpen(true);
+    setChoiceModalOpen(true);
     router.replace(`/spots/${spotId}`);
   }, [searchParams, router, spotId]);
 
@@ -863,7 +863,7 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
         <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-ink/8 bg-white/90 px-5 py-4 backdrop-blur-md sm:bottom-0 sm:px-8">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-ink">{spot.name}</p>
-            <p className="text-xs text-ink/65">1口100円から参加できます</p>
+            <p className="text-xs text-ink/65">サポーター募集中</p>
           </div>
           <button
             type="button"

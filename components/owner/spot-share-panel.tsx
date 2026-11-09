@@ -144,15 +144,15 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
     ctx.stroke();
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
-    // 料金
+    // 登録案内
     ctx.textAlign = "center";
     ctx.font = "600 22px 'Helvetica Neue', Arial, sans-serif";
     ctx.fillStyle = "#111111";
-    ctx.fillText("1口100円〜", W / 2, 650);
+    ctx.fillText("サポーター募集中", W / 2, 650);
 
     ctx.font = "14px 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', sans-serif";
     ctx.fillStyle = "#888888";
-    ctx.fillText("QRコードをスキャンして月額サポーター登録", W / 2, 682);
+    ctx.fillText("QRコードから登録", W / 2, 682);
 
     ctx.fillStyle = "#e5e5e5";
     ctx.fillRect(48, 740, W - 96, 1);
@@ -187,8 +187,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
           <h2 className="text-xl font-semibold text-ink">SPOT詳細ページへのリンク</h2>
           <p className="mt-1.5 text-xs leading-5 text-ink/68">
-            SPOTの紹介ページを見てもらうためのQR。<br />
-            チラシやQRカードに掲載するのに最適です。
+            SPOTの紹介ページを開くQRコードです。
           </p>
           <div ref={spotQrRef} className="mt-5 inline-flex rounded-[20px] bg-white p-5 shadow-sm">
             <QRCode value={spotUrl} size={210} />
@@ -214,10 +213,9 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
         </section>
 
         <section className="rounded-[28px] bg-mist px-5 py-6 text-center">
-          <h2 className="text-xl font-semibold text-ink">月額サポーター登録へのリンク</h2>
+          <h2 className="text-xl font-semibold text-ink">サポーター登録へのリンク</h2>
           <p className="mt-1.5 text-xs leading-5 text-ink/68">
-            スキャンすると月額サポーター登録画面が開くQR。<br />
-            「サポーター募集中」の告知に直接使えます。
+            登録画面を開くQRコードです。
           </p>
           <div ref={signupQrRef} className="mt-5 inline-flex rounded-[20px] bg-white p-5 shadow-sm">
             <QRCode value={signupUrl} size={210} />
@@ -246,8 +244,7 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
       <section className="mt-5 rounded-[28px] bg-mist px-5 py-6">
         <h2 className="text-xl font-semibold text-ink">サポーター募集チラシ</h2>
         <p className="mt-1.5 text-xs leading-5 text-ink/68">
-          印刷してそのまま使えるチラシをPNGで保存できます。<br />
-          QRカード・名刺・チラシに貼り付けてご利用ください。
+          印刷して使えるチラシをPNGで保存できます。
         </p>
 
         {/* チラシプレビュー */}
@@ -263,8 +260,8 @@ export function SpotSharePanel({ spotId }: { spotId: string }) {
             <div ref={flyerQrRef} className="my-4 flex justify-center">
               <QRCode value={signupUrl} size={90} />
             </div>
-            <p className="text-center text-[8px] font-semibold text-ink">1口100円〜</p>
-            <p className="mt-1 text-center text-[7px] text-ink/65">QRコードをスキャンして月額サポーター登録</p>
+            <p className="text-center text-[8px] font-semibold text-ink">サポーター募集中</p>
+            <p className="mt-1 text-center text-[7px] text-ink/65">QRコードから登録</p>
             <div className="my-3 h-px bg-ink/10" />
             <p className="text-center text-[7px] text-ink/60">spotcloud.app</p>
           </div>

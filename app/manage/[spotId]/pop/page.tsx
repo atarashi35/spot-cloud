@@ -65,12 +65,12 @@ function PopCard({ spot }: { spot: Spot }) {
         </div>
       </div>
 
-      {/* 価格 */}
+      {/* 登録案内 */}
       <p style={{ fontSize: "10mm", fontWeight: 700, color: "#111111", textAlign: "center", marginBottom: "4mm" }}>
-        1口100円〜
+        サポーター募集中
       </p>
       <p style={{ fontSize: "5.5mm", color: "#888888", textAlign: "center", marginBottom: "14mm" }}>
-        QRコードをスキャンして月額サポーター登録
+        QRコードから登録
       </p>
 
       {/* フッター */}
@@ -125,7 +125,7 @@ export default function PopPage({ params }: { params: Promise<{ spotId: string }
       `}</style>
 
       <div className="print:hidden">
-        <Breadcrumb items={[{ label: "管理", href: "/dashboard" }, { label: "QRカード" }]} />
+        <Breadcrumb items={[{ label: "管理", href: "/manage" }, { label: "募集POP" }]} />
       </div>
 
       {status === "loading" && (
@@ -145,11 +145,9 @@ export default function PopPage({ params }: { params: Promise<{ spotId: string }
       {status === "ready" && spot && (
         <>
           <div className="print:hidden">
-            <span className="chip">QRカード</span>
-            <h1 className="mt-4 text-3xl font-extrabold text-ink">目立つ場所に置くQRカードを印刷</h1>
+            <h1 className="text-3xl font-extrabold text-ink">サポーター募集POP</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/68">
-              A4サイズで印刷されます。レジ横・受付・会場など、目に入る場所に置いてください。
-              声をかけるときに一言添えると、サポーターの入会につながります。
+              A4サイズで印刷できます。
             </p>
             <button
               type="button"
