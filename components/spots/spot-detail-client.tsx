@@ -465,17 +465,17 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
             ) : null}
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-[2.2rem] font-extrabold tabular-nums leading-none text-teal-600">
+                <span className="text-xl font-bold tabular-nums leading-none text-ink">
                   {spot.socioCount + (spot.followerCount ?? 0)}
                 </span>
-                <span className="text-sm font-semibold text-teal-700/80">人のサポーター</span>
+                <span className="text-sm text-ink/65">人のサポーター</span>
               </div>
               <div className="h-5 w-px bg-ink/15" />
               <MetricPill label="エリア" value={`${spot.prefecture}${spot.city ? ` / ${spot.city}` : ""}`} />
               {(spot.followerCount ?? 0) > 0 ? (
                 <MetricPill label="無料" value={`${spot.followerCount}人`} />
               ) : null}
-              {spot.socioCount > 0 ? <MetricPill label="有料" value={`${spot.socioCount}人`} /> : null}
+              {spot.socioCount > 0 ? <MetricPill label="月額" value={`${spot.socioCount}人`} /> : null}
             </div>
             <div className="mt-5 flex items-center gap-2 text-sm text-ink/72">
               <MapPin className="h-4 w-4 shrink-0" />
@@ -532,11 +532,8 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
           </div>
           <div className="flex flex-col gap-4">
           {FEATURE_BOOKINGS && !isOwner && spot.bookingsEnabled !== false && spot.performerFee ? (
-            <div className="rounded-[28px] bg-mist p-5">
-              <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/15 px-3 py-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-                <span className="text-sm font-semibold text-teal-600">出演依頼を受付中</span>
-              </div>
+            <div className="order-2 rounded-2xl bg-mist p-5">
+              <p className="text-sm font-semibold text-ink/65">出演依頼</p>
               <p className="mt-3 text-2xl font-extrabold text-ink">
                 ¥{spot.performerFee.toLocaleString()}
                 <span className="ml-1 text-sm font-medium text-ink/55">〜</span>
@@ -544,20 +541,14 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               {spot.performerFeeNote ? <p className="mt-1 text-sm text-ink/65">{spot.performerFeeNote}</p> : null}
               <button
                 type="button"
-                className="cta-primary mt-4 w-full"
+                className="cta-secondary mt-4 w-full"
                 onClick={() => setBookingModalOpen(true)}
               >
                 出演依頼する
               </button>
             </div>
           ) : null}
-          <aside ref={mainCtaRef} className={`flex flex-col rounded-[28px] p-5 ${
-            !isOwner && !isFollowing && membershipStatus !== "active" && membershipStatus !== "canceling"
-            && membershipStatus !== "past_due" && membershipStatus !== "canceled"
-            && canAcceptMembership
-              ? "bg-ink"
-              : "bg-mist"
-          }`}>
+          <aside ref={mainCtaRef} className="order-1 flex flex-col rounded-2xl bg-mist p-5">
             {isOwner ? (
               <>
                 <h2 className="text-2xl font-extrabold text-ink">運営中のSPOT</h2>
@@ -594,9 +585,6 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
               <div className="flex h-full flex-col">
                 <StatusBadge tone="success">無料サポーター</StatusBadge>
                 <h2 className="mt-5 text-2xl font-extrabold text-ink">サポート中です</h2>
-                <p className="mt-2 text-sm leading-6 text-ink/70">
-                  公開される投稿やイベントをマイページから確認できます。
-                </p>
                 {canAcceptMembership ? (
                   <button type="button" className="cta-primary mt-5 w-full" onClick={() => setChoiceModalOpen(true)}>
                     月額サポーターになる
@@ -636,31 +624,17 @@ export function SpotDetailClient({ spotId }: { spotId: string }) {
                 <button type="button" className="cta-primary mt-5 w-full" onClick={() => setChoiceModalOpen(true)}>サポーターになる</button>
               </>
             ) : (
-              /* ── 未加入・募集中（メイン訴求）── bg-ink 反転パネル */
-              <div className="flex h-full flex-col gap-4">
-                {/* バッジ + サポーター数 */}
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-teal-400/15 px-3 py-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                    <span className="text-sm font-semibold text-teal-400">サポーター募集中</span>
-                  </div>
-                  {spot.socioCount > 0 && (
-                    <p className="text-sm font-semibold tabular-nums text-teal-400">
-                      {spot.socioCount}人がサポート中
-                    </p>
-                  )}
-                </div>
-
-                {/* CTA */}
-                <div className="mt-auto pt-2">
+              <div className="flex h-full flex-col">
+                <h2 className="text-base font-bold text-ink">サポーター募集中</h2>
+                <div className="mt-4">
                   <button
                     type="button"
-                    className="w-full rounded-full bg-white py-3.5 text-center text-[15px] font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
+                    className="cta-primary w-full"
                     onClick={() => setChoiceModalOpen(true)}
                   >
                     サポーターになる
                   </button>
-                  {followError ? <p className="mt-3 text-sm text-red-300">{followError}</p> : null}
+                  {followError ? <p className="mt-3 text-sm text-red-700">{followError}</p> : null}
                 </div>
               </div>
             )}

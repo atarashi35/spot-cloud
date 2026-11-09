@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { X, Share, PlusSquare } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const DISMISSED_KEY = "spot_a2hs_dismissed";
 
 type InstallMode = "ios" | "android" | null;
 
 export function AddToHomeScreenBanner() {
+  const path = usePathname();
   const [mode, setMode] = useState<InstallMode>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<Event & { prompt: () => Promise<void> } | null>(null);
   const [showIosGuide, setShowIosGuide] = useState(false);
@@ -53,19 +55,19 @@ export function AddToHomeScreenBanner() {
     dismiss();
   }
 
-  if (!visible) return null;
+  if (!visible || (path !== "/" && path !== "/account")) return null;
 
   return (
     <>
       {/* バナー本体 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-3 sm:p-4">
+      <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-[60] p-3 sm:bottom-0 sm:p-4">
         <div className="mx-auto flex max-w-lg items-center gap-3 rounded-2xl border border-ink/8 bg-white px-4 py-3 shadow-card">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sand">
             <PlusSquare className="h-5 w-5 text-ink/60" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold leading-tight text-ink">
-              ホーム画面に追加しよう
+              ホーム画面に追加
             </p>
             <p className="mt-0.5 text-[11px] leading-snug text-ink/50">
               アイコンからすぐ開けます
@@ -102,7 +104,7 @@ export function AddToHomeScreenBanner() {
       {/* iOS向け手順ガイド */}
       {showIosGuide ? (
         <div
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[150] flex items-end justify-center bg-ink/40 p-4 backdrop-blur-sm"
           onClick={() => setShowIosGuide(false)}
         >
           <div
