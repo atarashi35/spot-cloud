@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Pencil, QrCode, Users, Gift, Landmark, Settings, Eye } from "lucide-react";
+import { CalendarDays, ChevronDown, FileText, Pencil, Plus, QrCode, Users, Gift, Landmark, Settings, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PostForm } from "@/components/owner/post-form";
+import { EventForm } from "@/components/owner/event-form";
 import { EmptyState } from "@/components/empty-state";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -173,6 +174,8 @@ export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string
   const [kindFilter, setKindFilter] = useState<"all" | "creator" | "organization">("all");
   type PostModal = { spotId: string; mode: "create" } | { spotId: string; mode: "edit"; postId: string } | null;
   const [postModal, setPostModal] = useState<PostModal>(null);
+  const [createSpotId, setCreateSpotId] = useState<string | null>(null);
+  const [eventSpotId, setEventSpotId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -333,6 +336,17 @@ export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string
 
   return (
     <div className="space-y-6">
+
+      <ModalShell open={createSpotId !== null} onClose={() => setCreateSpotId(null)} title="作成" size="sm">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button type="button" className="flex min-h-20 items-center gap-3 rounded-2xl bg-mist px-5 text-left font-semibold transition hover:bg-ink/10" onClick={() => { if (createSpotId) setPostModal({ spotId: createSpotId, mode: "create" }); setCreateSpotId(null); }}><FileText className="h-5 w-5" aria-hidden="true" />投稿</button>
+          {FEATURE_EVENTS ? <button type="button" className="flex min-h-20 items-center gap-3 rounded-2xl bg-mist px-5 text-left font-semibold transition hover:bg-ink/10" onClick={() => { setEventSpotId(createSpotId); setCreateSpotId(null); }}><CalendarDays className="h-5 w-5" aria-hidden="true" />イベント</button> : null}
+        </div>
+      </ModalShell>
+
+      <ModalShell open={eventSpotId !== null} onClose={() => setEventSpotId(null)} title="イベントを作成" size="lg">
+        {eventSpotId ? <EventForm spotId={eventSpotId} mode="create" onSuccess={() => { setEventSpotId(null); void reloadContent(eventSpotId); }} /> : null}
+      </ModalShell>
 
       {/* 投稿モーダル */}
       <ModalShell
@@ -667,10 +681,10 @@ export function OwnerConsoleClient({ selectedSpotId }: { selectedSpotId?: string
               <div className={`mt-6 grid gap-2 ${extraTileCount > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
                 <button
                   type="button"
-                  onClick={() => setPostModal({ spotId: spot.id, mode: "create" })}
+                  onClick={() => setCreateSpotId(spot.id)}
                   className="flex flex-col items-center gap-1.5 rounded-[16px] bg-ink px-2 py-3.5 text-white transition hover:bg-ink/85 active:scale-[0.97]"
                 >
-                  <span className="text-xs font-semibold">投稿</span>
+                  <span className="flex items-center gap-1 text-xs font-semibold"><Plus className="h-4 w-4" aria-hidden="true" />作成</span>
                 </button>
                 <a
                   href={`/manage/${spot.id}/pop`}
