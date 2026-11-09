@@ -1,5 +1,7 @@
 "use client";
 
+import { OptimizedImage } from "@/components/ui/optimized-image";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowRight, Plus } from "lucide-react";
@@ -75,7 +77,7 @@ export function AccountPageClient() {
       </div>
       {ownedError ? <div className="rounded-2xl bg-white px-4 py-4"><p className="text-sm text-red-700">SPOTを読み込めませんでした。</p><Link href="/manage" className="mt-2 inline-block text-sm font-semibold text-moss">管理画面を開く →</Link></div> : !ownedSpots ? <p className="py-4 text-sm text-ink/60">読み込み中です。</p> : ownedSpots.length ? <>
         <ul className="divide-y divide-ink/8 overflow-hidden rounded-2xl bg-white">{ownedSpots.slice(0, 3).map((spot) => <li key={spot.id}><Link href={`/manage/${spot.id}`} className="flex min-h-20 items-center gap-3 px-4 py-3 hover:bg-mist">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-mist">{spot.coverImageUrl ? <img src={spot.coverImageUrl} alt="" className="h-full w-full object-cover" /> : <span className="text-base font-bold text-ink/50">{spot.name.slice(0, 1)}</span>}</span>
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-mist">{spot.coverImageUrl ? <OptimizedImage src={spot.coverImageUrl} sizes="64px" width={128} height={128} className="h-full w-full object-cover" /> : <span className="text-base font-bold text-ink/50">{spot.name.slice(0, 1)}</span>}</span>
           <span className="min-w-0 flex-1"><span className="block truncate font-bold text-ink">{spot.name}</span><span className="mt-1 block text-xs text-ink/60">{spot.kind === "creator" ? "クリエイター" : "団体"} · {spot.isSuspended ? "停止中" : spot.isPublished ? "公開中" : "非公開"}</span></span><ArrowRight className="h-4 w-4 shrink-0 text-ink/45" aria-hidden="true" />
         </Link></li>)}</ul>
         {ownedSpots.length > 3 ? <Link href="/manage" className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-ink/65 hover:text-ink">すべて見る →</Link> : null}

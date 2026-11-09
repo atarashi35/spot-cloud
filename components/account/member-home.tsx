@@ -1,5 +1,7 @@
 "use client";
 
+import { OptimizedImage } from "@/components/ui/optimized-image";
+
 import Link from "next/link";
 import { ArrowUpRight, Building2, CreditCard, Image as ImageIcon, Search } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -96,7 +98,7 @@ export function MemberHome({ user }: { user: User }) {
       <section className="mt-7" aria-label="サポート中のSPOT">
         <div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-bold text-ink/70">サポート中</h2><Link href="/spots" aria-label="SPOTを探す" className="flex h-10 w-10 items-center justify-center rounded-full text-ink/60 hover:bg-white hover:text-ink"><Search className="h-5 w-5" /></Link></div>
         <ul className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">{spots.map((spot) => <li key={spot.id} className="w-20 shrink-0"><Link href={`/spots/${spot.id}`} className="group flex flex-col items-center gap-2 text-center">
-          <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-ink/10">{spot.coverImageUrl ? <img src={spot.coverImageUrl} alt="" className="h-full w-full object-cover" /> : <span className="text-lg font-bold text-ink/50">{spot.name.slice(0, 1)}</span>}</span>
+          <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-ink/10">{spot.coverImageUrl ? <OptimizedImage src={spot.coverImageUrl} sizes="64px" width={128} height={128} className="h-full w-full object-cover" /> : <span className="text-lg font-bold text-ink/50">{spot.name.slice(0, 1)}</span>}</span>
           <span className="line-clamp-2 w-full text-xs font-semibold leading-4 group-hover:text-moss">{spot.name}</span>
         </Link></li>)}</ul>
       </section>
@@ -111,11 +113,11 @@ export function MemberHome({ user }: { user: User }) {
           const image = post.attachments?.find((attachment) => attachment.type === "image")?.url || post.imageUrl;
           return <article key={`${post.spotId}-${post.id}`} className="overflow-hidden rounded-2xl bg-white">
             <Link href={`/spots/${post.spotId}`} className="flex items-center gap-3 px-4 py-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-mist">{post.spotImage ? <img src={post.spotImage} alt="" className="h-full w-full object-cover" /> : <span className="text-sm font-bold text-ink/50">{post.spotName.slice(0, 1)}</span>}</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-mist">{post.spotImage ? <OptimizedImage src={post.spotImage} sizes="40px" width={80} height={80} className="h-full w-full object-cover" /> : <span className="text-sm font-bold text-ink/50">{post.spotName.slice(0, 1)}</span>}</span>
               <span className="min-w-0"><span className="block truncate text-sm font-bold">{post.spotName}</span><span className="block text-xs text-ink/55">{post.publishDate ? post.publishDate.slice(0, 10).replace(/-/g, "/") : ""}</span></span>
             </Link>
             <Link href={`/spots/${post.spotId}/posts/${post.id}`} className="block">
-              {image ? <img src={image} alt="" className="max-h-[520px] w-full bg-mist object-cover" loading="lazy" /> : null}
+              {image ? <OptimizedImage src={image} sizes="(max-width: 640px) 100vw, 640px" className="max-h-[520px] w-full bg-mist object-cover" /> : null}
               <div className="px-4 pb-5 pt-3"><h3 className="font-bold text-ink">{post.title}</h3>{post.body ? <p className="mt-1 line-clamp-3 whitespace-pre-line text-sm leading-6 text-ink/65">{post.body}</p> : null}<span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-ink/60">続きを読む <ArrowUpRight className="h-3.5 w-3.5" /></span></div>
             </Link>
           </article>;

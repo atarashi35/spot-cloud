@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { getFirebaseStorage } from "@/lib/firebase/client";
 import { isSvgFile } from "@/lib/utils";
+import { compressImage, imageExtension } from "@/lib/storage/compress-image";
 
 type ImageUploaderProps = {
   /** 現在の画像URL（既存画像の表示用） */
@@ -15,41 +16,6 @@ type ImageUploaderProps = {
   /** ファイルサイズ上限（MB、圧縮前）。デフォルト30MB（最新iPhoneの高解像度写真にも対応） */
   maxMb?: number;
 };
-
-/**
- * アップロード前に Canvas API でリサイズ・JPEG 圧縮する。
- * 長辺を maxPx に収め、quality で画質を調整。
- * これにより 5MB のスマホ写真が ~150KB 程度になる。
- */
-async function compressImage(file: File, maxPx = 1200, quality = 0.78): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-
-      const { naturalWidth: w, naturalHeight: h } = img;
-      const scale = Math.min(1, maxPx / Math.max(w, h));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(w * scale);
-      canvas.height = Math.round(h * scale);
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) { reject(new Error("canvas unavailable")); return; }
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(
-        (blob) => blob ? resolve(blob) : reject(new Error("compression failed")),
-        "image/webp",
-        quality
-      );
-    };
-
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("image load failed")); };
-    img.src = url;
-  });
-}
 
 export function ImageUploader({
   value,
@@ -84,13 +50,12 @@ export function ImageUploader({
 
     try {
       const storage = getFirebaseStorage();
-      // アップロード前に圧縮（長辺1600px・JPEG 82%品質）
-      // スマホ写真 ~5MB → ~150KB 程度に削減
-      const compressed = await compressImage(file);
-      const filename = `${Date.now()}.webp`;
+      // アップロード前に長辺1200pxにリサイズする。
+      const compressed = await compressImage(file, 1200, 0.78);
+      const filename = `${Date.now()}.${imageExtension(compressed)}`;
       const storageRef = ref(storage, `${storagePath}/${filename}`);
 
-      const task = uploadBytesResumable(storageRef, compressed);
+      const task = uploadBytesResumable(storageRef, compressed, { contentType: compressed.type });
       task.on("state_changed", (snap) => {
         setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100));
       });

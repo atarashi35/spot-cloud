@@ -1,5 +1,7 @@
 "use client";
 
+import { OptimizedImage } from "@/components/ui/optimized-image";
+
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -23,6 +25,6 @@ export function VisitorHome() {
       </div>
       <LogoAnimation className="pointer-events-none absolute right-0 top-0 h-40 w-40 opacity-60 sm:right-8 sm:top-1/2 sm:h-72 sm:w-72 sm:-translate-y-1/2 sm:opacity-80" />
     </section>
-    {spots.length ? <section className="mt-12"><div className="flex items-center justify-between gap-4"><h2 className="text-xl font-bold text-ink">SPOTを見つける</h2><Link href="/spots" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-ink/65 hover:text-ink">すべて見る <ArrowRight className="h-4 w-4" /></Link></div><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5">{spots.map((spot) => <Link key={spot.id} href={`/spots/${spot.id}`} className="group min-w-0"><div className="aspect-[4/3] overflow-hidden rounded-2xl bg-mist"><img src={spot.coverImageUrl} alt="" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" /></div><p className="mt-2 truncate text-sm font-bold group-hover:text-moss">{spot.name}</p><p className="mt-1 text-xs text-ink/60">{spot.kind === "creator" ? "クリエイター" : "団体"}</p></Link>)}</div></section> : <Link href="/spots" className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-ink/65">SPOTを探す <ArrowRight className="h-4 w-4" /></Link>}
+    {spots.length ? <section className="mt-12"><div className="flex items-center justify-between gap-4"><h2 className="text-xl font-bold text-ink">SPOTを見つける</h2><Link href="/spots" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-ink/65 hover:text-ink">すべて見る <ArrowRight className="h-4 w-4" /></Link></div><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5">{spots.map((spot) => <Link key={spot.id} href={`/spots/${spot.id}`} className="group min-w-0"><div className="aspect-[4/3] overflow-hidden rounded-2xl bg-mist"><OptimizedImage src={spot.coverImageUrl!} sizes="(max-width: 640px) 50vw, 320px" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" /></div><p className="mt-2 truncate text-sm font-bold group-hover:text-moss">{spot.name}</p><p className="mt-1 text-xs text-ink/60">{spot.kind === "creator" ? "クリエイター" : "団体"}</p></Link>)}</div></section> : <Link href="/spots" className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-ink/65">SPOTを探す <ArrowRight className="h-4 w-4" /></Link>}
   </div>;
 }

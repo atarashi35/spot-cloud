@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { getFirebaseStorage } from "@/lib/firebase/client";
 import { isSvgFile } from "@/lib/utils";
+import { compressImage, imageExtension } from "@/lib/storage/compress-image";
 
 export const GALLERY_MAX = 10;
 // 圧縮前のサイズ上限（MB）。最新iPhoneの高解像度写真にも対応できるよう余裕を持たせる。
@@ -16,31 +17,6 @@ type GalleryUploaderProps = {
   storagePath: string;
   max?: number;
 };
-
-async function compressImage(file: File, maxPx = 1200, quality = 0.78): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const { naturalWidth: w, naturalHeight: h } = img;
-      const scale = Math.min(1, maxPx / Math.max(w, h));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(w * scale);
-      canvas.height = Math.round(h * scale);
-      const ctx = canvas.getContext("2d");
-      if (!ctx) { reject(new Error("canvas unavailable")); return; }
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(
-        (blob) => blob ? resolve(blob) : reject(new Error("compression failed")),
-        "image/webp",
-        quality
-      );
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("image load failed")); };
-    img.src = url;
-  });
-}
 
 export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_MAX }: GalleryUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,10 +32,10 @@ export function GalleryUploader({ values, onChange, storagePath, max = GALLERY_M
     if (isSvgFile(file)) return null;
     if (file.size > MAX_FILE_MB * 1024 * 1024) return null;
     try {
-      const compressed = await compressImage(file);
-      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+      const compressed = await compressImage(file, 1200, 0.78);
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${imageExtension(compressed)}`;
       const storageRef = ref(getFirebaseStorage(), `${storagePath}/${filename}`);
-      const task = uploadBytesResumable(storageRef, compressed);
+      const task = uploadBytesResumable(storageRef, compressed, { contentType: compressed.type });
       await new Promise<void>((resolve, reject) => {
         task.on("state_changed", null, reject, resolve);
       });
