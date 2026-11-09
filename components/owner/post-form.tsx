@@ -106,14 +106,12 @@ export function PostForm(props: PostFormProps) {
           throw new Error(data.error ?? "投稿の保存に失敗しました。");
         }
         const { postId } = (await res.json()) as { postId: string };
-        // サポーターへ通知（fire-and-forget）
-        void user.getIdToken().then(async (tok) => {
-          await fetch("/api/notify", {
+        // 投稿の保存後に通知する。通知失敗時も保存は取り消さない。
+        await fetch("/api/notify", {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${tok}` },
-            body: JSON.stringify({ spotId: props.spotId, type: "new_post", title, body: body.slice(0, 80), resourceId: postId, isPublic })
-          });
-        });
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ spotId: props.spotId, type: "new_post", resourceId: postId })
+          }).catch(() => {});
       } else {
         await updateSpotPostInFirestore(props.spotId, props.postId, {
           title, body, attachments: mergedAttachments, publishDate, isPublic,

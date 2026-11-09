@@ -393,7 +393,7 @@ export interface User {
   joinedSpotIds?: string[];
 }
 
-export type NotificationType = "new_post" | "new_event" | "new_member";
+export type NotificationType = "new_post" | "new_event" | "new_member" | "new_poll" | "new_opportunity" | "new_application";
 
 // ─── みんなの声 ────────────────────────────────────────────────────────
 

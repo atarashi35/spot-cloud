@@ -107,14 +107,9 @@ export function LoginModal({ open, onClose, onSuccess, returnTo }: LoginModalPro
   }
 
   return (
-    <ModalShell open={open} onClose={onClose} title="ログイン" size="sm">
+    <ModalShell open={open} onClose={onClose} title="ログイン・会員登録" size="sm">
       {step === "login" ? (
         <div className="space-y-5 pb-2">
-          <div>
-            <h2 className="text-2xl font-extrabold text-ink">ログイン / 新規登録</h2>
-            <p className="mt-2 text-sm text-ink/70">アカウントをお持ちでない方も、そのまま新規登録できます。</p>
-          </div>
-
           {appleLoginEnabled ? (
             <button
               type="button"

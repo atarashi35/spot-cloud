@@ -24,6 +24,8 @@ export function PollCreate({ spotId, onClose }: { spotId: string; onClose: () =>
       const token = await user.getIdToken();
       const response = await fetch(`/api/spots/${encodeURIComponent(spotId)}/polls`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ title, body, options, scope, multiple, deadline: deadline ? new Date(deadline).toISOString() : null }) });
       if (!response.ok) throw new Error();
+      const { id } = await response.json() as { id: string };
+      await fetch("/api/notify", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ spotId, type: "new_poll", resourceId: id }) }).catch(() => {});
       onClose();
     } catch { setError("作成できませんでした。入力内容を確認してください。"); } finally { setSaving(false); }
   }

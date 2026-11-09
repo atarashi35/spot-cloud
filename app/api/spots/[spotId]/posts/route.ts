@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
-import { sendSociosNewPost } from "@/lib/server/mailer";
 import type { PostAttachment } from "@/lib/types";
 
 type Body = {
@@ -60,16 +59,6 @@ export async function POST(
     });
 
     console.log(`[posts API] written: postId=${ref.id}`);
-
-    // サポーターへのメール通知（公開投稿のみ・失敗しても応答は返す）
-    if (payload.isPublic) {
-      void sendSociosNewPost({
-        spotId,
-        spotName: String(spotSnap.data()?.name ?? ""),
-        postTitle: payload.title.trim(),
-        postBody: payload.body ?? "",
-      }).catch((e) => console.error("[posts API] mail error:", e));
-    }
 
     return NextResponse.json({ ok: true, postId: ref.id });
   } catch (error) {

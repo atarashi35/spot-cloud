@@ -7,6 +7,7 @@ import { Pencil, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { MfaEnrollmentModal } from "@/components/auth/mfa-enrollment-modal";
 import { SupportSection } from "@/components/settings/support-section";
+import { NotificationSettings } from "@/components/settings/notification-settings";
 import { MetricPill } from "@/components/ui/metric-pill";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { listUserMemberships } from "@/lib/firestore/memberships";
@@ -510,19 +511,7 @@ export function SettingsPageClient() {
         onEnrolled={() => setMfaEnrolled(true)}
       />
 
-      {/* 通知 */}
-      <section className="panel px-6 py-8 sm:px-8">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <span className="chip">NOTIFY</span>
-            <h2 className="mt-4 text-2xl font-extrabold text-ink">通知</h2>
-          </div>
-          <StatusBadge>準備中</StatusBadge>
-        </div>
-        <p className="mt-4 text-sm text-ink/72">
-          投稿やイベント更新の通知設定はここに集約します。
-        </p>
-      </section>
+      <NotificationSettings />
 
       <section className="panel px-6 py-8 sm:px-8">
         <span className="chip">MEMBERSHIP</span>

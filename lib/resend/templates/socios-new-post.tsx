@@ -10,20 +10,21 @@ type Props = {
   postTitle: string;
   postBody: string;
   displayName: string;
+  destination?: string;
 };
 
-export function SociosNewPostEmail({ spotName, spotId, postTitle, postBody, displayName }: Props) {
+export function SociosNewPostEmail({ spotName, spotId, postTitle, postBody, displayName, destination }: Props) {
   return (
     <EmailLayout preview={`${spotName}から新しいお知らせが届きました`}>
       <Heading style={h1}>{spotName}からのお知らせ</Heading>
       <Text style={text}>
-        {displayName ? `${displayName}さん、` : ""}サポーターとして参加されている <strong>{spotName}</strong> から新しいお知らせが届きました。
+        {displayName ? `${displayName}さん、` : ""}<strong>{spotName}</strong> に関するお知らせです。
       </Text>
       <div style={card}>
         <Text style={postTitleStyle}>{postTitle}</Text>
         <Text style={postBodyStyle}>{postBody.length > 200 ? `${postBody.slice(0, 200)}…` : postBody}</Text>
       </div>
-      <Button href={`${baseUrl}/spots/${spotId}`} style={button}>
+      <Button href={destination ? `${baseUrl}${destination}` : `${baseUrl}/spots/${spotId}`} style={button}>
         SPOTを見る
       </Button>
     </EmailLayout>

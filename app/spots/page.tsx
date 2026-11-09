@@ -2,7 +2,7 @@ import { SpotListPage } from "@/components/spots/spot-list-page";
 
 export const metadata = {
   title: "SPOTを探す | SPOT",
-  description: "サポーターになれる店・場所の一覧。本屋・ミニシアター・ライブハウスなど、街の文化拠点を1口100円から支えられます。",
+  description: "クリエイターや団体を見つけて、無料または月額で活動をサポートできます。",
 };
 
 export default function SpotsPage() {

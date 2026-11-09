@@ -146,15 +146,13 @@ export function EventForm(props: EventFormProps) {
       };
 
       if (props.mode === "create") {
-        await createSpotEventInFirestore(props.spotId, user.uid, payload);
-        // サポーターへ通知（fire-and-forget）
-        void user.getIdToken().then((token) =>
-          fetch("/api/notify", {
+        const eventId = await createSpotEventInFirestore(props.spotId, user.uid, payload);
+        const token = await user.getIdToken();
+        await fetch("/api/notify", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ spotId: props.spotId, type: "new_event", title, body: description.slice(0, 80), isPublic })
-          })
-        );
+            body: JSON.stringify({ spotId: props.spotId, type: "new_event", resourceId: eventId })
+          }).catch(() => {});
       } else {
         await updateSpotEventInFirestore(props.spotId, props.eventId, payload);
       }

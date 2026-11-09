@@ -30,7 +30,25 @@ async function send(to: string | string[], subject: string, element: React.React
     return;
   }
   const html = await render(element);
-  await resend.emails.send({ from: FROM_ADDRESS, to, subject, html });
+  const result = await resend.emails.send({ from: FROM_ADDRESS, to, subject, html });
+  if (result.error) throw new Error(`Email delivery failed: ${result.error.message}`);
+}
+
+export async function sendActivityEmail(params: { to: string; displayName: string; spotId: string; spotName: string; title: string; body: string; destination?: string }) {
+  await send(params.to, `【${params.spotName}】${params.title}`, SociosNewPostEmail({ spotId: params.spotId, spotName: params.spotName, postTitle: params.title, postBody: params.body, displayName: params.displayName, destination: params.destination }) as unknown as React.ReactElement);
+}
+
+export async function sendActivityEmails(recipients: { to: string; displayName: string }[], params: { spotId: string; spotName: string; title: string; body: string; destination?: string }) {
+  if (!recipients.length) return;
+  if (!resend) throw new Error("Email service is not configured");
+  const messages = await Promise.all(recipients.map(async (recipient) => ({
+    from: FROM_ADDRESS,
+    to: recipient.to,
+    subject: `【${params.spotName}】${params.title}`,
+    html: await render(SociosNewPostEmail({ spotId: params.spotId, spotName: params.spotName, postTitle: params.title, postBody: params.body, displayName: recipient.displayName, destination: params.destination }) as unknown as React.ReactElement),
+  })));
+  const result = await resend.batch.send(messages);
+  if (result.error) throw new Error(`Email delivery failed: ${result.error.message}`);
 }
 
 // SPOTのアクティブサポーターのメールアドレスを取得
